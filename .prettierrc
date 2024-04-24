@@ -1,0 +1,15 @@
+{
+  "plugins": ["@pandabox/prettier-plugin"],
+  "useTabs": false,
+  "tabWidth": 2,
+  "singleQuote": true,
+  "trailingComma": "none",
+  "printWidth": 100,
+  "pandaFirstProps": ["as", "className", "layerStyle", "textStyle"],
+  "pandaLastProps": [],
+  "pandaOnlyComponents": false,
+  "pandaOnlyIncluded": false,
+  "pandaStylePropsFirst": false,
+  "pandaSortOtherProps": false,
+  "pandaFunctions": []
+}
