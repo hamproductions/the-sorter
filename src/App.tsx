@@ -6,17 +6,20 @@ import { useData } from './hooks/useData';
 import { Switch } from './components/ui/switch';
 import { useState } from 'react';
 import { RankingTable } from './components/sorter/RankingTable';
-import { CharacterFilters } from './components/sorter/CharacterFilters';
+import { CharacterFilters, FilterType } from './components/sorter/CharacterFilters';
 
 function App() {
   const characters = useData();
   const [seiyuu, setSeiyuu] = useState(false);
+  const [filters, setFilters] = useState<FilterType>({ series: {}, units: {}, school: {} });
   const { init, left, right, state, count, tie, undo } = useSorter(characters);
 
   const getName = (character?: (typeof characters)[0]) => {
     if (!character) return '';
     return seiyuu ? character.seiyuu : character.fullName;
   };
+
+  console.log(filters);
 
   return (
     <Container>
@@ -27,7 +30,7 @@ function App() {
         <Switch checked={seiyuu} onCheckedChange={(e) => setSeiyuu(e.checked)}>
           Do you like seiyuu ?
         </Switch>
-        <CharacterFilters />
+        <CharacterFilters filters={filters} setFilters={setFilters} />
         <Button onClick={() => init()}>Start/ Reset</Button>
         {state && (
           <Stack alignItems="center">
