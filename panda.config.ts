@@ -9,7 +9,7 @@ export default defineConfig({
   presets: [
     '@pandacss/preset-base',
     createPreset({
-      accentColor: 'cyan',
+      accentColor: 'pink',
       grayColor: 'neutral',
       borderRadius: 'lg'
     })

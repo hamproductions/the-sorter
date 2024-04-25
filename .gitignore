@@ -24,3 +24,7 @@ dist-ssr
 *.sw?
 
 styled-system
+
+./scripts
+
+out.json

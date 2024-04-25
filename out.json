@@ -1,0 +1,128 @@
+[
+  {
+    "pageProps": {
+      "member": {
+        "__typename": "Member",
+        "id": "1",
+        "series": { "__typename": "Series", "id": "1", "name": "ラブライブ！", "color": "#f200b5" },
+        "character": {
+          "__typename": "Character",
+          "id": "1",
+          "fullName": "高坂穂乃果",
+          "characterCasts": [
+            {
+              "__typename": "CharacterCast",
+              "id": "1",
+              "title": "CV",
+              "note": null,
+              "cast": { "__typename": "Cast", "id": "1", "fullName": "新田恵海" }
+            }
+          ],
+          "artistConfigurations": [
+            {
+              "__typename": "ArtistConfiguration",
+              "id": "1",
+              "name": null,
+              "artist": {
+                "__typename": "Artist",
+                "id": "1",
+                "name": "μ's",
+                "supportingCastsNote": null
+              }
+            },
+            {
+              "__typename": "ArtistConfiguration",
+              "id": "2",
+              "name": null,
+              "artist": {
+                "__typename": "Artist",
+                "id": "2",
+                "name": "Printemps",
+                "supportingCastsNote": null
+              }
+            },
+            {
+              "__typename": "ArtistConfiguration",
+              "id": "6",
+              "name": null,
+              "artist": {
+                "__typename": "Artist",
+                "id": "6",
+                "name": "高坂穂乃果",
+                "supportingCastsNote": null
+              }
+            },
+            {
+              "__typename": "ArtistConfiguration",
+              "id": "15",
+              "name": null,
+              "artist": {
+                "__typename": "Artist",
+                "id": "15",
+                "name": "高坂穂乃果、星空 凛",
+                "supportingCastsNote": null
+              }
+            },
+            {
+              "__typename": "ArtistConfiguration",
+              "id": "19",
+              "name": null,
+              "artist": {
+                "__typename": "Artist",
+                "id": "19",
+                "name": "高坂穂乃果、南ことり、園田海未",
+                "supportingCastsNote": null
+              }
+            },
+            {
+              "__typename": "ArtistConfiguration",
+              "id": "23",
+              "name": null,
+              "artist": {
+                "__typename": "Artist",
+                "id": "23",
+                "name": "高坂穂乃果、南ことり、園田海未、星空 凛、西木野真姫、小泉花陽、矢澤にこ",
+                "supportingCastsNote": null
+              }
+            }
+          ]
+        },
+        "school": { "__typename": "School", "id": "1", "name": "音ノ木坂学院" },
+        "birthMonth": 8,
+        "birthDay": 3,
+        "zodiacSign": "獅子座",
+        "bloodType": "O",
+        "colorName": "オレンジ",
+        "colorCode": "#ffa400",
+        "height": 157,
+        "measurements": [78, 58, 82],
+        "note": null,
+        "memberProfiles": [
+          {
+            "__typename": "MemberProfile",
+            "id": "1",
+            "memberProfileItem": {
+              "__typename": "MemberProfileItem",
+              "id": "1",
+              "name": "好きな食べ物"
+            },
+            "content": "いちご"
+          },
+          {
+            "__typename": "MemberProfile",
+            "id": "2",
+            "memberProfileItem": {
+              "__typename": "MemberProfileItem",
+              "id": "2",
+              "name": "嫌いな食べ物"
+            },
+            "content": "ピーマン"
+          }
+        ]
+      },
+      "_sentryTraceData": "e0edfac1be154122bff4a7ce94fb26c4-8ebbb77a84763655-0",
+      "_sentryBaggage": "sentry-environment=production,sentry-release=JR1AXx5vf_WPEMFwL3GZW,sentry-public_key=b93f317c5d084ffb8a0bfdb8dc7a3693,sentry-trace_id=e0edfac1be154122bff4a7ce94fb26c4,sentry-sample_rate=0.02,sentry-transaction=%2Fdata%2Fmember%2F%5Bid%5D,sentry-sampled=false"
+    },
+    "__N_SSP": true
+  }
+]
