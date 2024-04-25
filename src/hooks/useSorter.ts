@@ -29,6 +29,13 @@ export const useSorter = <T>(items: T[]) => {
     setCount((c) => c - 1);
   };
 
+  const getProgress = () => {
+    const prevStep = ((state?.currentSize ?? 0) - 1) ** 1 / 2 / Math.ceil(items.length ** 1 / 2);
+    const current = (state?.currentSize ?? 0) ** 1 / 2 / Math.ceil(items.length ** 1 / 2);
+
+    return prevStep + (current - prevStep) * ((state?.leftStart ?? 0) / items.length);
+  };
+  const progress = getProgress();
   return {
     state,
     count,
@@ -36,6 +43,7 @@ export const useSorter = <T>(items: T[]) => {
     left: handleStep('left'),
     right: handleStep('right'),
     tie: handleStep('tie'),
-    undo: () => handleUndo()
+    undo: () => handleUndo(),
+    progress
   };
 };

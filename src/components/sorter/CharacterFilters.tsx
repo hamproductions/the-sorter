@@ -1,10 +1,10 @@
-import { Stack, Wrap, HStack } from 'styled-system/jsx';
-import { useData } from '~/hooks/useData';
 import uniqBy from 'lodash/uniqBy';
-import { Text } from '../ui/text';
-import { Checkbox } from '../ui/checkbox';
 import { useEffect, useMemo } from 'react';
+import { HStack, Stack, Wrap } from 'styled-system/jsx';
+import { useData } from '~/hooks/useData';
 import { Button } from '../ui/button';
+import { Checkbox } from '../ui/checkbox';
+import { Text } from '../ui/text';
 
 export interface FilterType {
   series: Record<string, boolean | undefined>;
@@ -38,6 +38,25 @@ export const CharacterFilters = ({
         [key]: Object.fromEntries(
           Object.entries(f[key]).map(([k]) => [k, !isAllSelected])
         ) as Record<string, boolean>
+      };
+    });
+  };
+
+  const deselectAll = () => {
+    setFilters((f) => {
+      return {
+        series: Object.fromEntries(Object.entries(f.series).map(([k]) => [k, false])) as Record<
+          string,
+          boolean
+        >,
+        units: Object.fromEntries(Object.entries(f.units).map(([k]) => [k, false])) as Record<
+          string,
+          boolean
+        >,
+        school: Object.fromEntries(Object.entries(f.school).map(([k]) => [k, false])) as Record<
+          string,
+          boolean
+        >
       };
     });
   };
@@ -110,6 +129,9 @@ export const CharacterFilters = ({
           })}
         </Wrap>
       </Stack>
+      <HStack justifyContent="center">
+        <Button onClick={deselectAll}>Deselect All</Button>
+      </HStack>
     </Stack>
   );
 };

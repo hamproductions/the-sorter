@@ -182,7 +182,7 @@ export const step = <I>(option: 'left' | 'right' | 'tie', state: SortState<I>): 
     arrIdx !== undefined
   ) {
     // console.log(option.toUpperCase());
-    if (option === 'right' || option === 'tie') {
+    if (option === 'left' || option === 'tie') {
       arr[arrIdx] = leftArr[leftArrIdx];
       leftArrIdx++;
     } else {
