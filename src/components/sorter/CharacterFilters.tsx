@@ -17,8 +17,8 @@ export const CharacterFilters = ({
   filters,
   setFilters
 }: {
-  filters: FilterType | null;
-  setFilters: Dispatch<SetStateAction<FilterType | null>>;
+  filters: FilterType | null | undefined;
+  setFilters: Dispatch<SetStateAction<FilterType | null | undefined>>;
 }) => {
   const data = useData();
   const series = useMemo(() => Array.from(new Set(data.map((d) => d.series))), []);
@@ -60,19 +60,24 @@ export const CharacterFilters = ({
   };
 
   useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const urlSeries = params.getAll('series');
+    const urlSchool = params.getAll('school');
+    const urlUnits = params.getAll('units');
+
+    // const newUrl = `${location.protocol}//${location.host}`;
+    // window.history.pushState({ path: newUrl }, '', newUrl);
+
     setFilters({
-      series: Object.fromEntries(series.map((s) => [s, filters?.series[s] ?? false])) as Record<
-        string,
-        boolean
-      >,
-      school: Object.fromEntries(school.map((s) => [s, filters?.school[s] ?? false])) as Record<
-        string,
-        boolean
-      >,
-      units: Object.fromEntries(units.map((s) => [s.id, filters?.units[s.id] ?? false])) as Record<
-        string,
-        boolean
-      >
+      series: Object.fromEntries(
+        series.map((s) => [s, urlSeries.includes(s) || (filters?.series[s] ?? false)])
+      ) as Record<string, boolean>,
+      school: Object.fromEntries(
+        school.map((s) => [s, urlSchool.includes(s) || (filters?.school[s] ?? false)])
+      ) as Record<string, boolean>,
+      units: Object.fromEntries(
+        units.map((s) => [s.id, urlUnits.includes(s.id) || (filters?.units[s.id] ?? false)])
+      ) as Record<string, boolean>
     });
   }, []);
 

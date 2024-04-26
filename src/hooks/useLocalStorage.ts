@@ -1,9 +1,10 @@
 import { type Dispatch, type SetStateAction, useEffect, useRef, useState } from 'react';
 
+type NullOrUndefinedAble<T> = T | null | undefined;
 export class LocalStorage<T = unknown> {
   constructor(public key: string) {}
 
-  get value(): T | null {
+  get value(): NullOrUndefinedAble<T> {
     try {
       const val = localStorage.getItem(this.key);
       return val !== null ? JSON.parse(val) : null;
@@ -12,7 +13,7 @@ export class LocalStorage<T = unknown> {
     }
   }
 
-  set value(value: T | null) {
+  set value(value: NullOrUndefinedAble<T>) {
     if (value !== null) {
       const val: string = JSON.stringify(value);
       localStorage.setItem(this.key, val);
@@ -28,12 +29,14 @@ export class LocalStorage<T = unknown> {
 
 export const useLocalStorage = function <T>(
   key: string,
-  initial: T | null = null
-): [T | null, Dispatch<SetStateAction<T | null>>] {
+  initial: NullOrUndefinedAble<T> = undefined
+): [NullOrUndefinedAble<T>, Dispatch<SetStateAction<NullOrUndefinedAble<T>>>] {
   const storage = useRef(new LocalStorage<T>(key));
-  const [data, setData] = useState<T | null>(initial);
+  const [data, setData] = useState<NullOrUndefinedAble<T>>(undefined);
 
-  const setNewData: Dispatch<SetStateAction<T | null>> = (s: SetStateAction<T | null>) => {
+  const setNewData: Dispatch<SetStateAction<NullOrUndefinedAble<T>>> = (
+    s: SetStateAction<NullOrUndefinedAble<T>>
+  ) => {
     const newData = typeof s === 'function' ? (s as any).call(s, data) : s;
     storage.current.value = newData;
     setData(newData);
@@ -46,7 +49,7 @@ export const useLocalStorage = function <T>(
   };
 
   useEffect(() => {
-    setNewData(storage.current.value ?? initial);
+    setNewData(storage.current.value ?? initial ?? null);
   }, []);
 
   useEffect(() => {

@@ -11,6 +11,7 @@ import { Heading } from './components/ui/heading';
 import { Kbd } from './components/ui/kbd';
 import { useData } from './hooks/useData';
 import { Character } from './types';
+import { useEffect } from 'react';
 
 function App() {
   const data = useData();
@@ -47,6 +48,34 @@ function App() {
       (l) => l.id === state.mergeState?.rightArr?.[state.mergeState?.rightArrIdx as number]
     );
 
+  const shareUrl = () => {
+    const params = new URLSearchParams();
+    for (let key of ['series', 'units', 'school'] as const) {
+      const list = Object.entries(filters?.[key] ?? {})
+        .filter((s) => s[1])
+        .map((s) => s[0]);
+      if (list.length > 0) {
+        list.forEach((item) => params.append(key, item));
+      }
+    }
+    if (seiyuu) {
+      params.append('seiyuu', seiyuu.toString());
+    }
+    const url = `${location.origin}/?${params.toString()}`;
+    try {
+      navigator.clipboard.writeText(url);
+    } catch (e) {
+      console.log('oopsie');
+    }
+  };
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const urlSeiyuu = params.get('seiyuu');
+
+    setSeiyuu(urlSeiyuu === 'true');
+  }, []);
+
   return (
     <Stack w="full" minH="100vh">
       <Container flex={1} py={4} px={4}>
@@ -61,7 +90,12 @@ function App() {
           <Text fontSize="sm" fontWeight="bold">
             {listCount} to be sorted
           </Text>
-          <Button onClick={() => init()}>Start/ Reset</Button>
+          <HStack>
+            <Button onClick={shareUrl} variant="outline">
+              Share Current Preset
+            </Button>
+            <Button onClick={() => init()}>Start/ Reset</Button>
+          </HStack>
           {state && (
             <Stack alignItems="center" w="full">
               {state.status !== 'end' && (

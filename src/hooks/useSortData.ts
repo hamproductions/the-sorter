@@ -42,10 +42,11 @@ export const useSortData = () => {
   );
 
   useEffect(() => {
-    if (history !== null && history?.length === 0) {
+    if (history !== undefined && (history === null || history?.length === 0)) {
       reset();
     }
   }, [listToSort]);
+  console.log(history);
 
   useEffect(() => {
     const handleKeystroke = (e: KeyboardEvent) => {
