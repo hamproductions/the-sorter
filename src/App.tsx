@@ -26,7 +26,7 @@ function App() {
   } = useSortData();
 
   return (
-    <Container>
+    <Container py={4} px={4}>
       <Stack alignItems="center" w="full">
         <Text fontSize="3xl" fontWeight="bold">
           Yet another LL! sorter
@@ -40,7 +40,7 @@ function App() {
         </Text>
         <Button onClick={() => init()}>Start/ Reset</Button>
         {state && (
-          <Stack alignItems="center">
+          <Stack alignItems="center" w="full">
             <Text>Comparasion No. {count}</Text>
             <Progress value={progress} min={0} max={1} defaultValue={0} />
             {state.mergeState &&

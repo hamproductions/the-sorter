@@ -18,13 +18,13 @@ export const RankingTable = ({
           <Table.Header>No.</Table.Header>
           {isSeiyuu ? (
             <>
-              <Table.Header>キャラクター</Table.Header>
               <Table.Header>声優</Table.Header>
+              <Table.Header>キャラクター</Table.Header>
             </>
           ) : (
             <>
-              <Table.Header>声優</Table.Header>
               <Table.Header>キャラクター</Table.Header>
+              <Table.Header>声優</Table.Header>
             </>
           )}
           <Table.Header>シリーズ</Table.Header>
