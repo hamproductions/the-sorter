@@ -12,10 +12,10 @@ export const CharacterCard = ({
 
   return (
     <Stack
-      flex="1"
       gap={1}
       alignItems="center"
       rounded="l1"
+      w="full"
       p={2}
       backgroundColor={{ base: 'bg.default', _hover: 'bg.muted' }}
       shadow="md"

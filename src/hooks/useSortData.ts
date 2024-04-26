@@ -41,11 +41,40 @@ export const useSortData = () => {
     useSorter(listToSort);
 
   useEffect(() => {
-    if (history.length === 0) {
+    if (history !== null && history?.length === 0) {
       reset();
     }
   }, [listToSort]);
 
+  useEffect(() => {
+    const handleKeystroke = (e: KeyboardEvent) => {
+      if (state?.status !== 'end') {
+        switch (e.key) {
+          case 'ArrowLeft':
+            left();
+            e.preventDefault();
+            break;
+          case 'ArrowRight':
+            right();
+            e.preventDefault();
+            break;
+          case 'ArrowDown':
+            tie();
+            e.preventDefault();
+            break;
+          case 'ArrowUp':
+            undo();
+            e.preventDefault();
+            break;
+        }
+      }
+    };
+    document.addEventListener('keydown', handleKeystroke);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeystroke);
+    };
+  }, [left, right, tie, undo]);
   return {
     seiyuu: seiyuu ?? false,
     setSeiyuu,

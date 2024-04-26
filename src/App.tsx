@@ -1,4 +1,4 @@
-import { Container, HStack, Stack } from 'styled-system/jsx';
+import { Box, Container, Divider, HStack, Stack } from 'styled-system/jsx';
 import { CharacterCard } from './components/sorter/CharacterCard';
 import { CharacterFilters } from './components/sorter/CharacterFilters';
 import { RankingTable } from './components/sorter/RankingTable';
@@ -7,6 +7,8 @@ import { Progress } from './components/ui/progress';
 import { Switch } from './components/ui/switch';
 import { Text } from './components/ui/text';
 import { useSortData } from './hooks/useSortData';
+import { Heading } from './components/ui/heading';
+import { Kbd } from './components/ui/kbd';
 
 function App() {
   const {
@@ -42,7 +44,7 @@ function App() {
         {state && (
           <Stack alignItems="center" w="full">
             {state.status !== 'end' && (
-              <Stack w="full" h="100vh" p="4" scrollSnapAlign="center">
+              <Stack w="full" h="100vh" p="4">
                 <Stack flex="1" alignItems="center" w="full">
                   {state.mergeState &&
                     state.mergeState.leftArrIdx !== undefined &&
@@ -52,16 +54,26 @@ function App() {
                         alignItems="stretch"
                         width="full"
                       >
-                        <CharacterCard
-                          onClick={() => left()}
-                          character={state.mergeState.leftArr?.[state.mergeState?.leftArrIdx]}
-                          isSeiyuu={seiyuu}
-                        />
-                        <CharacterCard
-                          onClick={() => right()}
-                          character={state.mergeState.rightArr?.[state.mergeState?.rightArrIdx]}
-                          isSeiyuu={seiyuu}
-                        />
+                        <Stack flex="1" alignItems="center">
+                          <CharacterCard
+                            onClick={() => left()}
+                            character={state.mergeState.leftArr?.[state.mergeState?.leftArrIdx]}
+                            isSeiyuu={seiyuu}
+                          />
+                          <Box>
+                            <Kbd>←</Kbd>
+                          </Box>
+                        </Stack>
+                        <Stack flex="1" alignItems="center">
+                          <CharacterCard
+                            onClick={() => right()}
+                            character={state.mergeState.rightArr?.[state.mergeState?.rightArrIdx]}
+                            isSeiyuu={seiyuu}
+                          />
+                          <Box>
+                            <Kbd>→</Kbd>
+                          </Box>
+                        </Stack>
                       </HStack>
                     )}
                   <HStack justifyContent="center">
@@ -74,6 +86,12 @@ function App() {
                 <Text>Comparasion No. {count}</Text>
                 <Progress value={progress} min={0} max={1} defaultValue={0} />
               </Stack>
+            )}
+            <Divider />
+            {state.status !== 'end' && (
+              <Heading fontSize="2xl" fontWeight="bold">
+                Tentative Ranking
+              </Heading>
             )}
             <RankingTable characters={state.arr} isSeiyuu={seiyuu} />
           </Stack>

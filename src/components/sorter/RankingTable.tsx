@@ -50,7 +50,7 @@ export const RankingTable = ({
                   )}
                   <Stack gap="1" alignItems="center">
                     <Text style={{ color: colorCode ?? undefined }} fontSize="md" fontWeight="bold">
-                      {isSeiyuu ? casts[0].seiyuu : fullName} ({id})
+                      {isSeiyuu ? casts[0].seiyuu : fullName}
                     </Text>
                     {isSeiyuu && casts[0].note && (
                       <Text textAlign="center" fontSize="xs">

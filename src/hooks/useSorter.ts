@@ -1,10 +1,10 @@
-import { useState } from 'react';
 import { SortState, step, initSort } from '../utils/sort';
 import shuffle from 'lodash/shuffle';
+import { useLocalStorage } from './useLocalStorage';
 
 export const useSorter = <T>(items: T[]) => {
-  const [state, setState] = useState<SortState<T>>();
-  const [history, setHistory] = useState<SortState<T>[]>([]);
+  const [state, setState] = useLocalStorage<SortState<T>>('sort-state');
+  const [history, setHistory] = useLocalStorage<SortState<T>[]>('sort-state-history');
 
   const loadState = (stateData: { state: SortState<T>; history: SortState<T>[] }) => {
     const { state, history } = stateData;
@@ -14,7 +14,7 @@ export const useSorter = <T>(items: T[]) => {
 
   const handleStep = (value: 'left' | 'right' | 'tie') => () => {
     if (state) {
-      setHistory([...history, state]);
+      setHistory([...(history ?? []), state]);
       const nextStep = step(value, state);
       state && setState(nextStep);
     }
@@ -27,9 +27,12 @@ export const useSorter = <T>(items: T[]) => {
   };
 
   const handleUndo = () => {
-    if (history.length === 0) return;
-    setState(history.at(-1));
-    setHistory(history.slice(0, -1));
+    if (!history || history?.length === 0) return;
+    const state = history.at(-1);
+    if (state) {
+      setState(state);
+      setHistory(history.slice(0, -1));
+    }
   };
 
   const getProgress = () => {
@@ -47,7 +50,7 @@ export const useSorter = <T>(items: T[]) => {
   return {
     state,
     history,
-    count: history.length + 1,
+    count: (history?.length ?? 0) + 1,
     init: () => reset(),
     left: handleStep('left'),
     right: handleStep('right'),
