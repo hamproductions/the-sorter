@@ -65,7 +65,7 @@ function App() {
     try {
       navigator.clipboard.writeText(url);
     } catch (e) {
-      console.log('oopsie');
+      console.error('oopsie');
     }
   };
 

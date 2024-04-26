@@ -46,7 +46,6 @@ export const useSortData = () => {
       reset();
     }
   }, [listToSort]);
-  console.log(history);
 
   useEffect(() => {
     const handleKeystroke = (e: KeyboardEvent) => {
