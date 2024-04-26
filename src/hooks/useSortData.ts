@@ -30,7 +30,6 @@ export const useSortData = () => {
         ).map((d) => d[0])
       : characters;
 
-    console.log(hasFilter(filters), filters);
     return filters && hasFilter(filters)
       ? charaSeiyuu.filter((c) => {
           return matchFilter(c, filters);
@@ -38,10 +37,13 @@ export const useSortData = () => {
       : charaSeiyuu;
   }, [seiyuu, characters, filters]);
 
-  const { init, left, right, state, count, tie, undo, progress, reset } = useSorter(listToSort);
+  const { init, history, left, right, state, count, tie, undo, progress, reset } =
+    useSorter(listToSort);
 
   useEffect(() => {
-    reset();
+    if (history.length === 0) {
+      reset();
+    }
   }, [listToSort]);
 
   return {

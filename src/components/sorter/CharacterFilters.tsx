@@ -5,7 +5,6 @@ import { useData } from '~/hooks/useData';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
 import { Text } from '../ui/text';
-import { filter } from 'lodash';
 import { hasFilter } from '~/utils/filter';
 
 export interface FilterType {
@@ -18,7 +17,7 @@ export const CharacterFilters = ({
   filters,
   setFilters
 }: {
-  filters: FilterType;
+  filters: FilterType | null;
   setFilters: (data: FilterType | ((prev: FilterType) => FilterType)) => void;
 }) => {
   const data = useData();
@@ -64,14 +63,16 @@ export const CharacterFilters = ({
   };
 
   useEffect(() => {
-    if (!hasFilter(filters)) {
+    const filtersInitiialized = Object.values(filters).some((a) => Object.values(a).length >= 0);
+
+    if (!filtersInitiialized) {
       setFilters((f) => ({
         series: Object.fromEntries(series.map((s) => [s, false])) as Record<string, boolean>,
         school: Object.fromEntries(school.map((s) => [s, false])) as Record<string, boolean>,
         units: Object.fromEntries(units.map((s) => [s.id, false])) as Record<string, boolean>
       }));
     }
-  }, [filter]);
+  }, [filters]);
 
   return (
     <Stack>
@@ -88,7 +89,7 @@ export const CharacterFilters = ({
               <Checkbox
                 size="sm"
                 key={s}
-                checked={filters.series[s]}
+                checked={filters?.series[s]}
                 onCheckedChange={(c) => {
                   setFilters((f) => ({
                     ...f,
@@ -118,7 +119,7 @@ export const CharacterFilters = ({
               <Checkbox
                 size="sm"
                 key={s}
-                checked={filters.school[s]}
+                checked={filters?.school[s]}
                 onCheckedChange={(c) => {
                   setFilters((f) => ({
                     ...f,
@@ -148,7 +149,7 @@ export const CharacterFilters = ({
               <Checkbox
                 size="sm"
                 key={s.id}
-                checked={filters.units[s.id]}
+                checked={filters?.units[s.id]}
                 onCheckedChange={(c) => {
                   setFilters((f) => ({
                     ...f,
