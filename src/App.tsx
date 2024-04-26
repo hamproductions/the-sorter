@@ -41,31 +41,38 @@ function App() {
         <Button onClick={() => init()}>Start/ Reset</Button>
         {state && (
           <Stack alignItems="center" w="full">
-            <Text>Comparasion No. {count}</Text>
-            <Progress value={progress} min={0} max={1} defaultValue={0} />
-            {state.mergeState &&
-              state.mergeState.leftArrIdx !== undefined &&
-              state.mergeState.rightArrIdx !== undefined && (
-                <HStack alignItems="stretch" width="full">
-                  <CharacterCard
-                    onClick={() => left()}
-                    character={state.mergeState.leftArr?.[state.mergeState?.leftArrIdx]}
-                    isSeiyuu={seiyuu}
-                  />
-                  <CharacterCard
-                    onClick={() => right()}
-                    character={state.mergeState.rightArr?.[state.mergeState?.rightArrIdx]}
-                    isSeiyuu={seiyuu}
-                  />
-                </HStack>
-              )}
             {state.status !== 'end' && (
-              <Stack>
-                <HStack>
-                  <Button onClick={() => tie()}>Tie</Button>
-                  <Button onClick={() => undo()}>Undo</Button>
-                </HStack>
-                <HStack></HStack>
+              <Stack w="full" h="100vh" p="4" scrollSnapAlign="center">
+                <Stack flex="1" alignItems="center" w="full">
+                  {state.mergeState &&
+                    state.mergeState.leftArrIdx !== undefined &&
+                    state.mergeState.rightArrIdx !== undefined && (
+                      <HStack
+                        flexDirection={{ base: 'column', sm: 'row' }}
+                        alignItems="stretch"
+                        width="full"
+                      >
+                        <CharacterCard
+                          onClick={() => left()}
+                          character={state.mergeState.leftArr?.[state.mergeState?.leftArrIdx]}
+                          isSeiyuu={seiyuu}
+                        />
+                        <CharacterCard
+                          onClick={() => right()}
+                          character={state.mergeState.rightArr?.[state.mergeState?.rightArrIdx]}
+                          isSeiyuu={seiyuu}
+                        />
+                      </HStack>
+                    )}
+                  <HStack justifyContent="center">
+                    <Button onClick={() => tie()}>Tie</Button>
+                    <Button variant="outline" onClick={() => undo()}>
+                      Undo
+                    </Button>
+                  </HStack>
+                </Stack>
+                <Text>Comparasion No. {count}</Text>
+                <Progress value={progress} min={0} max={1} defaultValue={0} />
               </Stack>
             )}
             <RankingTable characters={state.arr} isSeiyuu={seiyuu} />

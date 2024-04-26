@@ -1,5 +1,5 @@
 import uniqBy from 'lodash/uniqBy';
-import { useEffect, useMemo } from 'react';
+import { SetStateAction, useEffect, useMemo } from 'react';
 import { HStack, Stack, Wrap } from 'styled-system/jsx';
 import { useData } from '~/hooks/useData';
 import { Button } from '../ui/button';
@@ -19,7 +19,7 @@ export const CharacterFilters = ({
   setFilters
 }: {
   filters: FilterType | null;
-  setFilters: (data: FilterType | ((prev: FilterType) => FilterType)) => void;
+  setFilters: Dispatch<SetStateAction<FilterType>>;
 }) => {
   const data = useData();
   const series = useMemo(() => Array.from(new Set(data.map((d) => d.series))), []);

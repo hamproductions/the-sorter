@@ -3,6 +3,7 @@ import { Badge } from '../ui/badge';
 import * as Table from '../ui/table';
 import { Text } from '../ui/text';
 import { Stack, styled } from 'styled-system/jsx';
+import { SchoolBadge } from './SchoolBadge';
 
 export const RankingTable = ({
   characters,
@@ -33,8 +34,8 @@ export const RankingTable = ({
       </Table.Head>
       <Table.Body>
         {characters.map((c, idx) => {
-          const { id, fullName, casts, school, colorCode, series, seriesColor } = c;
-
+          const { id, fullName, casts, school, colorCode } = c;
+          const imageSize = idx === 0 ? '150px' : idx <= 3 ? '100px' : '80px';
           return (
             <Table.Row key={idx}>
               <Table.Cell>{idx + 1}</Table.Cell>
@@ -43,13 +44,13 @@ export const RankingTable = ({
                   {idx < 10 && (
                     <styled.img
                       src={(isSeiyuu ? '/assets/seiyuu/' : '/assets/character/') + `${id}.webp`}
+                      style={{ maxHeight: imageSize }}
                       width="auto"
-                      maxHeight="150px"
                     />
                   )}
                   <Stack gap="1" alignItems="center">
                     <Text style={{ color: colorCode ?? undefined }} fontSize="md" fontWeight="bold">
-                      {isSeiyuu ? casts[0].seiyuu : fullName}
+                      {isSeiyuu ? casts[0].seiyuu : fullName} ({id})
                     </Text>
                     {isSeiyuu && casts[0].note && (
                       <Text textAlign="center" fontSize="xs">
@@ -79,15 +80,8 @@ export const RankingTable = ({
                   </Stack>
                 )}
               </Table.Cell>
-
               <Table.Cell>
-                <Badge
-                  style={{ backgroundColor: seriesColor ?? undefined }}
-                  size="sm"
-                  color="colorPalette.fg"
-                >
-                  {series}
-                </Badge>
+                <SchoolBadge character={c} />
               </Table.Cell>
               <Table.Cell>{school}</Table.Cell>
             </Table.Row>
