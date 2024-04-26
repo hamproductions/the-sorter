@@ -10,6 +10,7 @@ import { useSortData } from './hooks/useSortData';
 import { Heading } from './components/ui/heading';
 import { Kbd } from './components/ui/kbd';
 import { useData } from './hooks/useData';
+import { Character } from './types';
 
 function App() {
   const data = useData();
@@ -30,7 +31,21 @@ function App() {
     listCount
   } = useSortData();
 
-  const charaList = state?.arr.map((l) => data.find((i) => i.id === l)).filter((c) => !!c) ?? [];
+  const charaList = (state?.arr.map((l) => data.find((i) => i.id === l)).filter((c) => !!c) ??
+    []) as Character[];
+
+  const currentLeft =
+    state &&
+    state.mergeState?.leftArrIdx !== undefined &&
+    listToSort.find(
+      (l) => l.id === state.mergeState?.leftArr?.[state.mergeState?.leftArrIdx as number]
+    );
+  const currentRight =
+    state &&
+    state.mergeState?.rightArrIdx !== undefined &&
+    listToSort.find(
+      (l) => l.id === state.mergeState?.rightArr?.[state.mergeState?.rightArrIdx as number]
+    );
 
   return (
     <Container py={4} px={4}>
@@ -51,42 +66,34 @@ function App() {
             {state.status !== 'end' && (
               <Stack w="full" h="100vh" p="4">
                 <Stack flex="1" alignItems="center" w="full">
-                  {state.mergeState &&
-                    state.mergeState.leftArrIdx !== undefined &&
-                    state.mergeState.rightArrIdx !== undefined && (
-                      <HStack
-                        flexDirection={{ base: 'column', sm: 'row' }}
-                        alignItems="stretch"
-                        width="full"
-                      >
-                        <Stack flex="1" alignItems="center">
-                          <CharacterCard
-                            onClick={() => left()}
-                            character={listToSort.find(
-                              (l) =>
-                                l.id === state.mergeState?.leftArr?.[state.mergeState?.leftArrIdx]
-                            )}
-                            isSeiyuu={seiyuu}
-                          />
-                          <Box>
-                            <Kbd>←</Kbd>
-                          </Box>
-                        </Stack>
-                        <Stack flex="1" alignItems="center">
-                          <CharacterCard
-                            onClick={() => right()}
-                            character={listToSort.find(
-                              (l) =>
-                                l.id === state.mergeState?.rightArr?.[state.mergeState?.rightArrIdx]
-                            )}
-                            isSeiyuu={seiyuu}
-                          />
-                          <Box>
-                            <Kbd>→</Kbd>
-                          </Box>
-                        </Stack>
-                      </HStack>
-                    )}
+                  {currentLeft && currentRight && (
+                    <HStack
+                      flexDirection={{ base: 'column', sm: 'row' }}
+                      alignItems="stretch"
+                      width="full"
+                    >
+                      <Stack flex="1" alignItems="center">
+                        <CharacterCard
+                          onClick={() => left()}
+                          character={currentLeft}
+                          isSeiyuu={seiyuu}
+                        />
+                        <Box>
+                          <Kbd>←</Kbd>
+                        </Box>
+                      </Stack>
+                      <Stack flex="1" alignItems="center">
+                        <CharacterCard
+                          onClick={() => right()}
+                          character={currentRight}
+                          isSeiyuu={seiyuu}
+                        />
+                        <Box>
+                          <Kbd>→</Kbd>
+                        </Box>
+                      </Stack>
+                    </HStack>
+                  )}
                   <HStack justifyContent="center">
                     <Button onClick={() => tie()}>Tie</Button>
                     <Button variant="outline" onClick={() => undo()}>
