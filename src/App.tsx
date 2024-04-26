@@ -64,29 +64,32 @@ function App() {
         {state && (
           <Stack alignItems="center" w="full">
             {state.status !== 'end' && (
-              <Stack w="full" h="100vh" p="4">
+              <Stack w="full" h={{ base: '100vh', md: 'auto' }} p="4">
                 <Stack flex="1" alignItems="center" w="full">
                   {currentLeft && currentRight && (
                     <HStack
+                      flex={1}
                       flexDirection={{ base: 'column', sm: 'row' }}
-                      alignItems="stretch"
+                      justifyContent="stretch"
                       width="full"
                     >
-                      <Stack flex="1" alignItems="center">
+                      <Stack flex="1" alignItems="center" w="full">
                         <CharacterCard
                           onClick={() => left()}
                           character={currentLeft}
                           isSeiyuu={seiyuu}
+                          flex={1}
                         />
                         <Box>
                           <Kbd>←</Kbd>
                         </Box>
                       </Stack>
-                      <Stack flex="1" alignItems="center">
+                      <Stack flex="1" alignItems="center" w="full">
                         <CharacterCard
                           onClick={() => right()}
                           character={currentRight}
                           isSeiyuu={seiyuu}
+                          flex={1}
                         />
                         <Box>
                           <Kbd>→</Kbd>
