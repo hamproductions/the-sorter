@@ -9,8 +9,10 @@ import { Text } from './components/ui/text';
 import { useSortData } from './hooks/useSortData';
 import { Heading } from './components/ui/heading';
 import { Kbd } from './components/ui/kbd';
+import { useData } from './hooks/useData';
 
 function App() {
+  const data = useData();
   const {
     seiyuu,
     setSeiyuu,
@@ -24,8 +26,11 @@ function App() {
     progress,
     filters,
     setFilters,
+    listToSort,
     listCount
   } = useSortData();
+
+  const charaList = state?.arr.map((l) => data.find((i) => i.id === l)).filter((c) => !!c) ?? [];
 
   return (
     <Container py={4} px={4}>
@@ -57,7 +62,10 @@ function App() {
                         <Stack flex="1" alignItems="center">
                           <CharacterCard
                             onClick={() => left()}
-                            character={state.mergeState.leftArr?.[state.mergeState?.leftArrIdx]}
+                            character={listToSort.find(
+                              (l) =>
+                                l.id === state.mergeState?.leftArr?.[state.mergeState?.leftArrIdx]
+                            )}
                             isSeiyuu={seiyuu}
                           />
                           <Box>
@@ -67,7 +75,10 @@ function App() {
                         <Stack flex="1" alignItems="center">
                           <CharacterCard
                             onClick={() => right()}
-                            character={state.mergeState.rightArr?.[state.mergeState?.rightArrIdx]}
+                            character={listToSort.find(
+                              (l) =>
+                                l.id === state.mergeState?.rightArr?.[state.mergeState?.rightArrIdx]
+                            )}
                             isSeiyuu={seiyuu}
                           />
                           <Box>
@@ -93,7 +104,7 @@ function App() {
                 Tentative Ranking
               </Heading>
             )}
-            <RankingTable characters={state.arr} isSeiyuu={seiyuu} />
+            {charaList && <RankingTable characters={charaList} isSeiyuu={seiyuu} />}
           </Stack>
         )}
         {/* <Text whiteSpace="pre-wrap">{JSON.stringify(state, null, 4)}</Text> */}

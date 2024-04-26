@@ -37,8 +37,9 @@ export const useSortData = () => {
       : charaSeiyuu;
   }, [seiyuu, characters, filters]);
 
-  const { init, history, left, right, state, count, tie, undo, progress, reset } =
-    useSorter(listToSort);
+  const { init, history, left, right, state, count, tie, undo, progress, reset } = useSorter(
+    listToSort.map((l) => l.id)
+  );
 
   useEffect(() => {
     if (history !== null && history?.length === 0) {
@@ -88,6 +89,7 @@ export const useSortData = () => {
     progress,
     filters,
     setFilters,
+    listToSort,
     listCount: listToSort.length
   };
 };
