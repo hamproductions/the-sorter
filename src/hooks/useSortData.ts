@@ -1,11 +1,11 @@
-import { filter, groupBy } from 'lodash';
+import groupBy from 'lodash/groupBy';
 import { useEffect, useMemo } from 'react';
 import { FilterType } from '~/components/sorter/CharacterFilters';
 import { Character } from '~/types';
-import { useData } from './useData';
-import { useSorter } from './useSorter';
-import { useLocalStorage } from './useLocalStorage';
 import { hasFilter, matchFilter } from '~/utils/filter';
+import { useData } from './useData';
+import { useLocalStorage } from './useLocalStorage';
+import { useSorter } from './useSorter';
 
 export const useSortData = () => {
   const characters = useData();

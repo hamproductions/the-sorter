@@ -1,4 +1,4 @@
-import { Stack, StackProps, styled, Box } from 'styled-system/jsx';
+import { Stack, StackProps, styled } from 'styled-system/jsx';
 import { Character } from '~/types';
 import { Text } from '../ui/text';
 import { SchoolBadge } from './SchoolBadge';

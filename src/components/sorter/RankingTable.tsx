@@ -1,10 +1,8 @@
+import { Stack, styled } from 'styled-system/jsx';
 import { Character } from '~/types';
-import { Badge } from '../ui/badge';
 import * as Table from '../ui/table';
 import { Text } from '../ui/text';
-import { Stack, styled } from 'styled-system/jsx';
 import { SchoolBadge } from './SchoolBadge';
-
 export const RankingTable = ({
   characters,
   isSeiyuu

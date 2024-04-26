@@ -1,11 +1,10 @@
 import uniqBy from 'lodash/uniqBy';
-import { SetStateAction, useEffect, useMemo } from 'react';
+import { Dispatch, SetStateAction, useEffect, useMemo } from 'react';
 import { HStack, Stack, Wrap } from 'styled-system/jsx';
 import { useData } from '~/hooks/useData';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
 import { Text } from '../ui/text';
-import { hasFilter } from '~/utils/filter';
 import * as Collapsible from '../ui/collapsible';
 
 export interface FilterType {
