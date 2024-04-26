@@ -3,6 +3,7 @@ import { Character } from '~/types';
 import * as Table from '../ui/table';
 import { Text } from '../ui/text';
 import { SchoolBadge } from './SchoolBadge';
+import { groupBy } from 'lodash';
 export const RankingTable = ({
   characters,
   isSeiyuu
@@ -26,16 +27,21 @@ export const RankingTable = ({
               <Table.Header>声優</Table.Header>
             </>
           )}
-          <Table.Header>シリーズ</Table.Header>
-          <Table.Header>学校</Table.Header>
+          <Table.Header>シリーズ・学校</Table.Header>
+          <Table.Header>ユニット</Table.Header>
         </Table.Row>
       </Table.Head>
       <Table.Body>
         {characters.map((c, idx) => {
-          const { id, fullName, casts, school, colorCode } = c;
+          const { id, fullName, casts, school, colorCode, units } = c;
           const imageSize = idx === 0 ? '150px' : idx <= 3 ? '100px' : '80px';
           return (
-            <Table.Row key={idx}>
+            <Table.Row
+              key={idx}
+              style={{ ['--color' as 'color']: colorCode as 'red' }}
+              borderLeft="8px solid"
+              borderColor="var(--color)"
+            >
               <Table.Cell>{idx + 1}</Table.Cell>
               <Table.Cell>
                 <Stack alignItems="center" py="2">
@@ -47,7 +53,7 @@ export const RankingTable = ({
                     />
                   )}
                   <Stack gap="1" alignItems="center">
-                    <Text style={{ color: colorCode ?? undefined }} fontSize="md" fontWeight="bold">
+                    <Text color="var(--color)" fontSize="md" fontWeight="bold">
                       {isSeiyuu ? casts[0].seiyuu : fullName}
                     </Text>
                     {isSeiyuu && casts[0].note && (
@@ -62,7 +68,7 @@ export const RankingTable = ({
                 {isSeiyuu ? (
                   fullName
                 ) : (
-                  <Stack gap="1" alignItems="center">
+                  <Stack gap="1" alignItems="center" py="2">
                     {casts.map((c) => {
                       return (
                         <Text key={c.seiyuu}>
@@ -79,9 +85,29 @@ export const RankingTable = ({
                 )}
               </Table.Cell>
               <Table.Cell>
-                <SchoolBadge character={c} />
+                <Stack gap="1" alignItems="center" w="full" py="2">
+                  <SchoolBadge character={c} />
+                  <Text>{school}</Text>
+                </Stack>
               </Table.Cell>
-              <Table.Cell>{school}</Table.Cell>
+              <Table.Cell>
+                <Stack gap="1" py="2">
+                  {Object.values(
+                    groupBy(
+                      units.filter((u) => !u.name.includes(fullName)),
+                      (u) => u.name
+                    )
+                  ).map((us) => {
+                    const u = us[0];
+                    return (
+                      <Text key={u.id}>
+                        {u.name}{' '}
+                        {u.additionalInfo && <>({us.map((i) => i.additionalInfo).join(',')})</>}
+                      </Text>
+                    );
+                  })}
+                </Stack>
+              </Table.Cell>
             </Table.Row>
           );
         })}

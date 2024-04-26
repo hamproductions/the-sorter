@@ -48,78 +48,82 @@ function App() {
     );
 
   return (
-    <Container py={4} px={4}>
-      <Stack alignItems="center" w="full">
-        <Text fontSize="3xl" fontWeight="bold">
-          Yet another LL! sorter
-        </Text>
-        <Switch checked={seiyuu} onCheckedChange={(e) => setSeiyuu(e.checked)}>
-          Do you like seiyuu ? (Seiyuu Mode)
-        </Switch>
-        <CharacterFilters filters={filters} setFilters={setFilters} />
-        <Text fontSize="sm" fontWeight="bold">
-          {listCount} to be sorted
-        </Text>
-        <Button onClick={() => init()}>Start/ Reset</Button>
-        {state && (
-          <Stack alignItems="center" w="full">
-            {state.status !== 'end' && (
-              <Stack w="full" h={{ base: '100vh', md: 'auto' }} p="4">
-                <Stack flex="1" alignItems="center" w="full">
-                  {currentLeft && currentRight && (
-                    <HStack
-                      flex={1}
-                      flexDirection={{ base: 'column', sm: 'row' }}
-                      justifyContent="stretch"
-                      width="full"
-                    >
-                      <Stack flex="1" alignItems="center" w="full">
-                        <CharacterCard
-                          onClick={() => left()}
-                          character={currentLeft}
-                          isSeiyuu={seiyuu}
-                          flex={1}
-                        />
-                        <Box>
-                          <Kbd>←</Kbd>
-                        </Box>
-                      </Stack>
-                      <Stack flex="1" alignItems="center" w="full">
-                        <CharacterCard
-                          onClick={() => right()}
-                          character={currentRight}
-                          isSeiyuu={seiyuu}
-                          flex={1}
-                        />
-                        <Box>
-                          <Kbd>→</Kbd>
-                        </Box>
-                      </Stack>
+    <Stack w="full" minH="100vh">
+      <Container flex={1} py={4} px={4}>
+        <Stack alignItems="center" w="full">
+          <Text fontSize="3xl" fontWeight="bold">
+            Yet another LL! sorter
+          </Text>
+          <Switch checked={seiyuu} onCheckedChange={(e) => setSeiyuu(e.checked)}>
+            Do you like seiyuu ? (Seiyuu Mode)
+          </Switch>
+          <CharacterFilters filters={filters} setFilters={setFilters} />
+          <Text fontSize="sm" fontWeight="bold">
+            {listCount} to be sorted
+          </Text>
+          <Button onClick={() => init()}>Start/ Reset</Button>
+          {state && (
+            <Stack alignItems="center" w="full">
+              {state.status !== 'end' && (
+                <Stack w="full" h={{ base: '100vh', md: 'auto' }} p="4">
+                  <Stack flex="1" alignItems="center" w="full">
+                    {currentLeft && currentRight && (
+                      <HStack
+                        flex={1}
+                        flexDirection={{ base: 'column', sm: 'row' }}
+                        justifyContent="stretch"
+                        width="full"
+                      >
+                        <Stack flex="1" alignItems="center" w="full">
+                          <CharacterCard
+                            onClick={() => left()}
+                            character={currentLeft}
+                            isSeiyuu={seiyuu}
+                            flex={1}
+                          />
+                          <Box>
+                            <Kbd>←</Kbd>
+                          </Box>
+                        </Stack>
+                        <Stack flex="1" alignItems="center" w="full">
+                          <CharacterCard
+                            onClick={() => right()}
+                            character={currentRight}
+                            isSeiyuu={seiyuu}
+                            flex={1}
+                          />
+                          <Box>
+                            <Kbd>→</Kbd>
+                          </Box>
+                        </Stack>
+                      </HStack>
+                    )}
+                    <HStack justifyContent="center">
+                      <Button onClick={() => tie()}>Tie</Button>
+                      <Button variant="outline" onClick={() => undo()}>
+                        Undo
+                      </Button>
                     </HStack>
-                  )}
-                  <HStack justifyContent="center">
-                    <Button onClick={() => tie()}>Tie</Button>
-                    <Button variant="outline" onClick={() => undo()}>
-                      Undo
-                    </Button>
-                  </HStack>
+                  </Stack>
+                  <Text>Comparasion No. {count}</Text>
+                  <Progress value={progress} min={0} max={1} defaultValue={0} />
                 </Stack>
-                <Text>Comparasion No. {count}</Text>
-                <Progress value={progress} min={0} max={1} defaultValue={0} />
-              </Stack>
-            )}
-            <Divider />
-            {state.status !== 'end' && (
-              <Heading fontSize="2xl" fontWeight="bold">
-                Tentative Ranking
-              </Heading>
-            )}
-            {charaList && <RankingTable characters={charaList} isSeiyuu={seiyuu} />}
-          </Stack>
-        )}
-        {/* <Text whiteSpace="pre-wrap">{JSON.stringify(state, null, 4)}</Text> */}
-      </Stack>
-    </Container>
+              )}
+              <Divider />
+              {state.status !== 'end' && (
+                <Heading fontSize="2xl" fontWeight="bold">
+                  Tentative Ranking
+                </Heading>
+              )}
+              {charaList && <RankingTable characters={charaList} isSeiyuu={seiyuu} />}
+            </Stack>
+          )}
+        </Stack>
+      </Container>
+      <HStack justifyContent="center" w="full" p="4" bgColor="bg.muted">
+        Created by ハムP | Inspired by a bunch of other sorters of course | Assets are not mine
+      </HStack>
+    </Stack>
   );
 }
 

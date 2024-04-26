@@ -18,7 +18,7 @@ export const CharacterFilters = ({
   setFilters
 }: {
   filters: FilterType | null;
-  setFilters: Dispatch<SetStateAction<FilterType>>;
+  setFilters: Dispatch<SetStateAction<FilterType | null>>;
 }) => {
   const data = useData();
   const series = useMemo(() => Array.from(new Set(data.map((d) => d.series))), []);
@@ -33,57 +33,58 @@ export const CharacterFilters = ({
 
   const selectAll = (key: keyof FilterType) => () => {
     setFilters((f) => {
-      const isAllSelected = Object.values(f[key]).every((v) => v);
+      const isAllSelected = Object.values(f?.[key] ?? {}).every((v) => v);
       return {
         ...f,
         [key]: Object.fromEntries(
-          Object.entries(f[key]).map(([k]) => [k, !isAllSelected])
+          Object.entries(f?.[key] ?? {}).map(([k]) => [k, !isAllSelected])
         ) as Record<string, boolean>
-      };
+      } as FilterType;
     });
   };
 
   const deselectAll = () => {
     setFilters((f) => {
       return {
-        series: Object.fromEntries(Object.entries(f.series).map(([k]) => [k, false])) as Record<
-          string,
-          boolean
-        >,
-        units: Object.fromEntries(Object.entries(f.units).map(([k]) => [k, false])) as Record<
-          string,
-          boolean
-        >,
-        school: Object.fromEntries(Object.entries(f.school).map(([k]) => [k, false])) as Record<
-          string,
-          boolean
-        >
+        series: Object.fromEntries(
+          Object.entries(f?.series ?? {}).map(([k]) => [k, false])
+        ) as Record<string, boolean>,
+        units: Object.fromEntries(
+          Object.entries(f?.units ?? {}).map(([k]) => [k, false])
+        ) as Record<string, boolean>,
+        school: Object.fromEntries(
+          Object.entries(f?.school ?? {}).map(([k]) => [k, false])
+        ) as Record<string, boolean>
       };
     });
   };
 
   useEffect(() => {
-    if (!filters) return;
-    const filtersInitiialized = Object.values(filters).some((a) => Object.values(a).length >= 0);
-
-    if (!filtersInitiialized) {
-      setFilters((f) => ({
-        series: Object.fromEntries(series.map((s) => [s, false])) as Record<string, boolean>,
-        school: Object.fromEntries(school.map((s) => [s, false])) as Record<string, boolean>,
-        units: Object.fromEntries(units.map((s) => [s.id, false])) as Record<string, boolean>
-      }));
-    }
-  }, [filters]);
+    setFilters({
+      series: Object.fromEntries(series.map((s) => [s, filters?.series[s] ?? false])) as Record<
+        string,
+        boolean
+      >,
+      school: Object.fromEntries(school.map((s) => [s, filters?.school[s] ?? false])) as Record<
+        string,
+        boolean
+      >,
+      units: Object.fromEntries(units.map((s) => [s.id, filters?.units[s.id] ?? false])) as Record<
+        string,
+        boolean
+      >
+    });
+  }, []);
 
   return (
-    <Collapsible.Root>
+    <Collapsible.Root gap="2">
       <Collapsible.Trigger asChild>
         <Button variant="subtle" w="full">
           View Filters
         </Button>
       </Collapsible.Trigger>
       <Collapsible.Content>
-        <Stack>
+        <Stack border="1px solid" borderColor="border.default" rounded="l1" p="4">
           <Stack>
             <HStack justifyContent="space-between">
               <Text fontWeight="bold">シリーズ</Text>
@@ -99,13 +100,17 @@ export const CharacterFilters = ({
                     key={s}
                     checked={filters?.series[s]}
                     onCheckedChange={(c) => {
-                      setFilters((f) => ({
-                        ...f,
-                        series: {
-                          ...f.series,
-                          [s]: c.checked === true
-                        }
-                      }));
+                      setFilters((f) =>
+                        f
+                          ? {
+                              ...f,
+                              series: {
+                                ...f.series,
+                                [s]: c.checked === true
+                              }
+                            }
+                          : null
+                      );
                     }}
                   >
                     {s}
@@ -129,13 +134,16 @@ export const CharacterFilters = ({
                     key={s}
                     checked={filters?.school[s]}
                     onCheckedChange={(c) => {
-                      setFilters((f) => ({
-                        ...f,
-                        school: {
-                          ...f.school,
-                          [s]: c.checked === true
-                        }
-                      }));
+                      setFilters((f) => {
+                        if (!f) return f;
+                        return {
+                          ...f,
+                          school: {
+                            ...f.school,
+                            [s]: c.checked === true
+                          }
+                        };
+                      });
                     }}
                   >
                     {s}
@@ -159,13 +167,17 @@ export const CharacterFilters = ({
                     key={s.id}
                     checked={filters?.units[s.id]}
                     onCheckedChange={(c) => {
-                      setFilters((f) => ({
-                        ...f,
-                        units: {
-                          ...f.units,
-                          [s.id]: c.checked === true
-                        }
-                      }));
+                      setFilters((f) =>
+                        f
+                          ? {
+                              ...f,
+                              units: {
+                                ...f.units,
+                                [s.id]: c.checked === true
+                              }
+                            }
+                          : f
+                      );
                     }}
                   >
                     {s.name}
