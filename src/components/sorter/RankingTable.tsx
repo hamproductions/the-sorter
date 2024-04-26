@@ -33,24 +33,52 @@ export const RankingTable = ({
       </Table.Head>
       <Table.Body>
         {characters.map((c, idx) => {
-          const { id, fullName, seiyuu, school, colorCode, series, seriesColor } = c;
+          const { id, fullName, casts, school, colorCode, series, seriesColor } = c;
 
           return (
             <Table.Row key={idx}>
               <Table.Cell>{idx + 1}</Table.Cell>
-              <Table.Cell style={{ color: colorCode ?? undefined }} fontSize="md" fontWeight="bold">
-                <Stack alignItems="center">
-                  {idx <= 9 && (
+              <Table.Cell>
+                <Stack alignItems="center" py="2">
+                  {idx < 10 && (
                     <styled.img
                       src={(isSeiyuu ? '/assets/seiyuu/' : '/assets/character/') + `${id}.webp`}
                       width="auto"
                       maxHeight="150px"
                     />
                   )}
-                  <Text>{isSeiyuu ? seiyuu : fullName}</Text>
+                  <Stack gap="1">
+                    <Text style={{ color: colorCode ?? undefined }} fontSize="md" fontWeight="bold">
+                      {isSeiyuu ? casts[0].seiyuu : fullName}
+                    </Text>
+                    {isSeiyuu && casts[0].note && (
+                      <Text textAlign="center" fontSize="xs">
+                        ({casts[0].note})
+                      </Text>
+                    )}
+                  </Stack>
                 </Stack>
               </Table.Cell>
-              <Table.Cell>{isSeiyuu ? fullName : seiyuu}</Table.Cell>
+              <Table.Cell>
+                {isSeiyuu ? (
+                  fullName
+                ) : (
+                  <Stack gap="1">
+                    {casts.map((c) => {
+                      return (
+                        <Text>
+                          {c.seiyuu}{' '}
+                          {c.note && (
+                            <Text as="span" fontSize="xs">
+                              ({c.note})
+                            </Text>
+                          )}
+                        </Text>
+                      );
+                    })}
+                  </Stack>
+                )}
+              </Table.Cell>
 
               <Table.Cell>
                 <Badge

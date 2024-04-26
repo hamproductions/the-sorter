@@ -9,20 +9,18 @@ const mappedData = data.map((d) => {
     school: { name: school },
     colorName,
     colorCode,
-    character: {
-      fullName,
-      characterCasts: {
-        0: {
-          title: castTitle,
-          cast: { fullName: seiyuu }
-        }
-      },
-      artistConfigurations
-    },
+    character: { fullName, characterCasts, artistConfigurations },
     birthMonth,
     birthDay,
     memberProfiles
   } = d.pageProps.member;
+  const casts = characterCasts.map(({ title, cast: { fullName }, note }) => {
+    return {
+      castTitle: title,
+      seiyuu: fullName,
+      note: note
+    };
+  });
   return {
     id,
     seriesId,
@@ -32,8 +30,7 @@ const mappedData = data.map((d) => {
     colorName,
     colorCode,
     fullName,
-    castTitle,
-    seiyuu,
+    casts,
     units: artistConfigurations.map((a) => {
       const { artist } = a;
       return {
@@ -49,5 +46,4 @@ const mappedData = data.map((d) => {
     })
   };
 });
-
 await writeFile(join(__dirname, '../data/character-info.json'), JSON.stringify(mappedData));

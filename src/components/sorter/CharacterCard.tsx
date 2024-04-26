@@ -16,7 +16,6 @@ export const CharacterCard = ({
       gap={1}
       alignItems="center"
       rounded="l1"
-      h="full"
       p={2}
       backgroundColor={{ base: 'bg.default', _hover: 'bg.muted' }}
       shadow="md"
@@ -30,23 +29,32 @@ export const CharacterCard = ({
       >
         {character.series}
       </Badge>
+      <Text fontSize="sm">{character.school}</Text>
       <styled.img
         src={(isSeiyuu ? '/assets/seiyuu/' : '/assets/character/') + `${character.id}.webp`}
         maxHeight="320px"
       />
       <Text style={{ color: character.colorCode ?? undefined }} fontSize="2xl" fontWeight="bold">
-        {isSeiyuu ? character.seiyuu : character.fullName}
+        {isSeiyuu ? character.casts[0].seiyuu : character.fullName}
       </Text>
-      <Text fontSize="xs">
-        {isSeiyuu ? (
-          character.fullName
-        ) : (
-          <>
-            {character.castTitle}: {character.seiyuu}
-          </>
-        )}
-      </Text>
-      <Text>{character.school}</Text>
+      {isSeiyuu ? (
+        <Text fontSize="xs">{character.fullName}</Text>
+      ) : (
+        <Stack gap="1">
+          {character.casts.map((c) => {
+            return (
+              <Text w="full">
+                {c.seiyuu}{' '}
+                {c.note && (
+                  <Text as="span" fontSize="xs">
+                    ({c.note})
+                  </Text>
+                )}
+              </Text>
+            );
+          })}
+        </Stack>
+      )}
     </Stack>
   );
 };

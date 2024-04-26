@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Container, HStack, Stack } from 'styled-system/jsx';
 import { CharacterCard } from './components/sorter/CharacterCard';
 import { CharacterFilters, FilterType } from './components/sorter/CharacterFilters';
@@ -9,12 +9,32 @@ import { Switch } from './components/ui/switch';
 import { Text } from './components/ui/text';
 import { useData } from './hooks/useData';
 import { useSorter } from './hooks/useSorter';
+import { Character } from './types';
+import { groupBy } from 'lodash';
 
 function App() {
   const characters = useData();
   const [seiyuu, setSeiyuu] = useState(false);
   const [filters, setFilters] = useState<FilterType>({ series: {}, units: {}, school: {} });
-  const { init, left, right, state, count, tie, undo, progress } = useSorter(characters);
+  const { init, left, right, state, count, tie, undo, progress, reset } = useSorter(
+    seiyuu
+      ? Object.values(
+          groupBy(
+            characters.flatMap((c) =>
+              c.casts.map(
+                (a, idx) =>
+                  ({ ...c, id: idx > 0 ? `${c.id}-${idx}` : c.id, casts: [a] }) as Character
+              )
+            ),
+            (d) => d.casts[0].seiyuu
+          )
+        ).map((d) => d[0])
+      : characters
+  );
+
+  useEffect(() => {
+    reset();
+  }, [seiyuu]);
 
   return (
     <Container>
@@ -23,7 +43,7 @@ function App() {
           Yet another LL! sorter
         </Text>
         <Switch checked={seiyuu} onCheckedChange={(e) => setSeiyuu(e.checked)}>
-          Do you like seiyuu ?
+          Do you like seiyuu ? (Seiyuu Mode)
         </Switch>
         <CharacterFilters filters={filters} setFilters={setFilters} />
         <Button onClick={() => init()}>Start/ Reset</Button>

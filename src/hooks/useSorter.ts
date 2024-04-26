@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { SortState, step, initSort } from '../utils/sort';
+import shuffle from 'lodash/shuffle';
 
 export const useSorter = <T>(items: T[]) => {
   const [count, setCount] = useState(0);
@@ -15,7 +16,8 @@ export const useSorter = <T>(items: T[]) => {
     }
   };
 
-  const handleInit = () => {
+  const reset = () => {
+    // setState(initSort(shuffle(items)));
     setState(initSort(items));
     setCount(1);
     setHistory([]);
@@ -39,11 +41,12 @@ export const useSorter = <T>(items: T[]) => {
   return {
     state,
     count,
-    init: () => handleInit(),
+    init: () => reset(),
     left: handleStep('left'),
     right: handleStep('right'),
     tie: handleStep('tie'),
     undo: () => handleUndo(),
-    progress
+    progress,
+    reset
   };
 };
