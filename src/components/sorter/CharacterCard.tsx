@@ -38,12 +38,12 @@ export const CharacterCard = ({
         {isSeiyuu ? character.casts[0].seiyuu : character.fullName}
       </Text>
       {isSeiyuu ? (
-        <Text fontSize="xs">{character.fullName}</Text>
+        <Text fontSize="xs" >{character.fullName}</Text>
       ) : (
-        <Stack gap="1">
+        <Stack gap="1" alignItems="center">
           {character.casts.map((c) => {
             return (
-              <Text w="full">
+              <Text key={c.seiyuu} w="full" >
                 {c.seiyuu}{' '}
                 {c.note && (
                   <Text as="span" fontSize="xs">

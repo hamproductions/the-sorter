@@ -47,7 +47,7 @@ export const RankingTable = ({
                       maxHeight="150px"
                     />
                   )}
-                  <Stack gap="1">
+                  <Stack gap="1" alignItems="center">
                     <Text style={{ color: colorCode ?? undefined }} fontSize="md" fontWeight="bold">
                       {isSeiyuu ? casts[0].seiyuu : fullName}
                     </Text>
@@ -63,10 +63,10 @@ export const RankingTable = ({
                 {isSeiyuu ? (
                   fullName
                 ) : (
-                  <Stack gap="1">
+                  <Stack gap="1" alignItems="center">
                     {casts.map((c) => {
                       return (
-                        <Text>
+                        <Text key={c.seiyuu}>
                           {c.seiyuu}{' '}
                           {c.note && (
                             <Text as="span" fontSize="xs">

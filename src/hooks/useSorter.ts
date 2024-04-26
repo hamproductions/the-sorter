@@ -3,50 +3,58 @@ import { SortState, step, initSort } from '../utils/sort';
 import shuffle from 'lodash/shuffle';
 
 export const useSorter = <T>(items: T[]) => {
-  const [count, setCount] = useState(0);
   const [state, setState] = useState<SortState<T>>();
   const [history, setHistory] = useState<SortState<T>[]>([]);
+
+  const loadState = (stateData: { state: SortState<T>; history: SortState<T>[] }) => {
+    const { state, history } = stateData;
+    setState(state);
+    setHistory(history);
+  };
 
   const handleStep = (value: 'left' | 'right' | 'tie') => () => {
     if (state) {
       setHistory([...history, state]);
       const nextStep = step(value, state);
       state && setState(nextStep);
-      setCount((c) => (c += 1));
     }
   };
 
   const reset = () => {
-    // setState(initSort(shuffle(items)));
-    setState(initSort(items));
-    setCount(1);
+    setState(initSort(shuffle(items)));
+    // setState(initSort(items));
     setHistory([]);
   };
 
   const handleUndo = () => {
-    if (history.length === 0 || count < 2) return;
-    console.log(history.at(-1));
+    if (history.length === 0) return;
     setState(history.at(-1));
     setHistory(history.slice(0, -1));
-    setCount((c) => c - 1);
   };
 
   const getProgress = () => {
-    const prevStep = ((state?.currentSize ?? 0) - 1) ** 1 / 2 / Math.ceil(items.length ** 1 / 2);
-    const current = (state?.currentSize ?? 0) ** 1 / 2 / Math.ceil(items.length ** 1 / 2);
+    const sizeCount = Math.ceil(Math.log2(items.length));
+    const currentStep = Math.ceil(Math.log2(state?.currentSize ?? 1));
+    const next = (currentStep + 1) / sizeCount;
+    const current = currentStep / sizeCount;
+    const stepProgress = (state?.mergeState?.arrIdx ?? 0) / items.length;
 
-    return prevStep + (current - prevStep) * ((state?.leftStart ?? 0) / items.length);
+    return current + (next - current) * stepProgress;
   };
+
   const progress = getProgress();
+
   return {
     state,
-    count,
+    history,
+    count: history.length + 1,
     init: () => reset(),
     left: handleStep('left'),
     right: handleStep('right'),
     tie: handleStep('tie'),
     undo: () => handleUndo(),
     progress,
-    reset
+    reset,
+    loadState
   };
 };

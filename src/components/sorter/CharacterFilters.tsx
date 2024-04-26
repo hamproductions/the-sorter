@@ -5,6 +5,8 @@ import { useData } from '~/hooks/useData';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
 import { Text } from '../ui/text';
+import { filter } from 'lodash';
+import { hasFilter } from '~/utils/filter';
 
 export interface FilterType {
   series: Record<string, boolean | undefined>;
@@ -62,37 +64,41 @@ export const CharacterFilters = ({
   };
 
   useEffect(() => {
-    setFilters((f) => ({
-      ...f,
-      series: Object.fromEntries(series.map((s) => [s, undefined])) as Record<string, boolean>
-    }));
-  }, [series]);
-
-  useEffect(() => {
-    setFilters((f) => ({
-      ...f,
-      school: Object.fromEntries(school.map((s) => [s, undefined])) as Record<string, boolean>
-    }));
-  }, [school]);
-
-  useEffect(() => {
-    setFilters((f) => ({
-      ...f,
-      units: Object.fromEntries(units.map((s) => [s.id, undefined])) as Record<string, boolean>
-    }));
-  }, [units]);
+    if (!hasFilter(filters)) {
+      setFilters((f) => ({
+        series: Object.fromEntries(series.map((s) => [s, false])) as Record<string, boolean>,
+        school: Object.fromEntries(school.map((s) => [s, false])) as Record<string, boolean>,
+        units: Object.fromEntries(units.map((s) => [s.id, false])) as Record<string, boolean>
+      }));
+    }
+  }, [filter]);
 
   return (
     <Stack>
       <Stack>
         <HStack justifyContent="space-between">
           <Text fontWeight="bold">シリーズ</Text>
-          <Button onClick={selectAll('series')}>Select All</Button>
+          <Button size="sm" onClick={selectAll('series')}>
+            Select All
+          </Button>
         </HStack>
         <Wrap>
           {series.map((s) => {
             return (
-              <Checkbox size="sm" key={s} checked={filters.series[s]}>
+              <Checkbox
+                size="sm"
+                key={s}
+                checked={filters.series[s]}
+                onCheckedChange={(c) => {
+                  setFilters((f) => ({
+                    ...f,
+                    series: {
+                      ...f.series,
+                      [s]: c.checked === true
+                    }
+                  }));
+                }}
+              >
                 {s}
               </Checkbox>
             );
@@ -102,12 +108,27 @@ export const CharacterFilters = ({
       <Stack>
         <HStack justifyContent="space-between">
           <Text fontWeight="bold">学校</Text>
-          <Button onClick={selectAll('school')}>Select All</Button>
+          <Button size="sm" onClick={selectAll('school')}>
+            Select All
+          </Button>
         </HStack>
         <Wrap>
           {school.map((s) => {
             return (
-              <Checkbox size="sm" key={s} checked={filters.school[s]}>
+              <Checkbox
+                size="sm"
+                key={s}
+                checked={filters.school[s]}
+                onCheckedChange={(c) => {
+                  setFilters((f) => ({
+                    ...f,
+                    school: {
+                      ...f.school,
+                      [s]: c.checked === true
+                    }
+                  }));
+                }}
+              >
                 {s}
               </Checkbox>
             );
@@ -117,12 +138,27 @@ export const CharacterFilters = ({
       <Stack>
         <HStack justifyContent="space-between">
           <Text fontWeight="bold">ユニット</Text>
-          <Button onClick={selectAll('units')}>Select All</Button>
+          <Button size="sm" onClick={selectAll('units')}>
+            Select All
+          </Button>
         </HStack>
         <Wrap>
           {units.map((s) => {
             return (
-              <Checkbox size="sm" key={s.id} checked={filters.units[s.id]}>
+              <Checkbox
+                size="sm"
+                key={s.id}
+                checked={filters.units[s.id]}
+                onCheckedChange={(c) => {
+                  setFilters((f) => ({
+                    ...f,
+                    units: {
+                      ...f.units,
+                      [s.id]: c.checked === true
+                    }
+                  }));
+                }}
+              >
                 {s.name}
               </Checkbox>
             );
