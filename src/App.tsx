@@ -119,7 +119,7 @@ function App() {
             {listCount} to be sorted
           </Text>
           <Wrap>
-            <Button onClick={() => void shareUrl} variant="outline">
+            <Button onClick={() => void shareUrl()} variant="outline">
               Share Current Preset
             </Button>
             <Button onClick={() => init()}>Start/ Reset</Button>
