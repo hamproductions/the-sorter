@@ -2,6 +2,7 @@ import { Stack, StackProps, styled } from 'styled-system/jsx';
 import { Character } from '~/types';
 import { Text } from '../ui/text';
 import { SchoolBadge } from './SchoolBadge';
+import { getPicUrl } from '~/utils/assets';
 
 export const CharacterCard = ({
   character,
@@ -32,7 +33,7 @@ export const CharacterCard = ({
         minH={{ base: 0, sm: '240px' }}
       >
         <styled.img
-          src={(isSeiyuu ? '/assets/seiyuu/' : '/assets/character/') + `${character.id}.webp`}
+          src={getPicUrl(character.id, isSeiyuu)}
           position="absolute"
           flex={1}
           minW={0}

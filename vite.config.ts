@@ -5,6 +5,7 @@ import { join } from 'path';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  base: process.env.BASE_URL,
   resolve: {
     alias: {
       ['styled-system']: join(__dirname, './styled-system/'),

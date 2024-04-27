@@ -1,6 +1,7 @@
 import { Box, Center, Grid, GridItem, HStack, Stack, styled } from 'styled-system/jsx';
 import { Character } from '~/types';
 import { Text } from '../ui/text';
+import { getPicUrl } from '~/utils/assets';
 
 export const RankingView = ({
   characters,
@@ -45,7 +46,7 @@ export const RankingView = ({
                       {no}.
                     </Box>
                     <styled.img
-                      src={(isSeiyuu ? '/assets/seiyuu/' : '/assets/character/') + `${id}.webp`}
+                      src={getPicUrl(id, isSeiyuu)}
                       style={{ maxHeight: imageSize }}
                       width="auto"
                     />

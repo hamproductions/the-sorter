@@ -4,6 +4,7 @@ import * as Table from '../ui/table';
 import { Text } from '../ui/text';
 import { SchoolBadge } from './SchoolBadge';
 import groupBy from 'lodash/groupBy';
+import { getPicUrl } from '~/utils/assets';
 export const RankingTable = ({
   characters,
   isSeiyuu
@@ -47,7 +48,7 @@ export const RankingTable = ({
                 <Stack alignItems="center" py="2">
                   {idx < 10 && (
                     <styled.img
-                      src={(isSeiyuu ? '/assets/seiyuu/' : '/assets/character/') + `${id}.webp`}
+                      src={getPicUrl(id, isSeiyuu)}
                       style={{ maxHeight: imageSize }}
                       width="auto"
                     />

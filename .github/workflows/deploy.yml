@@ -14,7 +14,7 @@ jobs:
       - name: Install Dependencies
         uses: ./.github/composite-actions/setup
       - name: Build
-        run: bun run build
+        run: BASE_URL=/the-sorter bun run build
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
