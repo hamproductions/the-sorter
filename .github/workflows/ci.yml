@@ -13,4 +13,4 @@ jobs:
       - name: Setup Dependencies
         uses: ./.github/composite-actions/setup
       - name: Run Lint All
-        run: bun lint
+        run: bun check

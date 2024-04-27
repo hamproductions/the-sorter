@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "type-check": "tsc",
     "lint": "eslint src",
+    "check": "bun lint && bun type-check",
     "lint:fix": "eslint src --fix",
     "preview": "vite preview",
     "prepare": "panda codegen"

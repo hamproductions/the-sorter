@@ -79,7 +79,7 @@ function App() {
   };
   const title = getTitle();
 
-  const shareUrl = () => {
+  const shareUrl = async () => {
     const params = new URLSearchParams();
     for (const key of ['series', 'units', 'school'] as const) {
       const list = Object.entries(filters?.[key] ?? {})
@@ -119,7 +119,7 @@ function App() {
             {listCount} to be sorted
           </Text>
           <Wrap>
-            <Button onClick={shareUrl} variant="outline">
+            <Button onClick={() => void shareUrl} variant="outline">
               Share Current Preset
             </Button>
             <Button onClick={() => init()}>Start/ Reset</Button>

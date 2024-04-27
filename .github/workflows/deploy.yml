@@ -1,4 +1,4 @@
-name: Continous Integration
+name: Deploy Github Pages
 
 on:
   push:
