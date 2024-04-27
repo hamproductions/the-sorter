@@ -13,9 +13,11 @@ import { useSortData } from './hooks/useSortData';
 import { Character } from './types';
 
 import { ResultsView } from './components/sorter/ResultsView';
+import { useToaster } from './context/ToasterContext';
 
 function App() {
   const data = useData();
+  const { toast } = useToaster();
   const {
     seiyuu,
     setSeiyuu,
@@ -95,6 +97,7 @@ function App() {
     const url = `${location.origin}/?${params.toString()}`;
     try {
       await navigator.clipboard.writeText(url);
+      toast?.('URL Copied to Clipboard');
     } catch (e) {
       console.error('oopsie');
     }

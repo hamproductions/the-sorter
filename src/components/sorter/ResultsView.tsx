@@ -7,6 +7,7 @@ import * as htmlToImage from 'html-to-image';
 import { Box, Stack, Wrap } from 'styled-system/jsx';
 import { Button } from '../ui/button';
 import FileSaver from 'file-saver';
+import { useToaster } from '~/context/ToasterContext';
 
 const tabs = [
   { id: 'default', label: 'Default' },
@@ -17,6 +18,7 @@ export const ResultsView = ({
   isSeiyuu,
   ...props
 }: RootProps & { characters: Character[]; isSeiyuu: boolean }) => {
+  const { toast } = useToaster();
   const makeScreenshot = async () => {
     const resultsBox = document.getElementById('results');
     if (resultsBox) {
@@ -36,6 +38,7 @@ export const ResultsView = ({
       await navigator.clipboard.write([
         new ClipboardItem({ 'image/png': shareImage }, { presentationStyle: 'attachment' })
       ]);
+      toast?.('Screenshot Copied to Clipboard');
     }
   };
 
