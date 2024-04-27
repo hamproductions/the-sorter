@@ -25,7 +25,8 @@ export const initSort = <I>(arr: I[]): SortState<I> => {
 };
 
 export const mergeSort = <I>(state: SortState<I>): SortState<I> => {
-  let { arr, currentSize, status, leftStart } = state;
+  const { arr, status } = state;
+  let { currentSize, leftStart } = state;
   let currentStepDone = status === 'done';
   const n = arr.length;
 
@@ -44,9 +45,9 @@ export const mergeSort = <I>(state: SortState<I>): SortState<I> => {
         continue;
       }
 
-      var mid = Math.min(leftStart + currentSize - 1, n - 1);
+      const mid = Math.min(leftStart + currentSize - 1, n - 1);
 
-      var end = Math.min(leftStart + 2 * currentSize - 1, n - 1);
+      const end = Math.min(leftStart + 2 * currentSize - 1, n - 1);
 
       const res = merge({
         arr,
@@ -75,19 +76,11 @@ export const mergeSort = <I>(state: SortState<I>): SortState<I> => {
 export const merge = <I>(state: SortState<I>): SortState<I> => {
   const { arr, currentSize, leftStart, mergeState } = state;
   if (!mergeState) return state;
-  let {
-    start,
-    mid,
-    end,
-    leftArrIdx = 0,
-    rightArrIdx = 0,
-    arrIdx = start,
-    leftArr,
-    rightArr
-  } = mergeState;
+  const { start, mid, end } = mergeState;
+  let { leftArrIdx = 0, rightArrIdx = 0, arrIdx = start, leftArr, rightArr } = mergeState;
 
-  var n1 = mid - start + 1;
-  var n2 = end - mid;
+  const n1 = mid - start + 1;
+  const n2 = end - mid;
 
   if (!leftArr || !rightArr) {
     // console.log('Init Merge', 'start', start, 'mid', mid, 'end', end);
@@ -172,7 +165,8 @@ export const step = <I>(option: 'left' | 'right' | 'tie', state: SortState<I>): 
   const { arr: a, currentSize, leftStart, mergeState } = state;
   const arr = [...a];
   if (!mergeState) return state;
-  let { start, mid, end, leftArrIdx, rightArrIdx, arrIdx, leftArr, rightArr } = mergeState;
+  let { leftArrIdx, rightArrIdx, arrIdx } = mergeState;
+  const { start, mid, end, leftArr, rightArr } = mergeState;
 
   if (
     leftArr !== undefined &&

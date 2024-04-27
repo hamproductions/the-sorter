@@ -42,16 +42,16 @@ export const ResultsView = ({
   const download = async () => {
     const blob = await makeScreenshot();
     if (!blob) return;
-    await FileSaver.saveAs(new File([blob], 'll-sorted.png'));
+    FileSaver.saveAs(new File([blob], 'll-sorted.png'));
   };
 
   return (
     <Stack w="full">
       <Wrap>
-        <Button variant="subtle" onClick={screenshot}>
+        <Button variant="subtle" onClick={() => void screenshot()}>
           Share Screenshot
         </Button>
-        <Button variant="subtle" onClick={download}>
+        <Button variant="subtle" onClick={() => void download()}>
           Download
         </Button>
       </Wrap>

@@ -1,7 +1,6 @@
 import { Box, Center, Grid, GridItem, HStack, Stack, styled } from 'styled-system/jsx';
 import { Character } from '~/types';
 import { Text } from '../ui/text';
-import { SchoolBadge } from './SchoolBadge';
 
 export const RankingView = ({
   characters,

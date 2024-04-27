@@ -2,16 +2,15 @@ import { Box, Container, Divider, HStack, Stack, Wrap } from 'styled-system/jsx'
 import { CharacterCard } from './components/sorter/CharacterCard';
 import { CharacterFilters } from './components/sorter/CharacterFilters';
 
+import { useEffect } from 'react';
 import { Button } from './components/ui/button';
+import { Kbd } from './components/ui/kbd';
 import { Progress } from './components/ui/progress';
 import { Switch } from './components/ui/switch';
 import { Text } from './components/ui/text';
-import { useSortData } from './hooks/useSortData';
-import { Heading } from './components/ui/heading';
-import { Kbd } from './components/ui/kbd';
 import { useData } from './hooks/useData';
+import { useSortData } from './hooks/useSortData';
 import { Character } from './types';
-import { useEffect } from 'react';
 
 import { ResultsView } from './components/sorter/ResultsView';
 
@@ -82,7 +81,7 @@ function App() {
 
   const shareUrl = () => {
     const params = new URLSearchParams();
-    for (let key of ['series', 'units', 'school'] as const) {
+    for (const key of ['series', 'units', 'school'] as const) {
       const list = Object.entries(filters?.[key] ?? {})
         .filter((s) => s[1])
         .map((s) => s[0]);
@@ -95,7 +94,7 @@ function App() {
     }
     const url = `${location.origin}/?${params.toString()}`;
     try {
-      navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(url);
     } catch (e) {
       console.error('oopsie');
     }

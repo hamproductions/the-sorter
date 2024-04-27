@@ -1,4 +1,4 @@
-import { type Dispatch, type SetStateAction, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react';
 
 type NullOrUndefinedAble<T> = T | null | undefined;
 export class LocalStorage<T = unknown> {
@@ -37,7 +37,8 @@ export const useLocalStorage = function <T>(
   const setNewData: Dispatch<SetStateAction<NullOrUndefinedAble<T>>> = (
     s: SetStateAction<NullOrUndefinedAble<T>>
   ) => {
-    const newData = typeof s === 'function' ? (s as any).call(s, data) : s;
+    //@ts-expect-error force convert to function
+    const newData = typeof s === 'function' ? s.call(s, data) : s;
     storage.current.value = newData;
     setData(newData);
   };

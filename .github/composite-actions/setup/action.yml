@@ -1,0 +1,10 @@
+name: 'Install'
+description: 'Sets up Node.js and runs install'
+
+runs:
+  using: composite
+  steps:
+    - uses: oven-sh/setup-bun@v1
+    - name: Install dependencies
+      shell: bash
+      run: bun install
