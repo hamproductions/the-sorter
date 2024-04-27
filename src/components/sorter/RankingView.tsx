@@ -2,6 +2,7 @@ import { Box, Center, Grid, GridItem, HStack, Stack, styled } from 'styled-syste
 import { Character } from '~/types';
 import { Text } from '../ui/text';
 import { getPicUrl } from '~/utils/assets';
+import { SchoolBadge } from './SchoolBadge';
 
 export const RankingView = ({
   characters,
@@ -24,7 +25,6 @@ export const RankingView = ({
             >
               <Stack justifyContent="flex-end" h="full">
                 <Stack gap="1" alignItems="center">
-                  {/* <SchoolBadge character={c} hideBelow="sm" /> */}
                   <Center position="relative">
                     <Box
                       display="flex"
@@ -52,6 +52,7 @@ export const RankingView = ({
                     />
                   </Center>
                   <Stack gap="1">
+                    <SchoolBadge character={c} hideBelow="sm" />
                     <Stack gap="1" alignItems="center">
                       <Text color="var(--color)" fontSize="lg" fontWeight="bold">
                         {isSeiyuu ? casts[0].seiyuu : fullName}

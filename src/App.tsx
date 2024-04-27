@@ -14,6 +14,7 @@ import { Character } from './types';
 
 import { ResultsView } from './components/sorter/ResultsView';
 import { useToaster } from './context/ToasterContext';
+import { Link } from './components/ui/link';
 
 function App() {
   const data = useData();
@@ -199,9 +200,21 @@ function App() {
           )}
         </Stack>
       </Container>
-      <HStack justifyContent="center" w="full" p="4" bgColor="bg.muted">
-        Created by ハムP | Inspired by a bunch of other sorters of course | Assets are not mine
-      </HStack>
+      <Stack gap="1" justifyContent="center" w="full" p="4" textAlign="center" bgColor="bg.muted">
+        <Text>
+          Created by{' '}
+          <Link href="https://ham-san.net/namecard" target="_blank">
+            ハムP
+          </Link>{' '}
+          | Inspired by a bunch of other sorters of course, Assets are not mine
+        </Text>
+        <Text>
+          Check out source code on{' '}
+          <Link href="https://github.com/hamproductions/the-sorter" target="_blank">
+            GitHub
+          </Link>
+        </Text>
+      </Stack>
     </Stack>
   );
 }
