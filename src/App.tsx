@@ -95,7 +95,7 @@ function App() {
     if (seiyuu) {
       params.append('seiyuu', seiyuu.toString());
     }
-    const url = `${location.origin}/?${params.toString()}`;
+    const url = `${location.origin}${location.pathname}?${params.toString()}`;
     try {
       await navigator.clipboard.writeText(url);
       toast?.('URL Copied to Clipboard');
