@@ -3,7 +3,7 @@ import { Character } from '~/types';
 import * as Table from '../ui/table';
 import { Text } from '../ui/text';
 import { SchoolBadge } from './SchoolBadge';
-import { groupBy } from 'lodash';
+import groupBy from 'lodash/groupBy';
 export const RankingTable = ({
   characters,
   isSeiyuu
@@ -27,8 +27,8 @@ export const RankingTable = ({
               <Table.Header>声優</Table.Header>
             </>
           )}
-          <Table.Header>シリーズ・学校</Table.Header>
-          <Table.Header>ユニット</Table.Header>
+          <Table.Header hideBelow="md">シリーズ・学校</Table.Header>
+          <Table.Header hideBelow="md">ユニット</Table.Header>
         </Table.Row>
       </Table.Head>
       <Table.Body>
@@ -84,13 +84,13 @@ export const RankingTable = ({
                   </Stack>
                 )}
               </Table.Cell>
-              <Table.Cell>
+              <Table.Cell hideBelow="md">
                 <Stack gap="1" alignItems="center" w="full" py="2">
                   <SchoolBadge character={c} />
                   <Text>{school}</Text>
                 </Stack>
               </Table.Cell>
-              <Table.Cell>
+              <Table.Cell hideBelow="md">
                 <Stack gap="1" py="2">
                   {Object.values(
                     groupBy(

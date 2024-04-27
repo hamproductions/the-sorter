@@ -1,10 +1,18 @@
 import { Character } from '~/types';
-import { Badge } from '../ui/badge';
+import { Badge, BadgeProps } from '../ui/badge';
 
-export const SchoolBadge = ({ character }: { character: Character }) => {
+export const SchoolBadge = ({ character, ...rest }: { character: Character } & BadgeProps) => {
   const { series, seriesColor } = character;
   return (
-    <Badge style={{ backgroundColor: seriesColor ?? undefined }} size="sm" color="colorPalette.fg">
+    <Badge
+      style={{ backgroundColor: seriesColor ?? undefined }}
+      size="sm"
+      h="fit-content"
+      minH="5"
+      color="colorPalette.fg"
+      textWrap="wrap"
+      {...rest}
+    >
       {series}
     </Badge>
   );

@@ -84,8 +84,8 @@ export const CharacterFilters = ({
   return (
     <Collapsible.Root gap="2">
       <Collapsible.Trigger asChild>
-        <Button variant="subtle" w="full">
-          View Filters
+        <Button variant="subtle" mx="auto">
+          Edit Preset
         </Button>
       </Collapsible.Trigger>
       <Collapsible.Content>
