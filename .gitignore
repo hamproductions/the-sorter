@@ -25,6 +25,6 @@ dist-ssr
 
 styled-system
 
-./scripts
-
 out.json
+pic-*.json*
+scripts
