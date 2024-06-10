@@ -1,4 +1,4 @@
-import { Box, Center, Grid, GridItem, HStack, Stack, styled } from 'styled-system/jsx';
+import { Box, Center, Grid, GridItem, HStack, Stack, Wrap, styled } from 'styled-system/jsx';
 import { Character, WithRank } from '~/types';
 import { Text } from '../ui/text';
 import { getPicUrl } from '~/utils/assets';
@@ -24,7 +24,7 @@ export const RankingView = ({
             >
               <Stack justifyContent="flex-end" h="full">
                 <Stack gap="1" alignItems="center">
-                  <Center position="relative">
+                  <Center position="relative" mb="2">
                     <Box
                       display="flex"
                       position="absolute"
@@ -45,39 +45,55 @@ export const RankingView = ({
                       {rank}.
                     </Box>
                     <styled.img
-                      src={getPicUrl(id, isSeiyuu)}
+                      src={getPicUrl(id, isSeiyuu ? 'seiyuu' : 'character')}
                       style={{ maxHeight: imageSize }}
                       width="auto"
                     />
+                    <styled.img
+                      src={getPicUrl(id, 'icons')}
+                      onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
+                      position="absolute"
+                      right="0"
+                      bottom="0"
+                      border="1px solid"
+                      borderColor="var(--color)"
+                      rounded="full"
+                      w="8"
+                      h="8"
+                      bgColor="white"
+                      transform="translate(25%, 25%)"
+                    />
                   </Center>
-                  <Stack gap="1">
-                    <SchoolBadge character={c} hideBelow="sm" />
-                    <Stack gap="1" alignItems="center">
-                      <Text color="var(--color)" fontSize="lg" fontWeight="bold">
-                        {isSeiyuu ? casts[0].seiyuu : fullName}
-                      </Text>
-                    </Stack>
-                    {isSeiyuu ? (
-                      <Text textAlign="center" fontSize="xs">
-                        {fullName}
-                      </Text>
-                    ) : (
+                  <SchoolBadge character={c} hideBelow="sm" />
+                  <Wrap gap="0.5" alignItems="center">
+                    <Stack gap="1">
                       <Stack gap="1" alignItems="center">
-                        {casts.map((c) => {
-                          return (
-                            <Text key={c.seiyuu} fontSize="xs">
-                              {c.seiyuu}{' '}
-                              {c.note && (
-                                <Text as="span" fontSize="xs">
-                                  ({c.note})
-                                </Text>
-                              )}
-                            </Text>
-                          );
-                        })}
+                        <Text color="var(--color)" fontSize="lg" fontWeight="bold">
+                          {isSeiyuu ? casts[0].seiyuu : fullName}
+                        </Text>
                       </Stack>
-                    )}
-                  </Stack>
+                      {isSeiyuu ? (
+                        <Text textAlign="center" fontSize="xs">
+                          {fullName}
+                        </Text>
+                      ) : (
+                        <Stack gap="1" alignItems="center">
+                          {casts?.map((c) => {
+                            return (
+                              <Text key={c.seiyuu} fontSize="xs">
+                                {c.seiyuu}{' '}
+                                {c.note && (
+                                  <Text as="span" fontSize="xs">
+                                    ({c.note})
+                                  </Text>
+                                )}
+                              </Text>
+                            );
+                          })}
+                        </Stack>
+                      )}
+                    </Stack>
+                  </Wrap>
                 </Stack>
               </Stack>
             </GridItem>
@@ -91,7 +107,7 @@ export const RankingView = ({
             <GridItem
               key={id}
               style={{
-                ['--color' as 'color']: colorCode as 'red',
+                ['--color' as 'color']: colorCode ?? (seriesColor as 'red'),
                 ['--seriesColor' as 'borderLeftColor']: seriesColor ?? colorCode
               }}
               borderLeft="4px solid"
@@ -103,24 +119,32 @@ export const RankingView = ({
                 <Text color="var(--color)" fontSize="sm" fontWeight="bold">
                   {rank}.
                 </Text>
-                <Stack gap="0.5">
-                  <Text color="var(--color)" fontSize="sm" fontWeight="bold">
-                    {isSeiyuu ? casts[0].seiyuu : fullName}
-                  </Text>
-                  {isSeiyuu ? (
-                    <Text fontSize="xs">{fullName}</Text>
-                  ) : (
-                    <Stack gap="1">
-                      {casts.map((c) => {
-                        return (
-                          <Text key={c.seiyuu} fontSize="xs">
-                            {c.seiyuu}
-                          </Text>
-                        );
-                      })}
-                    </Stack>
-                  )}
-                </Stack>
+                <HStack gap="0.5" alignItems="flex-start">
+                  <styled.img
+                    src={getPicUrl(id, 'icons')}
+                    onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
+                    w="auto"
+                    h="8"
+                  />
+                  <Stack gap="0.5">
+                    <Text color="var(--color)" fontSize="sm" fontWeight="bold">
+                      {isSeiyuu ? casts[0].seiyuu : fullName}
+                    </Text>
+                    {isSeiyuu ? (
+                      <Text fontSize="xs">{fullName}</Text>
+                    ) : (
+                      <Stack gap="1">
+                        {casts.map((c) => {
+                          return (
+                            <Text key={c.seiyuu} fontSize="xs">
+                              {c.seiyuu}
+                            </Text>
+                          );
+                        })}
+                      </Stack>
+                    )}
+                  </Stack>
+                </HStack>
               </HStack>
             </GridItem>
           );

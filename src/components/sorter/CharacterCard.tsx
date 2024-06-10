@@ -33,7 +33,7 @@ export const CharacterCard = ({
         minH={{ base: 0, sm: '240px' }}
       >
         <styled.img
-          src={getPicUrl(character.id, isSeiyuu)}
+          src={getPicUrl(character.id, isSeiyuu ? 'seiyuu' : 'character')}
           position="absolute"
           flex={1}
           minW={0}

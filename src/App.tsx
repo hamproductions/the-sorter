@@ -40,9 +40,13 @@ function App() {
     .flatMap((ids, idx, arr) => {
       const startRank = arr.slice(0, idx).reduce((p, c) => p + c.length, 1);
       if (Array.isArray(ids)) {
-        return ids.map((id) => ({ rank: startRank, ...data.find((i) => i.id === id) }));
+        return ids
+          .map((id) => ({ rank: startRank, ...data.find((i) => i.id === id) }))
+          .filter((d) => 'id' in d);
       } else {
-        return [{ rank: startRank, ...data.find((i) => i.id === (ids as string)) }];
+        const chara = data.find((i) => i.id === (ids as string));
+        if (!chara) return [];
+        return [{ rank: startRank, ...chara }];
       }
     })
     .filter((c) => !!c) ?? []) as WithRank<Character>[];

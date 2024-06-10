@@ -1,10 +1,10 @@
-import { Stack, styled } from 'styled-system/jsx';
+import groupBy from 'lodash/groupBy';
+import { Stack, Wrap, styled } from 'styled-system/jsx';
 import { Character, WithRank } from '~/types';
+import { getPicUrl } from '~/utils/assets';
 import * as Table from '../ui/table';
 import { Text } from '../ui/text';
 import { SchoolBadge } from './SchoolBadge';
-import groupBy from 'lodash/groupBy';
-import { getPicUrl } from '~/utils/assets';
 export const RankingTable = ({
   characters,
   isSeiyuu
@@ -34,12 +34,12 @@ export const RankingTable = ({
       </Table.Head>
       <Table.Body>
         {characters.map((c, idx) => {
-          const { rank, id, fullName, casts, school, colorCode, units } = c;
+          const { rank, id, fullName, casts, school, colorCode, seriesColor, units } = c;
           const imageSize = idx === 0 ? '150px' : idx <= 3 ? '100px' : '80px';
           return (
             <Table.Row
               key={idx}
-              style={{ ['--color' as 'color']: colorCode as 'red' }}
+              style={{ ['--color' as 'color']: colorCode ?? (seriesColor as 'red') }}
               borderLeft="8px solid"
               borderColor="var(--color)"
             >
@@ -48,21 +48,29 @@ export const RankingTable = ({
                 <Stack alignItems="center" py="2">
                   {idx < 10 && (
                     <styled.img
-                      src={getPicUrl(id, isSeiyuu)}
+                      src={getPicUrl(id, isSeiyuu ? 'seiyuu' : 'character')}
                       style={{ maxHeight: imageSize }}
                       width="auto"
                     />
                   )}
-                  <Stack gap="1" alignItems="center">
-                    <Text color="var(--color)" fontSize="md" fontWeight="bold">
-                      {isSeiyuu ? casts[0].seiyuu : fullName}
-                    </Text>
-                    {isSeiyuu && casts[0].note && (
-                      <Text textAlign="center" fontSize="xs">
-                        ({casts[0].note})
+                  <Wrap gap="1" justifyContent="center" alignItems="center">
+                    <styled.img
+                      src={getPicUrl(id, 'icons')}
+                      onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
+                      w="auto"
+                      h="8"
+                    />
+                    <Stack gap="1" alignItems="center">
+                      <Text color="var(--color)" fontSize="md" fontWeight="bold">
+                        {isSeiyuu ? casts[0].seiyuu : fullName}
                       </Text>
-                    )}
-                  </Stack>
+                      {isSeiyuu && casts[0].note && (
+                        <Text textAlign="center" fontSize="xs">
+                          ({casts[0].note})
+                        </Text>
+                      )}
+                    </Stack>
+                  </Wrap>
                 </Stack>
               </Table.Cell>
               <Table.Cell>
@@ -70,7 +78,7 @@ export const RankingTable = ({
                   fullName
                 ) : (
                   <Stack gap="1" alignItems="center" py="2">
-                    {casts.map((c) => {
+                    {casts?.map((c) => {
                       return (
                         <Text key={c.seiyuu}>
                           {c.seiyuu}{' '}
@@ -103,7 +111,11 @@ export const RankingTable = ({
                     return (
                       <Text key={u.id}>
                         {u.name}{' '}
-                        {u.additionalInfo && <>({us.map((i) => i.additionalInfo).join(',')})</>}
+                        {u.additionalInfo && (
+                          <Text as="span" hideBelow="lg">
+                            ({us.map((i) => i.additionalInfo).join(',')})
+                          </Text>
+                        )}
                       </Text>
                     );
                   })}
