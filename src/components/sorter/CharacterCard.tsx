@@ -1,9 +1,9 @@
-import { Box, Stack, StackProps, Center, styled } from 'styled-system/jsx';
+import { Center, Stack, StackProps, styled } from 'styled-system/jsx';
 import { Character } from '~/types';
-import { Text } from '../ui/text';
-import { SchoolBadge } from './SchoolBadge';
 import { getPicUrl } from '~/utils/assets';
+import { Text } from '../ui/text';
 import { CharacterIcon } from './CharacterIcon';
+import { SchoolBadge } from './SchoolBadge';
 
 export const CharacterCard = ({
   character,
