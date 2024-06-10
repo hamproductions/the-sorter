@@ -10,11 +10,11 @@ import { Switch } from './components/ui/switch';
 import { Text } from './components/ui/text';
 import { useData } from './hooks/useData';
 import { useSortData } from './hooks/useSortData';
-import { Character } from './types';
+import { Character, WithRank } from './types';
 
 import { ResultsView } from './components/sorter/ResultsView';
-import { useToaster } from './context/ToasterContext';
 import { Link } from './components/ui/link';
+import { useToaster } from './context/ToasterContext';
 
 function App() {
   const data = useData();
@@ -36,20 +36,24 @@ function App() {
     listCount
   } = useSortData();
 
-  const charaList = (state?.arr.map((l) => data.find((i) => i.id === l)).filter((c) => !!c) ??
-    []) as Character[];
+  const charaList = (state?.arr
+    .flatMap((ids, idx, arr) => {
+      const startRank = arr.slice(0, idx).reduce((p, c) => p + c.length, 1);
+      return ids.map((id) => ({ rank: startRank, ...data.find((i) => i.id === id) }));
+    })
+    .filter((c) => !!c) ?? []) as WithRank<Character>[];
 
   const currentLeft =
     state &&
     state.mergeState?.leftArrIdx !== undefined &&
     listToSort.find(
-      (l) => l.id === state.mergeState?.leftArr?.[state.mergeState?.leftArrIdx as number]
+      (l) => l.id === state.mergeState?.leftArr?.[state.mergeState?.leftArrIdx as number][0]
     );
   const currentRight =
     state &&
     state.mergeState?.rightArrIdx !== undefined &&
     listToSort.find(
-      (l) => l.id === state.mergeState?.rightArr?.[state.mergeState?.rightArrIdx as number]
+      (l) => l.id === state.mergeState?.rightArr?.[state.mergeState?.rightArrIdx as number][0]
     );
 
   const getTitle = () => {

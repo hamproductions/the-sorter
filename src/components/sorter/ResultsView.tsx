@@ -1,6 +1,6 @@
 import * as Tabs from '../ui/tabs';
 import type { RootProps } from '../ui/tabs';
-import { Character } from '~/types';
+import { Character, WithRank } from '~/types';
 import { RankingTable } from './RankingTable';
 import { RankingView } from './RankingView';
 import * as htmlToImage from 'html-to-image';
@@ -17,7 +17,7 @@ export const ResultsView = ({
   characters,
   isSeiyuu,
   ...props
-}: RootProps & { characters: Character[]; isSeiyuu: boolean }) => {
+}: RootProps & { characters: WithRank<Character>[]; isSeiyuu: boolean }) => {
   const { toast } = useToaster();
   const makeScreenshot = async () => {
     const resultsBox = document.getElementById('results');

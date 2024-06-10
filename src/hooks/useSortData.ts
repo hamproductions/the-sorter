@@ -76,6 +76,10 @@ export const useSortData = () => {
       document.removeEventListener('keydown', handleKeystroke);
     };
   }, [left, right, tie, undo]);
+
+  useEffect(() => {
+    console.log(state?.arr);
+  }, [state]);
   return {
     seiyuu: seiyuu ?? false,
     setSeiyuu,

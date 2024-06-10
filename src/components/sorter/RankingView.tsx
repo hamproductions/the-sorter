@@ -1,5 +1,5 @@
 import { Box, Center, Grid, GridItem, HStack, Stack, styled } from 'styled-system/jsx';
-import { Character } from '~/types';
+import { Character, WithRank } from '~/types';
 import { Text } from '../ui/text';
 import { getPicUrl } from '~/utils/assets';
 import { SchoolBadge } from './SchoolBadge';
@@ -8,15 +8,14 @@ export const RankingView = ({
   characters,
   isSeiyuu
 }: {
-  characters: Character[];
+  characters: WithRank<Character>[];
   isSeiyuu: boolean;
 }) => {
   return (
     <Stack p="2">
       <Grid alignItems="stretch" gridTemplateColumns="repeat(3, 1fr)">
         {characters.slice(0, 3).map((c, idx) => {
-          const no = idx + 1;
-          const { casts, fullName, id, colorCode, seriesColor } = c;
+          const { rank, casts, fullName, id, colorCode, seriesColor } = c;
           const imageSize = idx === 0 ? '125px' : '80px';
           return (
             <GridItem
@@ -43,7 +42,7 @@ export const RankingView = ({
                       bgColor="var(--color)"
                       transform="translate(-50%, -50%)"
                     >
-                      {no}.
+                      {rank}.
                     </Box>
                     <styled.img
                       src={getPicUrl(id, isSeiyuu)}
@@ -86,9 +85,8 @@ export const RankingView = ({
         })}
       </Grid>
       <Grid gridTemplateColumns="repeat(auto-fit, minmax(150px, 1fr))">
-        {characters.slice(3).map((c, idx) => {
-          const no = idx + 4;
-          const { id, colorCode, casts, fullName, seriesColor } = c;
+        {characters.slice(3).map((c) => {
+          const { rank, id, colorCode, casts, fullName, seriesColor } = c;
           return (
             <GridItem
               key={id}
@@ -103,7 +101,7 @@ export const RankingView = ({
             >
               <HStack alignItems="flex-start">
                 <Text color="var(--color)" fontSize="sm" fontWeight="bold">
-                  {no}.
+                  {rank}.
                 </Text>
                 <Stack gap="0.5">
                   <Text color="var(--color)" fontSize="sm" fontWeight="bold">

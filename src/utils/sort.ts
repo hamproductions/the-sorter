@@ -1,24 +1,24 @@
 export interface SortState<I> {
-  arr: I[];
+  arr: I[][];
   currentSize: number;
   leftStart: number;
   status?: 'done' | 'waiting' | 'end';
   mergeState?: MergeState<I>;
-  currentPair?: [I, I];
+  ties?: I[][];
 }
 interface MergeState<I> {
   start: number;
   mid: number;
   end: number;
-  leftArr?: I[];
-  rightArr?: I[];
+  leftArr?: I[][];
+  rightArr?: I[][];
   leftArrIdx?: number;
   rightArrIdx?: number;
   arrIdx?: number;
 }
 export const initSort = <I>(arr: I[]): SortState<I> => {
   return mergeSort({
-    arr: [...arr],
+    arr: [...arr.map((a) => [a])],
     currentSize: 1,
     leftStart: 0
   });
@@ -118,21 +118,31 @@ export const merge = <I>(state: SortState<I>): SortState<I> => {
   //   rightArrIdx
   // );
   while (leftArrIdx < n1 && rightArrIdx < n2) {
-    return {
-      arr,
-      currentSize,
-      leftStart,
-      mergeState: {
-        start,
-        mid,
-        end,
-        leftArr,
-        leftArrIdx,
-        rightArr,
-        rightArrIdx,
-        arrIdx
-      }
-    };
+    if (rightArr[rightArrIdx].length === 0) {
+      arr[arrIdx] = leftArr[leftArrIdx];
+      leftArrIdx++;
+      arrIdx++;
+    } else if (leftArr[leftArrIdx].length === 0) {
+      arr[arrIdx] = rightArr[rightArrIdx];
+      rightArrIdx++;
+      arrIdx++;
+    } else {
+      return {
+        arr,
+        currentSize,
+        leftStart,
+        mergeState: {
+          start,
+          mid,
+          end,
+          leftArr,
+          leftArrIdx,
+          rightArr,
+          rightArrIdx,
+          arrIdx
+        }
+      };
+    }
   }
 
   /*
@@ -175,15 +185,20 @@ export const step = <I>(option: 'left' | 'right' | 'tie', state: SortState<I>): 
     rightArrIdx !== undefined &&
     arrIdx !== undefined
   ) {
-    // console.log(option.toUpperCase());
-    if (option === 'left' || option === 'tie') {
+    if (option === 'tie') {
+      arr[arrIdx] = [...leftArr[leftArrIdx], ...rightArr[rightArrIdx]];
+      rightArr[rightArrIdx] = [];
+      leftArrIdx++;
+    } else if (option === 'left') {
       arr[arrIdx] = leftArr[leftArrIdx];
       leftArrIdx++;
     } else {
       arr[arrIdx] = rightArr[rightArrIdx];
       rightArrIdx++;
     }
+
     arrIdx++;
+
     const nextState = merge({
       arr,
       currentSize,

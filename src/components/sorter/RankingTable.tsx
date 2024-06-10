@@ -1,5 +1,5 @@
 import { Stack, styled } from 'styled-system/jsx';
-import { Character } from '~/types';
+import { Character, WithRank } from '~/types';
 import * as Table from '../ui/table';
 import { Text } from '../ui/text';
 import { SchoolBadge } from './SchoolBadge';
@@ -9,7 +9,7 @@ export const RankingTable = ({
   characters,
   isSeiyuu
 }: {
-  characters: Character[];
+  characters: WithRank<Character>[];
   isSeiyuu: boolean;
 }) => {
   return (
@@ -34,7 +34,7 @@ export const RankingTable = ({
       </Table.Head>
       <Table.Body>
         {characters.map((c, idx) => {
-          const { id, fullName, casts, school, colorCode, units } = c;
+          const { rank, id, fullName, casts, school, colorCode, units } = c;
           const imageSize = idx === 0 ? '150px' : idx <= 3 ? '100px' : '80px';
           return (
             <Table.Row
@@ -43,7 +43,7 @@ export const RankingTable = ({
               borderLeft="8px solid"
               borderColor="var(--color)"
             >
-              <Table.Cell>{idx + 1}</Table.Cell>
+              <Table.Cell>{rank}</Table.Cell>
               <Table.Cell>
                 <Stack alignItems="center" py="2">
                   {idx < 10 && (
