@@ -31,13 +31,19 @@ const config = tseslint.config(
       '@typescript-eslint/no-unsafe-return': 'off'
     }
   },
-  // ...compat.config({ extends: ["plugin:@pandacss/recommended"] }),
-  // {
-  //   rules: {
-  //     "@pandacss/no-unsafe-token-fn-usage": "off",
-  //     "@pandacss/no-hardcoded-color": "off",
-  //   },
-  // },
+  ...compat.config({
+    plugins: ['eslint-plugin-react-compiler'],
+    rules: {
+      'react-compiler/react-compiler': 'warn'
+    }
+  }),
+  ...compat.config({ extends: ['plugin:@pandacss/recommended'] }),
+  {
+    rules: {
+      '@pandacss/no-unsafe-token-fn-usage': 'off',
+      '@pandacss/no-hardcoded-color': 'off'
+    }
+  },
   eslintPluginPrettierRecommended,
   {
     files: ['**/*.d.ts'],
