@@ -44,9 +44,14 @@ export const ResultsView = ({
   };
 
   const download = async () => {
-    const blob = await makeScreenshot();
-    if (!blob) return;
-    FileSaver.saveAs(new File([blob], 'll-sorted.png'));
+    try {
+      const blob = await makeScreenshot();
+      if (!blob) return;
+      console.log(blob);
+      FileSaver.saveAs(new File([blob], 'll-sorted.png'));
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
