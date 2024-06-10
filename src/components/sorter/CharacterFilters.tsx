@@ -59,7 +59,7 @@ export const CharacterFilters = ({
     });
   };
 
-  useEffect(() => {
+  const initFilters = () => {
     const params = new URLSearchParams(location.search);
     const urlSeries = params.getAll('series');
     const urlSchool = params.getAll('school');
@@ -79,7 +79,13 @@ export const CharacterFilters = ({
         units.map((s) => [s.id, urlUnits.includes(s.id) || (filters?.units[s.id] ?? false)])
       ) as Record<string, boolean>
     });
-  }, []);
+  };
+
+  useEffect(() => {
+    if (filters === undefined) {
+      initFilters();
+    }
+  }, [filters]);
 
   return (
     <Collapsible.Root gap="2">

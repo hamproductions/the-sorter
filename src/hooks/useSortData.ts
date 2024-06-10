@@ -10,11 +10,7 @@ import { useSorter } from './useSorter';
 export const useSortData = () => {
   const characters = useData();
   const [seiyuu, setSeiyuu] = useLocalStorage('seiyuu-mode', false);
-  const [filters, setFilters] = useLocalStorage<FilterType>('filters', {
-    series: {},
-    units: {},
-    school: {}
-  });
+  const [filters, setFilters] = useLocalStorage<FilterType>('filters', undefined);
   const listToSort = useMemo(() => {
     const charaSeiyuu = seiyuu
       ? Object.values(
@@ -42,7 +38,8 @@ export const useSortData = () => {
   );
 
   useEffect(() => {
-    if (history !== undefined && (history === null || history?.length === 0)) {
+    if (history === null) return;
+    if (history === undefined || history.length === 0) {
       reset();
     }
   }, [listToSort]);

@@ -5,10 +5,9 @@ import { useEffect } from 'react';
 
 export const useSorter = <T>(items: T[]) => {
   const [state, setState] = useLocalStorage<SortState<T>>('sort-state');
-  const [history, setHistory] = useLocalStorage<SortState<T>[]>('sort-state-history');
+  const [history, setHistory] = useLocalStorage<SortState<T>[]>('sort-state-history', undefined);
 
   useEffect(() => {
-    console.log(state, history);
     if (
       (state?.arr[0] && !Array.isArray(state?.arr[0])) ||
       (history?.[0]?.arr[0] && !Array.isArray(history?.[0]?.arr[0]))
