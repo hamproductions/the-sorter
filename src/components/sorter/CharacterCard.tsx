@@ -1,8 +1,9 @@
-import { Stack, StackProps, styled } from 'styled-system/jsx';
+import { Box, Stack, StackProps, styled } from 'styled-system/jsx';
 import { Character } from '~/types';
 import { Text } from '../ui/text';
 import { SchoolBadge } from './SchoolBadge';
 import { getPicUrl } from '~/utils/assets';
+import { CharacterIcon } from './CharacterIcon';
 
 export const CharacterCard = ({
   character,
@@ -13,6 +14,7 @@ export const CharacterCard = ({
 
   return (
     <Stack
+      style={{ ['--color' as 'color']: character.colorCode ?? undefined }}
       gap={1}
       alignItems="center"
       rounded="l1"
@@ -29,20 +31,34 @@ export const CharacterCard = ({
         position="relative"
         flex={1}
         alignItems="center"
-        w="full"
         minH={{ base: 0, sm: '240px' }}
+        mx="4"
       >
-        <styled.img
-          src={getPicUrl(character.id, isSeiyuu ? 'seiyuu' : 'character')}
-          position="absolute"
-          flex={1}
-          minW={0}
-          maxW="full"
-          minH={0}
-          maxH="full"
-        />
+        <Box>
+          <styled.img
+            src={getPicUrl(character.id, isSeiyuu ? 'seiyuu' : 'character')}
+            flex={1}
+            minW={0}
+            maxW="full"
+            minH={0}
+            maxH="400px"
+          />
+          <CharacterIcon
+            character={character}
+            position="absolute"
+            right="0"
+            bottom="0"
+            border="1px solid"
+            borderColor="var(--color)"
+            rounded="full"
+            w="10"
+            h="10"
+            bgColor="white"
+            transform="translate(25%, 25%)"
+          />
+        </Box>
       </Stack>
-      <Text style={{ color: character.colorCode ?? undefined }} fontSize="2xl" fontWeight="bold">
+      <Text color="var(--color)" fontSize="2xl" fontWeight="bold">
         {isSeiyuu ? character.casts[0].seiyuu : character.fullName}
       </Text>
       {isSeiyuu ? (

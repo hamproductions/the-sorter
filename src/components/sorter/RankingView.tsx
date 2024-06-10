@@ -3,6 +3,7 @@ import { Character, WithRank } from '~/types';
 import { Text } from '../ui/text';
 import { getPicUrl } from '~/utils/assets';
 import { SchoolBadge } from './SchoolBadge';
+import { CharacterIcon } from './CharacterIcon';
 
 export const RankingView = ({
   characters,
@@ -24,7 +25,7 @@ export const RankingView = ({
             >
               <Stack justifyContent="flex-end" h="full">
                 <Stack gap="1" alignItems="center">
-                  <Center position="relative" mb="2">
+                  <Center position="relative" mb="4">
                     <Box
                       display="flex"
                       position="absolute"
@@ -49,27 +50,26 @@ export const RankingView = ({
                       style={{ maxHeight: imageSize }}
                       width="auto"
                     />
-                    <styled.img
-                      src={getPicUrl(id, 'icons')}
-                      onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
+                    <CharacterIcon
+                      character={c}
                       position="absolute"
                       right="0"
                       bottom="0"
                       border="1px solid"
                       borderColor="var(--color)"
                       rounded="full"
-                      w="8"
-                      h="8"
+                      w="10"
+                      h="10"
                       bgColor="white"
                       transform="translate(25%, 25%)"
                     />
                   </Center>
                   <SchoolBadge character={c} hideBelow="sm" />
-                  <Wrap gap="0.5" alignItems="center">
+                  <Wrap gap="0.5" justifyContent="center" alignItems="center" w="full">
                     <Stack gap="1">
                       <Stack gap="1" alignItems="center">
                         <Text color="var(--color)" fontSize="lg" fontWeight="bold">
-                          {isSeiyuu ? casts[0].seiyuu : fullName}
+                          {isSeiyuu ? casts[0]?.seiyuu : fullName}
                         </Text>
                       </Stack>
                       {isSeiyuu ? (
@@ -120,12 +120,7 @@ export const RankingView = ({
                   {rank}.
                 </Text>
                 <HStack gap="0.5" alignItems="flex-start">
-                  <styled.img
-                    src={getPicUrl(id, 'icons')}
-                    onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
-                    w="auto"
-                    h="8"
-                  />
+                  <CharacterIcon character={c} w="auto" h="8" />
                   <Stack gap="0.5">
                     <Text color="var(--color)" fontSize="sm" fontWeight="bold">
                       {isSeiyuu ? casts[0].seiyuu : fullName}

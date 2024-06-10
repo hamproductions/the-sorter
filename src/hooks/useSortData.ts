@@ -74,6 +74,7 @@ export const useSortData = () => {
     };
   }, [left, right, tie, undo]);
 
+  console.log(seiyuu);
   return {
     seiyuu: seiyuu ?? false,
     setSeiyuu,

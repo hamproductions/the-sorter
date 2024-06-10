@@ -10,6 +10,7 @@ export const SchoolBadge = ({ character, ...rest }: { character: Character } & B
       h="fit-content"
       minH="5"
       color="colorPalette.fg"
+      textAlign="center"
       textWrap="wrap"
       {...rest}
     >

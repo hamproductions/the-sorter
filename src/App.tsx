@@ -15,6 +15,7 @@ import { Character, WithRank } from './types';
 import { ResultsView } from './components/sorter/ResultsView';
 import { Link } from './components/ui/link';
 import { useToaster } from './context/ToasterContext';
+import { FaShare } from 'react-icons/fa6';
 
 function App() {
   const data = useData();
@@ -36,12 +37,26 @@ function App() {
     listCount
   } = useSortData();
 
+  const getCharaFromId = (id: string): Character | undefined => {
+    const [charaId, castId] = id.split('-');
+    const chara = data.find((i) => i.id === charaId);
+    if (!chara) {
+      return undefined;
+    }
+    return {
+      ...chara,
+      id,
+      //@ts-expect-error TODO: will fix
+      casts: chara.casts.filter((_, idx) => idx === (castId !== undefined ? Number(castId) : 0))
+    };
+  };
+
   const charaList = (state?.arr
     .flatMap((ids, idx, arr) => {
       const startRank = arr.slice(0, idx).reduce((p, c) => p + c.length, 1);
       if (Array.isArray(ids)) {
         return ids
-          .map((id) => ({ rank: startRank, ...data.find((i) => i.id === id) }))
+          .map((id) => ({ rank: startRank, ...getCharaFromId(id) }))
           .filter((d) => 'id' in d);
       } else {
         const chara = data.find((i) => i.id === (ids as string));
@@ -120,7 +135,9 @@ function App() {
     const params = new URLSearchParams(location.search);
     const urlSeiyuu = params.get('seiyuu');
 
-    setSeiyuu(urlSeiyuu === 'true');
+    if (urlSeiyuu !== null) {
+      setSeiyuu(urlSeiyuu === 'true');
+    }
   }, []);
 
   return (
@@ -136,7 +153,7 @@ function App() {
           </Text>
           <Wrap>
             <Button onClick={() => void shareUrl()} variant="outline">
-              Share Current Preset
+              <FaShare /> Share Current Preset
             </Button>
             <Button onClick={() => init()}>Start/ Reset</Button>
           </Wrap>
