@@ -1,4 +1,4 @@
-import { Box, Stack, StackProps, styled } from 'styled-system/jsx';
+import { Box, Stack, StackProps, Center, styled } from 'styled-system/jsx';
 import { Character } from '~/types';
 import { Text } from '../ui/text';
 import { SchoolBadge } from './SchoolBadge';
@@ -31,17 +31,16 @@ export const CharacterCard = ({
         position="relative"
         flex={1}
         alignItems="center"
+        w="full"
         minH={{ base: 0, sm: '240px' }}
-        mx="4"
       >
-        <Box>
+        <Center position="absolute" flex={1} h="full">
           <styled.img
             src={getPicUrl(character.id, isSeiyuu ? 'seiyuu' : 'character')}
-            flex={1}
             minW={0}
             maxW="full"
             minH={0}
-            maxH="400px"
+            maxH="full"
           />
           <CharacterIcon
             character={character}
@@ -51,12 +50,12 @@ export const CharacterCard = ({
             border="1px solid"
             borderColor="var(--color)"
             rounded="full"
-            w="10"
-            h="10"
+            w={{ base: 8, md: 10 }}
+            h={{ base: 8, md: 10 }}
             bgColor="white"
             transform="translate(25%, 25%)"
           />
-        </Box>
+        </Center>
       </Stack>
       <Text color="var(--color)" fontSize="2xl" fontWeight="bold">
         {isSeiyuu ? character.casts[0].seiyuu : character.fullName}

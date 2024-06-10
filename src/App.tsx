@@ -141,10 +141,22 @@ function App() {
   }, []);
 
   return (
-    <Stack w="full" minH="100vh">
+    <Stack position="relative" w="full" minH="100vh">
+      <Box
+        position="fixed"
+        top="0"
+        left="0"
+        w="100vw"
+        h="100vh"
+        opacity="0.05"
+        backgroundPosition="center"
+        backgroundAttachment="fixed"
+        backgroundImage="url('https://cdn-ak.f.st-hatena.com/images/fotolife/C/Carat8008/20230106/20230106220812.png')"
+        backgroundSize="cover"
+      />
       <Container flex={1} w="full" py={4} px={4}>
         <Stack alignItems="center" w="full">
-          <Text fontSize="3xl" fontWeight="bold">
+          <Text textAlign="center" fontSize="3xl" fontWeight="bold">
             {title}
           </Text>
           <Text>ヒトリダケナンテエラベナイヨーの時に手伝ってくれるかも</Text>
@@ -205,18 +217,20 @@ function App() {
                     </HStack>
                     <Stack gap="1">
                       <Text fontWeight="bold">Keyboard Shortcuts</Text>
-                      <Text>
-                        <Kbd>←</Kbd>: Pick Left
-                      </Text>
-                      <Text>
-                        <Kbd>→</Kbd>: Pick Right
-                      </Text>
-                      <Text>
-                        <Kbd>↓</Kbd>: Tie/ Skip
-                      </Text>
-                      <Text>
-                        <Kbd>↑</Kbd>: Undo
-                      </Text>
+                      <Wrap>
+                        <Text>
+                          <Kbd>←</Kbd>: Pick Left
+                        </Text>
+                        <Text>
+                          <Kbd>→</Kbd>: Pick Right
+                        </Text>
+                        <Text>
+                          <Kbd>↓</Kbd>: Tie/ Skip
+                        </Text>
+                        <Text>
+                          <Kbd>↑</Kbd>: Undo
+                        </Text>
+                      </Wrap>
                     </Stack>
                   </Stack>
                   <Text>Comparison No. {count}</Text>
