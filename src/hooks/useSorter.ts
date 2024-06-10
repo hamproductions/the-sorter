@@ -1,10 +1,21 @@
 import { SortState, step, initSort } from '../utils/sort';
 import shuffle from 'lodash/shuffle';
 import { useLocalStorage } from './useLocalStorage';
+import { useEffect } from 'react';
 
 export const useSorter = <T>(items: T[]) => {
   const [state, setState] = useLocalStorage<SortState<T>>('sort-state');
   const [history, setHistory] = useLocalStorage<SortState<T>[]>('sort-state-history');
+
+  useEffect(() => {
+    console.log(state, history);
+    if (
+      (state?.arr[0] && !Array.isArray(state?.arr[0])) ||
+      (history?.[0]?.arr[0] && !Array.isArray(history?.[0]?.arr[0]))
+    ) {
+      localStorage.clear();
+    }
+  }, [state, history]);
 
   const loadState = (stateData: { state: SortState<T>; history: SortState<T>[] }) => {
     const { state, history } = stateData;

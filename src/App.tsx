@@ -39,7 +39,11 @@ function App() {
   const charaList = (state?.arr
     .flatMap((ids, idx, arr) => {
       const startRank = arr.slice(0, idx).reduce((p, c) => p + c.length, 1);
-      return ids.map((id) => ({ rank: startRank, ...data.find((i) => i.id === id) }));
+      if (Array.isArray(ids)) {
+        return ids.map((id) => ({ rank: startRank, ...data.find((i) => i.id === id) }));
+      } else {
+        return [{ rank: startRank, ...data.find((i) => i.id === (ids as string)) }];
+      }
     })
     .filter((c) => !!c) ?? []) as WithRank<Character>[];
 
