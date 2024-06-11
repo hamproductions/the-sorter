@@ -12,6 +12,7 @@ import { useData } from './hooks/useData';
 import { useSortData } from './hooks/useSortData';
 import { Character, WithRank } from './types';
 
+import { FaShare } from 'react-icons/fa6';
 import { ResultsView } from './components/sorter/ResultsView';
 import { Link } from './components/ui/link';
 import { useToaster } from './context/ToasterContext';
@@ -37,12 +38,26 @@ function App() {
     listCount
   } = useSortData();
 
+  const getCharaFromId = (id: string): Character | undefined => {
+    const [charaId, castId] = id.split('-');
+    const chara = data.find((i) => i.id === charaId);
+    if (!chara) {
+      return undefined;
+    }
+    return {
+      ...chara,
+      id,
+      //@ts-expect-error TODO: will fix
+      casts: chara.casts.filter((_, idx) => idx === (castId !== undefined ? Number(castId) : 0))
+    };
+  };
+
   const charaList = (state?.arr
     .flatMap((ids, idx, arr) => {
       const startRank = arr.slice(0, idx).reduce((p, c) => p + c.length, 1);
       if (Array.isArray(ids)) {
         return ids
-          .map((id) => ({ rank: startRank, ...data.find((i) => i.id === id) }))
+          .map((id) => ({ rank: startRank, ...getCharaFromId(id) }))
           .filter((d) => 'id' in d);
       } else {
         const chara = data.find((i) => i.id === (ids as string));
@@ -115,14 +130,28 @@ function App() {
     const params = new URLSearchParams(location.search);
     const urlSeiyuu = params.get('seiyuu');
 
-    setSeiyuu(urlSeiyuu === 'true');
+    if (urlSeiyuu !== null) {
+      setSeiyuu(urlSeiyuu === 'true');
+    }
   }, []);
 
   return (
-    <Stack w="full" minH="100vh">
+    <Stack position="relative" w="full" minH="100vh">
+      <Box
+        position="fixed"
+        top="0"
+        left="0"
+        w="100vw"
+        h="100vh"
+        opacity="0.05"
+        backgroundPosition="center"
+        backgroundAttachment="fixed"
+        backgroundImage="url('https://cdn-ak.f.st-hatena.com/images/fotolife/C/Carat8008/20230106/20230106220812.png')"
+        backgroundSize="cover"
+      />
       <Container flex={1} w="full" py={4} px={4}>
         <Stack alignItems="center" w="full">
-          <Text fontSize="3xl" fontWeight="bold">
+          <Text textAlign="center" fontSize="3xl" fontWeight="bold">
             {title}
           </Text>
           <Text>ヒトリダケナンテエラベナイヨーの時に手伝ってくれるかも</Text>
@@ -131,7 +160,7 @@ function App() {
           </Text>
           <Wrap>
             <Button onClick={() => void shareUrl()} variant="outline">
-              Share Current Preset
+              <FaShare /> Share Current Preset
             </Button>
             <Button onClick={() => init()}>Start/ Reset</Button>
           </Wrap>
@@ -183,18 +212,20 @@ function App() {
                     </HStack>
                     <Stack gap="1">
                       <Text fontWeight="bold">Keyboard Shortcuts</Text>
-                      <Text>
-                        <Kbd>←</Kbd>: Pick Left
-                      </Text>
-                      <Text>
-                        <Kbd>→</Kbd>: Pick Right
-                      </Text>
-                      <Text>
-                        <Kbd>↓</Kbd>: Tie/ Skip
-                      </Text>
-                      <Text>
-                        <Kbd>↑</Kbd>: Undo
-                      </Text>
+                      <Wrap>
+                        <Text>
+                          <Kbd>←</Kbd>: Pick Left
+                        </Text>
+                        <Text>
+                          <Kbd>→</Kbd>: Pick Right
+                        </Text>
+                        <Text>
+                          <Kbd>↓</Kbd>: Tie/ Skip
+                        </Text>
+                        <Text>
+                          <Kbd>↑</Kbd>: Undo
+                        </Text>
+                      </Wrap>
                     </Stack>
                   </Stack>
                   <Text>Comparison No. {count}</Text>

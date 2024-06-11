@@ -1,8 +1,9 @@
-import { Stack, StackProps, styled } from 'styled-system/jsx';
+import { Center, Stack, StackProps, styled } from 'styled-system/jsx';
 import { Character } from '~/types';
-import { Text } from '../ui/text';
-import { SchoolBadge } from './SchoolBadge';
 import { getPicUrl } from '~/utils/assets';
+import { Text } from '../ui/text';
+import { CharacterIcon } from './CharacterIcon';
+import { SchoolBadge } from './SchoolBadge';
 
 export const CharacterCard = ({
   character,
@@ -13,6 +14,7 @@ export const CharacterCard = ({
 
   return (
     <Stack
+      style={{ ['--color' as 'color']: character.colorCode ?? undefined }}
       gap={1}
       alignItems="center"
       rounded="l1"
@@ -32,17 +34,30 @@ export const CharacterCard = ({
         w="full"
         minH={{ base: 0, sm: '240px' }}
       >
-        <styled.img
-          src={getPicUrl(character.id, isSeiyuu ? 'seiyuu' : 'character')}
-          position="absolute"
-          flex={1}
-          minW={0}
-          maxW="full"
-          minH={0}
-          maxH="full"
-        />
+        <Center position="absolute" flex={1} h="full">
+          <styled.img
+            src={getPicUrl(character.id, isSeiyuu ? 'seiyuu' : 'character')}
+            minW={0}
+            maxW="full"
+            minH={0}
+            maxH="full"
+          />
+          <CharacterIcon
+            character={character}
+            position="absolute"
+            right="0"
+            bottom="0"
+            border="1px solid"
+            borderColor="var(--color)"
+            rounded="full"
+            w={{ base: 8, md: 10 }}
+            h={{ base: 8, md: 10 }}
+            bgColor="white"
+            transform="translate(25%, 25%)"
+          />
+        </Center>
       </Stack>
-      <Text style={{ color: character.colorCode ?? undefined }} fontSize="2xl" fontWeight="bold">
+      <Text color="var(--color)" fontSize="2xl" fontWeight="bold">
         {isSeiyuu ? character.casts[0].seiyuu : character.fullName}
       </Text>
       {isSeiyuu ? (

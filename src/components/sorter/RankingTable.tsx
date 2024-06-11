@@ -5,6 +5,7 @@ import { getPicUrl } from '~/utils/assets';
 import * as Table from '../ui/table';
 import { Text } from '../ui/text';
 import { SchoolBadge } from './SchoolBadge';
+import { CharacterIcon } from './CharacterIcon';
 export const RankingTable = ({
   characters,
   isSeiyuu
@@ -54,12 +55,7 @@ export const RankingTable = ({
                     />
                   )}
                   <Wrap gap="1" justifyContent="center" alignItems="center">
-                    <styled.img
-                      src={getPicUrl(id, 'icons')}
-                      onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
-                      w="auto"
-                      h="8"
-                    />
+                    <CharacterIcon character={c} w="auto" h="8" />
                     <Stack gap="1" alignItems="center">
                       <Text color="var(--color)" fontSize="md" fontWeight="bold">
                         {isSeiyuu ? casts[0].seiyuu : fullName}

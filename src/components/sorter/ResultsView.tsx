@@ -8,6 +8,7 @@ import { Box, Stack, Wrap } from 'styled-system/jsx';
 import { Button } from '../ui/button';
 import FileSaver from 'file-saver';
 import { useToaster } from '~/context/ToasterContext';
+import { FaDownload, FaShare } from 'react-icons/fa6';
 
 const tabs = [
   { id: 'default', label: 'Default' },
@@ -43,19 +44,24 @@ export const ResultsView = ({
   };
 
   const download = async () => {
-    const blob = await makeScreenshot();
-    if (!blob) return;
-    FileSaver.saveAs(new File([blob], 'll-sorted.png'));
+    try {
+      const blob = await makeScreenshot();
+      if (!blob) return;
+      console.log(blob);
+      FileSaver.saveAs(new File([blob], 'll-sorted.png'));
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
     <Stack w="full">
       <Wrap>
         <Button variant="subtle" onClick={() => void screenshot()}>
-          Share Screenshot
+          <FaShare /> Share Screenshot
         </Button>
         <Button variant="subtle" onClick={() => void download()}>
-          Download
+          <FaDownload /> Download
         </Button>
       </Wrap>
       <Tabs.Root defaultValue="default" {...props}>

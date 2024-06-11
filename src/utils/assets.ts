@@ -12,5 +12,6 @@ export const getPicUrl = (id: string, type: 'seiyuu' | 'icons' | 'character' = '
         return 'assets/character';
     }
   })();
-  return join(import.meta.env.BASE_URL, prefix, `${id}.webp`);
+  const photoId = type !== 'seiyuu' ? id.split('-')[0] : id;
+  return join(import.meta.env.BASE_URL, prefix, `${photoId}.webp`);
 };
