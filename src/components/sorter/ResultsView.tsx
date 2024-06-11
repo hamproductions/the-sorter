@@ -1,5 +1,4 @@
 import FileSaver from 'file-saver';
-import * as htmlToImage from 'html-to-image';
 import { useEffect, useState } from 'react';
 import { FaCopy, FaDownload } from 'react-icons/fa6';
 import { Box, Stack, Wrap } from 'styled-system/jsx';
@@ -15,6 +14,7 @@ import { Text } from '../ui/text';
 import { Textarea } from '../ui/textarea';
 import { RankingTable } from './RankingTable';
 import { RankingView } from './RankingView';
+import { domToBlob } from 'modern-screenshot';
 
 const tabs = [
   { id: 'default', label: 'Default' },
@@ -34,7 +34,9 @@ export const ResultsView = ({
   const makeScreenshot = async () => {
     const resultsBox = document.getElementById('results');
     if (resultsBox) {
-      const shareImage = await htmlToImage.toBlob(resultsBox, {});
+      const shareImage = await domToBlob(resultsBox, {
+        features: { removeControlCharacter: false }
+      });
       return shareImage;
     }
   };
