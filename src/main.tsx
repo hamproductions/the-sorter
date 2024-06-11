@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App.tsx';
+import App from './pages/index/+Page.tsx';
 import './index.css';
 import { ToasterProvider } from './context/ToasterContext.tsx';
 import { Head } from './components/Head.tsx';
