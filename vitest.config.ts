@@ -9,6 +9,9 @@ export default defineConfig({
       reporter: ['text', 'json-summary', 'json'],
       // If you want a coverage reports even if your tests are failing, include the reportOnFailure option
       reportOnFailure: true
+    },
+    outputFile: {
+      'json-summary': './coverage-summary.json'
     }
   }
 });
