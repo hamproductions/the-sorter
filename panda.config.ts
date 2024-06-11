@@ -1,6 +1,6 @@
 import { defineConfig } from '@pandacss/dev';
 import { createPreset } from '@park-ui/panda-preset';
-import { theme } from './src/theme';
+import { theme } from './app/src/theme';
 
 export default defineConfig({
   // Whether to use css reset
