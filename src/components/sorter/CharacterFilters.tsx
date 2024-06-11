@@ -91,7 +91,7 @@ export const CharacterFilters = ({
     <Collapsible.Root gap="2">
       <Collapsible.Trigger asChild>
         <Button variant="subtle" mx="auto">
-          Edit Preset
+          Edit Settings
         </Button>
       </Collapsible.Trigger>
       <Collapsible.Content>

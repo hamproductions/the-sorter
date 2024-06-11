@@ -73,8 +73,7 @@ function App() {
   const currentLeft = leftItem && listToSort.find((l) => l.id === leftItem[0]);
   const currentRight = rightItem && listToSort.find((l) => l.id === rightItem[0]);
 
-  console.log(leftItem, rightItem, currentLeft, currentRight);
-  const getTitle = () => {
+  const getTitlePrefix = () => {
     const seriesName = Object.entries(filters?.series ?? {})
       .filter((e) => e[1])
       .map((e) => e[0]);
@@ -89,20 +88,20 @@ function App() {
             ?.name
       );
 
-    if (seriesName.length + schoolName.length + unitName.length > 1)
-      return 'Yet another LL! sorter';
+    if (seriesName.length + schoolName.length + unitName.length > 1) return;
     if (seriesName.length === 1) {
-      return `${seriesName[0]} Sorter`;
+      return seriesName[0];
     }
     if (schoolName.length === 1) {
-      return `${schoolName[0]} Sorter`;
+      return schoolName[0];
     }
     if (unitName.length === 1) {
-      return `${unitName[0]} Sorter`;
+      return unitName[0];
     }
-    return 'Yet another LL! sorter';
+    return;
   };
-  const title = getTitle();
+
+  const title = `${getTitlePrefix() ?? 'Yet another LL!'} sorter`;
 
   const shareUrl = async () => {
     const params = new URLSearchParams();
@@ -158,16 +157,16 @@ function App() {
           <Text fontSize="sm" fontWeight="bold">
             {listCount} to be sorted
           </Text>
-          <Wrap>
-            <Button onClick={() => void shareUrl()} variant="outline">
-              <FaShare /> Share Current Preset
-            </Button>
-            <Button onClick={() => init()}>Start/ Reset</Button>
-          </Wrap>
           <CharacterFilters filters={filters} setFilters={setFilters} />
           <Switch checked={seiyuu} onCheckedChange={(e) => setSeiyuu(e.checked)}>
             Do you like seiyuu ? (Seiyuu Mode)
           </Switch>
+          <Wrap>
+            <Button onClick={() => void shareUrl()} variant="outline">
+              <FaShare /> Share Current Settings
+            </Button>
+            <Button onClick={() => init()}>Start/ Reset</Button>
+          </Wrap>
           {state && (
             <Stack alignItems="center" w="full">
               {state.status !== 'end' && (
@@ -233,7 +232,14 @@ function App() {
                 </Stack>
               )}
               <Divider />
-              {charaList && <ResultsView characters={charaList} isSeiyuu={seiyuu} w="full" />}
+              {charaList && (
+                <ResultsView
+                  titlePrefix={getTitlePrefix()}
+                  characters={charaList}
+                  isSeiyuu={seiyuu}
+                  w="full"
+                />
+              )}
             </Stack>
           )}
         </Stack>
