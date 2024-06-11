@@ -154,7 +154,7 @@ function App() {
           <Text textAlign="center" fontSize="3xl" fontWeight="bold">
             {title}
           </Text>
-          <Text>ヒトリダケナンテエラベナイヨーの時に手伝ってくれるかも</Text>
+          <Text>ヒトリダケナンテエラベナイヨーの時に役に立てるかも</Text>
           <Text fontSize="sm" fontWeight="bold">
             {listCount} to be sorted
           </Text>

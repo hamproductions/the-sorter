@@ -31,17 +31,21 @@ export const ResultsView = ({
   const [description, setDescription] = useState<string>();
   const [currentTab, setCurrentTab] = useState<'default' | 'table'>('default');
   const [timestamp, setTimestamp] = useState(new Date());
+
   const makeScreenshot = async () => {
+    setTimestamp(new Date());
     const resultsBox = document.getElementById('results');
     if (resultsBox) {
       const shareImage = await domToBlob(resultsBox, {
+        quality: 1,
+        scale: 2,
+        type: 'image/png',
         features: { removeControlCharacter: false }
       });
       return shareImage;
     }
   };
   const screenshot = async () => {
-    setTimestamp(new Date());
     const shareImage = await makeScreenshot();
     if (!shareImage) return;
     try {
@@ -61,7 +65,9 @@ export const ResultsView = ({
     try {
       const blob = await makeScreenshot();
       if (!blob) return;
-      FileSaver.saveAs(new File([blob], 'll-sorted.png'));
+      FileSaver.saveAs(
+        new File([blob], `${titlePrefix ?? 'll'}-sorted-${timestamp.valueOf()}.png`)
+      );
     } catch (error) {
       console.log(error);
     }

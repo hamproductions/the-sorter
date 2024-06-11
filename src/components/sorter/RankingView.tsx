@@ -119,7 +119,7 @@ export const RankingView = ({
                 <Text color="var(--color)" fontSize="sm" fontWeight="bold">
                   {rank}.
                 </Text>
-                <HStack gap="0.5" alignItems="flex-start">
+                <HStack gap="0.5" alignItems="center">
                   <CharacterIcon character={c} w="auto" h="8" />
                   <Stack gap="0.5">
                     <Text color="var(--color)" fontSize="sm" fontWeight="bold">
