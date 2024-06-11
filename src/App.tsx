@@ -137,6 +137,7 @@ function App() {
   return (
     <Stack position="relative" w="full" minH="100vh">
       <Box
+        zIndex="0"
         position="fixed"
         top="0"
         left="0"
@@ -148,7 +149,7 @@ function App() {
         backgroundImage="url('https://cdn-ak.f.st-hatena.com/images/fotolife/C/Carat8008/20230106/20230106220812.png')"
         backgroundSize="cover"
       />
-      <Container flex={1} w="full" py={4} px={4}>
+      <Container zIndex="1" flex={1} w="full" py={4} px={4}>
         <Stack alignItems="center" w="full">
           <Text textAlign="center" fontSize="3xl" fontWeight="bold">
             {title}
@@ -244,7 +245,15 @@ function App() {
           )}
         </Stack>
       </Container>
-      <Stack gap="1" justifyContent="center" w="full" p="4" textAlign="center" bgColor="bg.muted">
+      <Stack
+        zIndex="1"
+        gap="1"
+        justifyContent="center"
+        w="full"
+        p="4"
+        textAlign="center"
+        bgColor="bg.muted"
+      >
         <Text>
           Created by{' '}
           <Link href="https://ham-san.net/namecard" target="_blank">
