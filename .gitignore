@@ -28,3 +28,7 @@ styled-system
 out.json
 pic-*.json*
 scripts
+
+*_report.json
+
+coverage*

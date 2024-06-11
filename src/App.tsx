@@ -15,6 +15,7 @@ import { Character, WithRank } from './types';
 import { ResultsView } from './components/sorter/ResultsView';
 import { Link } from './components/ui/link';
 import { useToaster } from './context/ToasterContext';
+import { getCurrentItem } from './utils/sort';
 
 function App() {
   const data = useData();
@@ -51,19 +52,13 @@ function App() {
     })
     .filter((c) => !!c) ?? []) as WithRank<Character>[];
 
-  const currentLeft =
-    state &&
-    state.mergeState?.leftArrIdx !== undefined &&
-    listToSort.find(
-      (l) => l.id === state.mergeState?.leftArr?.[state.mergeState?.leftArrIdx as number][0]
-    );
-  const currentRight =
-    state &&
-    state.mergeState?.rightArrIdx !== undefined &&
-    listToSort.find(
-      (l) => l.id === state.mergeState?.rightArr?.[state.mergeState?.rightArrIdx as number][0]
-    );
+  const { left: leftItem, right: rightItem } =
+    (state && getCurrentItem(state)) || ({} as { left: string[]; right: string[] });
 
+  const currentLeft = leftItem && listToSort.find((l) => l.id === leftItem[0]);
+  const currentRight = rightItem && listToSort.find((l) => l.id === rightItem[0]);
+
+  console.log(leftItem, rightItem, currentLeft, currentRight);
   const getTitle = () => {
     const seriesName = Object.entries(filters?.series ?? {})
       .filter((e) => e[1])

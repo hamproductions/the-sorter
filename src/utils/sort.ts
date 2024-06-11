@@ -16,6 +16,7 @@ interface MergeState<I> {
   rightArrIdx?: number;
   arrIdx?: number;
 }
+
 export const initSort = <I>(arr: I[]): SortState<I> => {
   return mergeSort({
     arr: [...arr.map((a) => [a])],
@@ -104,27 +105,14 @@ export const merge = <I>(state: SortState<I>): SortState<I> => {
     arrIdx = start;
   }
 
-  // console.log(
-  //   'merging',
-  //   'arr',
-  //   arr,
-  //   'leftarr ',
-  //   leftArr,
-  //   'rightarr ',
-  //   rightArr,
-  //   'leftIdx',
-  //   leftArrIdx,
-  //   'rightIdx',
-  //   rightArrIdx
-  // );
   while (leftArrIdx < n1 && rightArrIdx < n2) {
     if (rightArr[rightArrIdx].length === 0) {
-      arr[arrIdx] = leftArr[leftArrIdx];
-      leftArrIdx++;
-      arrIdx++;
-    } else if (leftArr[leftArrIdx].length === 0) {
       arr[arrIdx] = rightArr[rightArrIdx];
       rightArrIdx++;
+      arrIdx++;
+    } else if (leftArr[leftArrIdx].length === 0) {
+      arr[arrIdx] = leftArr[leftArrIdx];
+      leftArrIdx++;
       arrIdx++;
     } else {
       return {
@@ -205,7 +193,6 @@ export const step = <I>(option: 'left' | 'right' | 'tie', state: SortState<I>): 
       leftStart,
       mergeState: { start, mid, end, leftArrIdx, rightArrIdx, arrIdx, leftArr, rightArr }
     });
-    // console.log('Next Step', nextState);
 
     if (!nextState.mergeState) {
       return mergeSort(nextState);
@@ -214,4 +201,20 @@ export const step = <I>(option: 'left' | 'right' | 'tie', state: SortState<I>): 
     }
   }
   return state;
+};
+
+export const getCurrentItem = <T>(state: SortState<T>) => {
+  if (
+    !state.mergeState ||
+    state.mergeState.leftArrIdx === undefined ||
+    state.mergeState.rightArrIdx === undefined
+  )
+    return undefined;
+  const left = state.mergeState?.leftArr?.[state.mergeState.leftArrIdx];
+  const right = state.mergeState?.rightArr?.[state.mergeState.rightArrIdx];
+
+  return {
+    left,
+    right
+  };
 };
