@@ -2,6 +2,7 @@ import { SortState, step, initSort } from '../utils/sort';
 import shuffle from 'lodash/shuffle';
 import { useLocalStorage } from './useLocalStorage';
 import { useEffect } from 'react';
+import cloneDeep from 'lodash/cloneDeep';
 
 export const useSorter = <T>(items: T[]) => {
   const [state, setState] = useLocalStorage<SortState<T>>('sort-state');
@@ -24,7 +25,7 @@ export const useSorter = <T>(items: T[]) => {
 
   const handleStep = (value: 'left' | 'right' | 'tie') => () => {
     if (state) {
-      setHistory([...(history ?? []), state]);
+      setHistory([...(history ?? []), cloneDeep(state)]);
       const nextStep = step(value, state);
       state && setState(nextStep);
     }
