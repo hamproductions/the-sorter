@@ -59,8 +59,11 @@ jobs:
         with:
           urls: ${{ needs.deploy.outputs.url }}
           budgetPath: ./budget.json # test performance budgets
-      - name: Create Lighthouse Report
-        uses: manrueda/lighthouse-report-action@v1.1.2
+          temporaryPublicStorage: true
+      - name: Running Page Speed Insights
+        uses: jakepartusch/psi-action@v1.3
+        id: psi
         with:
-          reports: '.lighthouseci'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          url: ${{ needs.deploy.outputs.url }}
+          threshold: 95
+          strategy: mobile
