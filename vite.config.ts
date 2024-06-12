@@ -41,6 +41,9 @@ export default defineConfig({
   build: {
     sourcemap: isProduction,
     cssMinify: isProduction,
-    minify: isProduction
+    minify: isProduction,
+    commonjsOptions: {
+      exclude: ['react', 'react-dom']
+    }
   }
 });

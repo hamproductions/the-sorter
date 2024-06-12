@@ -137,7 +137,7 @@ export function Page() {
     <Stack position="relative" w="full" minH="100vh">
       <Box
         style={{
-          ['--bg-image' as 'backgroundImage']: `url('${getAssetUrl('assets/bg.webp')}')`
+          ['--bg-image' as 'backgroundImage']: `url('${getAssetUrl('/assets/bg.webp')}')`
         }}
         zIndex="0"
         position="fixed"
