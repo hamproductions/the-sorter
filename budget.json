@@ -5,7 +5,7 @@
       {
         "metric": "first-contentful-paint",
         "budget": 1000
-      }
+      },
       {
         "metric": "largest-contentful-paint",
         "budget": 4000
