@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "ci:build": "NODE_ENV=production vite build",
     "type-check": "tsc",
     "check": "bun lint && bun type-check",
     "ci:check": "bun lint --format json --output-file lint_report.json && bun type-check",

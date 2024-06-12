@@ -10,6 +10,7 @@ const ReactCompilerConfig = {
   // compilationMode: 'annotation'
 };
 
+const isProduction = process.env.NODE_ENV === 'production';
 // https://vitejs.dev/config/
 export default defineConfig({
   ssr: {
@@ -38,7 +39,8 @@ export default defineConfig({
     }
   },
   build: {
-    cssMinify: process.env.MODE === 'build',
-    minify: process.env.MODE === 'build'
+    sourcemap: isProduction,
+    cssMinify: isProduction,
+    minify: isProduction
   }
 });
