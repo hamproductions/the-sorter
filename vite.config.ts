@@ -22,12 +22,12 @@ export default defineConfig({
     cjsInterop({
       dependencies: ['path-browserify']
     }),
-    vike({ prerender: true }),
     react({
       babel: {
         plugins: [['babel-plugin-react-compiler', ReactCompilerConfig]]
       }
-    }) as PluginOption
+    }) as PluginOption,
+    vike({ prerender: true })
   ],
   base: process.env.PUBLIC_ENV__BASE_URL,
   resolve: {

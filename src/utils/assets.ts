@@ -14,5 +14,5 @@ export const getPicUrl = (id: string, type: 'seiyuu' | 'icons' | 'character' = '
     }
   })();
   const photoId = type !== 'seiyuu' ? id.split('-')[0] : id;
-  return join(import.meta.env.PUBLIC_ENV__BASE_URL, prefix, `${photoId}.webp`);
+  return join(import.meta.env.PUBLIC_ENV__BASE_URL ?? '', prefix, `${photoId}.webp`);
 };

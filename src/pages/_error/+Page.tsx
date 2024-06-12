@@ -1,15 +1,21 @@
+import { Center, Stack } from 'styled-system/jsx';
+import { Link } from '~/components/ui/link';
+import { Text } from '~/components/ui/text';
+
 export { Page };
 
-import { usePageContext } from 'vike-react/usePageContext';
 /* Or:
 import { usePageContext } from 'vike-vue/usePageContext'
 import { usePageContext } from 'vike-solid/usePageContext'
 */
 
 function Page() {
-  const pageContext = usePageContext();
-
-  console.log(pageContext);
-
-  return <p>Something went wrong lah</p>;
+  return (
+    <Center w="100vw" h="100vh">
+      <Stack>
+        <Text>Something went wrong lah, you shouldn't be here.</Text>
+        <Link href="/">Go Back</Link>
+      </Stack>
+    </Center>
+  );
 }
