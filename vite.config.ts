@@ -43,7 +43,7 @@ export default defineConfig({
     cssMinify: isProduction,
     minify: isProduction,
     commonjsOptions: {
-      exclude: ['react', 'react-dom']
+      exclude: ['react/cjs', 'react-dom/cjs']
     }
   }
 });

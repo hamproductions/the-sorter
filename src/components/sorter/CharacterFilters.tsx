@@ -1,4 +1,4 @@
-import uniqBy from 'lodash/uniqBy';
+import uniqBy from 'lodash-es/uniqBy';
 import { Dispatch, SetStateAction, useEffect, useMemo } from 'react';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';

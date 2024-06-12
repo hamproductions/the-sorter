@@ -1,4 +1,4 @@
-import groupBy from 'lodash/groupBy';
+import groupBy from 'lodash-es/groupBy';
 import * as Table from '../ui/table';
 import { Text } from '../ui/text';
 import { SchoolBadge } from './SchoolBadge';

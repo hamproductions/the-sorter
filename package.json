@@ -15,14 +15,15 @@
     "preview": "vite preview",
     "prepare": "panda codegen",
     "test": "vitest",
-    "ci:test": "vitest --coverage.enabled"
+    "ci:test": "vitest --coverage.enabled",
+    "analyze": "bunx vite-bundle-visualizer"
   },
   "dependencies": {
     "@ark-ui/react": "^3.2.1",
     "@pandacss/dev": "^0.40.1",
     "@park-ui/panda-preset": "^0.38.0",
     "file-saver": "^2.0.5",
-    "lodash": "^4.17.21",
+    "lodash-es": "^4.17.21",
     "modern-screenshot": "^4.4.39",
     "path-browserify": "^1.0.1",
     "react": "^19.0.0-rc-cc1ec60d0d-20240607",
@@ -39,7 +40,7 @@
     "@pandacss/eslint-plugin": "^0.1.5",
     "@pandacss/studio": "^0.40.1",
     "@types/file-saver": "^2.0.7",
-    "@types/lodash": "^4.17.5",
+    "@types/lodash-es": "^4.17.12",
     "@types/path-browserify": "^1.0.2",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",

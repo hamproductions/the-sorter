@@ -1,6 +1,6 @@
-import shuffle from 'lodash/shuffle';
+import shuffle from 'lodash-es/shuffle';
 import { useEffect } from 'react';
-import cloneDeep from 'lodash/cloneDeep';
+import cloneDeep from 'lodash-es/cloneDeep';
 import { SortState, step, initSort } from '../utils/sort';
 import { useLocalStorage } from './useLocalStorage';
 

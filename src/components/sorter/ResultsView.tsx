@@ -1,4 +1,3 @@
-import FileSaver from 'file-saver';
 import { useEffect, useState } from 'react';
 import { FaCopy, FaDownload } from 'react-icons/fa6';
 
@@ -67,9 +66,8 @@ export function ResultsView({
     try {
       const blob = await makeScreenshot();
       if (!blob) return;
-      FileSaver.saveAs(
-        new File([blob], `${titlePrefix ?? 'll'}-sorted-${timestamp.valueOf()}.png`)
-      );
+      const saveAs = (await import('file-saver')).saveAs;
+      saveAs(new File([blob], `${titlePrefix ?? 'll'}-sorted-${timestamp.valueOf()}.png`));
     } catch (error) {
       console.log(error);
     }

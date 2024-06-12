@@ -1,4 +1,4 @@
-import groupBy from 'lodash/groupBy';
+import groupBy from 'lodash-es/groupBy';
 import { useEffect, useMemo } from 'react';
 import { useData } from './useData';
 import { useLocalStorage } from './useLocalStorage';
