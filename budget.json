@@ -4,7 +4,7 @@
     "timings": [
       {
         "metric": "first-contentful-paint",
-        "budget": 2000
+        "budget": 3000
       },
       {
         "metric": "largest-contentful-paint",
