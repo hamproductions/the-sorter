@@ -17,7 +17,7 @@ export default defineConfig({
   },
   plugins: [
     partytownVite({
-      dest: join(__dirname, 'dist', '~partytown')
+      dest: join(__dirname, 'dist', 'client', '~partytown')
     }),
     cjsInterop({
       dependencies: ['path-browserify']

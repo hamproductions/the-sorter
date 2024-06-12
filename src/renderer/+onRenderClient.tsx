@@ -1,14 +1,15 @@
 // https://vike.dev/onRenderClient
-export { onRenderClient };
 
 import React from 'react';
 import { hydrateRoot } from 'react-dom/client';
 import { PageLayout } from './PageLayout';
 
-async function onRenderClient(pageContext: React.FC) {
+export function onRenderClient(pageContext: { Page: React.FC }) {
   const { Page } = pageContext;
+  const root = document.getElementById('root');
+  if (!root) return;
   hydrateRoot(
-    document.getElementById('root'),
+    root,
     <PageLayout>
       <Page />
     </PageLayout>
