@@ -29,7 +29,7 @@ export default defineConfig({
       }
     }) as PluginOption
   ],
-  base: process.env.BASE_URL,
+  base: process.env.PUBLIC_ENV__BASE_URL,
   resolve: {
     alias: {
       ['styled-system']: join(__dirname, './styled-system/'),
