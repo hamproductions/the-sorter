@@ -110,6 +110,7 @@ export const ResultsView = ({
           </Button>
         </Wrap>
         <Tabs.Root
+          lazyMount
           defaultValue="default"
           value={currentTab}
           onValueChange={(d) => setCurrentTab(d.value as 'default' | 'table')}

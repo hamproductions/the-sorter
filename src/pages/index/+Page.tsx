@@ -17,6 +17,7 @@ import { ResultsView } from '../../components/sorter/ResultsView';
 import { Link } from '../../components/ui/link';
 import { useToaster } from '../../context/ToasterContext';
 import { getCurrentItem } from '../../utils/sort';
+import { getAssetUrl } from '~/utils/assets';
 
 export function Page() {
   const data = useData();
@@ -137,6 +138,9 @@ export function Page() {
   return (
     <Stack position="relative" w="full" minH="100vh">
       <Box
+        style={{
+          ['--bg-image' as 'backgroundImage']: `url('${getAssetUrl('assets/bg.webp')}')`
+        }}
         zIndex="0"
         position="fixed"
         top="0"
@@ -146,7 +150,7 @@ export function Page() {
         opacity="0.05"
         backgroundPosition="center"
         backgroundAttachment="fixed"
-        backgroundImage="url('https://cdn-ak.f.st-hatena.com/images/fotolife/C/Carat8008/20230106/20230106220812.png')"
+        backgroundImage="var(--bg-image)"
         backgroundSize="cover"
       />
       <Container zIndex="1" flex={1} w="full" py={4} px={4}>

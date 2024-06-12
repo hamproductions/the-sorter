@@ -88,7 +88,7 @@ export const CharacterFilters = ({
   }, [filters]);
 
   return (
-    <Collapsible.Root gap="2">
+    <Collapsible.Root lazyMount unmountOnExit gap="2">
       <Collapsible.Trigger asChild>
         <Button variant="subtle" mx="auto">
           Edit Settings

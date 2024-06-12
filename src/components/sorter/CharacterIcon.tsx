@@ -17,9 +17,6 @@ export const CharacterIcon = (props: HTMLStyledProps<'img'> & { character: Chara
   return (
     <styled.img
       src={getPicUrl(character.id, 'icons')}
-      onLoad={() => {
-        setError(false);
-      }}
       onError={() => {
         setError(true);
       }}
