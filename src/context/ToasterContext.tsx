@@ -4,32 +4,33 @@ import * as Toast from '~/components/ui/toast';
 
 const ToasterContext = createContext<{ toast?: (msg: string) => void }>({});
 
-export const ToasterProvider = ({ children }: { children: ReactNode }) => {
-  const [Toaster, toast] = createToaster({
-    placement: 'bottom-end',
-    render(toast) {
-      return (
-        <Toast.Root>
-          {/* <Toast.Title>{toast.title}</Toast.Title> */}
-          <Toast.Description>{toast.description}</Toast.Description>
-          <Toast.CloseTrigger>Close</Toast.CloseTrigger>
-        </Toast.Root>
-      );
-    }
-  });
+const toaster = createToaster({
+  placement: 'bottom-end'
+});
 
+export const ToasterProvider = ({ children }: { children: ReactNode }) => {
   return (
     <ToasterContext.Provider
       value={{
         toast: (message: string) => {
-          toast.create({
+          toaster.create({
             description: message
           });
         }
       }}
     >
       {children}
-      <Toaster />
+      <Toast.Toaster toaster={toaster}>
+        {(toast) => {
+          return (
+            <Toast.Root>
+              {/* <Toast.Title>{toast.title}</Toast.Title> */}
+              <Toast.Description>{toast.description}</Toast.Description>
+              <Toast.CloseTrigger>Close</Toast.CloseTrigger>
+            </Toast.Root>
+          );
+        }}
+      </Toast.Toaster>
     </ToasterContext.Provider>
   );
 };
