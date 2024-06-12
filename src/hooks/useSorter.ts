@@ -58,6 +58,11 @@ export const useSorter = <T>(items: T[]) => {
 
   const progress = getProgress();
 
+  useEffect(() => {
+    if (state !== undefined) return;
+    reset();
+  }, [state]);
+
   return {
     state,
     history,
