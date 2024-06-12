@@ -39,9 +39,28 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     # Specify runner + deployment step
+
+    outputs:
+      url: ${{ steps.deployment.outputs.page_url }}
+
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4 # or specific "vX.X.X" version tag for this action
 
+  lighthouse:
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+      - uses: actions/checkout@v4
+      - name: Audit URLs using Lighthouse
+        uses: treosh/lighthouse-ci-action@v11
+        with:
+          urls: ${{ needs.deploy.outputs.url }}
+          budgetPath: ./budget.json # test performance budgets
+      - name: Create Lighthouse Report
+        uses: manrueda/lighthouse-report-action@v1.1.2
+        with:
+          reports: '.lighthouseci'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
