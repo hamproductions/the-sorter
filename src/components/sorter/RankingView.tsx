@@ -1,17 +1,17 @@
-import { Box, Center, Grid, GridItem, HStack, Stack, Wrap, styled } from 'styled-system/jsx';
-import { Character, WithRank } from '~/types';
 import { Text } from '../ui/text';
-import { getPicUrl } from '~/utils/assets';
 import { SchoolBadge } from './SchoolBadge';
 import { CharacterIcon } from './CharacterIcon';
+import { Box, Center, Grid, GridItem, HStack, Stack, Wrap, styled } from 'styled-system/jsx';
+import { getPicUrl } from '~/utils/assets';
+import { Character, WithRank } from '~/types';
 
-export const RankingView = ({
+export function RankingView({
   characters,
   isSeiyuu
 }: {
   characters: WithRank<Character>[];
   isSeiyuu: boolean;
-}) => {
+}) {
   return (
     <Stack p="2">
       <Grid alignItems="stretch" gridTemplateColumns="repeat(3, 1fr)">
@@ -147,4 +147,4 @@ export const RankingView = ({
       </Grid>
     </Stack>
   );
-};
+}

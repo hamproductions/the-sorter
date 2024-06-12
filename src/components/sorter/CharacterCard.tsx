@@ -1,15 +1,15 @@
-import { Center, Stack, StackProps, styled } from 'styled-system/jsx';
-import { Character } from '~/types';
-import { getPicUrl } from '~/utils/assets';
 import { Text } from '../ui/text';
 import { CharacterIcon } from './CharacterIcon';
 import { SchoolBadge } from './SchoolBadge';
+import { Center, Stack, StackProps, styled } from 'styled-system/jsx';
+import { getPicUrl } from '~/utils/assets';
+import { Character } from '~/types';
 
-export const CharacterCard = ({
+export function CharacterCard({
   character,
   isSeiyuu,
   ...rest
-}: { character?: Character; isSeiyuu: boolean } & StackProps) => {
+}: { character?: Character; isSeiyuu: boolean } & StackProps) {
   if (!character) return null;
 
   return (
@@ -80,4 +80,4 @@ export const CharacterCard = ({
       )}
     </Stack>
   );
-};
+}

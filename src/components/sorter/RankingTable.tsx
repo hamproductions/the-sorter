@@ -1,18 +1,18 @@
 import groupBy from 'lodash/groupBy';
-import { Stack, Wrap, styled } from 'styled-system/jsx';
-import { Character, WithRank } from '~/types';
-import { getPicUrl } from '~/utils/assets';
 import * as Table from '../ui/table';
 import { Text } from '../ui/text';
 import { SchoolBadge } from './SchoolBadge';
 import { CharacterIcon } from './CharacterIcon';
-export const RankingTable = ({
+import { Stack, Wrap, styled } from 'styled-system/jsx';
+import { getPicUrl } from '~/utils/assets';
+import { Character, WithRank } from '~/types';
+export function RankingTable({
   characters,
   isSeiyuu
 }: {
   characters: WithRank<Character>[];
   isSeiyuu: boolean;
-}) => {
+}) {
   return (
     <Table.Root size="sm">
       <Table.Head>
@@ -123,4 +123,4 @@ export const RankingTable = ({
       </Table.Body>
     </Table.Root>
   );
-};
+}

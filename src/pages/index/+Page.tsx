@@ -1,8 +1,7 @@
-import { Box, Container, Divider, HStack, Stack, Wrap } from 'styled-system/jsx';
+import { useEffect } from 'react';
+import { FaShare } from 'react-icons/fa6';
 import { CharacterCard } from '../../components/sorter/CharacterCard';
 import { CharacterFilters } from '../../components/sorter/CharacterFilters';
-
-import { useEffect } from 'react';
 import { Button } from '../../components/ui/button';
 import { Kbd } from '../../components/ui/kbd';
 import { Progress } from '../../components/ui/progress';
@@ -11,12 +10,11 @@ import { Text } from '../../components/ui/text';
 import { useData } from '../../hooks/useData';
 import { useSortData } from '../../hooks/useSortData';
 import { Character, WithRank } from '../../types';
-
-import { FaShare } from 'react-icons/fa6';
 import { ResultsView } from '../../components/sorter/ResultsView';
 import { Link } from '../../components/ui/link';
 import { useToaster } from '../../context/ToasterContext';
 import { getCurrentItem } from '../../utils/sort';
+import { Box, Container, Divider, HStack, Stack, Wrap } from 'styled-system/jsx';
 import { getAssetUrl } from '~/utils/assets';
 
 export function Page() {

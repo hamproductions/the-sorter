@@ -1,9 +1,7 @@
 import FileSaver from 'file-saver';
 import { useEffect, useState } from 'react';
 import { FaCopy, FaDownload } from 'react-icons/fa6';
-import { Box, Stack, Wrap } from 'styled-system/jsx';
-import { useToaster } from '~/context/ToasterContext';
-import { Character, WithRank } from '~/types';
+import { domToBlob } from 'modern-screenshot';
 import { Button } from '../ui/button';
 import { FormLabel } from '../ui/form-label';
 import { Heading } from '../ui/heading';
@@ -14,18 +12,20 @@ import { Text } from '../ui/text';
 import { Textarea } from '../ui/textarea';
 import { RankingTable } from './RankingTable';
 import { RankingView } from './RankingView';
-import { domToBlob } from 'modern-screenshot';
+import { Box, Stack, Wrap } from 'styled-system/jsx';
+import { Character, WithRank } from '~/types';
+import { useToaster } from '~/context/ToasterContext';
 
 const tabs = [
   { id: 'default', label: 'Default' },
   { id: 'table', label: 'Table View' }
 ];
-export const ResultsView = ({
+export function ResultsView({
   titlePrefix,
   characters,
   isSeiyuu,
   ...props
-}: RootProps & { titlePrefix?: string; characters: WithRank<Character>[]; isSeiyuu: boolean }) => {
+}: RootProps & { titlePrefix?: string; characters: WithRank<Character>[]; isSeiyuu: boolean }) {
   const { toast } = useToaster();
   const [title, setTitle] = useState<string>('My LoveLive! Ranking');
   const [description, setDescription] = useState<string>();
@@ -152,4 +152,4 @@ export const ResultsView = ({
       </Box>
     </>
   );
-};
+}

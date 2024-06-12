@@ -1,7 +1,7 @@
-import { Character } from '~/types';
 import { Badge, BadgeProps } from '../ui/badge';
+import { Character } from '~/types';
 
-export const SchoolBadge = ({ character, ...rest }: { character: Character } & BadgeProps) => {
+export function SchoolBadge({ character, ...rest }: { character: Character } & BadgeProps) {
   const { series, seriesColor } = character;
   return (
     <Badge
@@ -17,4 +17,4 @@ export const SchoolBadge = ({ character, ...rest }: { character: Character } & B
       {series}
     </Badge>
   );
-};
+}

@@ -8,7 +8,7 @@ const toaster = createToaster({
   placement: 'bottom-end'
 });
 
-export const ToasterProvider = ({ children }: { children: ReactNode }) => {
+export function ToasterProvider({ children }: { children: ReactNode }) {
   return (
     <ToasterContext.Provider
       value={{
@@ -33,6 +33,6 @@ export const ToasterProvider = ({ children }: { children: ReactNode }) => {
       </Toast.Toaster>
     </ToasterContext.Provider>
   );
-};
+}
 
 export const useToaster = () => useContext(ToasterContext);

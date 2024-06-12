@@ -1,6 +1,5 @@
-import { Metadata } from '~/components/layout/Metadata';
-
 import { Partytown } from '@builder.io/partytown/react';
+import { Metadata } from '~/components/layout/Metadata';
 
 export function Head() {
   return (

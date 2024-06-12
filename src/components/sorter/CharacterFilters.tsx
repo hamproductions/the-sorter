@@ -1,11 +1,11 @@
 import uniqBy from 'lodash/uniqBy';
 import { Dispatch, SetStateAction, useEffect, useMemo } from 'react';
-import { HStack, Stack, Wrap } from 'styled-system/jsx';
-import { useData } from '~/hooks/useData';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
 import { Text } from '../ui/text';
 import * as Collapsible from '../ui/collapsible';
+import { HStack, Stack, Wrap } from 'styled-system/jsx';
+import { useData } from '~/hooks/useData';
 
 export interface FilterType {
   series: Record<string, boolean | undefined>;
@@ -13,13 +13,13 @@ export interface FilterType {
   units: Record<string, boolean | undefined>;
 }
 
-export const CharacterFilters = ({
+export function CharacterFilters({
   filters,
   setFilters
 }: {
   filters: FilterType | null | undefined;
   setFilters: Dispatch<SetStateAction<FilterType | null | undefined>>;
-}) => {
+}) {
   const data = useData();
   const series = useMemo(() => Array.from(new Set(data.map((d) => d.series))), []);
   const school = useMemo(() => Array.from(new Set(data.map((d) => d.school))), []);
@@ -204,4 +204,4 @@ export const CharacterFilters = ({
       </Collapsible.Content>
     </Collapsible.Root>
   );
-};
+}

@@ -1,10 +1,10 @@
 import React, { ErrorInfo } from 'react';
 import { FaArrowsRotate, FaCopy } from 'react-icons/fa6';
-import { Center, Stack, Wrap } from 'styled-system/jsx';
 import { Button } from '../ui/button';
 import { Code } from '../ui/code';
 import { Link } from '../ui/link';
 import { Text } from '../ui/text';
+import { Center, Stack, Wrap } from 'styled-system/jsx';
 
 export class ErrorBoundary extends React.Component<
   { children: React.ReactNode },

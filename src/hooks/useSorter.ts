@@ -1,8 +1,8 @@
-import { SortState, step, initSort } from '../utils/sort';
 import shuffle from 'lodash/shuffle';
-import { useLocalStorage } from './useLocalStorage';
 import { useEffect } from 'react';
 import cloneDeep from 'lodash/cloneDeep';
+import { SortState, step, initSort } from '../utils/sort';
+import { useLocalStorage } from './useLocalStorage';
 
 export const useSorter = <T>(items: T[]) => {
   const [state, setState] = useLocalStorage<SortState<T>>('sort-state');

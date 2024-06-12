@@ -1,4 +1,4 @@
-export const Metadata = () => {
+export function Metadata() {
   const title = 'Yet Another LL! Sorter V1.0';
   const description = 'ヒトリダケナンテエラベナイヨー';
   const siteName = 'LL! Sorter';
@@ -26,4 +26,4 @@ export const Metadata = () => {
       {/* <meta name="twitter:image:src" content={image} /> */}
     </>
   );
-};
+}
