@@ -36,5 +36,9 @@ export default defineConfig({
       ['~']: join(__dirname, './src/')
       // 'three/addons': join(__dirname, '../../node_modules/three/examples/jsm/')
     }
+  },
+  build: {
+    cssMinify: process.env.MODE === 'build',
+    minify: process.env.MODE === 'build'
   }
 });

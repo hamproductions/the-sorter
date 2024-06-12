@@ -25,6 +25,7 @@ export function Head() {
           `
         }}
       />
+
       <Partytown lib={(import.meta.env.PUBLIC_ENV__BASE_URL ?? '') + '/~partytown/'} />
     </>
   );
