@@ -1,11 +1,14 @@
-import uniqBy from 'lodash-es/uniqBy';
-import { Dispatch, SetStateAction, useEffect, useMemo } from 'react';
+import { Dispatch, SetStateAction, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
-import { Text } from '../ui/text';
 import * as Collapsible from '../ui/collapsible';
+import { Text } from '../ui/text';
+
+import school from '../../../data/school.json';
+import series from '../../../data/series.json';
+import units from '../../../data/units.json';
+
 import { HStack, Stack, Wrap } from 'styled-system/jsx';
-import { useData } from '~/hooks/useData';
 
 export interface FilterType {
   series: Record<string, boolean | undefined>;
@@ -20,17 +23,6 @@ export function CharacterFilters({
   filters: FilterType | null | undefined;
   setFilters: Dispatch<SetStateAction<FilterType | null | undefined>>;
 }) {
-  const data = useData();
-  const series = useMemo(() => Array.from(new Set(data.map((d) => d.series))), []);
-  const school = useMemo(() => Array.from(new Set(data.map((d) => d.school))), []);
-  const units = useMemo(() => {
-    const names = Array.from(new Set(data.map((d) => d.fullName)));
-    return uniqBy(
-      data.flatMap((d) => d.units),
-      (u) => u.id
-    ).filter((u) => names.every((n) => !u.name.includes(n)));
-  }, []);
-
   const selectAll = (key: keyof FilterType) => () => {
     setFilters((f) => {
       const isAllSelected = Object.values(f?.[key] ?? {}).every((v) => v);
