@@ -1,7 +1,7 @@
 import FileSaver from 'file-saver';
 import { useEffect, useState } from 'react';
 import { FaCopy, FaDownload } from 'react-icons/fa6';
-import { domToBlob } from 'modern-screenshot';
+
 import { Button } from '../ui/button';
 import { FormLabel } from '../ui/form-label';
 import { Heading } from '../ui/heading';
@@ -33,6 +33,7 @@ export function ResultsView({
   const [timestamp, setTimestamp] = useState(new Date());
 
   const makeScreenshot = async () => {
+    const domToBlob = await import('modern-screenshot').then((module) => module.domToBlob);
     setTimestamp(new Date());
     const resultsBox = document.getElementById('results');
     if (resultsBox) {
@@ -45,6 +46,7 @@ export function ResultsView({
       return shareImage;
     }
   };
+
   const screenshot = async () => {
     const shareImage = await makeScreenshot();
     if (!shareImage) return;
