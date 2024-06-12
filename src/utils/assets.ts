@@ -1,4 +1,5 @@
 import { join } from 'path-browserify';
+
 export const assetsURL = import.meta.env.BASE_URL + 'assets/';
 
 export const getPicUrl = (id: string, type: 'seiyuu' | 'icons' | 'character' = 'character') => {
