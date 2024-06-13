@@ -34,18 +34,27 @@ export const useSortData = () => {
       : charaSeiyuu;
   }, [seiyuu, characters, filters]);
 
-  const { init, history, left, right, state, count, tie, undo, progress, reset } = useSorter(
-    listToSort.map((l) => l.id)
-  );
+  const {
+    init,
+    // history,
+    left,
+    right,
+    state,
+    count,
+    tie,
+    undo,
+    progress
+    // reset
+  } = useSorter(listToSort.map((l) => l.id));
 
   const { toast } = useToaster();
 
-  useEffect(() => {
-    if (history === null) return;
-    if (history === undefined || history.length === 0) {
-      reset();
-    }
-  }, [listToSort]);
+  // useEffect(() => {
+  //   if (history === null) return;
+  //   if (history === undefined || history.length === 0) {
+  //     reset();
+  //   }
+  // }, [listToSort]);
 
   const handleTie = useCallback(() => {
     toast?.('ヒトリダケナンテエラベナイヨー');

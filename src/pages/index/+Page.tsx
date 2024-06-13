@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import { FaShare } from 'react-icons/fa6';
 import { CharacterCard } from '../../components/sorter/CharacterCard';
 import { CharacterFilters } from '../../components/sorter/CharacterFilters';
@@ -39,6 +39,7 @@ export function Page() {
     listToSort,
     listCount
   } = useSortData();
+  const [showSettings, setShowSettings] = useState(false);
 
   const getCharaFromId = (id: string): Character | undefined => {
     const [charaId, castId] = id.split('-');
@@ -136,6 +137,15 @@ export function Page() {
     }
   }, []);
 
+  const handleStart = () => {
+    init();
+    setShowSettings(false);
+  };
+
+  useEffect(() => {
+    if (state === undefined) setShowSettings(true);
+  }, [state]);
+
   return (
     <Stack position="relative" w="full" minH="100vh">
       <Box
@@ -163,7 +173,12 @@ export function Page() {
           <Text fontSize="sm" fontWeight="bold">
             {listCount} to be sorted
           </Text>
-          <CharacterFilters filters={filters} setFilters={setFilters} />
+          <CharacterFilters
+            isOpen={showSettings}
+            setOpen={(isOpen) => setShowSettings(isOpen)}
+            filters={filters}
+            setFilters={setFilters}
+          />
           <Switch checked={seiyuu} onCheckedChange={(e) => setSeiyuu(e.checked)}>
             Do you like seiyuu ? (Seiyuu Mode)
           </Switch>
@@ -171,7 +186,9 @@ export function Page() {
             <Button onClick={() => void shareUrl()} variant="outline">
               <FaShare /> Share Current Settings
             </Button>
-            <Button onClick={() => init()}>Start/ Reset</Button>
+            <Button onClick={() => handleStart()}>
+              {!state || state?.status === 'end' ? 'Start' : 'Reset'}
+            </Button>
           </Wrap>
           {state && (
             <Stack alignItems="center" w="full">

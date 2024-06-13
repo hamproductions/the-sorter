@@ -129,13 +129,13 @@ const config = tseslint.config(
       'react-compiler/react-compiler': 'warn'
     }
   }),
-  ...compat.config({ extends: ['plugin:@pandacss/recommended'] }),
-  {
-    rules: {
-      '@pandacss/no-unsafe-token-fn-usage': 'off',
-      '@pandacss/no-hardcoded-color': 'off'
-    }
-  },
+  // ...compat.config({ extends: ['plugin:@pandacss/recommended'] }),
+  // {
+  //   rules: {
+  //     '@pandacss/no-unsafe-token-fn-usage': 'off',
+  //     '@pandacss/no-hardcoded-color': 'off'
+  //   }
+  // },
   eslintPluginPrettierRecommended,
   {
     files: ['**/*.d.ts'],
