@@ -1,6 +1,6 @@
+import { GridViewItem } from './GridViewItem';
 import { Grid, GridItem, Stack } from 'styled-system/jsx';
 import { Character, WithRank } from '~/types';
-import { GridViewItem } from './GridViewItem';
 
 export function GridView({
   characters,

@@ -9,13 +9,13 @@ import type { RootProps } from '../ui/tabs';
 import * as Tabs from '../ui/tabs';
 import { Text } from '../ui/text';
 import { Textarea } from '../ui/textarea';
+import { GridView } from './GridView';
 import { RankingTable } from './RankingTable';
 import { RankingView } from './RankingView';
-import { Box, Stack, Wrap } from 'styled-system/jsx';
 import { Character, WithRank } from '~/types';
-import { useToaster } from '~/context/ToasterContext';
-import { GridView } from './GridView';
 import { useLocalStorage } from '~/hooks/useLocalStorage';
+import { useToaster } from '~/context/ToasterContext';
+import { Box, Stack, Wrap } from 'styled-system/jsx';
 
 const tabs = [
   { id: 'default', label: 'List' },
