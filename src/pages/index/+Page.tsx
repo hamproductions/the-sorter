@@ -142,9 +142,9 @@ export function Page() {
     setShowSettings(false);
   };
 
-  useEffect(() => {
-    if (state === undefined) setShowSettings(true);
-  }, [state]);
+  // useEffect(() => {
+  //   if (state === undefined) setShowSettings(true);
+  // }, [state]);
 
   return (
     <Stack position="relative" w="full" minH="100vh">
