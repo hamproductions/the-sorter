@@ -37,6 +37,7 @@ export function CharacterCard({
         <Center position="absolute" flex={1} h="full">
           <styled.img
             src={getPicUrl(character.id, isSeiyuu ? 'seiyuu' : 'character')}
+            alt={character.fullName}
             minW={0}
             maxW="full"
             minH={0}

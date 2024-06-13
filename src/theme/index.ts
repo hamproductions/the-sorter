@@ -73,5 +73,6 @@ export const theme: PartialTheme = {
       }
     }
   },
-  keyframes: {}
+  keyframes: {},
+  recipes: {}
 };

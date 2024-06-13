@@ -12,12 +12,14 @@ export function CharacterIcon(props: HTMLStyledProps<'img'> & { character: Chara
     setError(false);
   }, [character.id]);
 
-  if (isError) return null;
+  if (isError || !character.hasIcon) return null;
 
   return (
     <styled.img
       src={getPicUrl(character.id, 'icons')}
-      onError={() => {
+      alt={`${character.fullName} Icon`}
+      onError={(e) => {
+        e.preventDefault();
         setError(true);
       }}
       {...rest}

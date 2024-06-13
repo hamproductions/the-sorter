@@ -50,6 +50,7 @@ export function RankingTable({
                   {idx < 10 && (
                     <styled.img
                       src={getPicUrl(id, isSeiyuu ? 'seiyuu' : 'character')}
+                      alt={fullName}
                       style={{ maxHeight: imageSize }}
                       width="auto"
                     />

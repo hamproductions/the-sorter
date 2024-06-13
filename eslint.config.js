@@ -101,11 +101,30 @@ const config = tseslint.config(
     },
     rules: {
       // your rules here....
+      'import/no-unused-modules': 'error',
       'import/order': 'error'
     }
   },
   ...compat.config({
     plugins: ['eslint-plugin-react-compiler'],
+    rules: {
+      'react-compiler/react-compiler': 'warn'
+    }
+  }),
+  ...compat.config({
+    plugins: ['jsx-a11y'],
+    extends: ['plugin:jsx-a11y/recommended'],
+    settings: {
+      'jsx-a11y': {
+        polymorphicPropName: 'as',
+        components: {
+          'styled.img': 'img',
+          Button: 'button',
+          Input: 'input',
+          Text: 'p'
+        }
+      }
+    },
     rules: {
       'react-compiler/react-compiler': 'warn'
     }

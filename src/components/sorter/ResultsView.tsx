@@ -19,6 +19,7 @@ const tabs = [
   { id: 'default', label: 'Default' },
   { id: 'table', label: 'Table View' }
 ];
+
 export function ResultsView({
   titlePrefix,
   characters,

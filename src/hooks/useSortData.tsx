@@ -1,9 +1,10 @@
 import groupBy from 'lodash-es/groupBy';
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useData } from './useData';
 import { useLocalStorage } from './useLocalStorage';
 import { useSorter } from './useSorter';
 import { FilterType } from '~/components/sorter/CharacterFilters';
+import { useToaster } from '~/context/ToasterContext';
 import { Character } from '~/types';
 import { hasFilter, matchFilter } from '~/utils/filter';
 
@@ -37,12 +38,19 @@ export const useSortData = () => {
     listToSort.map((l) => l.id)
   );
 
+  const { toast } = useToaster();
+
   useEffect(() => {
     if (history === null) return;
     if (history === undefined || history.length === 0) {
       reset();
     }
   }, [listToSort]);
+
+  const handleTie = useCallback(() => {
+    toast?.('ヒトリダケナンテエラベナイヨー');
+    tie();
+  }, [toast, tie]);
 
   useEffect(() => {
     const handleKeystroke = (e: KeyboardEvent) => {
@@ -57,7 +65,7 @@ export const useSortData = () => {
             e.preventDefault();
             break;
           case 'ArrowDown':
-            tie();
+            handleTie();
             e.preventDefault();
             break;
           case 'ArrowUp':
@@ -72,7 +80,7 @@ export const useSortData = () => {
     return () => {
       document.removeEventListener('keydown', handleKeystroke);
     };
-  }, [left, right, tie, undo]);
+  }, [left, right, handleTie, undo]);
 
   return {
     seiyuu: seiyuu ?? false,
@@ -82,7 +90,7 @@ export const useSortData = () => {
     right,
     state,
     count,
-    tie,
+    tie: handleTie,
     undo,
     progress,
     filters,

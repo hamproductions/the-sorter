@@ -4,17 +4,17 @@ import { CharacterCard } from '../../components/sorter/CharacterCard';
 import { CharacterFilters } from '../../components/sorter/CharacterFilters';
 import { Button } from '../../components/ui/button';
 import { Kbd } from '../../components/ui/kbd';
+import { Link } from '../../components/ui/link';
 import { Progress } from '../../components/ui/progress';
 import { Switch } from '../../components/ui/switch';
 import { Text } from '../../components/ui/text';
+import { useToaster } from '../../context/ToasterContext';
 import { useData } from '../../hooks/useData';
 import { useSortData } from '../../hooks/useSortData';
 import { Character, WithRank } from '../../types';
-import { Link } from '../../components/ui/link';
-import { useToaster } from '../../context/ToasterContext';
 import { getCurrentItem } from '../../utils/sort';
-import { Box, Container, Divider, HStack, Stack, Wrap } from 'styled-system/jsx';
 import { getAssetUrl } from '~/utils/assets';
+import { Box, Container, HStack, Stack, Wrap } from 'styled-system/jsx';
 
 const ResultsView = lazy(() =>
   import('../../components/sorter/ResultsView').then((m) => ({ default: m.ResultsView }))
@@ -192,7 +192,7 @@ export function Page() {
                             isSeiyuu={seiyuu}
                             flex={1}
                           />
-                          <Box>
+                          <Box hideBelow="sm">
                             <Kbd>←</Kbd>
                           </Box>
                         </Stack>
@@ -203,7 +203,7 @@ export function Page() {
                             isSeiyuu={seiyuu}
                             flex={1}
                           />
-                          <Box>
+                          <Box hideBelow="sm">
                             <Kbd>→</Kbd>
                           </Box>
                         </Stack>
@@ -215,7 +215,7 @@ export function Page() {
                         Undo
                       </Button>
                     </HStack>
-                    <Stack gap="1">
+                    <Stack hideBelow="sm" gap="1">
                       <Text fontWeight="bold">Keyboard Shortcuts</Text>
                       <Wrap>
                         <Text>
@@ -237,8 +237,7 @@ export function Page() {
                   <Progress value={progress} min={0} max={1} defaultValue={0} />
                 </Stack>
               )}
-              <Divider />
-              {charaList && (
+              {charaList && progress === 1 && (
                 <Suspense>
                   <ResultsView
                     titlePrefix={getTitlePrefix()}
