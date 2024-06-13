@@ -40,7 +40,6 @@ export function Page() {
     listCount,
     clear
   } = useSortData();
-  const [showSettings, setShowSettings] = useState(true);
 
   const getCharaFromId = (id: string): Character | undefined => {
     const [charaId, castId] = id.split('-');
@@ -140,21 +139,12 @@ export function Page() {
 
   const handleStart = () => {
     init();
-    setShowSettings(false);
   };
 
   const handleClear = () => {
     clear();
-    setShowSettings(true);
   };
   const isSorting = !!state;
-
-  useEffect(() => {
-    if (state === undefined) {
-      setShowSettings(true);
-    } else {
-    }
-  }, [state]);
 
   return (
     <Stack position="relative" w="full" minH="100vh">
@@ -185,13 +175,7 @@ export function Page() {
           </Text>
           {!isSorting && (
             <>
-              <CharacterFilters
-                isDisabled={isSorting}
-                isOpen={showSettings}
-                setOpen={(isOpen) => setShowSettings(isOpen)}
-                filters={filters}
-                setFilters={setFilters}
-              />
+              <CharacterFilters filters={filters} setFilters={setFilters} />
               <Switch
                 checked={seiyuu}
                 disabled={isSorting}
