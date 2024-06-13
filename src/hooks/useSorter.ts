@@ -56,6 +56,11 @@ export const useSorter = <T>(items: T[]) => {
     return current + (next - current) * stepProgress;
   };
 
+  const clear = () => {
+    setHistory(undefined);
+    setState(undefined);
+  };
+
   const progress = getProgress();
 
   return {
@@ -69,6 +74,7 @@ export const useSorter = <T>(items: T[]) => {
     undo: () => handleUndo(),
     progress,
     reset,
-    loadState
+    loadState,
+    clear
   };
 };

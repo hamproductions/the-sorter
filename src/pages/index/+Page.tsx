@@ -37,9 +37,10 @@ export function Page() {
     filters,
     setFilters,
     listToSort,
-    listCount
+    listCount,
+    clear
   } = useSortData();
-  const [showSettings, setShowSettings] = useState(false);
+  const [showSettings, setShowSettings] = useState(true);
 
   const getCharaFromId = (id: string): Character | undefined => {
     const [charaId, castId] = id.split('-');
@@ -142,9 +143,18 @@ export function Page() {
     setShowSettings(false);
   };
 
-  // useEffect(() => {
-  //   if (state === undefined) setShowSettings(true);
-  // }, [state]);
+  const handleClear = () => {
+    clear();
+    setShowSettings(true);
+  };
+  const isSorting = !!state;
+
+  useEffect(() => {
+    if (state === undefined) {
+      setShowSettings(true);
+    } else {
+    }
+  }, [state]);
 
   return (
     <Stack position="relative" w="full" minH="100vh">
@@ -173,22 +183,36 @@ export function Page() {
           <Text fontSize="sm" fontWeight="bold">
             {listCount} to be sorted
           </Text>
-          <CharacterFilters
-            isOpen={showSettings}
-            setOpen={(isOpen) => setShowSettings(isOpen)}
-            filters={filters}
-            setFilters={setFilters}
-          />
-          <Switch checked={seiyuu} onCheckedChange={(e) => setSeiyuu(e.checked)}>
-            Do you like seiyuu ? (Seiyuu Mode)
-          </Switch>
+          {!isSorting && (
+            <>
+              <CharacterFilters
+                isDisabled={isSorting}
+                isOpen={showSettings}
+                setOpen={(isOpen) => setShowSettings(isOpen)}
+                filters={filters}
+                setFilters={setFilters}
+              />
+              <Switch
+                checked={seiyuu}
+                disabled={isSorting}
+                onCheckedChange={(e) => setSeiyuu(e.checked)}
+              >
+                Do you like seiyuu ? (Seiyuu Mode)
+              </Switch>
+            </>
+          )}
           <Wrap>
-            <Button onClick={() => void shareUrl()} variant="outline">
+            <Button onClick={() => void shareUrl()} variant="subtle">
               <FaShare /> Share Current Settings
             </Button>
-            <Button onClick={() => handleStart()}>
-              {!state || state?.status === 'end' ? 'Start' : 'Reset'}
+            <Button variant="solid" onClick={() => handleStart()}>
+              {!isSorting || state?.status === 'end' ? 'Start' : 'Restart'}
             </Button>
+            {isSorting && state?.status !== 'end' && (
+              <Button variant="subtle" onClick={() => handleClear()}>
+                Stop
+              </Button>
+            )}
           </Wrap>
           {state && (
             <Stack alignItems="center" w="full">

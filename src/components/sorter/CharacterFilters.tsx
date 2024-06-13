@@ -18,11 +18,13 @@ export interface FilterType {
 
 export function CharacterFilters({
   filters,
+  isDisabled,
   setFilters,
   isOpen,
   setOpen
 }: {
   isOpen?: boolean;
+  isDisabled?: boolean;
   setOpen?: (isOpen: boolean) => void;
   filters: FilterType | null | undefined;
   setFilters: Dispatch<SetStateAction<FilterType | null | undefined>>;
@@ -85,14 +87,14 @@ export function CharacterFilters({
 
   return (
     <Collapsible.Root
-      open={isOpen}
+      open={!isDisabled && isOpen}
       onOpenChange={({ open }) => setOpen?.(open)}
       lazyMount
       unmountOnExit
       gap="2"
     >
       <Collapsible.Trigger asChild>
-        <Button variant="subtle" mx="auto">
+        <Button variant="subtle" disabled={isDisabled} mx="auto">
           Edit Settings
         </Button>
       </Collapsible.Trigger>

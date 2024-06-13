@@ -43,7 +43,8 @@ export const useSortData = () => {
     count,
     tie,
     undo,
-    progress
+    progress,
+    clear
     // reset
   } = useSorter(listToSort.map((l) => l.id));
 
@@ -105,6 +106,7 @@ export const useSortData = () => {
     filters,
     setFilters,
     listToSort,
-    listCount: listToSort.length
+    listCount: listToSort.length,
+    clear
   };
 };
