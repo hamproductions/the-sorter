@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useState } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import { FaShare } from 'react-icons/fa6';
 import { CharacterCard } from '../../components/sorter/CharacterCard';
 import { CharacterFilters } from '../../components/sorter/CharacterFilters';
