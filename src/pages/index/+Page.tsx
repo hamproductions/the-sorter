@@ -185,12 +185,12 @@ export function Page() {
               </Switch>
             </>
           )}
-          <Wrap>
+          <Wrap justifyContent="center">
             <Button onClick={() => void shareUrl()} variant="subtle">
               <FaShare /> Share Current Settings
             </Button>
             <Button variant="solid" onClick={() => handleStart()}>
-              Start Over
+              {!isSorting ? 'Start' : 'Start Over'}
             </Button>
             {isSorting && (
               <Button variant="subtle" onClick={() => handleClear()}>
@@ -234,9 +234,20 @@ export function Page() {
                         </Stack>
                       </HStack>
                     )}
-                    <HStack justifyContent="center">
-                      <Button onClick={() => tie()}>Tie</Button>
-                      <Button variant="outline" onClick={() => undo()}>
+                    <HStack justifyContent="center" w="full">
+                      <Button
+                        size={{ base: '2xl', md: 'lg' }}
+                        onClick={() => tie()}
+                        flex={{ base: 1, md: 'unset' }}
+                      >
+                        Tie
+                      </Button>
+                      <Button
+                        size={{ base: '2xl', md: 'lg' }}
+                        variant="subtle"
+                        onClick={() => undo()}
+                        flex={{ base: 1, md: 'unset' }}
+                      >
                         Undo
                       </Button>
                     </HStack>

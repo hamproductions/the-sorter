@@ -39,6 +39,7 @@ export function ResultsView({
   const [timestamp, setTimestamp] = useState(new Date());
 
   const makeScreenshot = async () => {
+    toast?.('Generating Screenshot...');
     const domToBlob = await import('modern-screenshot').then((module) => module.domToBlob);
     setTimestamp(new Date());
     const resultsBox = document.getElementById('results');

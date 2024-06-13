@@ -1,5 +1,7 @@
 import { createToaster } from '@ark-ui/react/toast';
 import { ReactNode, createContext, useContext } from 'react';
+import { FaXmark } from 'react-icons/fa6';
+import { IconButton } from '~/components/ui/icon-button';
 import * as Toast from '~/components/ui/toast';
 
 const ToasterContext = createContext<{ toast?: (msg: ReactNode) => void }>({});
@@ -29,7 +31,11 @@ export function ToasterProvider({ children }: { children: ReactNode }) {
             <Toast.Root>
               {/* <Toast.Title>{toast.title}</Toast.Title> */}
               <Toast.Description>{toast.description}</Toast.Description>
-              <Toast.CloseTrigger>Close</Toast.CloseTrigger>
+              <Toast.CloseTrigger>
+                <IconButton size="sm" variant="link">
+                  <FaXmark />
+                </IconButton>
+              </Toast.CloseTrigger>
             </Toast.Root>
           );
         }}
