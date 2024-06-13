@@ -130,7 +130,7 @@ export function ResultsView({
               <RankingView characters={characters} isSeiyuu={isSeiyuu} />
             </Tabs.Content>
             <Tabs.Content value="table">
-              <RankingTable characters={characters} isSeiyuu={isSeiyuu} />
+              <RankingTable characters={characters} isSeiyuu={isSeiyuu} responsive />
             </Tabs.Content>
           </Box>
         </Tabs.Root>

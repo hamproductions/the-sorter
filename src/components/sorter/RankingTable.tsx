@@ -8,10 +8,12 @@ import { getPicUrl } from '~/utils/assets';
 import { Character, WithRank } from '~/types';
 export function RankingTable({
   characters,
-  isSeiyuu
+  isSeiyuu,
+  responsive
 }: {
   characters: WithRank<Character>[];
   isSeiyuu: boolean;
+  responsive?: boolean;
 }) {
   return (
     <Table.Root size="sm">
@@ -29,8 +31,8 @@ export function RankingTable({
               <Table.Header>声優</Table.Header>
             </>
           )}
-          <Table.Header hideBelow="md">シリーズ・学校</Table.Header>
-          <Table.Header hideBelow="md">ユニット</Table.Header>
+          <Table.Header hideBelow={responsive ? 'md' : undefined}>シリーズ・学校</Table.Header>
+          <Table.Header hideBelow={responsive ? 'md' : undefined}>ユニット</Table.Header>
         </Table.Row>
       </Table.Head>
       <Table.Body>
@@ -90,13 +92,13 @@ export function RankingTable({
                   </Stack>
                 )}
               </Table.Cell>
-              <Table.Cell hideBelow="md">
+              <Table.Cell hideBelow={responsive ? 'md' : undefined}>
                 <Stack gap="1" alignItems="center" w="full" py="2">
                   <SchoolBadge character={c} />
                   <Text>{school}</Text>
                 </Stack>
               </Table.Cell>
-              <Table.Cell hideBelow="md">
+              <Table.Cell hideBelow={responsive ? 'md' : undefined}>
                 <Stack gap="1" py="2">
                   {Object.values(
                     groupBy(
@@ -109,7 +111,7 @@ export function RankingTable({
                       <Text key={u.id}>
                         {u.name}{' '}
                         {u.additionalInfo && (
-                          <Text as="span" hideBelow="lg">
+                          <Text as="span" hideBelow={responsive ? 'lg' : undefined}>
                             ({us.map((i) => i.additionalInfo).join(',')})
                           </Text>
                         )}
