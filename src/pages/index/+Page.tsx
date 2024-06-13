@@ -190,11 +190,11 @@ export function Page() {
               <FaShare /> Share Current Settings
             </Button>
             <Button variant="solid" onClick={() => handleStart()}>
-              {!isSorting || state?.status === 'end' ? 'Start' : 'Restart'}
+              Start Over
             </Button>
-            {isSorting && state?.status !== 'end' && (
+            {isSorting && (
               <Button variant="subtle" onClick={() => handleClear()}>
-                Stop
+                {state?.status !== 'end' ? 'Stop' : 'Choose new settings'}
               </Button>
             )}
           </Wrap>

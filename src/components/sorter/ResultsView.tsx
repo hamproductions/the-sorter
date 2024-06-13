@@ -14,10 +14,13 @@ import { RankingView } from './RankingView';
 import { Box, Stack, Wrap } from 'styled-system/jsx';
 import { Character, WithRank } from '~/types';
 import { useToaster } from '~/context/ToasterContext';
+import { GridView } from './GridView';
+import { useLocalStorage } from '~/hooks/useLocalStorage';
 
 const tabs = [
-  { id: 'default', label: 'Default' },
-  { id: 'table', label: 'Table View' }
+  { id: 'default', label: 'List' },
+  { id: 'table', label: 'Table' },
+  { id: 'grid', label: 'Grid' }
 ];
 
 export function ResultsView({
@@ -29,7 +32,10 @@ export function ResultsView({
   const { toast } = useToaster();
   const [title, setTitle] = useState<string>('My LoveLive! Ranking');
   const [description, setDescription] = useState<string>();
-  const [currentTab, setCurrentTab] = useState<'default' | 'table'>('default');
+  const [currentTab, setCurrentTab] = useLocalStorage<'default' | 'table' | 'grid'>(
+    'result-tab',
+    'default'
+  );
   const [timestamp, setTimestamp] = useState(new Date());
 
   const makeScreenshot = async () => {
@@ -85,7 +91,7 @@ export function ResultsView({
     <>
       <Stack w="full">
         <Heading fontSize="2xl" fontWeight="bold">
-          Results
+          Sort Results
         </Heading>
         <Stack>
           <Text>Export Settings</Text>
@@ -132,6 +138,9 @@ export function ResultsView({
             <Tabs.Content value="table">
               <RankingTable characters={characters} isSeiyuu={isSeiyuu} responsive />
             </Tabs.Content>
+            <Tabs.Content value="grid">
+              <GridView characters={characters} isSeiyuu={isSeiyuu} />
+            </Tabs.Content>
           </Box>
         </Tabs.Root>
       </Stack>
@@ -145,6 +154,8 @@ export function ResultsView({
           {description && <Text>{description}</Text>}
           {currentTab === 'table' ? (
             <RankingTable characters={characters} isSeiyuu={isSeiyuu} />
+          ) : currentTab === 'grid' ? (
+            <GridView characters={characters} isSeiyuu={isSeiyuu} />
           ) : (
             <RankingView characters={characters} isSeiyuu={isSeiyuu} />
           )}

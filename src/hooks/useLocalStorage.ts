@@ -32,7 +32,7 @@ export const useLocalStorage = function <T>(
   initial: NullOrUndefinedAble<T> = undefined
 ): [NullOrUndefinedAble<T>, Dispatch<SetStateAction<NullOrUndefinedAble<T>>>] {
   const storage = useRef(new LocalStorage<T>(key));
-  const [data, setData] = useState<NullOrUndefinedAble<T>>(null);
+  const [data, setData] = useState<NullOrUndefinedAble<T>>(storage.current.value);
 
   const setNewData: Dispatch<SetStateAction<NullOrUndefinedAble<T>>> = (
     s: SetStateAction<NullOrUndefinedAble<T>>
