@@ -21,7 +21,7 @@ export default defineConfig({
       dest: join(__dirname, 'dist', 'client', '~partytown')
     }),
     cjsInterop({
-      dependencies: ['path-browserify', 'lz-string']
+      dependencies: ['path-browserify', 'lz-string', 'react-helmet-async']
     }),
     react({
       babel: {

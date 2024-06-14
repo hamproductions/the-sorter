@@ -16,6 +16,7 @@ import { getFilterTitle } from '~/utils/filter';
 import { Button } from '~/components/ui/button';
 import { getCharacterFromId } from '~/utils/character';
 import { Footer } from '~/components/sorter/Footer';
+import { Metadata } from '~/components/layout/Metadata';
 
 export function Page() {
   const data = useData();
@@ -80,6 +81,7 @@ export function Page() {
 
   return (
     <>
+      <Metadata title={title} helmet />
       <Stack position="relative" w="full" minH="100vh">
         <Box
           style={{

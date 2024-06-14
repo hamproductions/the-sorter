@@ -2,6 +2,7 @@
   "title": "{{ titlePrefix }}ランキング",
   "defaultTitlePrefix": "ラブライブシリーズ",
   "description": "ヒトリダケナンテエラベナイヨーの時に役に立てるかも",
+  "site_name": "ラブライブ!ランキング",
   "seiyuu": "声優",
   "character": "キャラクター",
   "ranking": "順位",

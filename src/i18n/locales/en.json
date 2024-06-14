@@ -2,6 +2,7 @@
   "title": "{{ titlePrefix }} Sorter",
   "defaultTitlePrefix": "LoveLive! ",
   "description": "Helps you when HITORIDAKENANTEERABENAIYO",
+  "site_name": "LoveLive! Sorter",
   "seiyuu": "Seiyuu",
   "character": "Character",
   "ranking": "No.",

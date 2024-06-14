@@ -20,6 +20,8 @@ import { Box, Container, HStack, Stack, Wrap } from 'styled-system/jsx';
 import { getCharacterFromId } from '~/utils/character';
 import { Footer } from '~/components/sorter/Footer';
 
+import { Metadata } from '~/components/layout/Metadata';
+
 const ResultsView = lazy(() =>
   import('../../components/sorter/ResultsView').then((m) => ({ default: m.ResultsView }))
 );
@@ -175,6 +177,7 @@ export function Page() {
 
   return (
     <>
+      <Metadata title={title} helmet />
       <Stack position="relative" w="full" minH="100vh">
         <Box
           style={{
