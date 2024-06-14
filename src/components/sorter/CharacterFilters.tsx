@@ -58,9 +58,6 @@ export function CharacterFilters({
     const urlSchool = params.getAll('school');
     const urlUnits = params.getAll('units');
 
-    // const newUrl = `${location.protocol}//${location.host}`;
-    // window.history.pushState({ path: newUrl }, '', newUrl);
-
     setFilters({
       series: urlSeries.filter((s) => series.includes(s)),
       school: urlSchool.filter((s) => school.includes(s)),

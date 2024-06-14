@@ -31,7 +31,7 @@ export function ToasterProvider({ children }: { children: ReactNode }) {
             <Toast.Root>
               {/* <Toast.Title>{toast.title}</Toast.Title> */}
               <Toast.Description>{toast.description}</Toast.Description>
-              <Toast.CloseTrigger>
+              <Toast.CloseTrigger asChild>
                 <IconButton size="sm" variant="link">
                   <FaXmark />
                 </IconButton>

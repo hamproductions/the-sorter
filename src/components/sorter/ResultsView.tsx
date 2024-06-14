@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FaCopy, FaDownload } from 'react-icons/fa6';
+import { FaCopy, FaDownload, FaShare } from 'react-icons/fa6';
 
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/button';
@@ -22,8 +22,20 @@ export function ResultsView({
   titlePrefix,
   characters,
   isSeiyuu,
+  readOnly,
+  displayTitle,
+  displayDescription,
+  onShareResults,
   ...props
-}: RootProps & { titlePrefix?: string; characters: WithRank<Character>[]; isSeiyuu: boolean }) {
+}: RootProps & {
+  titlePrefix?: string;
+  characters: WithRank<Character>[];
+  isSeiyuu: boolean;
+  readOnly?: boolean;
+  displayTitle?: string;
+  displayDescription?: string;
+  onShareResults?: (title: string, description?: string) => void;
+}) {
   const { toast } = useToaster();
   const [title, setTitle] = useState<string>('My LoveLive! Ranking');
   const [description, setDescription] = useState<string>();
@@ -95,33 +107,41 @@ export function ResultsView({
   }, [titlePrefix, isSeiyuu]);
   return (
     <>
-      <Stack w="full">
+      <Stack alignItems="center" w="full">
         <Heading fontSize="2xl" fontWeight="bold">
-          {t('results.sort_results')}
+          {displayTitle || t('results.sort_results')}
         </Heading>
-        <Stack>
-          <Text>{t('results.export_settings')}</Text>
-          <Wrap>
-            <FormLabel htmlFor="title">{t('results.title')}</FormLabel>
-            <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} />
-          </Wrap>
-          <Wrap>
-            <FormLabel htmlFor="description">{t('results.description')}</FormLabel>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </Wrap>
-        </Stack>
-        <Wrap justifyContent="flex-end">
-          <Button variant="subtle" onClick={() => void screenshot()}>
-            <FaCopy /> {t('results.copy')}
-          </Button>
-          <Button onClick={() => void download()}>
-            <FaDownload /> {t('results.download')}
-          </Button>
-        </Wrap>
+        {displayDescription && <Text>{displayDescription}</Text>}
+        {!readOnly && (
+          <>
+            <Stack w="full">
+              <Text>{t('results.export_settings')}</Text>
+              <Wrap>
+                <FormLabel htmlFor="title">{t('results.title')}</FormLabel>
+                <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} />
+              </Wrap>
+              <Wrap>
+                <FormLabel htmlFor="description">{t('results.description')}</FormLabel>
+                <Textarea
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+              </Wrap>
+            </Stack>
+            <Wrap justifyContent="flex-end" w="full">
+              <Button variant="subtle" onClick={() => onShareResults?.(title, description)}>
+                <FaShare /> {t('results.share')}
+              </Button>
+              <Button variant="subtle" onClick={() => void screenshot()}>
+                <FaCopy /> {t('results.copy')}
+              </Button>
+              <Button onClick={() => void download()}>
+                <FaDownload /> {t('results.download')}
+              </Button>
+            </Wrap>
+          </>
+        )}
         <Tabs.Root
           lazyMount
           defaultValue="default"
@@ -150,26 +170,28 @@ export function ResultsView({
           </Box>
         </Tabs.Root>
       </Stack>
-      <Box position="absolute" w="0" h="0" overflow="hidden">
-        <Stack id="results" width="1280px" p="4" bgColor="bg.canvas">
-          {title && (
-            <Heading fontSize="2xl" fontWeight="bold">
-              {title}
-            </Heading>
-          )}
-          {description && <Text>{description}</Text>}
-          {currentTab === 'table' ? (
-            <RankingTable characters={characters} isSeiyuu={isSeiyuu} />
-          ) : currentTab === 'grid' ? (
-            <GridView characters={characters} isSeiyuu={isSeiyuu} />
-          ) : (
-            <RankingView characters={characters} isSeiyuu={isSeiyuu} />
-          )}
-          <Text textAlign="end">
-            {t('results.generated_at')}: {timestamp.toLocaleString()}
-          </Text>
-        </Stack>
-      </Box>
+      {!readOnly && (
+        <Box position="absolute" w="0" h="0" overflow="hidden">
+          <Stack id="results" width="1280px" p="4" bgColor="bg.canvas">
+            {title && (
+              <Heading fontSize="2xl" fontWeight="bold">
+                {title}
+              </Heading>
+            )}
+            {description && <Text>{description}</Text>}
+            {currentTab === 'table' ? (
+              <RankingTable characters={characters} isSeiyuu={isSeiyuu} />
+            ) : currentTab === 'grid' ? (
+              <GridView characters={characters} isSeiyuu={isSeiyuu} />
+            ) : (
+              <RankingView characters={characters} isSeiyuu={isSeiyuu} />
+            )}
+            <Text textAlign="end">
+              {t('results.generated_at')}: {timestamp.toLocaleString()}
+            </Text>
+          </Stack>
+        </Box>
+      )}
     </>
   );
 }

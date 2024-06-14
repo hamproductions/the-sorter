@@ -14,9 +14,11 @@ import { useData } from '../../hooks/useData';
 import { useSortData } from '../../hooks/useSortData';
 import { Character, WithRank } from '../../types';
 import { getCurrentItem } from '../../utils/sort';
-import { isValidFilter } from '~/utils/filter';
+import { getFilterTitle, isValidFilter } from '~/utils/filter';
 import { getAssetUrl } from '~/utils/assets';
 import { Box, Container, HStack, Stack, Wrap } from 'styled-system/jsx';
+import { getCharacterFromId } from '~/utils/character';
+import { Footer } from '~/components/sorter/Footer';
 
 const ResultsView = lazy(() =>
   import('../../components/sorter/ResultsView').then((m) => ({ default: m.ResultsView }))
@@ -60,27 +62,13 @@ export function Page() {
     action: 'reset' | 'clear';
   }>();
 
-  const getCharaFromId = (id: string): Character | undefined => {
-    const [charaId, castId] = id.split('-');
-    const chara = data.find((i) => i.id === charaId);
-    if (!chara) {
-      return undefined;
-    }
-    return {
-      ...chara,
-      id,
-      //@ts-expect-error TODO: will fix
-      casts: chara.casts.filter((_, idx) => idx === (castId !== undefined ? Number(castId) : 0))
-    };
-  };
-
   const charaList = useMemo(() => {
     return (state?.arr
       ?.flatMap((ids, idx, arr) => {
         const startRank = arr.slice(0, idx).reduce((p, c) => p + c.length, 1);
         if (Array.isArray(ids)) {
           return ids
-            .map((id) => ({ rank: startRank, ...getCharaFromId(id) }))
+            .map((id) => ({ rank: startRank, ...getCharacterFromId(data, id) }))
             .filter((d) => 'id' in d);
         } else {
           const chara = data.find((i) => i.id === (ids as string));
@@ -97,30 +85,10 @@ export function Page() {
   const currentLeft = leftItem && listToSort.find((l) => l.id === leftItem[0]);
   const currentRight = rightItem && listToSort.find((l) => l.id === rightItem[0]);
 
-  const getTitlePrefix = () => {
-    if (!isValidFilter(filters)) return;
-    const seriesName = filters?.series ?? [];
-    const schoolName = filters?.school ?? [];
-    const unitName =
-      filters?.units?.map(
-        (e) =>
-          data.find((d) => d.units.find((u) => u.id === e))?.units.find((u) => u.id === e)?.name
-      ) ?? [];
-
-    if (seriesName?.length + schoolName?.length + unitName?.length > 1) return;
-    if (seriesName?.length === 1) {
-      return seriesName[0];
-    }
-    if (schoolName?.length === 1) {
-      return schoolName[0];
-    }
-    if (unitName?.length === 1) {
-      return unitName[0];
-    }
-    return;
-  };
-
-  const title = t('title', { titlePrefix: getTitlePrefix() ?? t('defaultTitlePrefix') });
+  const titlePrefix = getFilterTitle(filters, data) ?? t('defaultTitlePrefix');
+  const title = t('title', {
+    titlePrefix
+  });
 
   const shareUrl = async () => {
     if (!isValidFilter(filters)) return;
@@ -135,6 +103,34 @@ export function Page() {
       params.append('seiyuu', seiyuu.toString());
     }
     const url = `${location.origin}${location.pathname}?${params.toString()}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast?.(t('toast.url_copied'));
+    } catch (e) {}
+  };
+
+  const shareResultsUrl = async ({
+    title,
+    description
+  }: {
+    title: string;
+    description?: string;
+  }) => {
+    if (!isValidFilter(filters)) return;
+    const params = new URLSearchParams();
+    for (const key of ['series', 'units', 'school'] as const) {
+      const list = filters?.[key];
+      if (list && list?.length > 0) {
+        list.forEach((item) => params.append(key, item));
+      }
+    }
+    if (seiyuu) {
+      params.append('seiyuu', seiyuu.toString());
+    }
+    const data = { title, description, results: state?.arr ?? undefined };
+    const compress = (await import('lz-string')).compressToEncodedURIComponent;
+    params.append('data', compress(JSON.stringify(data)));
+    const url = `${location.origin}/share?${params.toString()}`;
     try {
       await navigator.clipboard.writeText(url);
       toast?.(t('toast.url_copied'));
@@ -323,9 +319,12 @@ export function Page() {
                 {charaList && progress === 1 && (
                   <Suspense>
                     <ResultsView
-                      titlePrefix={getTitlePrefix()}
+                      titlePrefix={titlePrefix}
                       characters={charaList}
                       isSeiyuu={seiyuu}
+                      onShareResults={(title, description) =>
+                        void shareResultsUrl({ title, description })
+                      }
                       w="full"
                     />
                   </Suspense>
@@ -334,29 +333,7 @@ export function Page() {
             )}
           </Stack>
         </Container>
-        <Stack
-          zIndex="1"
-          gap="1"
-          justifyContent="center"
-          w="full"
-          p="4"
-          textAlign="center"
-          bgColor="bg.muted"
-        >
-          <Text>
-            {t('footer.created_by')}
-            <Link href="https://ham-san.net/namecard" target="_blank">
-              ハムP
-            </Link>{' '}
-            | {t('footer.footer_text')}
-          </Text>
-          <Text>
-            {t('footer.source_code')}　
-            <Link href="https://github.com/hamproductions/the-sorter" target="_blank">
-              GitHub
-            </Link>
-          </Text>
-        </Stack>
+        <Footer />
       </Stack>
       <ConfirmEndedDialog
         open={showConfirmDialog?.type === 'ended'}

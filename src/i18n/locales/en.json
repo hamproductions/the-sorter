@@ -38,6 +38,7 @@
     "title": "Title",
     "description": "Description (Optional)",
     "copy": "Copy Result Image",
+    "share": "Share Results Link",
     "download": "Download",
     "list": "List",
     "table": "Table",

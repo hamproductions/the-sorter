@@ -24,3 +24,27 @@ export const isValidFilter = (filter?: FilterType | null): filter is FilterType 
   if (!Array.isArray(school) || !Array.isArray(series) || !Array.isArray(units)) return false;
   return true;
 };
+
+export const getFilterTitle = (filters?: FilterType | null, characters?: Character[]) => {
+  if (!isValidFilter(filters)) return;
+  const seriesName = filters?.series ?? [];
+  const schoolName = filters?.school ?? [];
+  const unitName =
+    filters?.units?.map(
+      (e) =>
+        characters?.find((d) => d.units.find((u) => u.id === e))?.units.find((u) => u.id === e)
+          ?.name
+    ) ?? [];
+
+  if (seriesName?.length + schoolName?.length + unitName?.length > 1) return;
+  if (seriesName?.length === 1) {
+    return seriesName[0];
+  }
+  if (schoolName?.length === 1) {
+    return schoolName[0];
+  }
+  if (unitName?.length === 1) {
+    return unitName[0];
+  }
+  return;
+};
