@@ -51,6 +51,18 @@
     "screenshot_copied": "Screenshot Copied to Clipboard",
     "generating_screenshot": "Generating Screenshot..."
   },
+  "dialog": {
+    "ended_confirm": {
+      "title": "Confirmation",
+      "description": "Your current sorting data will be lost, are you sure ?"
+    },
+    "mid_sort_confirm": {
+      "title": "Sorting in progress",
+      "description": "Your current sorting data will be lost, are you sure ?"
+    },
+    "proceed": "Proceed",
+    "cancel": "Cancel"
+  },
   "share": {
     "copy_text": "Check out my sorted LL! characters"
   },

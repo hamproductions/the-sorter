@@ -8,6 +8,7 @@ Sort your favorite seiyuu, inspired by charasort and more...
 - Undo
 - Photo Export
 - Save-able
+- TODO: Share
 
 ## Need Help (If anyone is kind enough...)
 - [ ] Localized Names

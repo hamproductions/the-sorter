@@ -33,7 +33,7 @@
     "source_code": "ソースコードをチェックしてみてね "
   },
   "results": {
-    "sort_results": "ランキング",
+    "sort_results": "ランキング結果",
     "export_settings": "画像の設定",
     "title": "タイトル",
     "description": "説明文 (任意)",
@@ -53,6 +53,18 @@
   },
   "share": {
     "copy_text": "僕のラブライブシリーズランキングをみて！"
+  },
+  "dialog": {
+    "ended_confirm": {
+      "title": "ランキング中です",
+      "description": "ランキング中のデータが消されます, よろしいですか?"
+    },
+    "mid_sort_confirm": {
+      "title": "確認",
+      "description": "ランキング結果のデータが消されます, よろしいですか?"
+    },
+    "proceed": "続行",
+    "cancel": "キャンセル"
   },
   "error_page": {
     "title": "あっちゃー",
