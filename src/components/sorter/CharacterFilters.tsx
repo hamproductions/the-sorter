@@ -9,11 +9,12 @@ import series from '../../../data/series.json';
 import units from '../../../data/units.json';
 
 import { HStack, Stack, Wrap } from 'styled-system/jsx';
+import { isValidFilter } from '~/utils/filter';
 
 export interface FilterType {
-  series: string[];
-  school: string[];
-  units: string[];
+  series?: string[];
+  school?: string[];
+  units?: string[];
 }
 
 const DATA = {
@@ -32,7 +33,7 @@ export function CharacterFilters({
   const { t } = useTranslation();
   const selectAll = (key: keyof FilterType) => () => {
     setFilters((f) => {
-      const isAllSelected = f?.[key].length === DATA[key].length;
+      const isAllSelected = f?.[key]?.length === DATA[key].length;
       const res = isAllSelected ? [] : key === 'units' ? DATA[key].map((k) => k.id) : DATA[key];
       return {
         ...f,
@@ -68,12 +69,7 @@ export function CharacterFilters({
   };
 
   useEffect(() => {
-    if (
-      filters === undefined ||
-      !Array.isArray(filters?.school) ||
-      !Array.isArray(filters?.units) ||
-      !Array.isArray(filters?.series)
-    ) {
+    if (filters === undefined || !isValidFilter(filters)) {
       initFilters();
     }
   }, [filters]);

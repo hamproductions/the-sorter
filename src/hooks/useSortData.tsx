@@ -6,7 +6,7 @@ import { useSorter } from './useSorter';
 import { FilterType } from '~/components/sorter/CharacterFilters';
 import { useToaster } from '~/context/ToasterContext';
 import { Character } from '~/types';
-import { hasFilter, matchFilter } from '~/utils/filter';
+import { hasFilter, isValidFilter, matchFilter } from '~/utils/filter';
 
 export const useSortData = () => {
   const characters = useData();
@@ -103,7 +103,7 @@ export const useSortData = () => {
     tie: handleTie,
     undo,
     progress,
-    filters,
+    filters: isValidFilter(filters) ? filters : null,
     setFilters,
     listToSort,
     listCount: listToSort.length,

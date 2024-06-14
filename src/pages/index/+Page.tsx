@@ -14,6 +14,7 @@ import { useData } from '../../hooks/useData';
 import { useSortData } from '../../hooks/useSortData';
 import { Character, WithRank } from '../../types';
 import { getCurrentItem } from '../../utils/sort';
+import { isValidFilter } from '~/utils/filter';
 import { getAssetUrl } from '~/utils/assets';
 import { Box, Container, HStack, Stack, Wrap } from 'styled-system/jsx';
 
@@ -81,10 +82,11 @@ export function Page() {
   const currentRight = rightItem && listToSort.find((l) => l.id === rightItem[0]);
 
   const getTitlePrefix = () => {
+    if (!isValidFilter(filters)) return;
     const seriesName = filters?.series ?? [];
     const schoolName = filters?.school ?? [];
     const unitName =
-      filters?.units.map(
+      filters?.units?.map(
         (e) =>
           data.find((d) => d.units.find((u) => u.id === e))?.units.find((u) => u.id === e)?.name
       ) ?? [];
@@ -105,12 +107,11 @@ export function Page() {
   const title = t('title', { titlePrefix: getTitlePrefix() ?? t('defaultTitlePrefix') });
 
   const shareUrl = async () => {
+    if (!isValidFilter(filters)) return;
     const params = new URLSearchParams();
     for (const key of ['series', 'units', 'school'] as const) {
-      const list = Object.entries(filters?.[key] ?? {})
-        .filter((s) => s[1])
-        .map((s) => s[0]);
-      if (list.length > 0) {
+      const list = filters?.[key];
+      if (list && list?.length > 0) {
         list.forEach((item) => params.append(key, item));
       }
     }
