@@ -1,4 +1,5 @@
-import { Suspense, lazy, useEffect } from 'react';
+import { Suspense, lazy, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FaShare } from 'react-icons/fa6';
 import { CharacterCard } from '../../components/sorter/CharacterCard';
 import { CharacterFilters } from '../../components/sorter/CharacterFilters';
@@ -23,6 +24,7 @@ const ResultsView = lazy(() =>
 export function Page() {
   const data = useData();
   const { toast } = useToaster();
+  const { t, i18n } = useTranslation();
   const {
     seiyuu,
     setSeiyuu,
@@ -55,20 +57,22 @@ export function Page() {
     };
   };
 
-  const charaList = (state?.arr
-    .flatMap((ids, idx, arr) => {
-      const startRank = arr.slice(0, idx).reduce((p, c) => p + c.length, 1);
-      if (Array.isArray(ids)) {
-        return ids
-          .map((id) => ({ rank: startRank, ...getCharaFromId(id) }))
-          .filter((d) => 'id' in d);
-      } else {
-        const chara = data.find((i) => i.id === (ids as string));
-        if (!chara) return [];
-        return [{ rank: startRank, ...chara }];
-      }
-    })
-    .filter((c) => !!c) ?? []) as WithRank<Character>[];
+  const charaList = useMemo(() => {
+    return (state?.arr
+      ?.flatMap((ids, idx, arr) => {
+        const startRank = arr.slice(0, idx).reduce((p, c) => p + c.length, 1);
+        if (Array.isArray(ids)) {
+          return ids
+            .map((id) => ({ rank: startRank, ...getCharaFromId(id) }))
+            .filter((d) => 'id' in d);
+        } else {
+          const chara = data.find((i) => i.id === (ids as string));
+          if (!chara) return [];
+          return [{ rank: startRank, ...chara }];
+        }
+      })
+      .filter((c) => !!c) ?? []) as WithRank<Character>[];
+  }, [state?.arr, data]);
 
   const { left: leftItem, right: rightItem } =
     (state && getCurrentItem(state)) || ({} as { left: string[]; right: string[] });
@@ -77,34 +81,28 @@ export function Page() {
   const currentRight = rightItem && listToSort.find((l) => l.id === rightItem[0]);
 
   const getTitlePrefix = () => {
-    const seriesName = Object.entries(filters?.series ?? {})
-      .filter((e) => e[1])
-      .map((e) => e[0]);
-    const schoolName = Object.entries(filters?.school ?? {})
-      .filter((e) => e[1])
-      .map((e) => e[0]);
-    const unitName = Object.entries(filters?.units ?? {})
-      .filter((e) => e[1])
-      .map(
+    const seriesName = filters?.series ?? [];
+    const schoolName = filters?.school ?? [];
+    const unitName =
+      filters?.units.map(
         (e) =>
-          data.find((d) => d.units.find((u) => u.id === e[0]))?.units.find((u) => u.id === e[0])
-            ?.name
-      );
+          data.find((d) => d.units.find((u) => u.id === e))?.units.find((u) => u.id === e)?.name
+      ) ?? [];
 
-    if (seriesName.length + schoolName.length + unitName.length > 1) return;
-    if (seriesName.length === 1) {
+    if (seriesName?.length + schoolName?.length + unitName?.length > 1) return;
+    if (seriesName?.length === 1) {
       return seriesName[0];
     }
-    if (schoolName.length === 1) {
+    if (schoolName?.length === 1) {
       return schoolName[0];
     }
-    if (unitName.length === 1) {
+    if (unitName?.length === 1) {
       return unitName[0];
     }
     return;
   };
 
-  const title = `${getTitlePrefix() ?? 'Yet another LL!'} sorter`;
+  const title = t('title', { titlePrefix: getTitlePrefix() ?? t('defaultTitlePrefix') });
 
   const shareUrl = async () => {
     const params = new URLSearchParams();
@@ -122,10 +120,8 @@ export function Page() {
     const url = `${location.origin}${location.pathname}?${params.toString()}`;
     try {
       await navigator.clipboard.writeText(url);
-      toast?.('URL Copied to Clipboard');
-    } catch (e) {
-      console.error('oopsie');
-    }
+      toast?.(t('toast.url_copied'));
+    } catch (e) {}
   };
 
   useEffect(() => {
@@ -143,6 +139,10 @@ export function Page() {
 
   const handleClear = () => {
     clear();
+  };
+
+  const handleSetLocale = (locale: 'en' | 'ja') => {
+    void i18n.changeLanguage(locale);
   };
   const isSorting = !!state;
 
@@ -169,9 +169,18 @@ export function Page() {
           <Text textAlign="center" fontSize="3xl" fontWeight="bold">
             {title}
           </Text>
-          <Text>ヒトリダケナンテエラベナイヨーの時に役に立てるかも</Text>
+          <Text>{t('description')}</Text>
+          <Wrap>
+            <Link href="#" onClick={() => handleSetLocale('en')}>
+              English
+            </Link>
+            |
+            <Link href="#" onClick={() => handleSetLocale('ja')}>
+              日本語
+            </Link>
+          </Wrap>
           <Text fontSize="sm" fontWeight="bold">
-            {listCount} to be sorted
+            {t('settings.sort_count', { count: listCount })}
           </Text>
           {!isSorting && (
             <>
@@ -181,20 +190,20 @@ export function Page() {
                 disabled={isSorting}
                 onCheckedChange={(e) => setSeiyuu(e.checked)}
               >
-                Do you like seiyuu ? (Seiyuu Mode)
+                {t('settings.seiyuu')}
               </Switch>
             </>
           )}
           <Wrap justifyContent="center">
             <Button onClick={() => void shareUrl()} variant="subtle">
-              <FaShare /> Share Current Settings
+              <FaShare /> {t('settings.share')}
             </Button>
             <Button variant="solid" onClick={() => handleStart()}>
-              {!isSorting ? 'Start' : 'Start Over'}
+              {!isSorting ? t('sort.start') : t('sort.start_over')}
             </Button>
             {isSorting && (
               <Button variant="subtle" onClick={() => handleClear()}>
-                {state?.status !== 'end' ? 'Stop' : 'Choose new settings'}
+                {state?.status !== 'end' ? t('sort.stop') : t('sort.new_settings')}
               </Button>
             )}
           </Wrap>
@@ -240,7 +249,7 @@ export function Page() {
                         onClick={() => tie()}
                         flex={{ base: 1, md: 'unset' }}
                       >
-                        Tie
+                        {t('sort.tie')}
                       </Button>
                       <Button
                         size={{ base: '2xl', md: 'lg' }}
@@ -248,29 +257,35 @@ export function Page() {
                         onClick={() => undo()}
                         flex={{ base: 1, md: 'unset' }}
                       >
-                        Undo
+                        {t('sort.undo')}
                       </Button>
                     </HStack>
                     <Stack hideBelow="sm" gap="1">
-                      <Text fontWeight="bold">Keyboard Shortcuts</Text>
+                      <Text fontWeight="bold">{t('sort.keyboard_shortcuts')}</Text>
                       <Wrap>
                         <Text>
-                          <Kbd>←</Kbd>: Pick Left
+                          <Kbd>←</Kbd>: {t('sort.pick_left')}
                         </Text>
                         <Text>
-                          <Kbd>→</Kbd>: Pick Right
+                          <Kbd>→</Kbd>: {t('sort.pick_right')}
                         </Text>
                         <Text>
-                          <Kbd>↓</Kbd>: Tie/ Skip
+                          <Kbd>↓</Kbd>: {t('sort.tie')}
                         </Text>
                         <Text>
-                          <Kbd>↑</Kbd>: Undo
+                          <Kbd>↑</Kbd>: {t('sort.undo')}
                         </Text>
                       </Wrap>
                     </Stack>
                   </Stack>
-                  <Text>Comparison No. {count}</Text>
-                  <Progress value={progress} min={0} max={1} defaultValue={0} />
+                  <Text>{t('sort.comparison_no', { count })}</Text>
+                  <Progress
+                    translations={{ value: (details) => `${details.percent}%` }}
+                    value={progress}
+                    min={0}
+                    max={1}
+                    defaultValue={0}
+                  />
                 </Stack>
               )}
               {charaList && progress === 1 && (
@@ -297,14 +312,14 @@ export function Page() {
         bgColor="bg.muted"
       >
         <Text>
-          Created by{' '}
+          {t('footer.created_by')}
           <Link href="https://ham-san.net/namecard" target="_blank">
             ハムP
           </Link>{' '}
-          | Inspired by a bunch of other sorters of course, Assets are not mine
+          | {t('footer.footer_text')}
         </Text>
         <Text>
-          Check out source code on{' '}
+          {t('footer.source_code')}
           <Link href="https://github.com/hamproductions/the-sorter" target="_blank">
             GitHub
           </Link>

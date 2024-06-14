@@ -1,16 +1,17 @@
 import React, { ErrorInfo } from 'react';
-import { FaArrowsRotate, FaCopy } from 'react-icons/fa6';
+import { FaArrowsRotate, FaCopy, FaTrash } from 'react-icons/fa6';
+import { withTranslation, WithTranslation } from 'react-i18next';
 import { Button } from '../ui/button';
 import { Code } from '../ui/code';
 import { Link } from '../ui/link';
 import { Text } from '../ui/text';
 import { Center, Stack, Wrap } from 'styled-system/jsx';
 
-export class ErrorBoundary extends React.Component<
-  { children: React.ReactNode },
+class ErrorBoundaryInner extends React.Component<
+  WithTranslation & { children: React.ReactNode },
   { error?: Error; info?: ErrorInfo }
 > {
-  constructor(props: { children: React.ReactNode }) {
+  constructor(props: WithTranslation & { children: React.ReactNode }) {
     super(props);
     this.state = {};
   }
@@ -36,13 +37,13 @@ export class ErrorBoundary extends React.Component<
       return (
         <Center w="100vw" minH="100vh" px="4">
           <Stack alignItems="center">
-            <Text fontSize="2xl">Oopsie</Text>
+            <Text fontSize="2xl">{this.props.t('error_page.title')}</Text>
             <Text>
-              Sometimes refreshing the page fix it, if it doesn't ping{' '}
+              {this.props.t('error_page.text')}
               <Link href="https://discordapp.com/users/260776161032798208" target="_blank">
-                @hamp on Discord
-              </Link>{' '}
-              to fix it
+                {this.props.t('error_page.discord_link')}
+              </Link>
+              {this.props.t('error_page.to_fix_it')}
             </Text>
             <Code p="4" whiteSpace="pre-wrap">
               {this.state.error.stack}
@@ -53,11 +54,21 @@ export class ErrorBoundary extends React.Component<
             <Wrap>
               <Button variant="ghost" onClick={() => this.copyMessage()}>
                 <FaCopy />
-                Copy Error Message
+                {this.props.t('error_page.copy')}
               </Button>
               <Button onClick={() => window.location.reload()}>
                 <FaArrowsRotate />
-                Reload Page
+                {this.props.t('error_page.reload')}
+              </Button>
+              <Button
+                variant="subtle"
+                onClick={() => {
+                  localStorage.clear();
+                  window.location.reload();
+                }}
+              >
+                <FaTrash />
+                {this.props.t('error_page.clear')}
               </Button>
             </Wrap>
           </Stack>
@@ -67,3 +78,6 @@ export class ErrorBoundary extends React.Component<
     return this.props.children;
   }
 }
+
+//@ts-expect-error TODO: wtf
+export default withTranslation()(ErrorBoundaryInner);

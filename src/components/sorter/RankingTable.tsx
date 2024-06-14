@@ -1,11 +1,13 @@
 import groupBy from 'lodash-es/groupBy';
+import { useTranslation } from 'react-i18next';
 import * as Table from '../ui/table';
 import { Text } from '../ui/text';
-import { SchoolBadge } from './SchoolBadge';
 import { CharacterIcon } from './CharacterIcon';
-import { Stack, Wrap, styled } from 'styled-system/jsx';
+import { SchoolBadge } from './SchoolBadge';
 import { getPicUrl } from '~/utils/assets';
 import { Character, WithRank } from '~/types';
+import { Stack, Wrap, styled } from 'styled-system/jsx';
+
 export function RankingTable({
   characters,
   isSeiyuu,
@@ -15,24 +17,29 @@ export function RankingTable({
   isSeiyuu: boolean;
   responsive?: boolean;
 }) {
+  const { t } = useTranslation();
   return (
     <Table.Root size="sm">
       <Table.Head>
         <Table.Row>
-          <Table.Header>No.</Table.Header>
+          <Table.Header>{t('ranking')}</Table.Header>
           {isSeiyuu ? (
             <>
-              <Table.Header>声優</Table.Header>
-              <Table.Header>キャラクター</Table.Header>
+              <Table.Header>{t('seiyuu')}</Table.Header>
+              <Table.Header>{t('character')}</Table.Header>
             </>
           ) : (
             <>
-              <Table.Header>キャラクター</Table.Header>
-              <Table.Header>声優</Table.Header>
+              <Table.Header>{t('character')}</Table.Header>
+              <Table.Header>{t('seiyuu')}</Table.Header>
             </>
           )}
-          <Table.Header hideBelow={responsive ? 'md' : undefined}>シリーズ・学校</Table.Header>
-          <Table.Header hideBelow={responsive ? 'md' : undefined}>ユニット</Table.Header>
+          <Table.Header hideBelow={responsive ? 'md' : undefined}>
+            {t('settings.series')}・{t('settings.school')}
+          </Table.Header>
+          <Table.Header hideBelow={responsive ? 'md' : undefined}>
+            {t('settings.units')}
+          </Table.Header>
         </Table.Row>
       </Table.Head>
       <Table.Body>

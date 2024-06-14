@@ -1,0 +1,66 @@
+{
+  "title": "{{ titlePrefix }}ランキング",
+  "defaultTitlePrefix": "ラブライブシリーズ",
+  "description": "ヒトリダケナンテエラベナイヨーの時に役に立てるかも",
+  "seiyuu": "声優",
+  "character": "キャラクター",
+  "ranking": "順位",
+  "settings": {
+    "sort_count": "{{ count }}人をランキングする",
+    "seiyuu": "声優が好きか？（声優モード）",
+    "share": "設定を共有する",
+    "series": "シリーズ",
+    "school": "学校",
+    "units": "ユニット",
+    "select_all": "全部を選択する",
+    "deselect_all": "クリアする"
+  },
+  "sort": {
+    "start": "開始",
+    "start_over": "やり直す",
+    "stop": "中止",
+    "new_settings": "設定を変更する",
+    "tie": "引き分け",
+    "undo": "やり直し",
+    "keyboard_shortcuts": "キーボードショートカット",
+    "pick_left": "左を選択する",
+    "pick_right": "右を選択する",
+    "comparison_no": "第{{ count }}回目"
+  },
+  "footer": {
+    "created_by": "作者：",
+    "footer_text": "他のランキングアプリからいろいろアイデアいただいています、素材は僕のものじゃないです。",
+    "source_code": "ソースコードをチェックしてみてね"
+  },
+  "results": {
+    "sort_results": "ランキング",
+    "export_settings": "画像の設定",
+    "title": "タイトル",
+    "description": "説明文 (任意)",
+    "copy": "画像をコピーする",
+    "download": "ダウンロード",
+    "list": "リスト",
+    "table": "表",
+    "grid": "グリッド",
+    "results_title": "{{ titlePrefix }}　{{ sortType }}ランキング",
+    "default_results_title": "ラブライブシリーズ　{{ sortType }}ランキング",
+    "generated_at": "作成日"
+  },
+  "toast": {
+    "url_copied": "URLをコピーしました",
+    "screenshot_copied": "画像をコピーしました",
+    "generating_screenshot": "画像生成しています…"
+  },
+  "share": {
+    "copy_text": "僕のラブライブシリーズランキングをみて！"
+  },
+  "error_page": {
+    "title": "あっちゃー",
+    "text": "ページを再読み込みすると大体直りましたし、データをクリアして再読み込みするのもたまに治せます。 直さない場合は",
+    "discord_link": "Discordで@hamp",
+    "to_fix_it": "に連絡してください。",
+    "copy": "エラーメッセージをコピー",
+    "reload": "再読み込み",
+    "clear": "データをクリアして際読み込み"
+  }
+}

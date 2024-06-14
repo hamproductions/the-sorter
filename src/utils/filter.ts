@@ -10,5 +10,9 @@ export const hasFilter = (filters: FilterType) => {
 export const matchFilter = (item: Character, filter: FilterType) => {
   if (!filter) return true;
   const { school, series, units } = filter;
-  return school[item.school] || series[item.series] || item.units.some((u) => units[u.id]);
+  return (
+    school.includes(item.school) ||
+    series.includes(item.series) ||
+    item.units.some((u) => units.includes(u.id))
+  );
 };

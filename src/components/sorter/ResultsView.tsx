@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { FaCopy, FaDownload } from 'react-icons/fa6';
 
+import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/button';
 import { FormLabel } from '../ui/form-label';
 import { Heading } from '../ui/heading';
@@ -17,12 +18,6 @@ import { useLocalStorage } from '~/hooks/useLocalStorage';
 import { useToaster } from '~/context/ToasterContext';
 import { Box, Stack, Wrap } from 'styled-system/jsx';
 
-const tabs = [
-  { id: 'default', label: 'List' },
-  { id: 'table', label: 'Table' },
-  { id: 'grid', label: 'Grid' }
-];
-
 export function ResultsView({
   titlePrefix,
   characters,
@@ -37,9 +32,15 @@ export function ResultsView({
     'default'
   );
   const [timestamp, setTimestamp] = useState(new Date());
+  const { t } = useTranslation();
 
+  const tabs = [
+    { id: 'default', label: t('results.list') },
+    { id: 'table', label: t('results.table') },
+    { id: 'grid', label: t('results.grid') }
+  ];
   const makeScreenshot = async () => {
-    toast?.('Generating Screenshot...');
+    toast?.(t('toast.generating_screenshot'));
     const domToBlob = await import('modern-screenshot').then((module) => module.domToBlob);
     setTimestamp(new Date());
     const resultsBox = document.getElementById('results');
@@ -59,14 +60,14 @@ export function ResultsView({
     if (!shareImage) return;
     try {
       await navigator.share({
-        text: 'Check out my sorted LL! characters',
+        text: t('share.copy_text'),
         files: [new File([shareImage], 'll-sorted.png')]
       });
     } catch {
       await navigator.clipboard.write([
         new ClipboardItem({ 'image/png': shareImage }, { presentationStyle: 'attachment' })
       ]);
-      toast?.('Screenshot Copied to Clipboard');
+      toast?.(t('toast.screenshot_copied'));
     }
   };
 
@@ -82,26 +83,30 @@ export function ResultsView({
   };
 
   useEffect(() => {
+    const sortType = isSeiyuu ? t('seiyuu') : t('character');
     setTitle(
       titlePrefix
-        ? `My ${titlePrefix} ${isSeiyuu ? 'Seiyuu' : 'Character'} Ranking`
-        : `My LoveLive! ${isSeiyuu ? 'Seiyuu' : 'Character'} Ranking`
+        ? t('results.results_title', { titlePrefix, sortType })
+        : t('results.default_results_title', {
+            titlePrefix,
+            sortType
+          })
     );
   }, [titlePrefix, isSeiyuu]);
   return (
     <>
       <Stack w="full">
         <Heading fontSize="2xl" fontWeight="bold">
-          Sort Results
+          {t('results.sort_results')}
         </Heading>
         <Stack>
-          <Text>Export Settings</Text>
+          <Text>{t('results.export_settings')}</Text>
           <Wrap>
-            <FormLabel htmlFor="title">Title</FormLabel>
+            <FormLabel htmlFor="title">{t('results.title')}</FormLabel>
             <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} />
           </Wrap>
           <Wrap>
-            <FormLabel htmlFor="description">Description (Optional)</FormLabel>
+            <FormLabel htmlFor="description">{t('results.description')}</FormLabel>
             <Textarea
               id="description"
               value={description}
@@ -111,10 +116,10 @@ export function ResultsView({
         </Stack>
         <Wrap justifyContent="flex-end">
           <Button variant="subtle" onClick={() => void screenshot()}>
-            <FaCopy /> Copy Screenshot
+            <FaCopy /> {t('results.copy')}
           </Button>
           <Button onClick={() => void download()}>
-            <FaDownload /> Download
+            <FaDownload /> {t('results.download')}
           </Button>
         </Wrap>
         <Tabs.Root
@@ -160,7 +165,9 @@ export function ResultsView({
           ) : (
             <RankingView characters={characters} isSeiyuu={isSeiyuu} />
           )}
-          <Text textAlign="end">Generated at: {timestamp.toLocaleString()}</Text>
+          <Text textAlign="end">
+            {t('results.generated_at')}: {timestamp.toLocaleString()}
+          </Text>
         </Stack>
       </Box>
     </>

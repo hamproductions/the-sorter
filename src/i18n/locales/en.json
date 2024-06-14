@@ -1,0 +1,66 @@
+{
+  "title": "{{ titlePrefix }} Sorter",
+  "defaultTitlePrefix": "LoveLive! ",
+  "description": "Helps you when HITORIDAKENANTEERABENAIYO",
+  "seiyuu": "Seiyuu",
+  "character": "Character",
+  "ranking": "No.",
+  "settings": {
+    "sort_count": "{{ count }} to be sorted",
+    "seiyuu": "Do you like seiyuu ? (Seiyuu Mode)",
+    "share": "Share current settings",
+    "series": "Series",
+    "school": "School",
+    "units": "Units",
+    "select_all": "Select All",
+    "deselect_all": "Deselect All"
+  },
+  "sort": {
+    "start": "Start",
+    "start_over": "Start Over",
+    "stop": "Stop",
+    "new_settings": "Choose new settings",
+    "tie": "Tie",
+    "undo": "Undo",
+    "keyboard_shortcuts": "Keyboard Shortcuts",
+    "pick_left": "Pick Left",
+    "pick_right": "Pick Right",
+    "comparison_no": "Comparison No. {{ count }}"
+  },
+  "footer": {
+    "created_by": "Created by",
+    "footer_text": "Inspired by a bunch of other sorters of course, Assets are not mine",
+    "source_code": "Check out source code on "
+  },
+  "results": {
+    "sort_results": "Sort Results",
+    "export_settings": "Export Settings",
+    "title": "Title",
+    "description": "Description (Optional)",
+    "copy": "Copy Result Image",
+    "download": "Download",
+    "list": "List",
+    "table": "Table",
+    "grid": "Grid",
+    "results_title": "{{ titlePrefix }} {{ sortType }} Ranking",
+    "default_results_title": "LoveLive! {{ sortType }} Ranking",
+    "generated_at": "Generated at"
+  },
+  "toast": {
+    "url_copied": "URL Copied to Clipboard",
+    "screenshot_copied": "Screenshot Copied to Clipboard",
+    "generating_screenshot": "Generating Screenshot..."
+  },
+  "share": {
+    "copy_text": "Check out my sorted LL! characters"
+  },
+  "error_page": {
+    "title": "Oopsie",
+    "text": "Sometimes refreshing the page fix it, Clearing the data might also fix it too. If it doesn't ping ",
+    "discord_link": "@hamp on Discord",
+    "to_fix_it": " to fix it.",
+    "copy": "Copy Error Message",
+    "reload": "Reload Page",
+    "clear": "Clear Data and Reload Page"
+  }
+}

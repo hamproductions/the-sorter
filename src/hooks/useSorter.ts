@@ -10,6 +10,7 @@ export const useSorter = <T>(items: T[]) => {
 
   useEffect(() => {
     if (
+      !state?.arr ||
       (state?.arr[0] && !Array.isArray(state?.arr[0])) ||
       (history?.[0]?.arr[0] && !Array.isArray(history?.[0]?.arr[0]))
     ) {
