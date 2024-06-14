@@ -59,7 +59,6 @@ export function Page() {
     type: 'mid-sort' | 'ended';
     action: 'reset' | 'clear';
   }>();
-  console.log(showConfirmDialog);
 
   const getCharaFromId = (id: string): Character | undefined => {
     const [charaId, castId] = id.split('-');
