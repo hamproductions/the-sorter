@@ -13,3 +13,14 @@ export const getCharacterFromId = (data: Character[], id: string): Character | u
     casts: chara.casts.filter((_, idx) => idx === (castId !== undefined ? Number(castId) : 0))
   };
 };
+
+export const getFullName = (character: Character, locale: 'en' | 'ja') => {
+  if (locale === 'en' && character.englishName) return character.englishName;
+
+  return character.fullName;
+};
+
+export const getCastName = (cast: Character['casts'][number], locale: 'en' | 'ja') => {
+  if (locale === 'en' && cast.englishName) return cast.englishName;
+  return cast.seiyuu;
+};

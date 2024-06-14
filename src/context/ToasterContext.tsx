@@ -8,7 +8,7 @@ const ToasterContext = createContext<{ toast?: (msg: ReactNode) => void }>({});
 
 const toaster = createToaster({
   placement: 'bottom-end',
-  max: 50,
+  max: 10,
   overlap: true
 });
 

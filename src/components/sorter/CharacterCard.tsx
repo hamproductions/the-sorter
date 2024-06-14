@@ -1,15 +1,21 @@
+import { useTranslation } from 'react-i18next';
 import { Text } from '../ui/text';
 import { CharacterIcon } from './CharacterIcon';
 import { SchoolBadge } from './SchoolBadge';
 import { Center, Stack, StackProps, styled } from 'styled-system/jsx';
 import { getPicUrl } from '~/utils/assets';
 import { Character } from '~/types';
+import { getCastName, getFullName } from '~/utils/character';
 
 export function CharacterCard({
   character,
   isSeiyuu,
   ...rest
 }: { character?: Character; isSeiyuu: boolean } & StackProps) {
+  const { i18n } = useTranslation();
+
+  const lang = i18n.language as 'en';
+
   if (!character) return null;
 
   return (
@@ -37,7 +43,7 @@ export function CharacterCard({
         <Center position="absolute" flex={1} h="full">
           <styled.img
             src={getPicUrl(character.id, isSeiyuu ? 'seiyuu' : 'character')}
-            alt={character.fullName}
+            alt={getFullName(character, lang)}
             minW={0}
             maxW="full"
             minH={0}
@@ -59,16 +65,16 @@ export function CharacterCard({
         </Center>
       </Stack>
       <Text color="var(--color)" fontSize="2xl" fontWeight="bold">
-        {isSeiyuu ? character.casts[0].seiyuu : character.fullName}
+        {isSeiyuu ? getCastName(character.casts[0], lang) : getFullName(character, lang)}
       </Text>
       {isSeiyuu ? (
-        <Text fontSize="xs">{character.fullName}</Text>
+        <Text fontSize="xs">{getFullName(character, lang)}</Text>
       ) : (
         <Stack gap="1" alignItems="center">
           {character.casts.map((c) => {
             return (
               <Text key={c.seiyuu} w="full">
-                {c.seiyuu}{' '}
+                {getCastName(c, lang)}{' '}
                 {c.note && (
                   <Text as="span" fontSize="xs">
                     ({c.note})

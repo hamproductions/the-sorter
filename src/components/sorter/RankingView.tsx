@@ -22,7 +22,7 @@ export function RankingView({
           );
         })}
       </Grid>
-      <Grid gridTemplateColumns="repeat(auto-fit, minmax(150px, 1fr))">
+      <Grid alignItems="stretch" gridTemplateColumns="repeat(auto-fit, minmax(150px, 1fr))">
         {characters.slice(3).map((c) => {
           const { id } = c;
           return (

@@ -1,8 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { Text } from '../ui/text';
 import { CharacterIcon } from './CharacterIcon';
 import { HStack, Stack } from 'styled-system/jsx';
 
 import { Character, WithRank } from '~/types';
+import { getCastName, getFullName } from '~/utils/character';
 
 export function RankingViewListItem({
   character,
@@ -11,7 +13,11 @@ export function RankingViewListItem({
   character: WithRank<Character>;
   isSeiyuu: boolean;
 }) {
-  const { rank, colorCode, casts, fullName, seriesColor } = character;
+  const { i18n } = useTranslation();
+  const { rank, colorCode, casts, seriesColor } = character;
+
+  const lang = i18n.language as 'en';
+  const fullName = getFullName(character, lang);
 
   return (
     <HStack
@@ -23,6 +29,7 @@ export function RankingViewListItem({
       borderLeft="4px solid"
       borderBottom="1px solid"
       borderColor="var(--seriesColor)"
+      h="full"
       px="2"
     >
       <Text color="var(--color)" fontSize="sm" fontWeight="bold">
@@ -32,7 +39,7 @@ export function RankingViewListItem({
         <CharacterIcon character={character} w="auto" h="8" />
         <Stack gap="0.5">
           <Text color="var(--color)" fontSize="sm" fontWeight="bold">
-            {isSeiyuu ? casts[0].seiyuu : fullName}
+            {isSeiyuu ? getCastName(casts[0], lang) : fullName}
           </Text>
           {isSeiyuu ? (
             <Text fontSize="xs">{fullName}</Text>
@@ -41,7 +48,7 @@ export function RankingViewListItem({
               {casts.map((c) => {
                 return (
                   <Text key={c.seiyuu} fontSize="xs">
-                    {c.seiyuu}
+                    {getCastName(c, lang)}
                   </Text>
                 );
               })}

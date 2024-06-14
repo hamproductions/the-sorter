@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Text } from '../ui/text';
 import { CharacterIcon } from './CharacterIcon';
 import { SchoolBadge } from './SchoolBadge';
@@ -5,6 +6,7 @@ import { getPicUrl } from '~/utils/assets';
 import { Box, Center, Stack, Wrap, styled } from 'styled-system/jsx';
 
 import { Character, WithRank } from '~/types';
+import { getCastName, getFullName } from '~/utils/character';
 
 export function RankingViewTopItem({
   character,
@@ -13,8 +15,12 @@ export function RankingViewTopItem({
   character: WithRank<Character>;
   isSeiyuu: boolean;
 }) {
-  const { id, rank, colorCode, casts, fullName, seriesColor } = character;
+  const { i18n } = useTranslation();
+  const { id, rank, colorCode, casts, seriesColor } = character;
   const imageSize = rank === 0 ? '125px' : '80px';
+
+  const lang = i18n.language as 'en';
+  const fullName = getFullName(character, lang);
 
   return (
     <Stack
@@ -22,7 +28,7 @@ export function RankingViewTopItem({
       justifyContent="flex-end"
       h="full"
     >
-      <Stack gap="1" alignItems="center">
+      <Stack flex="1" gap="1" alignItems="center">
         <Center position="relative" mb="4">
           <Box
             display="flex"
@@ -68,7 +74,7 @@ export function RankingViewTopItem({
           <Stack gap="1">
             <Stack gap="1" alignItems="center">
               <Text color="var(--color)" fontSize="lg" fontWeight="bold">
-                {isSeiyuu ? casts[0]?.seiyuu : fullName}
+                {isSeiyuu ? getCastName(casts[0], lang) : fullName}
               </Text>
             </Stack>
             {isSeiyuu ? (
@@ -80,7 +86,7 @@ export function RankingViewTopItem({
                 {casts?.map((c) => {
                   return (
                     <Text key={c.seiyuu} fontSize="xs">
-                      {c.seiyuu}{' '}
+                      {getCastName(c, lang)}{' '}
                       {c.note && (
                         <Text as="span" fontSize="xs">
                           ({c.note})
