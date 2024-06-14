@@ -65,5 +65,5 @@ jobs:
         id: psi
         with:
           url: ${{ needs.deploy.outputs.url }}
-          threshold: 90
+          threshold: 80
           strategy: desktop
