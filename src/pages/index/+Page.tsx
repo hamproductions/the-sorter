@@ -352,7 +352,7 @@ export function Page() {
             | {t('footer.footer_text')}
           </Text>
           <Text>
-            {t('footer.source_code')}
+            {t('footer.source_code')}　
             <Link href="https://github.com/hamproductions/the-sorter" target="_blank">
               GitHub
             </Link>

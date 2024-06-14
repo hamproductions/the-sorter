@@ -11,9 +11,6 @@ const createConfirmDialog = (key: 'mid_sort_confirm' | 'ended_confirm') => {
     const { t } = useTranslation();
     return (
       <Dialog.Root {...rest}>
-        <Dialog.Trigger asChild>
-          <Button>Open Dialog</Button>
-        </Dialog.Trigger>
         <Dialog.Backdrop />
         <Dialog.Positioner>
           <Dialog.Content>
