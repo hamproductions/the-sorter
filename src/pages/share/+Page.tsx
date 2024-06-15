@@ -64,7 +64,7 @@ export function Page() {
       .filter((c) => !!c) ?? []) as WithRank<Character>[];
   }, [results, data]);
 
-  const titlePrefix = getFilterTitle(filters, data) ?? t('defaultTitlePrefix');
+  const titlePrefix = getFilterTitle(filters, data, i18n.language) ?? t('defaultTitlePrefix');
   const title = t('title', {
     titlePrefix
   });

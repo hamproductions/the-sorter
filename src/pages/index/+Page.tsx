@@ -88,7 +88,7 @@ export function Page() {
   const currentLeft = leftItem && listToSort.find((l) => l.id === leftItem[0]);
   const currentRight = rightItem && listToSort.find((l) => l.id === rightItem[0]);
 
-  const titlePrefix = getFilterTitle(filters, data) ?? t('defaultTitlePrefix');
+  const titlePrefix = getFilterTitle(filters, data, i18n.language) ?? t('defaultTitlePrefix');
   const title = t('title', {
     titlePrefix
   });
@@ -133,7 +133,7 @@ export function Page() {
     const data = { title, description, results: state?.arr ?? undefined };
     const compress = (await import('lz-string')).compressToEncodedURIComponent;
     params.append('data', compress(JSON.stringify(data)));
-    const url = `${location.origin}${import.meta.env.PUBLIC_ENV__BASE_URL ?? '/'}/share?${params.toString()}`;
+    const url = `${location.origin}${import.meta.env.PUBLIC_ENV__BASE_URL ?? ''}/share?${params.toString()}`;
     try {
       await navigator.clipboard.writeText(url);
       toast?.(t('toast.url_copied'));
