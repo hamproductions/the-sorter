@@ -110,7 +110,7 @@ export function ResultsView({
   }, [titlePrefix, isSeiyuu]);
   return (
     <>
-      <Stack alignItems="center" w="full">
+      <Stack alignItems="center" w="full" textAlign="center">
         <Heading fontSize="2xl" fontWeight="bold">
           {displayTitle || t('results.sort_results')}
         </Heading>

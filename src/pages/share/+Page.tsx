@@ -105,7 +105,7 @@ export function Page() {
             <Text textAlign="center" fontSize="3xl" fontWeight="bold">
               {title}
             </Text>
-            <Text>{t('description')}</Text>
+            <Text textAlign="center">{t('description')}</Text>
             <Wrap>
               <Link href="#" onClick={() => handleSetLocale('en')}>
                 English
