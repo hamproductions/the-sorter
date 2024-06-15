@@ -9,13 +9,13 @@ import school from '../../../data/school.json';
 import series from '../../../data/series.json';
 import units from '../../../data/units.json';
 import { Box, Container, Stack, Wrap } from 'styled-system/jsx';
-import { ResultsView } from '~/components/sorter/ResultsView';
+import { ResultsView } from '~/components/results/ResultsView';
 import { getAssetUrl } from '~/utils/assets';
 import { getFilterTitle } from '~/utils/filter';
 
 import { Button } from '~/components/ui/button';
 import { getCharacterFromId } from '~/utils/character';
-import { Footer } from '~/components/sorter/Footer';
+import { Footer } from '~/components/layout/Footer';
 import { Metadata } from '~/components/layout/Metadata';
 
 export function Page() {

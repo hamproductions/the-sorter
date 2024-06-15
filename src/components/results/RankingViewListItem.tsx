@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Text } from '../ui/text';
-import { CharacterIcon } from './CharacterIcon';
+import { CharacterIcon } from '../sorter/CharacterIcon';
 import { HStack, Stack } from 'styled-system/jsx';
 
 import { Character, WithRank } from '~/types';

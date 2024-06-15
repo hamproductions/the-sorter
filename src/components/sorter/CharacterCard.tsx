@@ -6,6 +6,7 @@ import { Center, Stack, StackProps, styled } from 'styled-system/jsx';
 import { getPicUrl } from '~/utils/assets';
 import { Character } from '~/types';
 import { getCastName, getFullName } from '~/utils/character';
+import { getSchoolName } from '~/utils/filter';
 
 export function CharacterCard({
   character,
@@ -32,7 +33,7 @@ export function CharacterCard({
       {...rest}
     >
       <SchoolBadge character={character} />
-      <Text fontSize="sm">{character.school}</Text>
+      <Text fontSize="sm">{getSchoolName(character.school, lang)}</Text>
       <Stack
         position="relative"
         flex={1}

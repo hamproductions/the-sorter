@@ -1,8 +1,12 @@
+import { useTranslation } from 'react-i18next';
 import { Badge, BadgeProps } from '../ui/badge';
 import { Character } from '~/types';
+import { getSeriesName } from '~/utils/filter';
 
 export function SchoolBadge({ character, ...rest }: { character: Character } & BadgeProps) {
+  const { i18n } = useTranslation();
   const { series, seriesColor } = character;
+  const lang = i18n.language as 'en';
   return (
     <Badge
       style={{ backgroundColor: seriesColor ?? undefined }}
@@ -14,7 +18,7 @@ export function SchoolBadge({ character, ...rest }: { character: Character } & B
       textWrap="wrap"
       {...rest}
     >
-      {series}
+      {getSeriesName(series, lang)}
     </Badge>
   );
 }

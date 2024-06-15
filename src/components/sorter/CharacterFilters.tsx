@@ -9,7 +9,7 @@ import series from '../../../data/series.json';
 import units from '../../../data/units.json';
 
 import { HStack, Stack, Wrap } from 'styled-system/jsx';
-import { isValidFilter } from '~/utils/filter';
+import { getSchoolName, getSeriesName, getUnitName, isValidFilter } from '~/utils/filter';
 
 export interface FilterType {
   series?: string[];
@@ -18,8 +18,8 @@ export interface FilterType {
 }
 
 const DATA = {
-  series,
-  school,
+  series: Object.keys(series),
+  school: Object.keys(school),
   units
 } as const;
 
@@ -30,7 +30,8 @@ export function CharacterFilters({
   filters: FilterType | null | undefined;
   setFilters: Dispatch<SetStateAction<FilterType | null | undefined>>;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language as 'en';
   const selectAll = (key: keyof FilterType) => () => {
     setFilters((f) => {
       const isAllSelected = f?.[key]?.length === DATA[key].length;
@@ -59,8 +60,8 @@ export function CharacterFilters({
     const urlUnits = params.getAll('units');
 
     setFilters({
-      series: urlSeries.filter((s) => series.includes(s)),
-      school: urlSchool.filter((s) => school.includes(s)),
+      series: urlSeries.filter((s) => DATA.series.includes(s)),
+      school: urlSchool.filter((s) => DATA.school.includes(s)),
       units: urlUnits.filter((unitId) => units?.some((s) => s.id === unitId))
     });
   };
@@ -95,10 +96,10 @@ export function CharacterFilters({
           }}
         >
           <Wrap>
-            {series.map((s) => {
+            {DATA.series.map((s) => {
               return (
                 <Checkbox size="sm" key={s} value={s}>
-                  {s}
+                  {getSeriesName(s, lang)}
                 </Checkbox>
               );
             })}
@@ -121,10 +122,10 @@ export function CharacterFilters({
           }}
         >
           <Wrap>
-            {school.map((s) => {
+            {DATA.school.map((s) => {
               return (
                 <Checkbox size="sm" key={s} value={s}>
-                  {s}
+                  {getSchoolName(s, lang)}
                 </Checkbox>
               );
             })}
@@ -150,7 +151,7 @@ export function CharacterFilters({
             {units.map((s) => {
               return (
                 <Checkbox size="sm" key={s.id} value={s.id}>
-                  {s.name}
+                  {getUnitName(s.name, lang)}
                 </Checkbox>
               );
             })}

@@ -18,12 +18,12 @@ import { getFilterTitle, isValidFilter } from '~/utils/filter';
 import { getAssetUrl } from '~/utils/assets';
 import { Box, Container, HStack, Stack, Wrap } from 'styled-system/jsx';
 import { getCharacterFromId } from '~/utils/character';
-import { Footer } from '~/components/sorter/Footer';
+import { Footer } from '~/components/layout/Footer';
 
 import { Metadata } from '~/components/layout/Metadata';
 
 const ResultsView = lazy(() =>
-  import('../../components/sorter/ResultsView').then((m) => ({ default: m.ResultsView }))
+  import('../../components/results/ResultsView').then((m) => ({ default: m.ResultsView }))
 );
 
 const ConfirmMidSortDialog = lazy(() =>

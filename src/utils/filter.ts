@@ -1,6 +1,10 @@
 import { FilterType } from '~/components/sorter/CharacterFilters';
 import { Character } from '~/types';
 
+import schools from '../../data/school.json';
+import series from '../../data/series.json';
+import units from '../../data/units.json';
+
 export const hasFilter = (filters: FilterType) => {
   return Object.values(filters).some(
     (a) => Object.values(a).length >= 0 && Object.values(a).some((a) => !!a)
@@ -25,7 +29,25 @@ export const isValidFilter = (filter?: FilterType | null): filter is FilterType 
   return true;
 };
 
-export const getFilterTitle = (filters?: FilterType | null, characters?: Character[]) => {
+export const getSchoolName = (school: string, locale: 'en' | 'ja' | undefined) => {
+  if (locale === 'en' && school in schools) return schools[school as keyof typeof schools];
+  return school;
+};
+export const getSeriesName = (serie: string, locale: 'en' | 'ja' | undefined) => {
+  if (locale === 'en' && serie in series) return series[serie as keyof typeof series];
+  return serie;
+};
+export const getUnitName = (unit: string, locale: 'en' | 'ja' | undefined) => {
+  const tmp = units.find((u) => u.name === unit);
+  if (locale === 'en' && tmp?.englishName) return tmp.englishName;
+  return unit;
+};
+
+export const getFilterTitle = (
+  filters?: FilterType | null,
+  characters?: Character[],
+  locale?: 'en' | 'ja'
+) => {
   if (!isValidFilter(filters)) return;
   const seriesName = filters?.series ?? [];
   const schoolName = filters?.school ?? [];
@@ -38,13 +60,13 @@ export const getFilterTitle = (filters?: FilterType | null, characters?: Charact
 
   if (seriesName?.length + schoolName?.length + unitName?.length > 1) return;
   if (seriesName?.length === 1) {
-    return seriesName[0];
+    return getSeriesName(seriesName[0], locale);
   }
   if (schoolName?.length === 1) {
-    return schoolName[0];
+    return getSchoolName(schoolName[0], locale);
   }
-  if (unitName?.length === 1) {
-    return unitName[0];
+  if (unitName?.length === 1 && unitName[0]) {
+    return getUnitName(unitName[0], locale);
   }
   return;
 };

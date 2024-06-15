@@ -2,12 +2,13 @@ import groupBy from 'lodash-es/groupBy';
 import { useTranslation } from 'react-i18next';
 import * as Table from '../ui/table';
 import { Text } from '../ui/text';
-import { CharacterIcon } from './CharacterIcon';
-import { SchoolBadge } from './SchoolBadge';
+import { CharacterIcon } from '../sorter/CharacterIcon';
+import { SchoolBadge } from '../sorter/SchoolBadge';
 import { getPicUrl } from '~/utils/assets';
 import { Character, WithRank } from '~/types';
 import { Stack, Wrap, styled } from 'styled-system/jsx';
 import { getCastName, getFullName } from '~/utils/character';
+import { getSchoolName, getUnitName } from '~/utils/filter';
 
 export function RankingTable({
   characters,
@@ -47,10 +48,11 @@ export function RankingTable({
       </Table.Head>
       <Table.Body>
         {characters.map((c, idx) => {
-          const { rank, id, casts, school, colorCode, seriesColor, units } = c;
+          const { rank, id, casts, colorCode, seriesColor, units } = c;
           const imageSize = idx === 0 ? '150px' : idx <= 3 ? '100px' : '80px';
 
           const fullName = getFullName(c, lang);
+          const school = getSchoolName(c.school, lang);
           return (
             <Table.Row
               key={idx}
@@ -60,7 +62,7 @@ export function RankingTable({
             >
               <Table.Cell>{rank}</Table.Cell>
               <Table.Cell>
-                <Stack alignItems="center" py="2">
+                <Stack alignItems="center" py="2" textAlign="center">
                   {idx < 10 && (
                     <styled.img
                       src={getPicUrl(id, isSeiyuu ? 'seiyuu' : 'character')}
@@ -107,21 +109,21 @@ export function RankingTable({
               <Table.Cell hideBelow={responsive ? 'md' : undefined}>
                 <Stack gap="1" alignItems="center" w="full" py="2">
                   <SchoolBadge character={c} />
-                  <Text>{school}</Text>
+                  <Text textAlign="center">{school}</Text>
                 </Stack>
               </Table.Cell>
               <Table.Cell hideBelow={responsive ? 'md' : undefined}>
                 <Stack gap="1" py="2">
                   {Object.values(
                     groupBy(
-                      units.filter((u) => !u.name.includes(fullName)),
+                      units.filter((u) => !u.name.includes(c.fullName)),
                       (u) => u.name
                     )
                   ).map((us) => {
                     const u = us[0];
                     return (
                       <Text key={u.id}>
-                        {u.name}{' '}
+                        {getUnitName(u.name, lang)}{' '}
                         {u.additionalInfo && (
                           <Text as="span" hideBelow={responsive ? 'lg' : undefined}>
                             ({us.map((i) => i.additionalInfo).join(',')})

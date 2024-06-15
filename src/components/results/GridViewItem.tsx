@@ -1,14 +1,13 @@
 import { useTranslation } from 'react-i18next';
 import { Text } from '../ui/text';
-import { CharacterIcon } from './CharacterIcon';
-import { SchoolBadge } from './SchoolBadge';
+import { CharacterIcon } from '../sorter/CharacterIcon';
 import { getPicUrl } from '~/utils/assets';
 import { Box, Center, Stack, Wrap, styled } from 'styled-system/jsx';
 
 import { Character, WithRank } from '~/types';
 import { getCastName, getFullName } from '~/utils/character';
 
-export function RankingViewTopItem({
+export function GridViewItem({
   character,
   isSeiyuu
 }: {
@@ -24,9 +23,16 @@ export function RankingViewTopItem({
 
   return (
     <Stack
-      style={{ ['--color' as 'color']: (colorCode ?? seriesColor) as 'red' }}
+      style={{
+        ['--color' as 'color']: (colorCode ?? seriesColor) as 'red',
+        ['--seriesColor' as 'borderLeftColor']: seriesColor ?? colorCode
+      }}
       justifyContent="flex-end"
+      borderTop="8px solid"
+      borderColor="var(--seriesColor)"
       h="full"
+      p="2"
+      pt="6"
     >
       <Stack flex="1" gap="1" alignItems="center">
         <Center position="relative" mb="4">
@@ -63,17 +69,16 @@ export function RankingViewTopItem({
             border="1px solid"
             borderColor="var(--color)"
             rounded="full"
-            w="10"
-            h="10"
+            w="8"
+            h="8"
             bgColor="white"
             transform="translate(25%, 25%)"
           />
         </Center>
-        <SchoolBadge character={character} hideBelow="sm" />
         <Wrap gap="0.5" justifyContent="center" alignItems="center" w="full">
           <Stack gap="1">
             <Stack gap="1" alignItems="center">
-              <Text color="var(--color)" fontSize="lg" fontWeight="bold">
+              <Text color="var(--color)" textAlign="center" fontSize="lg" fontWeight="bold">
                 {isSeiyuu ? getCastName(casts[0], lang) : fullName}
               </Text>
             </Stack>
@@ -87,11 +92,11 @@ export function RankingViewTopItem({
                   return (
                     <Text key={c.seiyuu} fontSize="xs">
                       {getCastName(c, lang)}{' '}
-                      {c.note && (
+                      {/* {c.note && (
                         <Text as="span" fontSize="xs">
                           ({c.note})
                         </Text>
-                      )}
+                      )} */}
                     </Text>
                   );
                 })}

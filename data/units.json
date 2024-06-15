@@ -1,1 +1,104 @@
-[{"name":"μ's","id":"1","additionalInfo":null},{"name":"Printemps","id":"2","additionalInfo":null},{"name":"BiBi","id":"4","additionalInfo":null},{"name":"lily white","id":"3","additionalInfo":null},{"name":"にこりんぱな","id":"5","additionalInfo":null},{"name":"A-RISE","id":"32","additionalInfo":null},{"name":"Aqours","id":"33","additionalInfo":null},{"name":"CYaRon！","id":"34","additionalInfo":null},{"name":"Saint Aqours Snow","id":"38","additionalInfo":null},{"name":"私立浦の星女学院一同","id":"73","additionalInfo":null},{"name":"Aqours・虹ヶ咲学園スクールアイドル同好会・Liella!","id":"101","additionalInfo":null},{"name":"Aqours feat. 初音ミク","id":"155","additionalInfo":null},{"name":"Guilty Kiss","id":"36","additionalInfo":null},{"name":"AZALEA","id":"35","additionalInfo":null},{"name":"わいわいわい","id":"116","additionalInfo":null},{"name":"Saint Snow","id":"37","additionalInfo":null},{"name":"虹ヶ咲学園スクールアイドル同好会","id":"60","additionalInfo":"9人"},{"name":"A・ZU・NA ","id":"62","additionalInfo":null},{"name":"ニジガク with You","id":"112","additionalInfo":null},{"name":"QU4RTZ ","id":"63","additionalInfo":null},{"name":"DiverDiva","id":"61","additionalInfo":null},{"name":"R3BIRTH","id":"99","additionalInfo":null},{"name":"Liella!","id":"91","additionalInfo":"1期生"},{"name":"CatChu!","id":"160","additionalInfo":null},{"name":"KALEIDOSCORE","id":"161","additionalInfo":null},{"name":"5yncri5e!","id":"162","additionalInfo":null},{"name":"Sunny Passion","id":"110","additionalInfo":null},{"name":"スクールアイドルミュージカル","id":"127","additionalInfo":"2022年初演"},{"name":"椿滝桜女学院高等学校スクールアイドル部","id":"187","additionalInfo":null},{"name":"蓮ノ空女学院スクールアイドルクラブ","id":"133","additionalInfo":"103期"},{"name":"スリーズブーケ","id":"134","additionalInfo":"103期"},{"name":"スリーズブーケ＆DOLLCHESTRA＆みらくらぱーく！","id":"175","additionalInfo":null},{"name":"かほめぐ♡じぇらーと","id":"188","additionalInfo":null},{"name":"DOLLCHESTRA","id":"135","additionalInfo":"103期"},{"name":"蓮ノ休日","id":"189","additionalInfo":null},{"name":"るりのとゆかいなつづりたち","id":"190","additionalInfo":null},{"name":"みらくらぱーく！","id":"136","additionalInfo":"103期"}]
+[
+  { "name": "μ's", "id": "1", "additionalInfo": null },
+  { "name": "Printemps", "id": "2", "additionalInfo": null },
+  { "name": "BiBi", "id": "4", "additionalInfo": null },
+  { "name": "lily white", "id": "3", "additionalInfo": null },
+  { "name": "にこりんぱな", "englishName": "Nico Rin Pana", "id": "5", "additionalInfo": null },
+  { "name": "A-RISE", "id": "32", "additionalInfo": null },
+  { "name": "Aqours", "id": "33", "additionalInfo": null },
+  { "name": "CYaRon！", "id": "34", "additionalInfo": null },
+  { "name": "Saint Aqours Snow", "id": "38", "additionalInfo": null },
+  {
+    "name": "私立浦の星女学院一同",
+    "englishName": "Uranohoshi Girls' High School",
+    "id": "73",
+    "additionalInfo": null
+  },
+  {
+    "name": "Aqours・虹ヶ咲学園スクールアイドル同好会・Liella!",
+    "englishName": "Aqours・Nijigasaki High School Idol Club・Liella!",
+    "id": "101",
+    "additionalInfo": null
+  },
+  {
+    "name": "Aqours feat. 初音ミク",
+    "englishName": "Aqours feat. Hatsune Miku",
+    "id": "155",
+    "additionalInfo": null
+  },
+  { "name": "Guilty Kiss", "id": "36", "additionalInfo": null },
+  { "name": "AZALEA", "id": "35", "additionalInfo": null },
+  { "name": "わいわいわい", "englishName": "YYY", "id": "116", "additionalInfo": null },
+  { "name": "Saint Snow", "id": "37", "additionalInfo": null },
+  {
+    "name": "虹ヶ咲学園スクールアイドル同好会",
+    "englishName": "Nijigasaki High School Idol Club",
+    "id": "60",
+    "additionalInfo": "9人"
+  },
+  { "name": "A・ZU・NA ", "id": "62", "additionalInfo": null },
+  {
+    "name": "ニジガク with You",
+    "englishName": "Nijigaku With You",
+    "id": "112",
+    "additionalInfo": null
+  },
+  { "name": "QU4RTZ ", "id": "63", "additionalInfo": null },
+  { "name": "DiverDiva", "id": "61", "additionalInfo": null },
+  { "name": "R3BIRTH", "id": "99", "additionalInfo": null },
+  { "name": "Liella!", "id": "91", "additionalInfo": "1期生" },
+  { "name": "CatChu!", "id": "160", "additionalInfo": null },
+  { "name": "KALEIDOSCORE", "id": "161", "additionalInfo": null },
+  { "name": "5yncri5e!", "id": "162", "additionalInfo": null },
+  { "name": "Sunny Passion", "id": "110", "additionalInfo": null },
+  {
+    "name": "スクールアイドルミュージカル",
+    "englishName": "School Idol Musical",
+    "id": "127",
+    "additionalInfo": "2022年初演"
+  },
+  {
+    "name": "椿滝桜女学院高等学校スクールアイドル部",
+    "englishName": "Tsubaki Takizakura Girls' High School Idol Club",
+    "id": "187",
+    "additionalInfo": null
+  },
+  {
+    "name": "蓮ノ空女学院スクールアイドルクラブ",
+    "englishName": "Hasunosora Girls' High School Idol Club",
+    "id": "133",
+    "additionalInfo": "103期"
+  },
+  {
+    "name": "スリーズブーケ",
+    "englishName": "Cerise Bouquet",
+    "id": "134",
+    "additionalInfo": "103期"
+  },
+  {
+    "name": "スリーズブーケ＆DOLLCHESTRA＆みらくらぱーく！",
+    "englishName": "Cerise Bouquet&DOLLCHESTRA&Mira-Cra Park!",
+    "id": "175",
+    "additionalInfo": null
+  },
+  {
+    "name": "かほめぐ♡じぇらーと",
+    "englishName": "KahoMegu♡Gelato",
+    "id": "188",
+    "additionalInfo": null
+  },
+  { "name": "DOLLCHESTRA", "id": "135", "additionalInfo": "103期" },
+  { "name": "蓮ノ休日", "englishName": "Hasuno Kyuujitsu", "id": "189", "additionalInfo": null },
+  {
+    "name": "るりのとゆかいなつづりたち",
+    "englishName": "Rurino to Yukai na Tsuzuri-tachi",
+    "id": "190",
+    "additionalInfo": null
+  },
+  {
+    "name": "みらくらぱーく！",
+    "englishName": "Mira-Cra Park!",
+    "id": "136",
+    "additionalInfo": "103期"
+  }
+]

@@ -3,15 +3,22 @@
 Sort your favorite seiyuu, inspired by charasort and more...
 
 ## Features
+
 - Groups/ Units Filter
 - Ties
 - Undo
 - Photo Export
 - Save-able
-- TODO: Share
+- Share pic / Links
 
 ## Need Help (If anyone is kind enough...)
+
 - [ ] Localized Names
+  - [x] Members
+  - [x] Seiyuu
+  - [ ] Schools
+  - [ ] Units
+  - [ ] Series
 - [ ] Member/School Icons
   - [ ] LL
   - [ ] LLS
@@ -23,7 +30,7 @@ Sort your favorite seiyuu, inspired by charasort and more...
 
 - Data: https://ll-fans.jp/
 - Icons: https://idol.st/idols/
-- Characters: 
+- Characters:
   - Muse/Aquours/Niji/Liella: https://lovelive-sif2.bushimo.jp/member/ (Rip SIF2)
   - Musical: https://www.lovelive-anime.jp/special/musical/member.php
   - Hasu: https://www.lovelive-anime.jp/hasunosora/member/
@@ -38,17 +45,16 @@ Sort your favorite seiyuu, inspired by charasort and more...
 
 ## The Sorting Algorithm
 
-- The Sorting used Algorithm is based on Merge Sort, adapted to support manually doing the comparisons, support ties and undo-ing.  
+- The Sorting used Algorithm is based on Merge Sort, adapted to support manually doing the comparisons, support ties and undo-ing.
 - Check out `src/utils/sort.ts` and `src/hooks/useSorter.ts` for details of the implementation.
-- Technically, just using useSorter alone will suffice for implementing your own sorter. 
+- Technically, just using useSorter alone will suffice for implementing your own sorter.
 
 ### Deeper explanation
 
-The sorting algorithm revolves around calling `initSort()` to create initial sort state, to start the sorting process then repeatedly calling `step()` with results of the comparisons ("left"/"right"/"tie") and current state to advance a step until status becomes "end". 
+The sorting algorithm revolves around calling `initSort()` to create initial sort state, to start the sorting process then repeatedly calling `step()` with results of the comparisons ("left"/"right"/"tie") and current state to advance a step until status becomes "end".
 Internally `mergeSort()` and `merge()` were used which mimics the actual merge sort algorithm.
 
-The data is stored in 3D array because to support ties. When ties happen, the items in right array will be merged/transferred to the left array (which makes the array empty and skipped in subsequent comparisons). Ties helps reduce manual comparison, and it's safe to flatMap the results (`state.arr`) to get the resulting array 
-
+The data is stored in 3D array because to support ties. When ties happen, the items in right array will be merged/transferred to the left array (which makes the array empty and skipped in subsequent comparisons). Ties helps reduce manual comparison, and it's safe to flatMap the results (`state.arr`) to get the resulting array
 
 ```ts
 export interface SortState<I> {
@@ -70,4 +76,3 @@ interface MergeState<I> {
   arrIdx?: number;
 }
 ```
-  
