@@ -12,7 +12,7 @@ import { Text } from '../../components/ui/text';
 import { useToaster } from '../../context/ToasterContext';
 import { useData } from '../../hooks/useData';
 import { useSortData } from '../../hooks/useSortData';
-import { Character, WithRank } from '../../types';
+import type { Character, WithRank } from '../../types';
 import { getCurrentItem } from '../../utils/sort';
 import { getFilterTitle, isValidFilter } from '~/utils/filter';
 import { getAssetUrl } from '~/utils/assets';
@@ -21,6 +21,7 @@ import { getCharacterFromId } from '~/utils/character';
 import { Footer } from '~/components/layout/Footer';
 
 import { Metadata } from '~/components/layout/Metadata';
+import type { Locale } from '~/i18n';
 
 const ResultsView = lazy(() =>
   import('../../components/results/ResultsView').then((m) => ({ default: m.ResultsView }))
@@ -171,7 +172,7 @@ export function Page() {
     }
   };
 
-  const handleSetLocale = (locale: 'en' | 'ja') => {
+  const handleSetLocale = (locale: Locale) => {
     void i18n.changeLanguage(locale);
   };
 

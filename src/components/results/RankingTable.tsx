@@ -5,7 +5,7 @@ import { Text } from '../ui/text';
 import { CharacterIcon } from '../sorter/CharacterIcon';
 import { SchoolBadge } from '../sorter/SchoolBadge';
 import { getPicUrl } from '~/utils/assets';
-import { Character, WithRank } from '~/types';
+import type { Character, WithRank } from '~/types';
 import { Stack, Wrap, styled } from 'styled-system/jsx';
 import { getCastName, getFullName } from '~/utils/character';
 import { getSchoolName, getUnitName } from '~/utils/filter';
@@ -21,7 +21,7 @@ export function RankingTable({
 }) {
   const { t, i18n } = useTranslation();
 
-  const lang = i18n.language as 'en';
+  const lang = i18n.language;
   return (
     <Table.Root size="sm">
       <Table.Head>
@@ -72,7 +72,7 @@ export function RankingTable({
                     />
                   )}
                   <Wrap gap="1" justifyContent="center" alignItems="center">
-                    <CharacterIcon character={c} w="auto" h="8" />
+                    <CharacterIcon locale={lang} character={c} w="auto" h="8" />
                     <Stack gap="1" alignItems="center">
                       <Text color="var(--color)" fontSize="md" fontWeight="bold">
                         {isSeiyuu ? getCastName(casts[0], lang) : fullName}
@@ -108,7 +108,7 @@ export function RankingTable({
               </Table.Cell>
               <Table.Cell hideBelow={responsive ? 'md' : undefined}>
                 <Stack gap="1" alignItems="center" w="full" py="2">
-                  <SchoolBadge character={c} />
+                  <SchoolBadge locale={lang} character={c} />
                   <Text textAlign="center">{school}</Text>
                 </Stack>
               </Table.Cell>

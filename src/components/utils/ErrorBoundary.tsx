@@ -1,6 +1,8 @@
-import React, { ErrorInfo } from 'react';
+import type { ErrorInfo } from 'react';
+import React from 'react';
 import { FaArrowsRotate, FaCopy, FaTrash } from 'react-icons/fa6';
-import { withTranslation, WithTranslation } from 'react-i18next';
+import type { WithTranslation } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { Button } from '../ui/button';
 import { Code } from '../ui/code';
 import { Link } from '../ui/link';

@@ -1,25 +1,25 @@
-import { useTranslation } from 'react-i18next';
-import { Text } from '../ui/text';
 import { CharacterIcon } from '../sorter/CharacterIcon';
-import { getPicUrl } from '~/utils/assets';
+import { Text } from '../ui/text';
 import { Box, Center, Stack, Wrap, styled } from 'styled-system/jsx';
+import { getPicUrl } from '~/utils/assets';
 
-import { Character, WithRank } from '~/types';
+import type { Locale } from '~/i18n';
+import type { Character, WithRank } from '~/types';
 import { getCastName, getFullName } from '~/utils/character';
 
 export function GridViewItem({
   character,
-  isSeiyuu
+  isSeiyuu,
+  locale
 }: {
   character: WithRank<Character>;
   isSeiyuu: boolean;
+  locale: Locale;
 }) {
-  const { i18n } = useTranslation();
   const { id, rank, colorCode, casts, seriesColor } = character;
   const imageSize = rank === 0 ? '125px' : '80px';
 
-  const lang = i18n.language as 'en';
-  const fullName = getFullName(character, lang);
+  const fullName = getFullName(character, locale);
 
   return (
     <Stack
@@ -62,6 +62,7 @@ export function GridViewItem({
             width="auto"
           />
           <CharacterIcon
+            locale={locale}
             character={character}
             position="absolute"
             right="0"
@@ -79,7 +80,7 @@ export function GridViewItem({
           <Stack gap="1">
             <Stack gap="1" alignItems="center">
               <Text color="var(--color)" textAlign="center" fontSize="lg" fontWeight="bold">
-                {isSeiyuu ? getCastName(casts[0], lang) : fullName}
+                {isSeiyuu ? getCastName(casts[0], locale) : fullName}
               </Text>
             </Stack>
             {isSeiyuu ? (
@@ -91,7 +92,7 @@ export function GridViewItem({
                 {casts?.map((c) => {
                   return (
                     <Text key={c.seiyuu} fontSize="xs">
-                      {getCastName(c, lang)}{' '}
+                      {getCastName(c, locale)}{' '}
                       {/* {c.note && (
                         <Text as="span" fontSize="xs">
                           ({c.note})

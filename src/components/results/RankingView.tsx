@@ -1,7 +1,8 @@
+import { useTranslation } from 'react-i18next';
 import { RankingViewListItem } from './RankingViewListItem';
 import { RankingViewTopItem } from './RankingViewTopItem';
 import { Grid, GridItem, Stack } from 'styled-system/jsx';
-import { Character, WithRank } from '~/types';
+import type { Character, WithRank } from '~/types';
 
 export function RankingView({
   characters,
@@ -10,6 +11,8 @@ export function RankingView({
   characters: WithRank<Character>[];
   isSeiyuu: boolean;
 }) {
+  const { i18n } = useTranslation();
+  const locale = i18n.language;
   return (
     <Stack p="2">
       <Grid alignItems="stretch" gridTemplateColumns="repeat(3, 1fr)">
@@ -17,7 +20,7 @@ export function RankingView({
           const { id } = c;
           return (
             <GridItem key={id}>
-              <RankingViewTopItem character={c} isSeiyuu={isSeiyuu} />
+              <RankingViewTopItem locale={locale} character={c} isSeiyuu={isSeiyuu} />
             </GridItem>
           );
         })}
@@ -27,7 +30,7 @@ export function RankingView({
           const { id } = c;
           return (
             <GridItem key={id}>
-              <RankingViewListItem character={c} isSeiyuu={isSeiyuu} />
+              <RankingViewListItem locale={locale} character={c} isSeiyuu={isSeiyuu} />
             </GridItem>
           );
         })}

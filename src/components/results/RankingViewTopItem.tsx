@@ -1,26 +1,26 @@
-import { useTranslation } from 'react-i18next';
-import { Text } from '../ui/text';
 import { CharacterIcon } from '../sorter/CharacterIcon';
 import { SchoolBadge } from '../sorter/SchoolBadge';
+import { Text } from '../ui/text';
 import { getPicUrl } from '~/utils/assets';
 import { Box, Center, Stack, Wrap, styled } from 'styled-system/jsx';
 
-import { Character, WithRank } from '~/types';
+import type { Locale } from '~/i18n';
+import type { Character, WithRank } from '~/types';
 import { getCastName, getFullName } from '~/utils/character';
 
 export function RankingViewTopItem({
   character,
-  isSeiyuu
+  isSeiyuu,
+  locale
 }: {
   character: WithRank<Character>;
   isSeiyuu: boolean;
+  locale: Locale;
 }) {
-  const { i18n } = useTranslation();
   const { id, rank, colorCode, casts, seriesColor } = character;
   const imageSize = rank === 0 ? '125px' : '80px';
 
-  const lang = i18n.language as 'en';
-  const fullName = getFullName(character, lang);
+  const fullName = getFullName(character, locale);
 
   return (
     <Stack
@@ -56,6 +56,7 @@ export function RankingViewTopItem({
             width="auto"
           />
           <CharacterIcon
+            locale={locale}
             character={character}
             position="absolute"
             right="0"
@@ -69,12 +70,12 @@ export function RankingViewTopItem({
             transform="translate(25%, 25%)"
           />
         </Center>
-        <SchoolBadge character={character} hideBelow="sm" />
+        <SchoolBadge locale={locale} character={character} hideBelow="sm" />
         <Wrap gap="0.5" justifyContent="center" alignItems="center" w="full">
           <Stack gap="1">
             <Stack gap="1" alignItems="center">
               <Text color="var(--color)" textAlign="center" fontSize="lg" fontWeight="bold">
-                {isSeiyuu ? getCastName(casts[0], lang) : fullName}
+                {isSeiyuu ? getCastName(casts[0], locale) : fullName}
               </Text>
             </Stack>
             {isSeiyuu ? (
@@ -86,7 +87,7 @@ export function RankingViewTopItem({
                 {casts?.map((c) => {
                   return (
                     <Text key={c.seiyuu} fontSize="xs">
-                      {getCastName(c, lang)}{' '}
+                      {getCastName(c, locale)}{' '}
                       {c.note && (
                         <Text as="span" fontSize="xs">
                           ({c.note})

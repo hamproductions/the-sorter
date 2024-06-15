@@ -1,6 +1,7 @@
+import { useTranslation } from 'react-i18next';
 import { GridViewItem } from './GridViewItem';
 import { Grid, GridItem, Stack } from 'styled-system/jsx';
-import { Character, WithRank } from '~/types';
+import type { Character, WithRank } from '~/types';
 
 export function GridView({
   characters,
@@ -9,6 +10,7 @@ export function GridView({
   characters: WithRank<Character>[];
   isSeiyuu: boolean;
 }) {
+  const { i18n } = useTranslation();
   return (
     <Stack p="2">
       <Grid gridGap={2} gridTemplateColumns="repeat(auto-fill, minmax(120px, 1fr))">
@@ -23,7 +25,7 @@ export function GridView({
               transition="shadow"
               overflow="hidden"
             >
-              <GridViewItem character={c} isSeiyuu={isSeiyuu} />
+              <GridViewItem character={c} isSeiyuu={isSeiyuu} locale={i18n.language} />
             </GridItem>
           );
         })}

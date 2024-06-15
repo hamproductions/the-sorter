@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { HTMLStyledProps } from 'styled-system/types';
+import type { HTMLStyledProps } from 'styled-system/types';
 import { styled } from 'styled-system/jsx';
-import { Character } from '~/types';
+import type { Character } from '~/types';
 import { getPicUrl } from '~/utils/assets';
 import { getFullName } from '~/utils/character';
+import type { Locale } from '~/i18n';
 
-export function CharacterIcon(props: HTMLStyledProps<'img'> & { character: Character }) {
-  const { i18n } = useTranslation();
-  const { character, ...rest } = props;
+export function CharacterIcon(
+  props: HTMLStyledProps<'img'> & { character: Character; locale: Locale }
+) {
+  const { character, locale, ...rest } = props;
   const [isError, setError] = useState(false);
 
   useEffect(() => {
@@ -20,7 +21,7 @@ export function CharacterIcon(props: HTMLStyledProps<'img'> & { character: Chara
   return (
     <styled.img
       src={getPicUrl(character.id, 'icons')}
-      alt={`${getFullName(character, i18n.language as 'en')} Icon`}
+      alt={`${getFullName(character, locale)} Icon`}
       onError={(e) => {
         e.preventDefault();
         setError(true);

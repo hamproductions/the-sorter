@@ -1,4 +1,5 @@
-import { Character } from '~/types';
+import type { Locale } from '~/i18n';
+import type { Character } from '~/types';
 
 export const getCharacterFromId = (data: Character[], id: string): Character | undefined => {
   const [charaId, castId] = id.split('-');
@@ -14,13 +15,13 @@ export const getCharacterFromId = (data: Character[], id: string): Character | u
   };
 };
 
-export const getFullName = (character: Character, locale: 'en' | 'ja') => {
+export const getFullName = (character: Character, locale: Locale) => {
   if (locale === 'en' && character.englishName) return character.englishName;
 
   return character.fullName;
 };
 
-export const getCastName = (cast: Character['casts'][number], locale: 'en' | 'ja') => {
+export const getCastName = (cast: Character['casts'][number], locale: Locale) => {
   if (locale === 'en' && cast.englishName) return cast.englishName;
   return cast.seiyuu;
 };

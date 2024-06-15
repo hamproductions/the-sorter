@@ -1,7 +1,8 @@
 import shuffle from 'lodash-es/shuffle';
 import { useEffect } from 'react';
 import cloneDeep from 'lodash-es/cloneDeep';
-import { SortState, step, initSort } from '../utils/sort';
+import type { SortState } from '../utils/sort';
+import { step, initSort } from '../utils/sort';
 import { useLocalStorage } from './useLocalStorage';
 
 export const useSorter = <T>(items: T[]) => {

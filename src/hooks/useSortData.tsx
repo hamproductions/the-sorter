@@ -3,9 +3,9 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useData } from './useData';
 import { useLocalStorage } from './useLocalStorage';
 import { useSorter } from './useSorter';
-import { FilterType } from '~/components/sorter/CharacterFilters';
+import type { FilterType } from '~/components/sorter/CharacterFilters';
 import { useToaster } from '~/context/ToasterContext';
-import { Character } from '~/types';
+import type { Character } from '~/types';
 import { hasFilter, isValidFilter, matchFilter } from '~/utils/filter';
 
 export const useSortData = () => {

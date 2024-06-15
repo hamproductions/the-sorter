@@ -1,4 +1,5 @@
-import { Dispatch, SetStateAction, useEffect } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/button';
 import { Checkbox, CheckboxGroup } from '../ui/checkbox';
@@ -31,7 +32,7 @@ export function CharacterFilters({
   setFilters: Dispatch<SetStateAction<FilterType | null | undefined>>;
 }) {
   const { t, i18n } = useTranslation();
-  const lang = i18n.language as 'en';
+  const lang = i18n.language;
   const selectAll = (key: keyof FilterType) => () => {
     setFilters((f) => {
       const isAllSelected = f?.[key]?.length === DATA[key].length;

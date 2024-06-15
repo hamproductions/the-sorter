@@ -4,7 +4,7 @@ import { decompressFromEncodedURIComponent } from 'lz-string';
 import { Link } from '../../components/ui/link';
 import { Text } from '../../components/ui/text';
 import { useData } from '../../hooks/useData';
-import { Character, WithRank } from '../../types';
+import type { Character, WithRank } from '../../types';
 import school from '../../../data/school.json';
 import series from '../../../data/series.json';
 import units from '../../../data/units.json';
@@ -17,6 +17,7 @@ import { Button } from '~/components/ui/button';
 import { getCharacterFromId } from '~/utils/character';
 import { Footer } from '~/components/layout/Footer';
 import { Metadata } from '~/components/layout/Metadata';
+import type { Locale } from '~/i18n';
 
 export function Page() {
   const data = useData();
@@ -41,8 +42,8 @@ export function Page() {
   const seiyuu = urlSeiyuu === 'true';
 
   const filters = {
-    series: urlSeries.filter((s) => series.includes(s)),
-    school: urlSchool.filter((s) => school.includes(s)),
+    series: urlSeries.filter((s) => Object.keys(series).includes(s)),
+    school: urlSchool.filter((s) => Object.keys(school).includes(s)),
     units: urlUnits.filter((unitId) => units?.some((s) => s.id === unitId))
   };
 
@@ -68,7 +69,7 @@ export function Page() {
     titlePrefix
   });
 
-  const handleSetLocale = (locale: 'en' | 'ja') => {
+  const handleSetLocale = (locale: Locale) => {
     void i18n.changeLanguage(locale);
   };
 

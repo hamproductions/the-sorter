@@ -2,9 +2,10 @@ import { useTranslation } from 'react-i18next';
 import { Text } from '../ui/text';
 import { CharacterIcon } from './CharacterIcon';
 import { SchoolBadge } from './SchoolBadge';
-import { Center, Stack, StackProps, styled } from 'styled-system/jsx';
+import type { StackProps } from 'styled-system/jsx';
+import { Center, Stack, styled } from 'styled-system/jsx';
 import { getPicUrl } from '~/utils/assets';
-import { Character } from '~/types';
+import type { Character } from '~/types';
 import { getCastName, getFullName } from '~/utils/character';
 import { getSchoolName } from '~/utils/filter';
 
@@ -15,7 +16,7 @@ export function CharacterCard({
 }: { character?: Character; isSeiyuu: boolean } & StackProps) {
   const { i18n } = useTranslation();
 
-  const lang = i18n.language as 'en';
+  const lang = i18n.language;
 
   if (!character) return null;
 
@@ -32,7 +33,7 @@ export function CharacterCard({
       transition="background-color"
       {...rest}
     >
-      <SchoolBadge character={character} />
+      <SchoolBadge character={character} locale={lang} />
       <Text fontSize="sm">{getSchoolName(character.school, lang)}</Text>
       <Stack
         position="relative"
@@ -51,6 +52,7 @@ export function CharacterCard({
             maxH="full"
           />
           <CharacterIcon
+            locale={lang}
             character={character}
             position="absolute"
             right="0"

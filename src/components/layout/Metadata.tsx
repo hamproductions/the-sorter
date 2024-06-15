@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Fragment } from 'react';
 import { Helmet } from 'react-helmet-async';
 
-export function Metadata(props: { title: string; helmet?: boolean }) {
+export function Metadata(props: { title?: string; helmet?: boolean }) {
   const { t } = useTranslation();
   const title = props.title ?? t('title', { titlePrefix: t('defaultTitlePrefix') });
   const description = t('description');

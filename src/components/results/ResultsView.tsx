@@ -13,7 +13,7 @@ import { Textarea } from '../ui/textarea';
 import { GridView } from './GridView';
 import { RankingTable } from './RankingTable';
 import { RankingView } from './RankingView';
-import { Character, WithRank } from '~/types';
+import type { Character, WithRank } from '~/types';
 import { useLocalStorage } from '~/hooks/useLocalStorage';
 import { useToaster } from '~/context/ToasterContext';
 import { Box, Stack, Wrap } from 'styled-system/jsx';
@@ -44,6 +44,7 @@ export function ResultsView({
     'default'
   );
   const [timestamp, setTimestamp] = useState(new Date());
+  const [showRenderingCanvas, setShowRenderingCanvas] = useState(false);
   const { t } = useTranslation();
 
   const tabs = [
@@ -52,10 +53,11 @@ export function ResultsView({
     { id: 'grid', label: t('results.grid') }
   ];
   const makeScreenshot = async () => {
+    setShowRenderingCanvas(true);
     toast?.(t('toast.generating_screenshot'));
     const domToBlob = await import('modern-screenshot').then((module) => module.domToBlob);
-    setTimestamp(new Date());
     const resultsBox = document.getElementById('results');
+    setTimestamp(new Date());
     if (resultsBox) {
       const shareImage = await domToBlob(resultsBox, {
         quality: 1,
@@ -63,6 +65,7 @@ export function ResultsView({
         type: 'image/png',
         features: { removeControlCharacter: false }
       });
+      setShowRenderingCanvas(false);
       return shareImage;
     }
   };
@@ -170,7 +173,7 @@ export function ResultsView({
           </Box>
         </Tabs.Root>
       </Stack>
-      {!readOnly && (
+      {!readOnly && showRenderingCanvas && (
         <Box position="absolute" w="0" h="0" overflow="hidden">
           <Stack id="results" width="1280px" p="4" bgColor="bg.canvas">
             {title && (

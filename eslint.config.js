@@ -4,6 +4,7 @@ import js from '@eslint/js';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import tseslint from 'typescript-eslint';
 import react from 'eslint-plugin-react';
+import unusedImports from "eslint-plugin-unused-imports";
 import globals from 'globals';
 
 const compat = new FlatCompat({
@@ -43,12 +44,14 @@ const config = tseslint.config(
       }
     },
     rules: {
-      '@typescript-eslint/no-unused-vars': ['error', { varsIgnorePattern: '^_' }],
+      // '@typescript-eslint/no-unused-vars': ['error', { varsIgnorePattern: '^_' }],
       '@typescript-eslint/no-unsafe-assignment': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'off',
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unsafe-argument': 'off',
-      '@typescript-eslint/no-unsafe-return': 'off'
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/consistent-type-imports': 'error'
     }
   },
   {
@@ -142,6 +145,24 @@ const config = tseslint.config(
     rules: {
       'no-unused-vars': 'off',
       '@typescript-eslint/triple-slash-reference': 'off'
+    }
+  },
+  {
+    plugins: {
+      "unused-imports": unusedImports,
+    },
+    rules: {
+      "no-unused-vars": "off", // or "@typescript-eslint/no-unused-vars": "off",
+      "unused-imports/no-unused-imports": "error",
+      "unused-imports/no-unused-vars": [
+        "warn",
+        {
+          "vars": "all",
+          "varsIgnorePattern": "^_",
+          "args": "after-used",
+          "argsIgnorePattern": "^_",
+        },
+      ]
     }
   }
 );
