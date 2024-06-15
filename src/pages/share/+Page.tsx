@@ -116,7 +116,7 @@ export function Page() {
               </Link>
             </Wrap>
             <Link href={getShareUrl()}>
-              <Button>Create Your Own</Button>
+              <Button>{t('share.create_your_own')}</Button>
             </Link>
             {charaList.length > 0 && (
               <>
@@ -130,7 +130,7 @@ export function Page() {
                   w="full"
                 />
                 <Link href={getShareUrl()}>
-                  <Button>Create Your Own</Button>
+                  <Button>{t('share.create_your_own')}</Button>
                 </Link>
               </>
             )}
