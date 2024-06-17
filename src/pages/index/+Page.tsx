@@ -133,7 +133,9 @@ export function Page() {
     const data = { title, description, results: state?.arr ?? undefined };
     const compress = (await import('lz-string')).compressToEncodedURIComponent;
     params.append('data', compress(JSON.stringify(data)));
-    const url = `${location.origin}${import.meta.env.PUBLIC_ENV__BASE_URL ?? ''}/share?${params.toString()}`;
+    const url = `${location.origin}${
+      import.meta.env.PUBLIC_ENV__BASE_URL ?? ''
+    }/share?${params.toString()}`;
     try {
       await navigator.clipboard.writeText(url);
       toast?.(t('toast.url_copied'));
@@ -339,8 +341,11 @@ export function Page() {
         </Container>
         <Footer />
       </Stack>
+
       <ConfirmEndedDialog
         open={showConfirmDialog?.type === 'ended'}
+        lazyMount
+        unmountOnExit
         onConfirm={() => {
           if (showConfirmDialog?.action === 'clear') {
             clear();
@@ -357,6 +362,8 @@ export function Page() {
       />
       <ConfirmMidSortDialog
         open={showConfirmDialog?.type === 'mid-sort'}
+        lazyMount
+        unmountOnExit
         onConfirm={() => {
           if (showConfirmDialog?.action === 'clear') {
             clear();

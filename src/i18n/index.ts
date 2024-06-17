@@ -8,6 +8,14 @@ import ja from './locales/ja.json';
 // don't want to use this?
 // have a look at the Quick start guide
 // for passing in lng and translations on init
+export const resources = {
+  en: {
+    translation: en
+  },
+  ja: {
+    translation: ja
+  }
+};
 
 void i18n
   // load translation using http -> see /public/locales (i.e. https://github.com/i18next/react-i18next/tree/master/example/react/public/locales)
@@ -24,14 +32,7 @@ void i18n
     lng: undefined,
     fallbackLng: 'en',
     debug: import.meta.env.DEV,
-    resources: {
-      en: {
-        translation: en
-      },
-      ja: {
-        translation: ja
-      }
-    },
+    resources,
     interpolation: {
       escapeValue: false // not needed for react as it escapes by default
     }
