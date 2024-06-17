@@ -8,7 +8,7 @@ import type { Character, WithRank } from '../../types';
 import school from '../../../data/school.json';
 import series from '../../../data/series.json';
 import units from '../../../data/units.json';
-import { Box, Container, Stack, Wrap } from 'styled-system/jsx';
+import { Box, Container, Stack } from 'styled-system/jsx';
 import { ResultsView } from '~/components/results/ResultsView';
 import { getAssetUrl } from '~/utils/assets';
 import { getFilterTitle } from '~/utils/filter';
@@ -17,7 +17,7 @@ import { Button } from '~/components/ui/button';
 import { getCharacterFromId } from '~/utils/character';
 import { Footer } from '~/components/layout/Footer';
 import { Metadata } from '~/components/layout/Metadata';
-import type { Locale } from '~/i18n';
+import { LanguageToggle } from '~/components/layout/LanguageToggle';
 
 export function Page() {
   const data = useData();
@@ -69,10 +69,6 @@ export function Page() {
     titlePrefix
   });
 
-  const handleSetLocale = (locale: Locale) => {
-    void i18n.changeLanguage(locale);
-  };
-
   const getShareUrl = () => {
     if (import.meta.env.SSR) return '/';
     const params = new URLSearchParams(location.search);
@@ -106,15 +102,7 @@ export function Page() {
               {title}
             </Text>
             <Text textAlign="center">{t('description')}</Text>
-            <Wrap>
-              <Link href="#" onClick={() => handleSetLocale('en')}>
-                English
-              </Link>
-              |
-              <Link href="#" onClick={() => handleSetLocale('ja')}>
-                日本語
-              </Link>
-            </Wrap>
+            <LanguageToggle />
             <Link href={getShareUrl()}>
               <Button>{t('share.create_your_own')}</Button>
             </Link>

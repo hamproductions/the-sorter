@@ -5,7 +5,6 @@ import { CharacterCard } from '../../components/sorter/CharacterCard';
 import { CharacterFilters } from '../../components/sorter/CharacterFilters';
 import { Button } from '../../components/ui/button';
 import { Kbd } from '../../components/ui/kbd';
-import { Link } from '../../components/ui/link';
 import { Progress } from '../../components/ui/progress';
 import { Switch } from '../../components/ui/switch';
 import { Text } from '../../components/ui/text';
@@ -21,7 +20,7 @@ import { getCharacterFromId } from '~/utils/character';
 import { Footer } from '~/components/layout/Footer';
 
 import { Metadata } from '~/components/layout/Metadata';
-import type { Locale } from '~/i18n';
+import { LanguageToggle } from '~/components/layout/LanguageToggle';
 
 const ResultsView = lazy(() =>
   import('../../components/results/ResultsView').then((m) => ({ default: m.ResultsView }))
@@ -174,10 +173,6 @@ export function Page() {
     }
   };
 
-  const handleSetLocale = (locale: Locale) => {
-    void i18n.changeLanguage(locale);
-  };
-
   return (
     <>
       <Metadata title={title} helmet />
@@ -204,15 +199,7 @@ export function Page() {
               {title}
             </Text>
             <Text textAlign="center">{t('description')}</Text>
-            <Wrap>
-              <Link href="#" onClick={() => handleSetLocale('en')}>
-                English
-              </Link>
-              |
-              <Link href="#" onClick={() => handleSetLocale('ja')}>
-                日本語
-              </Link>
-            </Wrap>
+            <LanguageToggle />
             <Text fontSize="sm" fontWeight="bold">
               {t('settings.sort_count', { count: listCount })}
             </Text>
