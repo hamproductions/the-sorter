@@ -73,7 +73,7 @@ export function CharacterCard({
       {isSeiyuu ? (
         <Text fontSize="xs">{getFullName(character, lang)}</Text>
       ) : (
-        <Stack gap="1" alignItems="center">
+        <Stack gap="1" alignItems="center" textAlign="center">
           {character.casts.map((c) => {
             return (
               <Text key={c.seiyuu} w="full">

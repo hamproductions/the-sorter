@@ -53,7 +53,7 @@ export function Page() {
         const startRank = arr.slice(0, idx).reduce((p, c) => p + c.length, 1);
         if (Array.isArray(ids)) {
           return ids
-            .map((id) => ({ rank: startRank, ...getCharacterFromId(data, id) }))
+            .map((id) => ({ rank: startRank, ...getCharacterFromId(data, id, seiyuu) }))
             .filter((d) => 'id' in d);
         } else {
           const chara = data.find((i) => i.id === (ids as string));

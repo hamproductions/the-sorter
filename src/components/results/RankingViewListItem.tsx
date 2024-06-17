@@ -30,12 +30,13 @@ export function RankingViewListItem({
       borderBottom="1px solid"
       borderColor="var(--seriesColor)"
       h="full"
+      py="0.5"
       px="2"
     >
       <Text color="var(--color)" fontSize="sm" fontWeight="bold">
         {rank}.
       </Text>
-      <HStack gap="0.5">
+      <HStack gap="0.5" textAlign="start">
         <CharacterIcon locale={locale} character={character} w="auto" h="8" />
         <Stack gap="0.5">
           <Text color="var(--color)" fontSize="sm" fontWeight="bold">

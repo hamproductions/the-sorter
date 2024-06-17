@@ -71,7 +71,7 @@ export function Page() {
         const startRank = arr.slice(0, idx).reduce((p, c) => p + c.length, 1);
         if (Array.isArray(ids)) {
           return ids
-            .map((id) => ({ rank: startRank, ...getCharacterFromId(data, id) }))
+            .map((id) => ({ rank: startRank, ...getCharacterFromId(data, id, seiyuu) }))
             .filter((d) => 'id' in d);
         } else {
           const chara = data.find((i) => i.id === (ids as string));
@@ -80,7 +80,7 @@ export function Page() {
         }
       })
       .filter((c) => !!c) ?? []) as WithRank<Character>[];
-  }, [state?.arr, data]);
+  }, [state?.arr, data, seiyuu]);
 
   const { left: leftItem, right: rightItem } =
     (state && getCurrentItem(state)) || ({} as { left: string[]; right: string[] });
@@ -251,6 +251,7 @@ export function Page() {
                           flex={1}
                           flexDirection={{ base: 'column', sm: 'row' }}
                           justifyContent="stretch"
+                          alignItems="stretch"
                           width="full"
                         >
                           <Stack flex="1" alignItems="center" w="full">

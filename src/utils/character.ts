@@ -1,7 +1,11 @@
 import type { Locale } from '~/i18n';
 import type { Character } from '~/types';
 
-export const getCharacterFromId = (data: Character[], id: string): Character | undefined => {
+export const getCharacterFromId = (
+  data: Character[],
+  id: string,
+  isSeiyuu?: boolean
+): Character | undefined => {
   const [charaId, castId] = id.split('-');
   const chara = data.find((i) => i.id === charaId);
   if (!chara) {
@@ -11,7 +15,9 @@ export const getCharacterFromId = (data: Character[], id: string): Character | u
     ...chara,
     id,
     //@ts-expect-error TODO: will fix
-    casts: chara.casts.filter((_, idx) => idx === (castId !== undefined ? Number(castId) : 0))
+    casts: isSeiyuu
+      ? chara.casts.filter((_, idx) => idx === (castId !== undefined ? Number(castId) : 0))
+      : chara.casts
   };
 };
 
