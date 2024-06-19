@@ -89,6 +89,7 @@ export function CharacterFilters({
           </Button>
         </HStack>
         <CheckboxGroup
+          asChild
           defaultValue={[]}
           value={selectedSeries}
           onValueChange={(series) => {
@@ -115,6 +116,7 @@ export function CharacterFilters({
           </Button>
         </HStack>
         <CheckboxGroup
+          asChild
           defaultValue={[]}
           value={selectedSchools}
           onValueChange={(school) => {
@@ -141,6 +143,7 @@ export function CharacterFilters({
           </Button>
         </HStack>
         <CheckboxGroup
+          asChild
           defaultValue={[]}
           value={selectedUnits}
           onValueChange={(units) => {

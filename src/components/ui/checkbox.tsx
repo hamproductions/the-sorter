@@ -1,3 +1,5 @@
+'use no memo';
+
 import type { Assign } from '@ark-ui/react';
 import { Checkbox as ArkCheckbox } from '@ark-ui/react/checkbox';
 import { forwardRef } from 'react';

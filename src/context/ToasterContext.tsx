@@ -1,6 +1,6 @@
 import { createToaster } from '@ark-ui/react/toast';
 import type { ReactNode } from 'react';
-import { createContext, useContext } from 'react';
+import { Suspense, createContext, useContext } from 'react';
 import { FaXmark } from 'react-icons/fa6';
 import { IconButton } from '~/components/ui/icon-button';
 import * as Toast from '~/components/ui/toast';
@@ -26,21 +26,23 @@ export function ToasterProvider({ children }: { children: ReactNode }) {
       }}
     >
       {children}
-      <Toast.Toaster toaster={toaster}>
-        {(toast) => {
-          return (
-            <Toast.Root>
-              {/* <Toast.Title>{toast.title}</Toast.Title> */}
-              <Toast.Description>{toast.description}</Toast.Description>
-              <Toast.CloseTrigger asChild>
-                <IconButton size="sm" variant="link">
-                  <FaXmark />
-                </IconButton>
-              </Toast.CloseTrigger>
-            </Toast.Root>
-          );
-        }}
-      </Toast.Toaster>
+      <Suspense>
+        <Toast.Toaster toaster={toaster}>
+          {(toast) => {
+            return (
+              <Toast.Root>
+                {/* <Toast.Title>{toast.title}</Toast.Title> */}
+                <Toast.Description>{toast.description}</Toast.Description>
+                <Toast.CloseTrigger asChild>
+                  <IconButton size="sm" variant="link">
+                    <FaXmark />
+                  </IconButton>
+                </Toast.CloseTrigger>
+              </Toast.Root>
+            );
+          }}
+        </Toast.Toaster>
+      </Suspense>
     </ToasterContext.Provider>
   );
 }

@@ -2,7 +2,6 @@ import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaShare } from 'react-icons/fa6';
 import { CharacterCard } from '../../components/sorter/CharacterCard';
-import { CharacterFilters } from '../../components/sorter/CharacterFilters';
 import { Button } from '../../components/ui/button';
 import { Kbd } from '../../components/ui/kbd';
 import { Progress } from '../../components/ui/progress';
@@ -18,6 +17,7 @@ import { getCharacterFromId } from '~/utils/character';
 import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
 
 import { Metadata } from '~/components/layout/Metadata';
+import { Skeleton } from '~/components/ui/skeleton';
 
 const ResultsView = lazy(() =>
   import('../../components/results/ResultsView').then((m) => ({ default: m.ResultsView }))
@@ -32,6 +32,12 @@ const ConfirmMidSortDialog = lazy(() =>
 const ConfirmEndedDialog = lazy(() =>
   import('../../components/dialog/ConfirmDialog').then((m) => ({
     default: m.ConfirmEndedDialog
+  }))
+);
+
+const CharacterFilters = lazy(() =>
+  import('../../components/sorter/CharacterFilters').then((m) => ({
+    default: m.CharacterFilters
   }))
 );
 
@@ -181,14 +187,49 @@ export function Page() {
         <Text textAlign="center">{t('description')}</Text>
         {!isSorting && (
           <>
-            <CharacterFilters filters={filters} setFilters={setFilters} />
-            <Switch
-              checked={seiyuu}
-              disabled={isSorting}
-              onCheckedChange={(e) => setSeiyuu(e.checked)}
+            <Suspense
+              fallback={
+                <Stack
+                  gap="3.5"
+                  border="1px solid"
+                  borderColor="border.default"
+                  rounded="l1"
+                  width="full"
+                  p="4"
+                >
+                  <Skeleton width="50%" h="4" />
+                  <Stack gap="3">
+                    <Skeleton w="full" h="4" />
+                    <Skeleton w="full" h="4" />
+                    <Skeleton w="full" h="4" />
+                  </Stack>
+                  <Skeleton width="50%" h="4" />
+                  <Stack gap="3">
+                    <Skeleton w="full" h="4" />
+                    <Skeleton w="full" h="4" />
+                    <Skeleton w="full" h="4" />
+                  </Stack>
+                  <Skeleton width="50%" h="4" />
+                  <Stack gap="3">
+                    <Skeleton w="full" h="4" />
+                    <Skeleton w="full" h="4" />
+                    <Skeleton w="full" h="4" />
+                    <Skeleton w="full" h="4" />
+                    <Skeleton w="full" h="4" />
+                    <Skeleton w="full" h="4" />
+                  </Stack>
+                </Stack>
+              }
             >
-              {t('settings.seiyuu')}
-            </Switch>
+              <CharacterFilters filters={filters} setFilters={setFilters} />
+              <Switch
+                checked={seiyuu}
+                disabled={isSorting}
+                onCheckedChange={(e) => setSeiyuu(e.checked)}
+              >
+                {t('settings.seiyuu')}
+              </Switch>
+            </Suspense>
           </>
         )}
         <Text fontSize="sm" fontWeight="bold">
@@ -305,43 +346,44 @@ export function Page() {
           </Stack>
         )}
       </Stack>
-
-      <ConfirmEndedDialog
-        open={showConfirmDialog?.type === 'ended'}
-        lazyMount
-        unmountOnExit
-        onConfirm={() => {
-          if (showConfirmDialog?.action === 'clear') {
-            clear();
-          } else {
-            init();
-          }
-          setShowConfirmDialog(undefined);
-        }}
-        onOpenChange={({ open }) => {
-          if (!open) {
+      <Suspense>
+        <ConfirmEndedDialog
+          open={showConfirmDialog?.type === 'ended'}
+          lazyMount
+          unmountOnExit
+          onConfirm={() => {
+            if (showConfirmDialog?.action === 'clear') {
+              clear();
+            } else {
+              init();
+            }
             setShowConfirmDialog(undefined);
-          }
-        }}
-      />
-      <ConfirmMidSortDialog
-        open={showConfirmDialog?.type === 'mid-sort'}
-        lazyMount
-        unmountOnExit
-        onConfirm={() => {
-          if (showConfirmDialog?.action === 'clear') {
-            clear();
-          } else {
-            init();
-          }
-          setShowConfirmDialog(undefined);
-        }}
-        onOpenChange={({ open }) => {
-          if (!open) {
+          }}
+          onOpenChange={({ open }) => {
+            if (!open) {
+              setShowConfirmDialog(undefined);
+            }
+          }}
+        />
+        <ConfirmMidSortDialog
+          open={showConfirmDialog?.type === 'mid-sort'}
+          lazyMount
+          unmountOnExit
+          onConfirm={() => {
+            if (showConfirmDialog?.action === 'clear') {
+              clear();
+            } else {
+              init();
+            }
             setShowConfirmDialog(undefined);
-          }
-        }}
-      />
+          }}
+          onOpenChange={({ open }) => {
+            if (!open) {
+              setShowConfirmDialog(undefined);
+            }
+          }}
+        />
+      </Suspense>
     </>
   );
 }
