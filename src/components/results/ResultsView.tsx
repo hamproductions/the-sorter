@@ -158,7 +158,11 @@ export function ResultsView({
                 />
               </Wrap>
               {currentTab === 'tier' && tierListSettings && (
-                <TierListSettings settings={tierListSettings} setSettings={setTierListSettings} />
+                <TierListSettings
+                  settings={tierListSettings}
+                  setSettings={setTierListSettings}
+                  count={characters.length}
+                />
               )}
             </Stack>
             <Wrap justifyContent="flex-end" w="full">

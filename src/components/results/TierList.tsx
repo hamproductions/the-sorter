@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next';
-import { max, sortBy } from 'lodash-es';
 import { useMemo } from 'react';
 import { Text } from '../ui/text';
 import { TierListItem } from './TierListItem';
@@ -10,6 +9,7 @@ export const DEFAULT_TIERS: string[] = ['S', 'A', 'B', 'C', 'D'];
 
 export type TierListSettings = {
   tiers: string[];
+  tierRanks?: number[];
   showName?: boolean;
   showInfo?: boolean;
   showRank?: boolean;
@@ -24,33 +24,33 @@ export function TierList({
   isSeiyuu: boolean;
   settings?: TierListSettings | null;
 }) {
-  const { tiers, showName, showInfo, showRank } = settings ?? { tiers: DEFAULT_TIERS };
+  const { tiers, tierRanks, showName, showInfo, showRank } = settings ?? { tiers: DEFAULT_TIERS };
   const { i18n } = useTranslation();
 
   const data = useMemo(() => {
     const ranksList = characters.map((c) => c.rank);
     const rankMinIdxMap: Record<number, number> = {};
-
     ranksList.forEach((rank, idx) => {
       if (!(rank in rankMinIdxMap)) {
         rankMinIdxMap[rank] = idx;
       }
     });
-    const totalRank = max(ranksList) ?? ranksList.length;
 
-    return sortBy(tiers, 'percentile').map((tier, idx) => {
-      const minIndex = (idx / tiers.length) * totalRank;
-      const maxIndex = ((idx + 1) / tiers.length) * totalRank;
+    return tiers.map((tier, idx) => {
+      const minRank = tierRanks?.[idx - 1] ?? 0;
+      const maxRank = tierRanks?.[idx] ?? 0;
+      console.log(minRank, maxRank);
       return {
         label: tier,
         items: characters.filter(
-          (a) => rankMinIdxMap[a.rank] >= minIndex && rankMinIdxMap[a.rank] < maxIndex
+          (a) => rankMinIdxMap[a.rank] >= minRank && rankMinIdxMap[a.rank] < maxRank
         )
       };
     });
-  }, [characters, tiers]);
+  }, [characters, tiers, tierRanks]);
 
   if (!tiers) return;
+
   return (
     <Grid
       gap="0"
