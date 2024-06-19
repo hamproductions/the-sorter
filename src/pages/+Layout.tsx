@@ -8,6 +8,16 @@ import { getAssetUrl } from '~/utils/assets';
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <Stack position="relative" w="full" minH="100vh" bgColor="bg.default">
+      <Container zIndex="1" position="relative" flex={1} w="full" py={4} px={4}>
+        <Stack>
+          <HStack justifyContent="flex-end" w="full">
+            <LanguageToggle />
+            <ColorModeToggle />
+          </HStack>
+          {children}
+        </Stack>
+      </Container>
+      <Footer />
       <Box
         style={{
           ['--bg-image' as 'backgroundImage']: `url('${getAssetUrl('/assets/bg.webp')}')`
@@ -24,18 +34,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
         backgroundImage="var(--bg-image)"
         backgroundSize="cover"
         mixBlendMode={{ base: 'darken', _dark: 'lighten' }}
+        pointerEvents="none"
       />
-
-      <Container zIndex="1" position="relative" flex={1} w="full" py={4} px={4}>
-        <Stack>
-          <HStack justifyContent="flex-end" w="full">
-            <LanguageToggle />
-            <ColorModeToggle />
-          </HStack>
-          {children}
-        </Stack>
-      </Container>
-      <Footer />
     </Stack>
   );
 }
