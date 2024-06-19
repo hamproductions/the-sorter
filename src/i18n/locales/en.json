@@ -44,15 +44,20 @@
     "list": "List",
     "table": "Table",
     "grid": "Grid",
-    "results_title": "{{ titlePrefix }} {{ sortType }} Ranking",
-    "default_results_title": "LoveLive! {{ sortType }} Ranking",
+    "ranking": "Ranking",
+    "tierlist": "Tierlist",
+    "results_title": "{{ titlePrefix }} {{ sortType }} {{ type }}",
+    "default_results_title": "LoveLive! {{ sortType }} {{ type }}",
     "generated_at": "Generated at",
     "tier": "Tier List",
     "settings": {
       "tier": {
         "settings": "Tier Settings",
         "new_tier": "Add Tier",
-        "delete_tier": "Delete Tier"
+        "delete_tier": "Delete Tier",
+        "show_rank": "Show Rank",
+        "show_name": "Show Name",
+        "show_info": "Show Info"
       }
     }
   },

@@ -125,15 +125,17 @@ export function ResultsView({
 
   useEffect(() => {
     const sortType = isSeiyuu ? t('seiyuu') : t('character');
+    const type = currentTab === 'tier' ? t('results.tierlist') : t('results.ranking');
     setTitle(
       titlePrefix
-        ? t('results.results_title', { titlePrefix, sortType })
+        ? t('results.results_title', { titlePrefix, sortType, type })
         : t('results.default_results_title', {
             titlePrefix,
-            sortType
+            sortType,
+            type
           })
     );
-  }, [titlePrefix, isSeiyuu]);
+  }, [titlePrefix, isSeiyuu, currentTab]);
   return (
     <>
       <Stack alignItems="center" w="full" textAlign="center">

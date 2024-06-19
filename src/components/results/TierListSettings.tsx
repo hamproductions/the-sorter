@@ -34,11 +34,13 @@ export function TierListSettings({
   }, [tiers, count]);
   return (
     <Stack textAlign="start">
-      <Text>{t('results.settings.tier.settings')}</Text>
+      <Text fontSize="lg" fontWeight="bold">
+        {t('results.settings.tier.settings')}
+      </Text>
+      <Text>Experimental Feature, Ideas are welcome.</Text>
       <Grid gridTemplateColumns="1fr ">
         {sortBy(tiers, 'percentile').map((tier, index) => {
           const key = `${index}`;
-
           return (
             <HStack key={key}>
               <Input
@@ -106,30 +108,33 @@ export function TierListSettings({
       </Grid>
       <Wrap>
         <Checkbox
+          size="sm"
           checked={showRank}
           onCheckedChange={({ checked }) =>
             setSettings({ ...settings, showRank: checked === true })
           }
         >
-          Show Rank
+          {t('results.settings.tier.show_rank')}
         </Checkbox>
         <Checkbox
+          size="sm"
           checked={showName}
           onCheckedChange={({ checked }) =>
             setSettings({ ...settings, showName: checked === true })
           }
         >
-          Show Name
+          {t('results.settings.tier.show_name')}
         </Checkbox>
         {showName && (
           <Checkbox
+            size="sm"
             checked={showInfo}
             disabled={!showName}
             onCheckedChange={({ checked }) =>
               setSettings({ ...settings, showInfo: checked === true })
             }
           >
-            Show Info
+            {t('results.settings.tier.show_info')}
           </Checkbox>
         )}
       </Wrap>
