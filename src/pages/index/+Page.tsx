@@ -15,9 +15,8 @@ import { getCurrentItem } from '../../utils/sort';
 import { getFilterTitle, isValidFilter } from '~/utils/filter';
 import { getCharacterFromId } from '~/utils/character';
 import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
-
 import { Metadata } from '~/components/layout/Metadata';
-import { Skeleton } from '~/components/ui/skeleton';
+import { LoadingCharacterFilters } from '~/components/sorter/LoadingCharacterFilters';
 
 const ResultsView = lazy(() =>
   import('../../components/results/ResultsView').then((m) => ({ default: m.ResultsView }))
@@ -179,7 +178,6 @@ export function Page() {
   return (
     <>
       <Metadata title={title} helmet />
-
       <Stack alignItems="center" w="full">
         <Text textAlign="center" fontSize="3xl" fontWeight="bold">
           {title}
@@ -187,40 +185,7 @@ export function Page() {
         <Text textAlign="center">{t('description')}</Text>
         {!isSorting && (
           <>
-            <Suspense
-              fallback={
-                <Stack
-                  gap="3.5"
-                  border="1px solid"
-                  borderColor="border.default"
-                  rounded="l1"
-                  width="full"
-                  p="4"
-                >
-                  <Skeleton width="50%" h="4" />
-                  <Stack gap="3">
-                    <Skeleton w="full" h="4" />
-                    <Skeleton w="full" h="4" />
-                    <Skeleton w="full" h="4" />
-                  </Stack>
-                  <Skeleton width="50%" h="4" />
-                  <Stack gap="3">
-                    <Skeleton w="full" h="4" />
-                    <Skeleton w="full" h="4" />
-                    <Skeleton w="full" h="4" />
-                  </Stack>
-                  <Skeleton width="50%" h="4" />
-                  <Stack gap="3">
-                    <Skeleton w="full" h="4" />
-                    <Skeleton w="full" h="4" />
-                    <Skeleton w="full" h="4" />
-                    <Skeleton w="full" h="4" />
-                    <Skeleton w="full" h="4" />
-                    <Skeleton w="full" h="4" />
-                  </Stack>
-                </Stack>
-              }
-            >
+            <Suspense fallback={<LoadingCharacterFilters />}>
               <CharacterFilters filters={filters} setFilters={setFilters} />
               <Switch
                 checked={seiyuu}
