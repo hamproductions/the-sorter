@@ -16,7 +16,7 @@ import type { Character } from '~/types';
 import { getUnitName } from '~/utils/filter';
 
 export function CharacterInfoDialog(
-  props: Dialog.RootProps & { character: Character; isSeiyuu: boolean }
+  props: Dialog.RootProps & { character?: Character; isSeiyuu: boolean }
 ) {
   const { character, isSeiyuu, ...rest } = props;
   const { t, i18n } = useTranslation();
@@ -44,7 +44,7 @@ export function CharacterInfoDialog(
         <Dialog.Content
           style={{
             ['--color' as 'color']: (colorCode ?? seriesColor) as 'red',
-            ['--seriesColor' as 'borderLeftColor']: seriesColor ?? colorCode
+            ['--seriesColor' as 'borderLeftColor']: seriesColor ?? colorCode ?? 'unset'
           }}
           justifyContent="flex-end"
           borderTop="8px solid"
