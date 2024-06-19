@@ -186,15 +186,19 @@ export function Page() {
         {!isSorting && (
           <>
             <Suspense fallback={<LoadingCharacterFilters />}>
-              <CharacterFilters filters={filters} setFilters={setFilters} />
-              <Switch
-                checked={seiyuu}
-                disabled={isSorting}
-                onCheckedChange={(e) => setSeiyuu(e.checked)}
-              >
-                {t('settings.seiyuu')}
-              </Switch>
+              {import.meta.env.SSR ? (
+                <LoadingCharacterFilters />
+              ) : (
+                <CharacterFilters filters={filters} setFilters={setFilters} />
+              )}
             </Suspense>
+            <Switch
+              checked={seiyuu}
+              disabled={isSorting}
+              onCheckedChange={(e) => setSeiyuu(e.checked)}
+            >
+              {t('settings.seiyuu')}
+            </Switch>
           </>
         )}
         <Text fontSize="sm" fontWeight="bold">

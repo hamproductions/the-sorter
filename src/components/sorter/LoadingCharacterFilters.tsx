@@ -42,7 +42,6 @@ export function LoadingCharacterFilters() {
         <Skeleton hideFrom="md" w="full" h="4" />
         <Skeleton hideFrom="md" w="full" h="4" />
         <Skeleton hideFrom="md" w="full" h="4" />
-
         <Skeleton hideFrom="sm" w="full" h="4" />
         <Skeleton hideFrom="sm" w="full" h="4" />
         <Skeleton hideFrom="sm" w="full" h="4" />
