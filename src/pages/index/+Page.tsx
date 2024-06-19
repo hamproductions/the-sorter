@@ -12,6 +12,7 @@ import { useData } from '../../hooks/useData';
 import { useSortData } from '../../hooks/useSortData';
 import type { Character, WithRank } from '../../types';
 import { getCurrentItem } from '../../utils/sort';
+import type { ShareDisplayData } from '../../components/results/ResultsView';
 import { getFilterTitle, isValidFilter } from '~/utils/filter';
 import { getCharacterFromId } from '~/utils/character';
 import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
@@ -113,13 +114,7 @@ export function Page() {
     } catch (e) {}
   };
 
-  const shareResultsUrl = async ({
-    title,
-    description
-  }: {
-    title: string;
-    description?: string;
-  }) => {
+  const shareResultsUrl = async (shareData: ShareDisplayData) => {
     if (!isValidFilter(filters)) return;
     const params = new URLSearchParams();
     for (const key of ['series', 'units', 'school'] as const) {
@@ -131,7 +126,7 @@ export function Page() {
     if (seiyuu) {
       params.append('seiyuu', seiyuu.toString());
     }
-    const data = { title, description, results: state?.arr ?? undefined };
+    const data = { ...shareData, results: state?.arr ?? undefined };
     const compress = (await import('lz-string')).compressToEncodedURIComponent;
     params.append('data', compress(JSON.stringify(data)));
     const url = `${location.origin}${
@@ -305,9 +300,7 @@ export function Page() {
                   titlePrefix={titlePrefix}
                   characters={charaList}
                   isSeiyuu={seiyuu}
-                  onShareResults={(title, description) =>
-                    void shareResultsUrl({ title, description })
-                  }
+                  onShareResults={(data) => void shareResultsUrl(data)}
                   w="full"
                 />
               </Suspense>

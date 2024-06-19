@@ -47,7 +47,7 @@ export function RankingViewTopItem({
             bgColor="var(--color)"
             transform="translate(-50%, -50%)"
           >
-            {rank}.
+            {rank}
           </Box>
           <styled.img
             src={getPicUrl(id, isSeiyuu ? 'seiyuu' : 'character')}

@@ -46,7 +46,15 @@
     "grid": "Grid",
     "results_title": "{{ titlePrefix }} {{ sortType }} Ranking",
     "default_results_title": "LoveLive! {{ sortType }} Ranking",
-    "generated_at": "Generated at"
+    "generated_at": "Generated at",
+    "tier": "Tier List",
+    "settings": {
+      "tier": {
+        "settings": "Tier Settings",
+        "new_tier": "Add Tier",
+        "delete_tier": "Delete Tier"
+      }
+    }
   },
   "toast": {
     "url_copied": "URL Copied to Clipboard",

@@ -46,7 +46,15 @@
     "grid": "グリッド",
     "results_title": "{{ titlePrefix }}　{{ sortType }}ランキング",
     "default_results_title": "ラブライブシリーズ　{{ sortType }}ランキング",
-    "generated_at": "作成日"
+    "generated_at": "作成日",
+    "tier": "Tier表",
+    "settings": {
+      "tier": {
+        "settings": "Tier設定",
+        "new_tier": "Tierと追加",
+        "delete_tier": "Tierを削除する"
+      }
+    }
   },
   "toast": {
     "url_copied": "URLをコピーしました",

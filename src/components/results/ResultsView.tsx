@@ -13,18 +13,26 @@ import { Textarea } from '../ui/textarea';
 import { GridView } from './GridView';
 import { RankingTable } from './RankingTable';
 import { RankingView } from './RankingView';
+import type { TierListSettings as TierListSettingsData } from './TierList';
+import { DEFAULT_TIERS, TierList } from './TierList';
+import { TierListSettings } from './TierListSettings';
 import type { Character, WithRank } from '~/types';
 import { useLocalStorage } from '~/hooks/useLocalStorage';
 import { useToaster } from '~/context/ToasterContext';
 import { Box, Stack, Wrap } from 'styled-system/jsx';
+export type ShareDisplayData = {
+  title: string;
+  description?: string;
+  tierListSettings?: TierListSettingsData;
+  tab?: string;
+};
 
 export function ResultsView({
   titlePrefix,
   characters,
   isSeiyuu,
   readOnly,
-  displayTitle,
-  displayDescription,
+  shareDisplayData,
   onShareResults,
   ...props
 }: RootProps & {
@@ -32,14 +40,22 @@ export function ResultsView({
   characters: WithRank<Character>[];
   isSeiyuu: boolean;
   readOnly?: boolean;
-  displayTitle?: string;
-  displayDescription?: string;
-  onShareResults?: (title: string, description?: string) => void;
+  shareDisplayData?: {
+    title: string;
+    description?: string;
+    tierListSettings?: TierListSettingsData;
+    tab?: string;
+  };
+  onShareResults?: (params: ShareDisplayData) => void;
 }) {
   const { toast } = useToaster();
+  const [tierListSettings, setTierListSettings] = useLocalStorage<TierListSettingsData>(
+    'tier-settings',
+    { tiers: DEFAULT_TIERS }
+  );
   const [title, setTitle] = useState<string>('My LoveLive! Ranking');
   const [description, setDescription] = useState<string>();
-  const [currentTab, setCurrentTab] = useLocalStorage<'default' | 'table' | 'grid'>(
+  const [currentTab, setCurrentTab] = useLocalStorage<'default' | 'table' | 'grid' | 'tier'>(
     'result-tab',
     'default'
   );
@@ -50,7 +66,8 @@ export function ResultsView({
   const tabs = [
     { id: 'default', label: t('results.list') },
     { id: 'table', label: t('results.table') },
-    { id: 'grid', label: t('results.grid') }
+    { id: 'grid', label: t('results.grid') },
+    { id: 'tier', label: t('results.tier') }
   ];
   const makeScreenshot = async () => {
     setShowRenderingCanvas(true);
@@ -97,6 +114,15 @@ export function ResultsView({
     }
   };
 
+  const {
+    title: displayTitle,
+    description: displayDescription,
+    tierListSettings: displayTierListSettings,
+    tab: displayCurrentTab
+  } = shareDisplayData ?? {};
+
+  const displayTab = currentTab || displayCurrentTab;
+
   useEffect(() => {
     const sortType = isSeiyuu ? t('seiyuu') : t('character');
     setTitle(
@@ -131,9 +157,22 @@ export function ResultsView({
                   onChange={(e) => setDescription(e.target.value)}
                 />
               </Wrap>
+              {currentTab === 'tier' && tierListSettings && (
+                <TierListSettings settings={tierListSettings} setSettings={setTierListSettings} />
+              )}
             </Stack>
             <Wrap justifyContent="flex-end" w="full">
-              <Button variant="subtle" onClick={() => onShareResults?.(title, description)}>
+              <Button
+                variant="subtle"
+                onClick={() =>
+                  onShareResults?.({
+                    title,
+                    description,
+                    tierListSettings: tierListSettings ?? undefined,
+                    tab: displayTab ?? undefined
+                  })
+                }
+              >
                 <FaShare /> {t('results.share')}
               </Button>
               <Button variant="subtle" onClick={() => void screenshot()}>
@@ -148,18 +187,20 @@ export function ResultsView({
         <Tabs.Root
           lazyMount
           defaultValue="default"
-          value={currentTab}
+          value={displayTab}
           onValueChange={(d) => setCurrentTab(d.value as 'default' | 'table')}
           {...props}
         >
-          <Tabs.List>
-            {tabs.map((option) => (
-              <Tabs.Trigger key={option.id} value={option.id}>
-                {option.label}
-              </Tabs.Trigger>
-            ))}
-            <Tabs.Indicator />
-          </Tabs.List>
+          {!displayCurrentTab && (
+            <Tabs.List>
+              {tabs.map((option) => (
+                <Tabs.Trigger key={option.id} value={option.id}>
+                  {option.label}
+                </Tabs.Trigger>
+              ))}
+              <Tabs.Indicator />
+            </Tabs.List>
+          )}
           <Box w="full" p="4">
             <Tabs.Content value="default">
               <RankingView characters={characters} isSeiyuu={isSeiyuu} />
@@ -169,6 +210,13 @@ export function ResultsView({
             </Tabs.Content>
             <Tabs.Content value="grid">
               <GridView characters={characters} isSeiyuu={isSeiyuu} />
+            </Tabs.Content>
+            <Tabs.Content value="tier">
+              <TierList
+                characters={characters}
+                isSeiyuu={isSeiyuu}
+                settings={displayTierListSettings || tierListSettings}
+              />
             </Tabs.Content>
           </Box>
         </Tabs.Root>
@@ -186,6 +234,12 @@ export function ResultsView({
               <RankingTable characters={characters} isSeiyuu={isSeiyuu} />
             ) : currentTab === 'grid' ? (
               <GridView characters={characters} isSeiyuu={isSeiyuu} />
+            ) : currentTab === 'tier' ? (
+              <TierList
+                characters={characters}
+                isSeiyuu={isSeiyuu}
+                settings={displayTierListSettings || tierListSettings}
+              />
             ) : (
               <RankingView characters={characters} isSeiyuu={isSeiyuu} />
             )}
