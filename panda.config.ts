@@ -2,7 +2,7 @@ import { defineConfig } from '@pandacss/dev';
 import { createPreset } from '@park-ui/panda-preset';
 import { theme } from './src/theme';
 
-export default defineConfig({
+const config = defineConfig({
   // Whether to use css reset
   preflight: true,
 
@@ -54,3 +54,5 @@ export default defineConfig({
 
   lightningcss: true
 });
+
+export default config;

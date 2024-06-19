@@ -8,16 +8,13 @@ import type { Character, WithRank } from '../../types';
 import school from '../../../data/school.json';
 import series from '../../../data/series.json';
 import units from '../../../data/units.json';
-import { Box, Container, Stack } from 'styled-system/jsx';
+import { Container, Stack } from 'styled-system/jsx';
 import { ResultsView } from '~/components/results/ResultsView';
-import { getAssetUrl } from '~/utils/assets';
 import { getFilterTitle } from '~/utils/filter';
 
 import { Button } from '~/components/ui/button';
 import { getCharacterFromId } from '~/utils/character';
-import { Footer } from '~/components/layout/Footer';
 import { Metadata } from '~/components/layout/Metadata';
-import { LanguageToggle } from '~/components/layout/LanguageToggle';
 
 export function Page() {
   const data = useData();
@@ -79,53 +76,33 @@ export function Page() {
   return (
     <>
       <Metadata title={title} helmet />
-      <Stack position="relative" w="full" minH="100vh">
-        <Box
-          style={{
-            ['--bg-image' as 'backgroundImage']: `url('${getAssetUrl('/assets/bg.webp')}')`
-          }}
-          zIndex="0"
-          position="fixed"
-          top="0"
-          left="0"
-          w="100vw"
-          h="100vh"
-          opacity="0.05"
-          backgroundPosition="center"
-          backgroundAttachment="fixed"
-          backgroundImage="var(--bg-image)"
-          backgroundSize="cover"
-        />
-        <Container zIndex="1" flex={1} w="full" py={4} px={4}>
-          <Stack alignItems="center" w="full">
-            <Text textAlign="center" fontSize="3xl" fontWeight="bold">
-              {title}
-            </Text>
-            <Text textAlign="center">{t('description')}</Text>
-            <LanguageToggle />
-            <Link href={getShareUrl()}>
-              <Button>{t('share.create_your_own')}</Button>
-            </Link>
-            {charaList.length > 0 && (
-              <>
-                <ResultsView
-                  titlePrefix={titlePrefix}
-                  characters={charaList}
-                  isSeiyuu={seiyuu}
-                  readOnly
-                  displayTitle={resultsTitle}
-                  displayDescription={resultsDescription}
-                  w="full"
-                />
-                <Link href={getShareUrl()}>
-                  <Button>{t('share.create_your_own')}</Button>
-                </Link>
-              </>
-            )}
-          </Stack>
-        </Container>
-        <Footer />
-      </Stack>
+      <Container zIndex="1" flex={1} w="full" py={4} px={4}>
+        <Stack alignItems="center" w="full">
+          <Text textAlign="center" fontSize="3xl" fontWeight="bold">
+            {title}
+          </Text>
+          <Text textAlign="center">{t('description')}</Text>
+          <Link href={getShareUrl()}>
+            <Button>{t('share.create_your_own')}</Button>
+          </Link>
+          {charaList.length > 0 && (
+            <>
+              <ResultsView
+                titlePrefix={titlePrefix}
+                characters={charaList}
+                isSeiyuu={seiyuu}
+                readOnly
+                displayTitle={resultsTitle}
+                displayDescription={resultsDescription}
+                w="full"
+              />
+              <Link href={getShareUrl()}>
+                <Button>{t('share.create_your_own')}</Button>
+              </Link>
+            </>
+          )}
+        </Stack>
+      </Container>
     </>
   );
 }

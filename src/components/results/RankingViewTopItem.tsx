@@ -66,7 +66,8 @@ export function RankingViewTopItem({
             rounded="full"
             w="10"
             h="10"
-            bgColor="white"
+            p="0.5"
+            bgColor="bg.canvas"
             transform="translate(25%, 25%)"
           />
         </Center>

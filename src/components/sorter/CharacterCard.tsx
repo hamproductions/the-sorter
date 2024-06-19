@@ -62,7 +62,8 @@ export function CharacterCard({
             rounded="full"
             w={{ base: 8, md: 10 }}
             h={{ base: 8, md: 10 }}
-            bgColor="white"
+            p="0.5"
+            bgColor="bg.canvas"
             transform="translate(25%, 25%)"
           />
         </Center>

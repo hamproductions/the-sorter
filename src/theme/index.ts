@@ -65,7 +65,7 @@ export const theme: PartialTheme = {
           value: '{colors.ll.10}'
         },
         fg: {
-          value: 'white'
+          value: '{colors.white}'
         },
         text: {
           value: '{colors.ll.a11}'

@@ -72,7 +72,8 @@ export function GridViewItem({
             rounded="full"
             w="8"
             h="8"
-            bgColor="white"
+            p="0.5"
+            bgColor="bg.canvas"
             transform="translate(25%, 25%)"
           />
         </Center>
