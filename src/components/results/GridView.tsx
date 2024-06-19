@@ -21,7 +21,7 @@ export function GridView({
               key={id}
               rounded="l1"
               bgColor="bg.canvas"
-              shadow={{ base: 'md', _hover: 'lg' }}
+              shadow={{ base: 'sm', _hover: 'md' }}
               transition="shadow"
               overflow="hidden"
             >

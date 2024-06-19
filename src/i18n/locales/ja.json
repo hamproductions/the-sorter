@@ -44,15 +44,20 @@
     "list": "リスト",
     "table": "表",
     "grid": "グリッド",
-    "results_title": "{{ titlePrefix }}　{{ sortType }}ランキング",
-    "default_results_title": "ラブライブシリーズ　{{ sortType }}ランキング",
+    "ranking": "ランキング",
+    "tierlist": "ティタリスト",
+    "results_title": "{{ titlePrefix }}　{{ sortType }}{{ type }}",
+    "default_results_title": "ラブライブシリーズ　{{ sortType }}{{ type }}",
     "generated_at": "作成日",
-    "tier": "Tier表",
+    "tier": "ティタリスト",
     "settings": {
       "tier": {
         "settings": "Tier設定",
-        "new_tier": "Tierと追加",
-        "delete_tier": "Tierを削除する"
+        "new_tier": "Tierを追加",
+        "delete_tier": "Tierを削除する",
+        "show_rank": "順位を表示する",
+        "show_name": "名前を表示する",
+        "show_info": "情報を表示する"
       }
     }
   },

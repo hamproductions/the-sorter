@@ -34,11 +34,11 @@ export function TierListItem({
         ['--seriesColor' as 'borderLeftColor']: seriesColor ?? colorCode
       }}
       justifyContent="flex-end"
-      borderTop="8px solid"
+      borderTop="4px solid"
       borderColor="var(--seriesColor)"
       h="full"
-      p="2"
-      pt="4"
+      p={showRank ? '4' : '1'}
+      pt={showRank ? '4' : '2'}
     >
       <Stack flex="1" gap="1" alignItems="center">
         <Center position="relative" mb="4">
