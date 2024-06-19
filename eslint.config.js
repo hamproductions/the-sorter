@@ -124,6 +124,7 @@ const config = tseslint.config(
         components: {
           'styled.img': 'img',
           Button: 'button',
+          IconButton: 'button',
           Input: 'input',
           Text: 'p'
         }

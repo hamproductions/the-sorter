@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { Link } from '../ui/link';
-import type { Locale } from '~/i18n';
+import { Button } from '../ui/button';
 import { Wrap } from 'styled-system/jsx';
+import type { Locale } from '~/i18n';
 
 export function LanguageToggle() {
   const { i18n } = useTranslation();
@@ -13,21 +13,23 @@ export function LanguageToggle() {
 
   return (
     <Wrap>
-      <Link
+      <Button
+        variant="link"
         data-active={currentLanguage === 'en' ? 'true' : undefined}
         onClick={() => handleSetLocale('en')}
         _active={{ fontWeight: 'bold' }}
       >
         English
-      </Link>
+      </Button>
       |
-      <Link
+      <Button
+        variant="link"
         onClick={() => handleSetLocale('ja')}
         data-active={currentLanguage === 'ja' ? 'true' : undefined}
         _active={{ fontWeight: 'bold' }}
       >
         日本語
-      </Link>
+      </Button>
     </Wrap>
   );
 }

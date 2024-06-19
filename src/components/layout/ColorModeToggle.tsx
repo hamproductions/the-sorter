@@ -7,6 +7,7 @@ export function ColorModeToggle() {
   return (
     <IconButton
       variant="subtle"
+      aria-label="Toggle Color Mode"
       onClick={() => setColorMode?.(colorMode === 'dark' ? 'light' : 'dark')}
     >
       {colorMode === 'dark' ? <FaMoon /> : <FaSun />}
