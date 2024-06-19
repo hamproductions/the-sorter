@@ -13,11 +13,13 @@ import { getSchoolName, getUnitName } from '~/utils/filter';
 export function RankingTable({
   characters,
   isSeiyuu,
-  responsive
+  responsive,
+  onSelectCharacter
 }: {
   characters: WithRank<Character>[];
   isSeiyuu: boolean;
   responsive?: boolean;
+  onSelectCharacter?: (character: WithRank<Character>) => void;
 }) {
   const { t, i18n } = useTranslation();
 
@@ -57,8 +59,10 @@ export function RankingTable({
             <Table.Row
               key={idx}
               style={{ ['--color' as 'color']: colorCode ?? (seriesColor as 'red') }}
+              onClick={onSelectCharacter && (() => onSelectCharacter(c))}
               borderLeft="8px solid"
               borderColor="var(--color)"
+              cursor="pointer"
             >
               <Table.Cell>{rank}</Table.Cell>
               <Table.Cell>

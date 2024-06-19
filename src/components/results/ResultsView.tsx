@@ -34,6 +34,7 @@ export function ResultsView({
   readOnly,
   shareDisplayData,
   onShareResults,
+  onSelectCharacter,
   ...props
 }: RootProps & {
   titlePrefix?: string;
@@ -47,6 +48,7 @@ export function ResultsView({
     tab?: string;
   };
   onShareResults?: (params: ShareDisplayData) => void;
+  onSelectCharacter?: (character: Character) => void;
 }) {
   const { toast } = useToaster();
   const [tierListSettings, setTierListSettings] = useLocalStorage<TierListSettingsData>(
@@ -209,16 +211,30 @@ export function ResultsView({
           )}
           <Box w="full" p="4">
             <Tabs.Content value="default">
-              <RankingView characters={characters} isSeiyuu={isSeiyuu} />
+              <RankingView
+                characters={characters}
+                isSeiyuu={isSeiyuu}
+                onSelectCharacter={onSelectCharacter}
+              />
             </Tabs.Content>
             <Tabs.Content value="table">
-              <RankingTable characters={characters} isSeiyuu={isSeiyuu} responsive />
+              <RankingTable
+                characters={characters}
+                isSeiyuu={isSeiyuu}
+                onSelectCharacter={onSelectCharacter}
+                responsive
+              />
             </Tabs.Content>
             <Tabs.Content value="grid">
-              <GridView characters={characters} isSeiyuu={isSeiyuu} />
+              <GridView
+                characters={characters}
+                onSelectCharacter={onSelectCharacter}
+                isSeiyuu={isSeiyuu}
+              />
             </Tabs.Content>
             <Tabs.Content value="tier">
               <TierList
+                onSelectCharacter={onSelectCharacter}
                 characters={characters}
                 isSeiyuu={isSeiyuu}
                 settings={displayTierListSettings || tierListSettings}

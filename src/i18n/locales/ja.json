@@ -80,7 +80,16 @@
       "description": "ランキング結果のデータが消されます, よろしいですか?"
     },
     "proceed": "続行",
-    "cancel": "キャンセル"
+    "cancel": "キャンセル",
+    "close": "閉じる",
+    "character_info": {
+      "profile": "プロフィール",
+      "birthday": "誕生日",
+      "series": "シリーズ",
+      "units": "ユニット",
+      "school": "学校",
+      "color_name": "色名"
+    }
   },
   "error_page": {
     "title": "あっちゃー",

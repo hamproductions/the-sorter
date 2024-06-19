@@ -6,10 +6,12 @@ import type { Character, WithRank } from '~/types';
 
 export function RankingView({
   characters,
-  isSeiyuu
+  isSeiyuu,
+  onSelectCharacter
 }: {
   characters: WithRank<Character>[];
   isSeiyuu: boolean;
+  onSelectCharacter?: (character: WithRank<Character>) => void;
 }) {
   const { i18n } = useTranslation();
   const locale = i18n.language;
@@ -19,7 +21,11 @@ export function RankingView({
         {characters.slice(0, 3).map((c) => {
           const { id } = c;
           return (
-            <GridItem key={id}>
+            <GridItem
+              onClick={onSelectCharacter && (() => onSelectCharacter(c))}
+              key={id}
+              cursor="pointer"
+            >
               <RankingViewTopItem locale={locale} character={c} isSeiyuu={isSeiyuu} />
             </GridItem>
           );
@@ -29,7 +35,11 @@ export function RankingView({
         {characters.slice(3).map((c) => {
           const { id } = c;
           return (
-            <GridItem key={id}>
+            <GridItem
+              onClick={onSelectCharacter && (() => onSelectCharacter(c))}
+              key={id}
+              cursor="pointer"
+            >
               <RankingViewListItem locale={locale} character={c} isSeiyuu={isSeiyuu} />
             </GridItem>
           );

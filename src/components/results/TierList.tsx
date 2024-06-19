@@ -18,11 +18,13 @@ export type TierListSettings = {
 export function TierList({
   characters,
   isSeiyuu,
-  settings
+  settings,
+  onSelectCharacter
 }: {
   characters: WithRank<Character>[];
   isSeiyuu: boolean;
   settings?: TierListSettings | null;
+  onSelectCharacter?: (character: WithRank<Character>) => void;
 }) {
   const { tiers, tierRanks, showName, showInfo, showRank } = settings ?? { tiers: DEFAULT_TIERS };
   const { i18n } = useTranslation();
@@ -90,10 +92,12 @@ export function TierList({
                   return (
                     <GridItem
                       key={id}
+                      onClick={onSelectCharacter && (() => onSelectCharacter(c))}
                       rounded="l1"
                       bgColor="bg.canvas"
                       shadow={{ base: 'md', _hover: 'lg' }}
                       transition="shadow"
+                      cursor="pointer"
                       overflow="hidden"
                     >
                       <TierListItem

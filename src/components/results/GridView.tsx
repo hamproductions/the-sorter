@@ -5,10 +5,12 @@ import type { Character, WithRank } from '~/types';
 
 export function GridView({
   characters,
-  isSeiyuu
+  isSeiyuu,
+  onSelectCharacter
 }: {
   characters: WithRank<Character>[];
   isSeiyuu: boolean;
+  onSelectCharacter?: (character: WithRank<Character>) => void;
 }) {
   const { i18n } = useTranslation();
   return (
@@ -19,10 +21,12 @@ export function GridView({
           return (
             <GridItem
               key={id}
+              onClick={onSelectCharacter && (() => onSelectCharacter(c))}
               rounded="l1"
               bgColor="bg.canvas"
               shadow={{ base: 'sm', _hover: 'md' }}
               transition="shadow"
+              cursor="pointer"
               overflow="hidden"
             >
               <GridViewItem character={c} isSeiyuu={isSeiyuu} locale={i18n.language} />

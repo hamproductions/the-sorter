@@ -35,6 +35,12 @@ const ConfirmEndedDialog = lazy(() =>
   }))
 );
 
+const CharacterInfoDialog = lazy(() =>
+  import('../../components/dialog/CharacterInfoDialog').then((m) => ({
+    default: m.CharacterInfoDialog
+  }))
+);
+
 const CharacterFilters = lazy(() =>
   import('../../components/sorter/CharacterFilters').then((m) => ({
     default: m.CharacterFilters
@@ -66,6 +72,7 @@ export function Page() {
     type: 'mid-sort' | 'ended';
     action: 'reset' | 'clear';
   }>();
+  const [showCharacterInfo, setShowCharacterInfo] = useState<Character[]>();
 
   const charaList = useMemo(() => {
     return (state?.arr
@@ -301,6 +308,7 @@ export function Page() {
                   characters={charaList}
                   isSeiyuu={seiyuu}
                   onShareResults={(data) => void shareResultsUrl(data)}
+                  onSelectCharacter={(c) => setShowCharacterInfo(c)}
                   w="full"
                 />
               </Suspense>
@@ -342,6 +350,16 @@ export function Page() {
           onOpenChange={({ open }) => {
             if (!open) {
               setShowConfirmDialog(undefined);
+            }
+          }}
+        />
+        <CharacterInfoDialog
+          character={showCharacterInfo}
+          isSeiyuu={seiyuu}
+          open={!!showCharacterInfo}
+          onOpenChange={(e) => {
+            if (!e.open) {
+              return setShowCharacterInfo(undefined);
             }
           }}
         />

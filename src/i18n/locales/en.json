@@ -76,7 +76,16 @@
       "description": "Your current sorting data will be lost, are you sure ?"
     },
     "proceed": "Proceed",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "close": "Close",
+    "character_info": {
+      "profile": "Profile",
+      "birthday": "Birthday",
+      "series": "Series",
+      "units": "Units",
+      "school": "School",
+      "color_name": "Color Name"
+    }
   },
   "share": {
     "copy_text": "Check out my sorted LL! characters",
