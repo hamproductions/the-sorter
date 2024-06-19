@@ -15,6 +15,7 @@ import { getFilterTitle } from '~/utils/filter';
 import { Button } from '~/components/ui/button';
 import { getCharacterFromId } from '~/utils/character';
 import { Metadata } from '~/components/layout/Metadata';
+import type { TierListSettings } from '~/components/results/TierList';
 
 export function Page() {
   const data = useData();
@@ -29,13 +30,17 @@ export function Page() {
   const urlData = params.get('data');
 
   const {
-    title: resultsTitle,
-    description: resultsDescription,
-    results
-  }: { title?: string; description?: string; results: string[][] } = JSON.parse(
-    urlData !== null ? decompressFromEncodedURIComponent(urlData) : '{}'
-  ) ?? {};
+    results,
+    ...shareDisplayData
+  }: {
+    title: string;
+    description?: string;
+    tierlist?: TierListSettings;
+    results: string[][];
+    tab?: 'default' | 'table' | 'grid' | 'tier';
+  } = JSON.parse(urlData !== null ? decompressFromEncodedURIComponent(urlData) : '{}') ?? {};
 
+  console.log(shareDisplayData);
   const seiyuu = urlSeiyuu === 'true';
 
   const filters = {
@@ -92,8 +97,7 @@ export function Page() {
                 characters={charaList}
                 isSeiyuu={seiyuu}
                 readOnly
-                displayTitle={resultsTitle}
-                displayDescription={resultsDescription}
+                shareDisplayData={shareDisplayData}
                 w="full"
               />
               <Link href={getShareUrl()}>
