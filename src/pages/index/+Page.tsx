@@ -72,7 +72,7 @@ export function Page() {
     type: 'mid-sort' | 'ended';
     action: 'reset' | 'clear';
   }>();
-  const [showCharacterInfo, setShowCharacterInfo] = useState<Character[]>();
+  const [showCharacterInfo, setShowCharacterInfo] = useState<Character>();
 
   const charaList = useMemo(() => {
     return (state?.arr
