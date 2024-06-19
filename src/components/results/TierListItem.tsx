@@ -6,6 +6,7 @@ import { getPicUrl } from '~/utils/assets';
 import type { Locale } from '~/i18n';
 import type { Character, WithRank } from '~/types';
 import { getCastName, getFullName } from '~/utils/character';
+import { token } from 'styled-system/tokens';
 
 export function TierListItem({
   character,
@@ -31,14 +32,16 @@ export function TierListItem({
     <Stack
       style={{
         ['--color' as 'color']: (colorCode ?? seriesColor) as 'red',
-        ['--seriesColor' as 'borderLeftColor']: seriesColor ?? colorCode
+        ['--seriesColor' as 'borderLeftColor']: seriesColor ?? colorCode,
+        ['--padding' as 'padding']: token(`spacing.${showRank ? '4' : '1'}`),
+        ['--padding-top' as 'paddingTop']: token(`spacing.${showRank ? '4' : '2'}`)
       }}
       justifyContent="flex-end"
       borderTop="4px solid"
       borderColor="var(--seriesColor)"
       h="full"
-      p={showRank ? '4' : '1'}
-      pt={showRank ? '4' : '2'}
+      p="var(--padding)"
+      pt="var(--padding-top)"
     >
       <Stack flex="1" gap="1" alignItems="center">
         <Center position="relative" mb="4">
