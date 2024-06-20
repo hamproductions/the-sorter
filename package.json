@@ -16,7 +16,7 @@
     "preview": "vite preview",
     "prepare": "panda codegen",
     "test": "vitest",
-    "test:ui": "vitest --ui",
+    "test:ui": "vitest --ui --coverage.enabled",
     "ci:test": "vitest --coverage.enabled",
     "analyze": "bunx vite-bundle-visualizer",
     "codegen:components": "bunx @parkui/cli add --all"

@@ -19,9 +19,19 @@ describe('Layout', () => {
     });
 
     it('Change language to Japanese', async () => {
-      const { findByText, findAllByText } = render(<></>);
-      await user.click((await findAllByText('日本語'))[0]);
+      const { findByText } = render(<></>);
+      await user.click(await findByText('日本語'));
       expect(await findByText('ソースコードをチェックしてみてね')).toBeInTheDocument();
+    });
+  });
+
+  describe('Color Mode Switch', () => {
+    it('Dark Mode', async () => {
+      const { findByLabelText, container } = render(<></>);
+      await user.click(await findByLabelText('Toggle Color Mode'));
+      expect(container.parentElement?.parentElement).toHaveClass('dark');
+      await user.click(await findByLabelText('Toggle Color Mode'));
+      expect(container.parentElement?.parentElement).not.toHaveClass('dark');
     });
   });
 });
