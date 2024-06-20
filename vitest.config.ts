@@ -30,11 +30,13 @@ export default defineConfig({
       reportOnFailure: true,
       exclude: [
         '*.config.*',
+        '+config.ts',
         'scripts',
-        '*.d.ts',
+        '**/*.d.ts',
         'styled-system/*',
-        '__test__/*',
-        'components/ui/*'
+        '*/__test__/*',
+        '*/components/ui/*',
+        '*/theme/*'
       ]
     },
     outputFile: {
