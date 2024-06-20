@@ -6,7 +6,7 @@ import { Page } from '../_error/+Page';
 
 describe('Shared Page', () => {
   it('Renders', async () => {
-    const { findByText } = render(<Page />);
+    const [{ findByText }] = await render(<Page />);
     expect(
       await findByText("Something went wrong lah, you shouldn't be here.")
     ).toBeInTheDocument();

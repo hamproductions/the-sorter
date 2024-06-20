@@ -6,7 +6,7 @@ import { Page } from '../share/+Page';
 
 describe('Shared Page', () => {
   it('Renders', async () => {
-    const { findByText } = render(<Page />);
+    const [{ findByText }] = await render(<Page />);
     expect(await findByText('LoveLive! Sorter')).toBeInTheDocument();
   });
 });

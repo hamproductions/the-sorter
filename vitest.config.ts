@@ -16,6 +16,10 @@ export default defineConfig({
   //@ts-expect-error TODO: fix
   test: {
     environment: 'jsdom',
+    // environmentOptions: {
+    //   jsdom: {}
+    // },
+    isolate: true,
     setupFiles: ['./vitest-setup.js'],
     coverage: {
       provider: 'v8',

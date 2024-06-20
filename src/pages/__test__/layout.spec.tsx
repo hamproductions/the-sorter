@@ -8,18 +8,18 @@ describe('Layout', () => {
   const user = userEvent.setup();
 
   it('Renders', async () => {
-    const { findByText } = render(<></>);
+    const [{ findByText }] = await render(<></>);
     expect(await findByText('ハムP')).toBeInTheDocument();
   });
 
   describe('Language Switch', () => {
     it('Render in English', async () => {
-      const { findByText } = render(<></>);
+      const [{ findByText }] = await render(<></>);
       expect(await findByText('Check out source code on')).toBeInTheDocument();
     });
 
     it('Change language to Japanese', async () => {
-      const { findByText } = render(<></>);
+      const [{ findByText }] = await render(<></>);
       await user.click(await findByText('日本語'));
       expect(await findByText('ソースコードをチェックしてみてね')).toBeInTheDocument();
     });
@@ -27,7 +27,7 @@ describe('Layout', () => {
 
   describe('Color Mode Switch', () => {
     it('Dark Mode', async () => {
-      const { findByLabelText, container } = render(<></>);
+      const [{ findByLabelText, container }] = await render(<></>);
       await user.click(await findByLabelText('Toggle Color Mode'));
       expect(container.parentElement?.parentElement).toHaveClass('dark');
       await user.click(await findByLabelText('Toggle Color Mode'));

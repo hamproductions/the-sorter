@@ -65,7 +65,7 @@ describe('Character Utils', () => {
       expect(getCastName(character.casts[0], 'ja')).toEqual('楡井希実');
     });
     it('gets name in English', () => {
-      expect(getCastName(character.casts[0], 'en')).toEqual('Nirei Nozomi');
+      expect(getCastName(character.casts[0], 'en')).toEqual('Nozomi Nirei');
     });
   });
 });
