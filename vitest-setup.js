@@ -1,8 +1,13 @@
 import '@testing-library/jest-dom/vitest';
-import { cleanup } from '@testing-library/react';
+import { cleanup, configure } from '@testing-library/react';
 
-import { afterEach, beforeEach } from 'vitest';
+import { afterEach, beforeAll, beforeEach } from 'vitest';
 
+beforeAll(() => {
+  configure({
+    // asyncUtilTimeout: import.meta.env.CI === true ? undefined : 5000 
+  })
+})
 beforeEach(async () => {
   window.PointerEvent = MouseEvent;
   delete window.location;

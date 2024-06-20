@@ -16,6 +16,7 @@ export default defineConfig({
   //@ts-expect-error TODO: fix
   test: {
     environment: 'jsdom',
+    // testTimeout: process.env.CI === 'true' ? 5000 : 10000,
     // environmentOptions: {
     //   jsdom: {}
     // },
