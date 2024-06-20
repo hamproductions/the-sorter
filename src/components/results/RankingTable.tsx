@@ -8,7 +8,7 @@ import { getPicUrl } from '~/utils/assets';
 import type { Character, WithRank } from '~/types';
 import { Stack, Wrap, styled } from 'styled-system/jsx';
 import { getCastName, getFullName } from '~/utils/character';
-import { getSchoolName, getUnitName } from '~/utils/filter';
+import { getSchoolName, getUnitName } from '~/utils/names';
 
 export function RankingTable({
   characters,

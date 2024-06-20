@@ -24,7 +24,9 @@ export const getCharacterFromId = (
 export const stateToCharacterList = (state: string[][], data: Character[], isSeiyuu: boolean) => {
   return (state
     ?.flatMap((ids, idx, arr) => {
-      const startRank = arr.slice(0, idx).reduce((p, c) => p + c.length, 1);
+      const startRank = arr
+        .slice(0, idx)
+        .reduce((p, c) => p + (Array.isArray(c) ? c.length : 1), 1);
       if (Array.isArray(ids)) {
         return ids
           .map((id) => ({ rank: startRank, ...getCharacterFromId(data, id, isSeiyuu) }))
@@ -40,7 +42,6 @@ export const stateToCharacterList = (state: string[][], data: Character[], isSei
 
 export const getFullName = (character: Character, locale: Locale) => {
   if (locale === 'en' && character.englishName) return character.englishName;
-
   return character.fullName;
 };
 

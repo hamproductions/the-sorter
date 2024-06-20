@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import shuffle from 'lodash-es/shuffle';
-import { getCurrentItem, initSort, step } from './sort';
+import { getCurrentItem, initSort, step } from '../sort';
 
 const createNumberArray = (n = 10) =>
   Array(n)

@@ -13,7 +13,7 @@ import { getPicUrl } from '~/utils/assets';
 import { getCastName, getFullName } from '~/utils/character';
 import { Box, Center, HStack, Stack, Wrap, styled } from 'styled-system/jsx';
 import type { Character } from '~/types';
-import { getUnitName } from '~/utils/filter';
+import { getUnitName } from '~/utils/names';
 
 export function CharacterInfoDialog(
   props: Dialog.RootProps & { character?: Character; isSeiyuu: boolean }

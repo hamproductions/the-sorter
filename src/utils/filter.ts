@@ -1,6 +1,4 @@
-import schools from '../../data/school.json';
-import series from '../../data/series.json';
-import units from '../../data/units.json';
+import { getSchoolName, getSeriesName, getUnitName } from './names';
 import type { Character } from '~/types';
 import type { FilterType } from '~/components/sorter/CharacterFilters';
 import type { Locale } from '~/i18n';
@@ -27,20 +25,6 @@ export const isValidFilter = (filter?: FilterType | null): filter is FilterType 
   const { school, series, units } = filter;
   if (!Array.isArray(school) || !Array.isArray(series) || !Array.isArray(units)) return false;
   return true;
-};
-
-export const getSchoolName = (school: string, locale: Locale | undefined) => {
-  if (locale === 'en' && school in schools) return schools[school as keyof typeof schools];
-  return school;
-};
-export const getSeriesName = (serie: string, locale: Locale | undefined) => {
-  if (locale === 'en' && serie in series) return series[serie as keyof typeof series];
-  return serie;
-};
-export const getUnitName = (unit: string, locale: Locale | undefined) => {
-  const tmp = units.find((u) => u.name === unit);
-  if (locale === 'en' && tmp?.englishName) return tmp.englishName;
-  return unit;
 };
 
 export const getFilterTitle = (

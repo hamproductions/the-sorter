@@ -2,7 +2,7 @@ import type { BadgeProps } from '../ui/badge';
 import { Badge } from '../ui/badge';
 import type { Locale } from '~/i18n';
 import type { Character } from '~/types';
-import { getSeriesName } from '~/utils/filter';
+import { getSeriesName } from '~/utils/names';
 
 export function SchoolBadge({
   character,

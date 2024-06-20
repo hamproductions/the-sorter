@@ -1,6 +1,6 @@
-# LoveLive! Seiyuu Sorter
+# LoveLive! Sorter
 
-Sort your favorite seiyuu, inspired by charasort and more...
+Sort your favorite seiyuu, characters inspired by charasort and more...
 
 ## Features
 
@@ -10,16 +10,17 @@ Sort your favorite seiyuu, inspired by charasort and more...
 - Photo Export
 - Save-able
 - Share pic / Links
+- \*New\* Tier List
 
 ## Need Help (If anyone is kind enough...)
 
-- [ ] Localized Names
+- [x] Localized Names
   - [x] Members
   - [x] Seiyuu
-  - [ ] Schools
-  - [ ] Units
-  - [ ] Series
-- [ ] Member/School Icons
+  - [x] Schools
+  - [x] Units
+  - [x] Series
+- [ ] School/Unit Icons
   - [ ] LL
   - [ ] LLS
   - [ ] Nijigaku

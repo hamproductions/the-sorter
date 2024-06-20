@@ -10,7 +10,8 @@ import series from '../../../data/series.json';
 import units from '../../../data/units.json';
 
 import { HStack, Stack, Wrap } from 'styled-system/jsx';
-import { getSchoolName, getSeriesName, getUnitName, isValidFilter } from '~/utils/filter';
+import { getSchoolName, getSeriesName, getUnitName } from '~/utils/names';
+import { isValidFilter } from '~/utils/filter';
 
 export interface FilterType {
   series?: string[];

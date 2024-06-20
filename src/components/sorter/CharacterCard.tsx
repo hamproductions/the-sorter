@@ -7,7 +7,7 @@ import { Center, Stack, styled } from 'styled-system/jsx';
 import { getPicUrl } from '~/utils/assets';
 import type { Character } from '~/types';
 import { getCastName, getFullName } from '~/utils/character';
-import { getSchoolName } from '~/utils/filter';
+import { getSchoolName } from '~/utils/names';
 
 export function CharacterCard({
   character,
