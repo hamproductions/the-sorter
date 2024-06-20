@@ -31,7 +31,13 @@ function legacyPlugin(name, alias = name) {
 
 const config = tseslint.config(
   {
-    ignores: ['**/styled-system/*', '**/components/ui/**/*', '**/lib/**/*', '*.config.*']
+    ignores: [
+      '**/styled-system/*',
+      '**/components/ui/**/*',
+      '**/lib/**/*',
+      '*.config.*',
+      '*-setup.js'
+    ]
   },
   ...tseslint.configs.recommendedTypeChecked.map((c) => ({
     ...c

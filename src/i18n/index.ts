@@ -31,7 +31,7 @@ void i18n
   .init({
     lng: undefined,
     fallbackLng: 'en',
-    debug: import.meta.env.DEV,
+    debug: import.meta.env.DEV || import.meta.env.,
     resources,
     interpolation: {
       escapeValue: false // not needed for react as it escapes by default

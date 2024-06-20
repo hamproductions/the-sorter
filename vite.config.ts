@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react';
 import { join, resolve } from 'path';
 import vike from 'vike/plugin';
 import { cjsInterop } from 'vite-plugin-cjs-interop';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 const ReactCompilerConfig = {
   // compilationMode: 'annotation'
@@ -17,6 +18,7 @@ export default defineConfig({
     // noExternal: ['react']
   },
   plugins: [
+    tsconfigPaths(),
     partytownVite({
       dest: join(__dirname, 'dist', 'client', '~partytown')
     }),
@@ -33,8 +35,8 @@ export default defineConfig({
   base: process.env.PUBLIC_ENV__BASE_URL,
   resolve: {
     alias: {
-      ['styled-system']: join(__dirname, './styled-system/'),
-      ['~']: join(__dirname, './src/')
+      '~': new URL('./src/', import.meta.url).pathname
+      // ['styled-system']: join(__dirname, './styled-system/'),
       // 'three/addons': join(__dirname, '../../node_modules/three/examples/jsm/')
     }
   },
