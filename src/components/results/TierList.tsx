@@ -41,7 +41,6 @@ export function TierList({
     return tiers.map((tier, idx) => {
       const minRank = tierRanks?.[idx - 1] ?? 0;
       const maxRank = tierRanks?.[idx] ?? 0;
-      console.log(minRank, maxRank);
       return {
         label: tier,
         items: characters.filter(

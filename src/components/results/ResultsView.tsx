@@ -147,8 +147,10 @@ export function ResultsView({
         {displayDescription && <Text>{displayDescription}</Text>}
         {!readOnly && (
           <>
-            <Stack w="full">
-              <Text>{t('results.export_settings')}</Text>
+            <Stack w="full" textAlign="start">
+              <Text fontSize="lg" fontWeight="bold">
+                {t('results.export_settings')}
+              </Text>
               <Wrap>
                 <FormLabel htmlFor="title">{t('results.title')}</FormLabel>
                 <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} />

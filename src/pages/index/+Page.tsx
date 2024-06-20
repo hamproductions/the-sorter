@@ -18,6 +18,7 @@ import { getCharacterFromId } from '~/utils/character';
 import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
 import { Metadata } from '~/components/layout/Metadata';
 import { LoadingCharacterFilters } from '~/components/sorter/LoadingCharacterFilters';
+import { useDialogData } from '~/hooks/useDialogData';
 
 const ResultsView = lazy(() =>
   import('../../components/results/ResultsView').then((m) => ({ default: m.ResultsView }))
@@ -72,7 +73,11 @@ export function Page() {
     type: 'mid-sort' | 'ended';
     action: 'reset' | 'clear';
   }>();
-  const [showCharacterInfo, setShowCharacterInfo] = useState<Character>();
+  const {
+    data: showCharacterInfo,
+    isOpen: isShowCharacterInfo,
+    setData: setShowCharacterInfo
+  } = useDialogData<Character>();
 
   const charaList = useMemo(() => {
     return (state?.arr
@@ -356,7 +361,7 @@ export function Page() {
         <CharacterInfoDialog
           character={showCharacterInfo}
           isSeiyuu={seiyuu}
-          open={!!showCharacterInfo}
+          open={isShowCharacterInfo}
           onOpenChange={(e) => {
             if (!e.open) {
               return setShowCharacterInfo(undefined);

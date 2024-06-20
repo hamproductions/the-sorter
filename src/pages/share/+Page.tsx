@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { Suspense, lazy, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { decompressFromEncodedURIComponent } from 'lz-string';
 import { Link } from '../../components/ui/link';
@@ -16,10 +16,23 @@ import { Button } from '~/components/ui/button';
 import { getCharacterFromId } from '~/utils/character';
 import { Metadata } from '~/components/layout/Metadata';
 import type { TierListSettings } from '~/components/results/TierList';
+import { useDialogData } from '~/hooks/useDialogData';
+
+const CharacterInfoDialog = lazy(() =>
+  import('../../components/dialog/CharacterInfoDialog').then((m) => ({
+    default: m.CharacterInfoDialog
+  }))
+);
 
 export function Page() {
   const data = useData();
   const { t, i18n } = useTranslation();
+
+  const {
+    data: showCharacterInfo,
+    isOpen: isShowCharacterInfo,
+    setData: setShowCharacterInfo
+  } = useDialogData<Character>();
 
   const params = new URLSearchParams(import.meta.env.SSR ? '' : location.search);
   const urlSeiyuu = params.get('seiyuu');
@@ -40,7 +53,6 @@ export function Page() {
     tab?: 'default' | 'table' | 'grid' | 'tier';
   } = JSON.parse(urlData !== null ? decompressFromEncodedURIComponent(urlData) : '{}') ?? {};
 
-  console.log(shareDisplayData);
   const seiyuu = urlSeiyuu === 'true';
 
   const filters = {
@@ -96,8 +108,9 @@ export function Page() {
                 titlePrefix={titlePrefix}
                 characters={charaList}
                 isSeiyuu={seiyuu}
-                readOnly
                 shareDisplayData={shareDisplayData}
+                onSelectCharacter={(c) => setShowCharacterInfo(c)}
+                readOnly
                 w="full"
               />
               <Link href={getShareUrl()}>
@@ -107,6 +120,18 @@ export function Page() {
           )}
         </Stack>
       </Container>
+      <Suspense>
+        <CharacterInfoDialog
+          character={showCharacterInfo}
+          isSeiyuu={seiyuu}
+          open={isShowCharacterInfo}
+          onOpenChange={(e) => {
+            if (!e.open) {
+              return setShowCharacterInfo(undefined);
+            }
+          }}
+        />
+      </Suspense>
     </>
   );
 }

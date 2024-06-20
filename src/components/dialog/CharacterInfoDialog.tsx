@@ -40,7 +40,7 @@ export function CharacterInfoDialog(
   return (
     <Dialog.Root {...rest}>
       <Dialog.Backdrop />
-      <Dialog.Positioner>
+      <Dialog.Positioner py="6" px="4">
         <Dialog.Content
           style={{
             ['--color' as 'color']: (colorCode ?? seriesColor) as 'red',
