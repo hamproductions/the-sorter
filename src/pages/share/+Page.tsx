@@ -4,7 +4,7 @@ import { decompressFromEncodedURIComponent } from 'lz-string';
 import { Link } from '../../components/ui/link';
 import { Text } from '../../components/ui/text';
 import { useData } from '../../hooks/useData';
-import type { Character, WithRank } from '../../types';
+import type { Character } from '../../types';
 import school from '../../../data/school.json';
 import series from '../../../data/series.json';
 import units from '../../../data/units.json';
@@ -13,7 +13,7 @@ import { ResultsView } from '~/components/results/ResultsView';
 import { getFilterTitle } from '~/utils/filter';
 
 import { Button } from '~/components/ui/button';
-import { getCharacterFromId } from '~/utils/character';
+import { stateToCharacterList } from '~/utils/character';
 import { Metadata } from '~/components/layout/Metadata';
 import type { TierListSettings } from '~/components/results/TierList';
 import { useDialogData } from '~/hooks/useDialogData';
@@ -62,21 +62,9 @@ export function Page() {
   };
 
   const charaList = useMemo(() => {
-    return (results
-      ?.flatMap((ids, idx, arr) => {
-        const startRank = arr.slice(0, idx).reduce((p, c) => p + c.length, 1);
-        if (Array.isArray(ids)) {
-          return ids
-            .map((id) => ({ rank: startRank, ...getCharacterFromId(data, id, seiyuu) }))
-            .filter((d) => 'id' in d);
-        } else {
-          const chara = data.find((i) => i.id === (ids as string));
-          if (!chara) return [];
-          return [{ rank: startRank, ...chara }];
-        }
-      })
-      .filter((c) => !!c) ?? []) as WithRank<Character>[];
-  }, [results, data]);
+    if (!results) return [];
+    return stateToCharacterList(results, data, seiyuu);
+  }, [results, data, seiyuu]);
 
   const titlePrefix = getFilterTitle(filters, data, i18n.language) ?? t('defaultTitlePrefix');
   const title = t('title', {

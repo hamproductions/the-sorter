@@ -1,20 +1,26 @@
 import { useEffect, useState } from 'react';
 
 export const useDialogData = <T>() => {
-  const [data, setData] = useState<T>();
+  const [_data, setData] = useState<T>();
   const [displayData, _setDisplayData] = useState<T>();
+  const [isOpen, _setOpen] = useState<boolean>();
 
   useEffect(() => {
-    if (data === undefined) {
-      setTimeout(() => _setDisplayData(undefined), 200);
+    if (_data === undefined) {
+      _setOpen(false);
+      setTimeout(() => {
+        _setDisplayData(undefined);
+      }, 200);
     } else {
-      setTimeout(() => _setDisplayData(data), 50);
+      _setDisplayData(_data);
+
+      setTimeout(() => _setOpen(true), 50);
     }
-  }, [data]);
+  }, [_data]);
 
   return {
     data: displayData,
-    isOpen: !!data,
+    isOpen,
     setData
   };
 };

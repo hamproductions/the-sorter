@@ -1,5 +1,5 @@
 import type { Locale } from '~/i18n';
-import type { Character } from '~/types';
+import type { Character, WithRank } from '~/types';
 
 export const getCharacterFromId = (
   data: Character[],
@@ -19,6 +19,23 @@ export const getCharacterFromId = (
       ? chara.casts.filter((_, idx) => idx === (castId !== undefined ? Number(castId) : 0))
       : chara.casts
   };
+};
+
+export const stateToCharacterList = (state: string[][], data: Character[], isSeiyuu: boolean) => {
+  return (state
+    ?.flatMap((ids, idx, arr) => {
+      const startRank = arr.slice(0, idx).reduce((p, c) => p + c.length, 1);
+      if (Array.isArray(ids)) {
+        return ids
+          .map((id) => ({ rank: startRank, ...getCharacterFromId(data, id, isSeiyuu) }))
+          .filter((d) => 'id' in d);
+      } else {
+        const chara = data.find((i) => i.id === (ids as string));
+        if (!chara) return [];
+        return [{ rank: startRank, ...chara }];
+      }
+    })
+    .filter((c) => !!c) ?? []) as WithRank<Character>[];
 };
 
 export const getFullName = (character: Character, locale: Locale) => {

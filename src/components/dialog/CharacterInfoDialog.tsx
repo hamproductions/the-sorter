@@ -38,7 +38,7 @@ export function CharacterInfoDialog(
   const castName = casts && getCastName(casts[0], lang);
 
   return (
-    <Dialog.Root {...rest}>
+    <Dialog.Root lazyMount unmountOnExit {...rest}>
       <Dialog.Backdrop />
       <Dialog.Positioner py="6" px="4">
         <Dialog.Content

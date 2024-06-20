@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { CharacterIcon } from '../sorter/CharacterIcon';
 import { Text } from '../ui/text';
 import { Box, Center, Stack, Wrap, styled } from 'styled-system/jsx';
@@ -8,7 +9,7 @@ import type { Character, WithRank } from '~/types';
 import { getCastName, getFullName } from '~/utils/character';
 import { token } from 'styled-system/tokens';
 
-export function TierListItem({
+function _TierListItem({
   character,
   isSeiyuu,
   locale,
@@ -124,3 +125,5 @@ export function TierListItem({
     </Stack>
   );
 }
+
+export const TierListItem = memo(_TierListItem);

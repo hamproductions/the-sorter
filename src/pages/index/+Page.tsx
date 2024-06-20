@@ -10,15 +10,16 @@ import { Text } from '../../components/ui/text';
 import { useToaster } from '../../context/ToasterContext';
 import { useData } from '../../hooks/useData';
 import { useSortData } from '../../hooks/useSortData';
-import type { Character, WithRank } from '../../types';
+import type { Character } from '../../types';
 import { getCurrentItem } from '../../utils/sort';
 import type { ShareDisplayData } from '../../components/results/ResultsView';
 import { getFilterTitle, isValidFilter } from '~/utils/filter';
-import { getCharacterFromId } from '~/utils/character';
+import { stateToCharacterList } from '~/utils/character';
 import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
 import { Metadata } from '~/components/layout/Metadata';
 import { LoadingCharacterFilters } from '~/components/sorter/LoadingCharacterFilters';
 import { useDialogData } from '~/hooks/useDialogData';
+import { addPresetParams, serializeData } from '~/utils/share';
 
 const ResultsView = lazy(() =>
   import('../../components/results/ResultsView').then((m) => ({ default: m.ResultsView }))
@@ -80,20 +81,8 @@ export function Page() {
   } = useDialogData<Character>();
 
   const charaList = useMemo(() => {
-    return (state?.arr
-      ?.flatMap((ids, idx, arr) => {
-        const startRank = arr.slice(0, idx).reduce((p, c) => p + c.length, 1);
-        if (Array.isArray(ids)) {
-          return ids
-            .map((id) => ({ rank: startRank, ...getCharacterFromId(data, id, seiyuu) }))
-            .filter((d) => 'id' in d);
-        } else {
-          const chara = data.find((i) => i.id === (ids as string));
-          if (!chara) return [];
-          return [{ rank: startRank, ...chara }];
-        }
-      })
-      .filter((c) => !!c) ?? []) as WithRank<Character>[];
+    if (!state?.arr) return [];
+    return stateToCharacterList(state.arr, data, seiyuu);
   }, [state?.arr, data, seiyuu]);
 
   const { left: leftItem, right: rightItem } =
@@ -109,16 +98,7 @@ export function Page() {
 
   const shareUrl = async () => {
     if (!isValidFilter(filters)) return;
-    const params = new URLSearchParams();
-    for (const key of ['series', 'units', 'school'] as const) {
-      const list = filters?.[key];
-      if (list && list?.length > 0) {
-        list.forEach((item) => params.append(key, item));
-      }
-    }
-    if (seiyuu) {
-      params.append('seiyuu', seiyuu.toString());
-    }
+    const params = addPresetParams(new URLSearchParams(), filters, seiyuu);
     const url = `${location.origin}${location.pathname}?${params.toString()}`;
     try {
       await navigator.clipboard.writeText(url);
@@ -128,19 +108,8 @@ export function Page() {
 
   const shareResultsUrl = async (shareData: ShareDisplayData) => {
     if (!isValidFilter(filters)) return;
-    const params = new URLSearchParams();
-    for (const key of ['series', 'units', 'school'] as const) {
-      const list = filters?.[key];
-      if (list && list?.length > 0) {
-        list.forEach((item) => params.append(key, item));
-      }
-    }
-    if (seiyuu) {
-      params.append('seiyuu', seiyuu.toString());
-    }
-    const data = { ...shareData, results: state?.arr ?? undefined };
-    const compress = (await import('lz-string')).compressToEncodedURIComponent;
-    params.append('data', compress(JSON.stringify(data)));
+    const params = addPresetParams(new URLSearchParams(), filters, seiyuu);
+    params.append('data', await serializeData({ ...shareData, results: state?.arr ?? undefined }));
     const url = `${location.origin}${
       import.meta.env.PUBLIC_ENV__BASE_URL ?? ''
     }/share?${params.toString()}`;
@@ -160,6 +129,7 @@ export function Page() {
   }, []);
 
   const isSorting = !!state;
+
   const handleStart = () => {
     if (isSorting) {
       setShowConfirmDialog({
@@ -312,8 +282,8 @@ export function Page() {
                   titlePrefix={titlePrefix}
                   characters={charaList}
                   isSeiyuu={seiyuu}
-                  onShareResults={(data) => void shareResultsUrl(data)}
-                  onSelectCharacter={(c) => setShowCharacterInfo(c)}
+                  onShareResults={void shareResultsUrl}
+                  onSelectCharacter={setShowCharacterInfo}
                   w="full"
                 />
               </Suspense>

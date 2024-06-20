@@ -12,6 +12,7 @@
     "ci:check": "bun lint --format json --output-file lint_report.json && bun type-check",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
+    "fix": "bun lint:fix",
     "preview": "vite preview",
     "prepare": "panda codegen",
     "test": "vitest",
