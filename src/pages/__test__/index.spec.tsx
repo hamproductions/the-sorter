@@ -1,13 +1,12 @@
 import '@testing-library/jest-dom/vitest';
 
 import { beforeAll, describe, expect, it, vi } from 'vitest';
-import { render, screen, waitForElementToBeRemoved } from '../../__test__/utils';
+import { render, waitForElementToBeRemoved } from '../../__test__/utils';
 import { Page } from '../index/+Page';
 
 beforeAll(async () => {
   await import('../../components/sorter/CharacterFilters');
   await import('../../components/dialog/ConfirmDialog');
-  vi.timeout;
 });
 
 describe('Home Page', () => {
