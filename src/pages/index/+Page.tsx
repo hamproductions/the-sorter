@@ -282,7 +282,7 @@ export function Page() {
                   titlePrefix={titlePrefix}
                   characters={charaList}
                   isSeiyuu={seiyuu}
-                  onShareResults={void shareResultsUrl}
+                  onShareResults={(results) => void shareResultsUrl(results)}
                   onSelectCharacter={setShowCharacterInfo}
                   w="full"
                 />

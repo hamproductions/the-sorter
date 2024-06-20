@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useMemo } from 'react';
+import { Fragment, useMemo } from 'react';
 import { Text } from '../ui/text';
 import { TierListItem } from './TierListItem';
 import { Grid, GridItem, Stack } from 'styled-system/jsx';
@@ -62,9 +62,9 @@ export function TierList({
     >
       {data
         .filter(({ items }) => items.length > 0)
-        .map(({ label, items }) => {
+        .map(({ label, items }, index) => {
           return (
-            <>
+            <Fragment key={index}>
               <Stack
                 justifyContent="flex-start"
                 borderRight="1px solid"
@@ -111,7 +111,7 @@ export function TierList({
                   );
                 })}
               </Grid>
-            </>
+            </Fragment>
           );
         })}
     </Grid>
