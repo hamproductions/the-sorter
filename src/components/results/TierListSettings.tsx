@@ -25,10 +25,15 @@ export function TierListSettings({
   const { tiers, showName, showRank, showInfo, tierRanks = [] } = settings;
 
   useEffect(() => {
-    if (tiers.length !== tierRanks.length || max(tierRanks) !== count) {
+    if (max(tierRanks) !== count || tiers.length > tierRanks.length) {
       setSettings({
         ...settings,
         tierRanks: tiers.map((_, idx) => Math.round(((idx + 1) / tiers.length) * count))
+      });
+    } else if (tierRanks.length > tiers.length) {
+      setSettings({
+        ...settings,
+        tierRanks: [...tierRanks.slice(0, tiers.length - 1), count]
       });
     }
   }, [tiers, count]);
@@ -95,6 +100,7 @@ export function TierListSettings({
         })}
         <Button
           variant="solid"
+          disabled={count === tiers.length}
           onClick={() =>
             setSettings({
               ...settings,
