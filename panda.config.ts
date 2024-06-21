@@ -52,6 +52,13 @@ const config = defineConfig({
     jsx: 'styled-system/jsx'
   },
 
+  conditions: {
+    extend: {
+      dark: ['&.dark, .dark &'],
+      light: ['&.light, .light &']
+    }
+  },
+
   lightningcss: true
 });
 

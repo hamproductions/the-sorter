@@ -14,7 +14,9 @@ export function ColorModeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (colorMode === 'dark') {
       document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
     } else {
+      document.documentElement.classList.add('light');
       document.documentElement.classList.remove('dark');
     }
     if (colorMode !== undefined) return;
@@ -26,9 +28,25 @@ export function ColorModeProvider({ children }: { children: ReactNode }) {
   }, [colorMode]);
 
   return (
-    <ColorModeContext.Provider value={{ colorMode, setColorMode }}>
-      {children}
-    </ColorModeContext.Provider>
+    <>
+      <script
+        lang="js"
+        dangerouslySetInnerHTML={{
+          __html: `
+            const savedSettings = localStorage.getItem('color-mode')
+            if (savedSettings !== null) {
+              document.documentElement.classList.add(savedSettings === '"dark"' ? 'dark': 'light');
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+              document.documentElement.classList.add('dark');
+              localStorage.setItem("color-mode", '"dark"')
+            } 
+          `
+        }}
+      />
+      <ColorModeContext.Provider value={{ colorMode, setColorMode }}>
+        {children}
+      </ColorModeContext.Provider>
+    </>
   );
 }
 
