@@ -45,11 +45,11 @@
     "table": "表",
     "grid": "グリッド",
     "ranking": "ランキング",
-    "tierlist": "ティタリスト",
+    "tierlist": "ティアリスト",
     "results_title": "{{ titlePrefix }}　{{ sortType }}{{ type }}",
     "default_results_title": "ラブライブシリーズ　{{ sortType }}{{ type }}",
     "generated_at": "作成日",
-    "tier": "ティタリスト",
+    "tier": "ティアリスト",
     "settings": {
       "tier": {
         "settings": "Tier設定",
