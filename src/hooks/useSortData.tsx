@@ -1,5 +1,6 @@
 import groupBy from 'lodash-es/groupBy';
 import { useCallback, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useData } from './useData';
 import { useLocalStorage } from './useLocalStorage';
 import { useSorter } from './useSorter';
@@ -9,8 +10,10 @@ import type { Character } from '~/types';
 import { hasFilter, isValidFilter, matchFilter } from '~/utils/filter';
 
 export const useSortData = () => {
+  const { t } = useTranslation();
   const characters = useData();
   const [seiyuu, setSeiyuu] = useLocalStorage('seiyuu-mode', false);
+  const [noTieMode, setNoTieMode] = useLocalStorage('dd-mode', false);
   const [filters, setFilters] = useLocalStorage<FilterType>('filters', undefined);
   const listToSort = useMemo(() => {
     const charaSeiyuu = seiyuu
@@ -58,9 +61,14 @@ export const useSortData = () => {
   // }, [listToSort]);
 
   const handleTie = useCallback(() => {
-    toast?.('ヒトリダケナンテエラベナイヨー');
-    tie();
-  }, [toast, tie]);
+    if (!noTieMode) {
+      toast?.('ヒトリダケナンテエラベナイヨー');
+      tie();
+    } else {
+      //TODO: somehow add a pic
+      toast?.(t('toast.tie_not_allowed'), { type: 'error' });
+    }
+  }, [toast, tie, noTieMode, t]);
 
   useEffect(() => {
     const handleKeystroke = (e: KeyboardEvent) => {
@@ -95,6 +103,8 @@ export const useSortData = () => {
   return {
     seiyuu: seiyuu ?? false,
     setSeiyuu,
+    noTieMode: noTieMode ?? false,
+    setNoTieMode,
     init,
     left,
     right,

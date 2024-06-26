@@ -56,6 +56,8 @@ export function Page() {
   const {
     seiyuu,
     setSeiyuu,
+    noTieMode,
+    setNoTieMode,
     init,
     left,
     right,
@@ -169,13 +171,22 @@ export function Page() {
                 <CharacterFilters filters={filters} setFilters={setFilters} />
               )}
             </Suspense>
-            <Switch
-              checked={seiyuu}
-              disabled={isSorting}
-              onCheckedChange={(e) => setSeiyuu(e.checked)}
-            >
-              {t('settings.seiyuu')}
-            </Switch>
+            <Wrap>
+              <Switch
+                checked={seiyuu}
+                disabled={isSorting}
+                onCheckedChange={(e) => setSeiyuu(e.checked)}
+              >
+                {t('settings.seiyuu')}
+              </Switch>
+              <Switch
+                checked={noTieMode}
+                disabled={isSorting}
+                onCheckedChange={(e) => setNoTieMode(e.checked)}
+              >
+                {t('settings.no_tie_mode')}
+              </Switch>
+            </Wrap>
           </>
         )}
         <Text fontSize="sm" fontWeight="bold">
@@ -235,6 +246,7 @@ export function Page() {
                     <Button
                       size={{ base: '2xl', md: 'lg' }}
                       onClick={() => tie()}
+                      disabled={noTieMode}
                       flex={{ base: 1, md: 'unset' }}
                     >
                       {t('sort.tie')}
@@ -257,7 +269,10 @@ export function Page() {
                       <Text>
                         <Kbd>→</Kbd>: {t('sort.pick_right')}
                       </Text>
-                      <Text>
+                      <Text
+                        data-disabled={noTieMode === true || undefined}
+                        textDecoration={{ _disabled: 'line-through' }}
+                      >
                         <Kbd>↓</Kbd>: {t('sort.tie')}
                       </Text>
                       <Text>

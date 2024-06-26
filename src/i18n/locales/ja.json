@@ -14,7 +14,8 @@
     "school": "学校",
     "units": "ユニット",
     "select_all": "全部を選択する",
-    "deselect_all": "クリアする"
+    "deselect_all": "クリアする",
+    "no_tie_mode": "DD禁止モード"
   },
   "sort": {
     "start": "開始",
@@ -66,7 +67,8 @@
   "toast": {
     "url_copied": "URLをコピーしました",
     "screenshot_copied": "画像をコピーしました",
-    "generating_screenshot": "画像生成しています…"
+    "generating_screenshot": "画像生成しています…",
+    "tie_not_allowed": "DDはダメです。"
   },
   "share": {
     "copy_text": "僕のラブライブシリーズランキングをみて！",

@@ -11,6 +11,29 @@ beforeAll(async () => {
   await import('../../components/dialog/ConfirmDialog');
 });
 
+const selectPreset = async (container: RenderResult, user: UserEvent) => {
+  const { findByText } = container;
+  await user.click(await findByText('Cerise Bouquet'));
+  expect(await findByText('3 to be sorted')).toBeInTheDocument();
+};
+
+const selectCurrentItem = async (
+  container: RenderResult,
+  user: UserEvent,
+  sortOrder = ['Nirei', 'Hanamiya', 'Sakurai']
+) => {
+  const { findAllByText } = container;
+  const divs = await findAllByText(/(Nirei|Hanamiya|Sakurai)/i);
+  expect(divs).toHaveLength(2);
+  const index =
+    sortOrder.findIndex((name) => divs[0].textContent?.includes(name)) >
+    sortOrder.findIndex((name) => divs[1].textContent?.includes(name))
+      ? 1
+      : 0;
+  await user.click(divs[index]);
+  return divs;
+};
+
 describe('Home Page', () => {
   it('Renders', async () => {
     const [{ findByText }] = await render(<Page />);
@@ -56,33 +79,22 @@ describe('Home Page', () => {
         await user.click(await findByLabelText('Do you like seiyuu ? (Seiyuu Mode)'));
         expect(await findByText('4 to be sorted')).toBeInTheDocument();
       });
+
+      it('DD mode selection', async () => {
+        const [container, user] = await render(<Page />);
+        const { findByText } = container;
+        await selectPreset(container, user);
+        await user.click(await findByText('No DD Allowed Mode (Hard)', {}, {}));
+        await user.click(await findByText('Start', {}, {}));
+        expect(await findByText('Tie')).toBeDisabled();
+        expect(await findByText('0%')).toBeVisible();
+        await user.keyboard('[ArrowDown]');
+        expect(await findByText('0%')).toBeVisible();
+      });
     });
   });
 
   describe('Sorting Process', () => {
-    const selectPreset = async (container: RenderResult, user: UserEvent) => {
-      const { findByText } = container;
-      await user.click(await findByText('Cerise Bouquet'));
-      expect(await findByText('3 to be sorted')).toBeInTheDocument();
-    };
-
-    const selectCurrentItem = async (
-      container: RenderResult,
-      user: UserEvent,
-      sortOrder = ['Nirei', 'Hanamiya', 'Sakurai']
-    ) => {
-      const { findAllByText } = container;
-      const divs = await findAllByText(/(Nirei|Hanamiya|Sakurai)/i);
-      expect(divs).toHaveLength(2);
-      const index =
-        sortOrder.findIndex((name) => divs[0].textContent?.includes(name)) >
-        sortOrder.findIndex((name) => divs[1].textContent?.includes(name))
-          ? 1
-          : 0;
-      await user.click(divs[index]);
-      return divs;
-    };
-
     it('Sort Normally', async () => {
       const [container, user] = await render(<Page />);
       const { findByText, findAllByText, queryByText } = container;

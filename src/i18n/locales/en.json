@@ -14,7 +14,8 @@
     "school": "School",
     "units": "Units",
     "select_all": "Select All",
-    "deselect_all": "Deselect All"
+    "deselect_all": "Deselect All",
+    "no_tie_mode": "No DD Allowed Mode (Hard)"
   },
   "sort": {
     "start": "Start",
@@ -66,7 +67,8 @@
   "toast": {
     "url_copied": "URL Copied to Clipboard",
     "screenshot_copied": "Screenshot Copied to Clipboard",
-    "generating_screenshot": "Generating Screenshot..."
+    "generating_screenshot": "Generating Screenshot...",
+    "tie_not_allowed": "DD is not Allowed here."
   },
   "dialog": {
     "ended_confirm": {

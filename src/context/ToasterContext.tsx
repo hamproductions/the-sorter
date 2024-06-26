@@ -5,7 +5,10 @@ import { FaXmark } from 'react-icons/fa6';
 import { IconButton } from '~/components/ui/icon-button';
 import * as Toast from '~/components/ui/toast';
 
-const ToasterContext = createContext<{ toast?: (msg: ReactNode) => void }>({});
+type ToastOptions = Parameters<typeof toaster.create>[0];
+const ToasterContext = createContext<{ toast?: (msg: ReactNode, options?: ToastOptions) => void }>(
+  {}
+);
 
 const toaster = createToaster({
   placement: 'bottom-end',
@@ -17,10 +20,11 @@ export function ToasterProvider({ children }: { children: ReactNode }) {
   return (
     <ToasterContext.Provider
       value={{
-        toast: (message: ReactNode) => {
+        toast: (message, options) => {
           toaster.create({
             description: message,
-            type: 'info'
+            type: 'info',
+            ...options
           });
         }
       }}
@@ -31,7 +35,7 @@ export function ToasterProvider({ children }: { children: ReactNode }) {
           {(toast) => {
             return (
               <Toast.Root>
-                {/* <Toast.Title>{toast.title}</Toast.Title> */}
+                <Toast.Title>{toast.title}</Toast.Title>
                 <Toast.Description>{toast.description}</Toast.Description>
                 <Toast.CloseTrigger asChild>
                   <IconButton size="sm" variant="link">

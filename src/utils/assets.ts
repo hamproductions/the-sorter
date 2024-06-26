@@ -5,7 +5,11 @@ export const assetsURL = import.meta.env.PUBLIC_ENV__BASE_URL + 'assets/';
 export const getAssetUrl = (path: string) => {
   return join(import.meta.env.PUBLIC_ENV__BASE_URL ?? '', path);
 };
-export const getPicUrl = (id: string, type: 'seiyuu' | 'icons' | 'character' = 'character') => {
+export const getPicUrl = (
+  id: string,
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  type: 'seiyuu' | 'icons' | 'character' | string = 'character'
+) => {
   const prefix = (() => {
     switch (type) {
       case 'seiyuu':
@@ -14,6 +18,8 @@ export const getPicUrl = (id: string, type: 'seiyuu' | 'icons' | 'character' = '
         return 'assets/icons';
       case 'character':
         return 'assets/character';
+      default:
+        return 'assets/';
     }
   })();
   const photoId = type !== 'seiyuu' ? id.split('-')[0] : id;
