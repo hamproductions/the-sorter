@@ -1,13 +1,14 @@
 import '@testing-library/jest-dom/vitest';
-import { cleanup, configure } from '@testing-library/react';
+import { cleanup, configure, screen } from '@testing-library/react';
+import './src/index.css';
 
-import { afterEach, beforeAll, beforeEach } from 'vitest';
+import { afterEach, beforeAll, beforeEach, onTestFailed } from 'vitest';
 
 beforeAll(() => {
   configure({
-    // asyncUtilTimeout: import.meta.env.CI === true ? undefined : 5000 
-  })
-})
+    // asyncUtilTimeout: import.meta.env.CI === true ? undefined : 5000,
+  });
+});
 beforeEach(async () => {
   window.PointerEvent = MouseEvent;
   delete window.location;
@@ -17,5 +18,10 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
+  onTestFailed(() => {
+    // debug();
+    // screen.debug();
+  });
+
   await cleanup(); // clear testing data after each test run
 });

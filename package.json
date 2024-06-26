@@ -17,6 +17,8 @@
     "prepare": "panda codegen",
     "test": "vitest",
     "test:ui": "vitest --ui --coverage.enabled",
+    "test:preview": "vitest-preview && open https://localhost:5006",
+    "test:dev": "bunx concurrently \"TEST_PREVIEW=true bun test:ui\" \"bun test:preview\"",
     "ci:test": "vitest --coverage.enabled",
     "analyze": "bunx vite-bundle-visualizer",
     "codegen:components": "bunx @parkui/cli add --all"
@@ -80,6 +82,7 @@
     "vite": "^5.3.1",
     "vite-tsconfig-paths": "^4.3.2",
     "vitest": "^1.6.0",
+    "vitest-preview": "^0.0.1",
     "webp-converter": "^2.3.3"
   }
 }

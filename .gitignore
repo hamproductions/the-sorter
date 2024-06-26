@@ -32,3 +32,4 @@ scripts
 *_report.json
 
 coverage*
+.vitest-preview

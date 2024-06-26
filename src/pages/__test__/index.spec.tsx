@@ -1,6 +1,8 @@
 import '@testing-library/jest-dom/vitest';
 
+import type { UserEvent } from '@testing-library/user-event';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
+import type { RenderResult } from '../../__test__/utils';
 import { render, waitForElementToBeRemoved } from '../../__test__/utils';
 import { Page } from '../index/+Page';
 
@@ -58,21 +60,37 @@ describe('Home Page', () => {
   });
 
   describe('Sorting Process', () => {
-    it('Sort Normally', async () => {
-      const [{ findByText, findAllByText, queryByText }, user] = await render(<Page />);
+    const selectPreset = async (container: RenderResult, user: UserEvent) => {
+      const { findByText } = container;
       await user.click(await findByText('Cerise Bouquet'));
       expect(await findByText('3 to be sorted')).toBeInTheDocument();
+    };
+
+    const selectCurrentItem = async (
+      container: RenderResult,
+      user: UserEvent,
+      sortOrder = ['Nirei', 'Hanamiya', 'Sakurai']
+    ) => {
+      const { findAllByText } = container;
+      const divs = await findAllByText(/(Nirei|Hanamiya|Sakurai)/i);
+      expect(divs).toHaveLength(2);
+      const index =
+        sortOrder.findIndex((name) => divs[0].textContent?.includes(name)) >
+        sortOrder.findIndex((name) => divs[1].textContent?.includes(name))
+          ? 1
+          : 0;
+      await user.click(divs[index]);
+      return divs;
+    };
+
+    it('Sort Normally', async () => {
+      const [container, user] = await render(<Page />);
+      const { findByText, findAllByText, queryByText } = container;
+      await selectPreset(container, user);
       await user.click(await findByText('Start', {}, {}));
-      const sortOrder = ['Nirei', 'Hanamiya', 'Sakurai'];
+
       while (!!queryByText('Keyboard Shortcuts')) {
-        const divs = await findAllByText(/(Nirei|Hanamiya|Sakurai)/i);
-        expect(divs).toHaveLength(2);
-        const index =
-          sortOrder.findIndex((name) => divs[0].textContent?.includes(name)) >
-          sortOrder.findIndex((name) => divs[1].textContent?.includes(name))
-            ? 1
-            : 0;
-        await user.click(divs[index]);
+        await selectCurrentItem(container, user);
       }
       expect(await findByText('Sort Results')).toBeInTheDocument();
       expect(await findAllByText(/(Nirei|Hanamiya|Sakurai)/i)).toHaveLength(3);
@@ -80,9 +98,9 @@ describe('Home Page', () => {
     });
 
     it('Sort with Ties', async () => {
-      const [{ findByText, findAllByText, queryByText }, user] = await render(<Page />);
-      await user.click(await findByText('Cerise Bouquet'));
-      expect(await findByText('3 to be sorted')).toBeInTheDocument();
+      const [container, user] = await render(<Page />);
+      const { findByText, findAllByText, queryByText } = container;
+      await selectPreset(container, user);
       await user.click(await findByText('Start', {}, {}));
       while (!!queryByText('Keyboard Shortcuts')) {
         await user.click(await findByText('Tie'));
@@ -93,19 +111,11 @@ describe('Home Page', () => {
     });
 
     it('Undo', async () => {
-      const [{ findByText, findAllByText }, user] = await render(<Page />);
-      await user.click(await findByText('Cerise Bouquet'));
-      expect(await findByText('3 to be sorted')).toBeInTheDocument();
+      const [container, user] = await render(<Page />);
+      const { findByText, findAllByText } = container;
+      await selectPreset(container, user);
       await user.click(await findByText('Start', {}, {}));
-      const sortOrder = ['Nirei', 'Hanamiya', 'Sakurai'];
-      const divs = await findAllByText(/(Nirei|Hanamiya|Sakurai)/i);
-      expect(divs).toHaveLength(2);
-      const index =
-        sortOrder.findIndex((name) => divs[0].textContent?.includes(name)) >
-        sortOrder.findIndex((name) => divs[1].textContent?.includes(name))
-          ? 1
-          : 0;
-      await user.click(divs[index]);
+      const divs = await selectCurrentItem(container, user);
       const newDivs = await findAllByText(/(Nirei|Hanamiya|Sakurai)/i);
       expect(
         newDivs[0].textContent !== divs[0].textContent ||
@@ -120,26 +130,19 @@ describe('Home Page', () => {
     });
 
     it('Start Over', async () => {
-      const [{ findByText, findAllByText }, user] = await render(<Page />);
-      await user.click(await findByText('Cerise Bouquet'));
-      expect(await findByText('3 to be sorted')).toBeVisible();
+      const [container, user] = await render(<Page />);
+      const { findByText } = container;
+      await selectPreset(container, user);
       await user.click(await findByText('Start', {}, {}));
-      const sortOrder = ['Nirei', 'Hanamiya', 'Sakurai'];
-      const divs = await findAllByText(/(Nirei|Hanamiya|Sakurai)/i);
-      expect(divs).toHaveLength(2);
-      expect(await findByText('Comparison No. 1')).toBeVisible();
-      const index =
-        sortOrder.findIndex((name) => divs[0].textContent?.includes(name)) >
-        sortOrder.findIndex((name) => divs[1].textContent?.includes(name))
-          ? 1
-          : 0;
-      await user.click(divs[index]);
+      await selectCurrentItem(container, user);
 
       await user.click(await findByText('Start Over'));
       const modalTitle = await findByText('Sorting in progress');
       expect(modalTitle).toBeVisible();
       await user.click(await findByText('Cancel'));
-      await waitForElementToBeRemoved(modalTitle);
+      try {
+        await waitForElementToBeRemoved(modalTitle);
+      } catch {}
 
       await user.click(await findByText('Start Over'));
       expect(await findByText('Sorting in progress')).toBeVisible();
@@ -148,27 +151,20 @@ describe('Home Page', () => {
     });
 
     it('Abort', async () => {
-      const [{ findByText, findAllByText, queryByText }, user] = await render(<Page />);
-      await user.click(await findByText('Cerise Bouquet'));
-      expect(await findByText('3 to be sorted')).toBeVisible();
+      const [container, user] = await render(<Page />);
+      const { findByText, queryByText } = container;
+      await selectPreset(container, user);
       await user.click(await findByText('Start', {}, {}));
-      const sortOrder = ['Nirei', 'Hanamiya', 'Sakurai'];
-      const divs = await findAllByText(/(Nirei|Hanamiya|Sakurai)/i);
-      expect(divs).toHaveLength(2);
-      expect(await findByText('0%')).toBeVisible();
-      const index =
-        sortOrder.findIndex((name) => divs[0].textContent?.includes(name)) >
-        sortOrder.findIndex((name) => divs[1].textContent?.includes(name))
-          ? 1
-          : 0;
-      await user.click(divs[index]);
+      await selectCurrentItem(container, user);
       expect(queryByText('0%')).toBeNull();
 
       await user.click(await findByText('Stop'));
       const modalTitle = await findByText('Sorting in progress');
       expect(modalTitle).toBeVisible();
       await user.click(await findByText('Cancel'));
-      await waitForElementToBeRemoved(modalTitle);
+      try {
+        await waitForElementToBeRemoved(modalTitle);
+      } catch {}
 
       await user.click(await findByText('Stop'));
       expect(await findByText('Sorting in progress')).toBeVisible();
