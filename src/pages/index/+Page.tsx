@@ -1,6 +1,9 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
+//@ts-expect-error @types/react-dom not updated for 19 yet
+import { preload } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { FaShare } from 'react-icons/fa6';
+import type { ShareDisplayData } from '../../components/results/ResultsView';
 import { CharacterCard } from '../../components/sorter/CharacterCard';
 import { Button } from '../../components/ui/button';
 import { Kbd } from '../../components/ui/kbd';
@@ -12,14 +15,15 @@ import { useData } from '../../hooks/useData';
 import { useSortData } from '../../hooks/useSortData';
 import type { Character } from '../../types';
 import { getCurrentItem } from '../../utils/sort';
-import type { ShareDisplayData } from '../../components/results/ResultsView';
+import { addPresetParams, serializeData } from '~/utils/share';
+import { getNextItems } from '~/utils/preloading';
 import { getFilterTitle, isValidFilter } from '~/utils/filter';
 import { stateToCharacterList } from '~/utils/character';
-import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
-import { Metadata } from '~/components/layout/Metadata';
-import { LoadingCharacterFilters } from '~/components/sorter/LoadingCharacterFilters';
+import { getPicUrl } from '~/utils/assets';
 import { useDialogData } from '~/hooks/useDialogData';
-import { addPresetParams, serializeData } from '~/utils/share';
+import { LoadingCharacterFilters } from '~/components/sorter/LoadingCharacterFilters';
+import { Metadata } from '~/components/layout/Metadata';
+import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
 
 const ResultsView = lazy(() =>
   import('../../components/results/ResultsView').then((m) => ({ default: m.ResultsView }))
@@ -129,6 +133,18 @@ export function Page() {
       setSeiyuu(urlSeiyuu === 'true');
     }
   }, []);
+
+  // Preload Assets
+  useEffect(() => {
+    if (!state) return;
+    const nextItems = getNextItems(state);
+    for (const item of nextItems) {
+      preload(getPicUrl(item, seiyuu ? 'seiyuu' : 'character'), { as: 'image' });
+      if (listToSort.find((c) => c.id === item)?.hasIcon) {
+        preload(getPicUrl(item, 'icons'), { as: 'image' });
+      }
+    }
+  }, [state]);
 
   const isSorting = !!state;
 
