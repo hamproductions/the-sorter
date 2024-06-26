@@ -55,7 +55,7 @@ export function TierList({
   return (
     <Grid
       gap="0"
-      gridTemplateColumns="100px 1fr"
+      gridTemplateColumns="120px 1fr"
       border="1px solid"
       borderColor="border.default"
       rounded="l1"
@@ -73,6 +73,7 @@ export function TierList({
                 borderBottomColor="border.default"
                 minW="100px"
                 py="4"
+                px="2"
               >
                 <Text w="full" textAlign="center" fontSize="xl" fontWeight="bold" whiteSpace="wrap">
                   {label}

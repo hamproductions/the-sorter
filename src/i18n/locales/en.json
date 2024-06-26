@@ -57,7 +57,9 @@
         "delete_tier": "Delete Tier",
         "show_rank": "Show Rank",
         "show_name": "Show Name",
-        "show_info": "Show Info"
+        "show_info": "Show Info",
+        "tier_name": "Tier Name",
+        "ranks": "Ranks"
       }
     }
   },

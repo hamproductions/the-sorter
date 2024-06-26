@@ -57,7 +57,9 @@
         "delete_tier": "Tierを削除する",
         "show_rank": "順位を表示する",
         "show_name": "名前を表示する",
-        "show_info": "情報を表示する"
+        "show_info": "情報を表示する",
+        "tier_name": "Tier名",
+        "start_rank": "ランク"
       }
     }
   },

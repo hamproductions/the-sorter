@@ -1,5 +1,5 @@
 import { max, sortBy } from 'lodash-es';
-import { useEffect } from 'react';
+import { Fragment, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaPlus, FaTrash } from 'react-icons/fa6';
 import { Button } from '../ui/button';
@@ -43,11 +43,18 @@ export function TierListSettings({
         {t('results.settings.tier.settings')}
       </Text>
       <Text>Experimental Feature, Ideas are welcome.</Text>
-      <Grid gridTemplateColumns="1fr ">
+      <Grid gridTemplateColumns="1fr minmax(auto, 150px) auto">
+        <Text width="full" fontSize="sm" fontWeight="bold">
+          {t('results.settings.tier.tier_name')}
+        </Text>
+        <Text textAlign="center" fontSize="sm" fontWeight="bold">
+          {t('results.settings.tier.ranks')}
+        </Text>
+        <Text></Text>
         {sortBy(tiers, 'percentile').map((tier, index) => {
           const key = `${index}`;
           return (
-            <HStack key={key}>
+            <Fragment key={key}>
               <Input
                 size="sm"
                 value={tier}
@@ -58,30 +65,35 @@ export function TierListSettings({
                   })
                 }
               />
-              <NumberInput
-                disabled={index === 0}
-                value={(tierRanks[index - 1] ?? 0)?.toString()}
-                min={(tierRanks[index - 2] ?? 0) + 1}
-                max={tierRanks[index] - 1}
-                onValueChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    tierRanks: tierRanks.map((r, idx) => (idx === index - 1 ? Number(e.value) : r))
-                  })
-                }
-              ></NumberInput>
-              <NumberInput
-                disabled={index === tierRanks.length - 1}
-                min={(tierRanks[index - 1] ?? 0) + 1}
-                value={tierRanks[index]?.toString()}
-                max={(tierRanks[index + 1] ?? count + 1) - 1}
-                onValueChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    tierRanks: tierRanks.map((r, idx) => (idx === index ? Number(e.value) : r))
-                  })
-                }
-              ></NumberInput>
+              <HStack gap="1" flexDirection={{ base: 'column', md: 'row' }} w="full">
+                <NumberInput
+                  disabled={index === 0}
+                  value={(tierRanks[index - 1] ?? 0)?.toString()}
+                  min={(tierRanks[index - 2] ?? 0) + 1}
+                  max={tierRanks[index] - 1}
+                  onValueChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      tierRanks: tierRanks.map((r, idx) =>
+                        idx === index - 1 ? Number(e.value) : r
+                      )
+                    })
+                  }
+                ></NumberInput>
+                <Text>-</Text>
+                <NumberInput
+                  disabled={index === tierRanks.length - 1}
+                  min={(tierRanks[index - 1] ?? 0) + 1}
+                  value={tierRanks[index]?.toString()}
+                  max={(tierRanks[index + 1] ?? count + 1) - 1}
+                  onValueChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      tierRanks: tierRanks.map((r, idx) => (idx === index ? Number(e.value) : r))
+                    })
+                  }
+                ></NumberInput>
+              </HStack>
               <IconButton
                 aria-label={t('results.settings.tier.delete_tier')}
                 variant="subtle"
@@ -95,7 +107,7 @@ export function TierListSettings({
               >
                 <FaTrash />
               </IconButton>
-            </HStack>
+            </Fragment>
           );
         })}
         <Button
@@ -107,6 +119,7 @@ export function TierListSettings({
               tiers: [...settings.tiers, 'New Tier']
             })
           }
+          size="sm"
           w="fit-content"
         >
           <FaPlus /> {t('results.settings.tier.new_tier')}
