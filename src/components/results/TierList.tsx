@@ -81,6 +81,7 @@ export function TierList({
               </Stack>
               <Grid
                 flex="1"
+                alignItems="flex-start"
                 gridGap={2}
                 gridTemplateColumns="repeat(auto-fill, minmax(100px, 1fr))"
                 borderBottom="1px solid"
