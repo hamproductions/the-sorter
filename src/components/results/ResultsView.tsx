@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { FaCopy, FaDownload, FaShare } from 'react-icons/fa6';
 
 import { useTranslation } from 'react-i18next';
@@ -16,10 +16,12 @@ import { RankingView } from './RankingView';
 import type { TierListSettings as TierListSettingsData } from './TierList';
 import { DEFAULT_TIERS, TierList } from './TierList';
 import { TierListSettings } from './TierListSettings';
-import type { Character, WithRank } from '~/types';
+import { EditResultsModal } from './EditResultsModal';
+import type { Character } from '~/types';
 import { useLocalStorage } from '~/hooks/useLocalStorage';
 import { useToaster } from '~/context/ToasterContext';
 import { Box, Stack, Wrap } from 'styled-system/jsx';
+import { stateToCharacterList } from '~/utils/character';
 export type ShareDisplayData = {
   title: string;
   description?: string;
@@ -29,7 +31,8 @@ export type ShareDisplayData = {
 
 export function ResultsView({
   titlePrefix,
-  characters,
+  charactersData,
+  order,
   isSeiyuu,
   readOnly,
   shareDisplayData,
@@ -38,7 +41,8 @@ export function ResultsView({
   ...props
 }: RootProps & {
   titlePrefix?: string;
-  characters: WithRank<Character>[];
+  charactersData: Character[];
+  order?: string[][];
   isSeiyuu: boolean;
   readOnly?: boolean;
   shareDisplayData?: {
@@ -71,6 +75,12 @@ export function ResultsView({
     { id: 'grid', label: t('results.grid') },
     { id: 'tier', label: t('results.tier') }
   ];
+
+  const characters = useMemo(() => {
+    if (!order) return [];
+    return stateToCharacterList(order, charactersData, isSeiyuu);
+  }, [order, charactersData, isSeiyuu]);
+
   const makeScreenshot = async () => {
     setShowRenderingCanvas(true);
     toast?.(t('toast.generating_screenshot'));
@@ -273,6 +283,14 @@ export function ResultsView({
           </Stack>
         </Box>
       )}
+      <EditResultsModal
+        setOrder={console.log}
+        charactersData={charactersData}
+        open
+        originalOrder={order ?? []}
+        isSeiyuu={isSeiyuu}
+        order={order ?? []}
+      />
     </>
   );
 }

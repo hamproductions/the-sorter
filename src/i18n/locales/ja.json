@@ -60,7 +60,8 @@
         "show_name": "名前を表示する",
         "show_info": "情報を表示する",
         "tier_name": "Tier名",
-        "start_rank": "ランク"
+        "start_rank": "ランク",
+        "hide_bottom_tier": "最下位を非表示する"
       }
     }
   },

@@ -13,6 +13,7 @@ export type TierListSettings = {
   showName?: boolean;
   showInfo?: boolean;
   showRank?: boolean;
+  hideBottomTier?: boolean;
 };
 
 export function TierList({
@@ -26,7 +27,9 @@ export function TierList({
   settings?: TierListSettings | null;
   onSelectCharacter?: (character: WithRank<Character>) => void;
 }) {
-  const { tiers, tierRanks, showName, showInfo, showRank } = settings ?? { tiers: DEFAULT_TIERS };
+  const { tiers, tierRanks, showName, showInfo, showRank, hideBottomTier } = settings ?? {
+    tiers: DEFAULT_TIERS
+  };
   const { i18n } = useTranslation();
 
   const data = useMemo(() => {
@@ -38,7 +41,7 @@ export function TierList({
       }
     });
 
-    return tiers.map((tier, idx) => {
+    return tiers.slice(0, hideBottomTier ? -1 : undefined).map((tier, idx) => {
       const minRank = tierRanks?.[idx - 1] ?? 0;
       const maxRank = tierRanks?.[idx] ?? 0;
       return {
@@ -48,7 +51,7 @@ export function TierList({
         )
       };
     });
-  }, [characters, tiers, tierRanks]);
+  }, [characters, tiers, tierRanks, hideBottomTier]);
 
   if (!tiers) return;
 

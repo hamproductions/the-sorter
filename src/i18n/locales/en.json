@@ -60,7 +60,8 @@
         "show_name": "Show Name",
         "show_info": "Show Info",
         "tier_name": "Tier Name",
-        "ranks": "Ranks"
+        "ranks": "Ranks",
+        "hide_bottom_tier": "最下位を非表示する"
       }
     }
   },

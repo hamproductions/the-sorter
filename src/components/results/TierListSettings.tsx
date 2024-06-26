@@ -22,7 +22,7 @@ export function TierListSettings({
 }) {
   const { t } = useTranslation();
 
-  const { tiers, showName, showRank, showInfo, tierRanks = [] } = settings;
+  const { tiers, showName, showRank, showInfo, hideBottomTier, tierRanks = [] } = settings;
 
   useEffect(() => {
     if (max(tierRanks) !== count || tiers.length > tierRanks.length) {
@@ -128,6 +128,15 @@ export function TierListSettings({
       <Wrap>
         <Checkbox
           size="sm"
+          checked={hideBottomTier}
+          onCheckedChange={({ checked }) =>
+            setSettings({ ...settings, hideBottomTier: checked === true })
+          }
+        >
+          {t('results.settings.tier.hide_bottom_tier')}
+        </Checkbox>
+        <Checkbox
+          size="sm"
           checked={showRank}
           onCheckedChange={({ checked }) =>
             setSettings({ ...settings, showRank: checked === true })
@@ -144,6 +153,7 @@ export function TierListSettings({
         >
           {t('results.settings.tier.show_name')}
         </Checkbox>
+
         {showName && (
           <Checkbox
             size="sm"
