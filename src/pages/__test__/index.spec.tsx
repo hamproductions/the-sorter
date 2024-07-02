@@ -194,7 +194,7 @@ describe('Home Page', () => {
     });
 
     describe('Result Editing', () => {
-      it.only('Shows edit modal', async () => {
+      it('Shows edit modal', async () => {
         const [container, user] = await render(<Page />);
         const { findByText, findAllByText, queryByText } = container;
         await selectPreset(container, user);
