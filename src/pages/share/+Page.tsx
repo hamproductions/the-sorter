@@ -1,4 +1,4 @@
-import { Suspense, lazy, useMemo } from 'react';
+import { Suspense, lazy } from 'react';
 import { useTranslation } from 'react-i18next';
 import { decompressFromEncodedURIComponent } from 'lz-string';
 import { Link } from '../../components/ui/link';
@@ -13,7 +13,6 @@ import { ResultsView } from '~/components/results/ResultsView';
 import { getFilterTitle } from '~/utils/filter';
 
 import { Button } from '~/components/ui/button';
-import { stateToCharacterList } from '~/utils/character';
 import { Metadata } from '~/components/layout/Metadata';
 import type { TierListSettings } from '~/components/results/TierList';
 import { useDialogData } from '~/hooks/useDialogData';
@@ -61,11 +60,6 @@ export function Page() {
     units: urlUnits.filter((unitId) => units?.some((s) => s.id === unitId))
   };
 
-  const charaList = useMemo(() => {
-    if (!results) return [];
-    return stateToCharacterList(results, data, seiyuu);
-  }, [results, data, seiyuu]);
-
   const titlePrefix = getFilterTitle(filters, data, i18n.language) ?? t('defaultTitlePrefix');
   const title = t('title', {
     titlePrefix
@@ -90,16 +84,17 @@ export function Page() {
           <Link href={getShareUrl()}>
             <Button>{t('share.create_your_own')}</Button>
           </Link>
-          {charaList.length > 0 && (
+          {data?.length && results?.length > 0 && (
             <>
               <ResultsView
                 titlePrefix={titlePrefix}
-                characters={charaList}
+                charactersData={data}
                 isSeiyuu={seiyuu}
                 shareDisplayData={shareDisplayData}
                 onSelectCharacter={(c) => setShowCharacterInfo(c)}
                 readOnly
                 w="full"
+                order={results}
               />
               <Link href={getShareUrl()}>
                 <Button>{t('share.create_your_own')}</Button>

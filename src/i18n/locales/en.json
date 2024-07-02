@@ -6,6 +6,8 @@
   "seiyuu": "Seiyuu",
   "character": "Character",
   "ranking": "No.",
+  "save": "Save",
+  "cancel": "Cancel",
   "settings": {
     "sort_count": "{{ count }} to be sorted",
     "seiyuu": "Do you like seiyuu ? (Seiyuu Mode)",
@@ -51,6 +53,7 @@
     "default_results_title": "LoveLive! {{ sortType }} {{ type }}",
     "generated_at": "Generated at",
     "tier": "Tier List",
+    "edit": "Edit",
     "settings": {
       "tier": {
         "settings": "Tier Settings",
@@ -60,7 +63,8 @@
         "show_name": "Show Name",
         "show_info": "Show Info",
         "tier_name": "Tier Name",
-        "ranks": "Ranks"
+        "ranks": "Ranks",
+        "hide_bottom_tier": "Hide bottom tier"
       }
     }
   },

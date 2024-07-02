@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { FaCopy, FaDownload, FaShare } from 'react-icons/fa6';
+import { useEffect, useMemo, useState } from 'react';
+import { FaCopy, FaDownload, FaPencil, FaShare } from 'react-icons/fa6';
 
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/button';
@@ -16,10 +16,12 @@ import { RankingView } from './RankingView';
 import type { TierListSettings as TierListSettingsData } from './TierList';
 import { DEFAULT_TIERS, TierList } from './TierList';
 import { TierListSettings } from './TierListSettings';
-import type { Character, WithRank } from '~/types';
+import { EditResultsModal } from './edit/EditResultsModal';
+import type { Character } from '~/types';
 import { useLocalStorage } from '~/hooks/useLocalStorage';
 import { useToaster } from '~/context/ToasterContext';
-import { Box, Stack, Wrap } from 'styled-system/jsx';
+import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
+import { parseSortResult } from '~/utils/character';
 export type ShareDisplayData = {
   title: string;
   description?: string;
@@ -29,7 +31,8 @@ export type ShareDisplayData = {
 
 export function ResultsView({
   titlePrefix,
-  characters,
+  charactersData,
+  order,
   isSeiyuu,
   readOnly,
   shareDisplayData,
@@ -38,7 +41,8 @@ export function ResultsView({
   ...props
 }: RootProps & {
   titlePrefix?: string;
-  characters: WithRank<Character>[];
+  charactersData: Character[];
+  order?: string[][];
   isSeiyuu: boolean;
   readOnly?: boolean;
   shareDisplayData?: {
@@ -55,11 +59,16 @@ export function ResultsView({
     'tier-settings',
     { tiers: DEFAULT_TIERS }
   );
+  const [showEditResults, setShowEditResults] = useState(false);
   const [title, setTitle] = useState<string>('My LoveLive! Ranking');
   const [description, setDescription] = useState<string>();
   const [currentTab, setCurrentTab] = useLocalStorage<'default' | 'table' | 'grid' | 'tier'>(
     'result-tab',
     'default'
+  );
+  const [savedDisplayOrder, setSavedDisplayOrder] = useLocalStorage<string[][]>(
+    'results-display-order',
+    order
   );
   const [timestamp, setTimestamp] = useState(new Date());
   const [showRenderingCanvas, setShowRenderingCanvas] = useState(false);
@@ -71,6 +80,14 @@ export function ResultsView({
     { id: 'grid', label: t('results.grid') },
     { id: 'tier', label: t('results.tier') }
   ];
+
+  const displayOrder = savedDisplayOrder?.length === order?.length ? savedDisplayOrder : order;
+
+  const characters = useMemo(() => {
+    if (!displayOrder) return [];
+    return parseSortResult(displayOrder, charactersData, isSeiyuu);
+  }, [displayOrder, charactersData, isSeiyuu]);
+
   const makeScreenshot = async () => {
     setShowRenderingCanvas(true);
     toast?.(t('toast.generating_screenshot'));
@@ -171,27 +188,32 @@ export function ResultsView({
                 />
               )}
             </Stack>
-            <Wrap justifyContent="flex-end" w="full">
-              <Button
-                variant="subtle"
-                onClick={() =>
-                  onShareResults?.({
-                    title,
-                    description,
-                    tierListSettings: tierListSettings ?? undefined,
-                    tab: displayTab ?? undefined
-                  })
-                }
-              >
-                <FaShare /> {t('results.share')}
+            <HStack justifyContent="space-between" w="full">
+              <Button variant="subtle" onClick={() => setShowEditResults(true)}>
+                <FaPencil /> {t('results.edit')}
               </Button>
-              <Button variant="subtle" onClick={() => void screenshot()}>
-                <FaCopy /> {t('results.copy')}
-              </Button>
-              <Button onClick={() => void download()}>
-                <FaDownload /> {t('results.download')}
-              </Button>
-            </Wrap>
+              <Wrap justifyContent="flex-end" w="full">
+                <Button
+                  variant="subtle"
+                  onClick={() =>
+                    onShareResults?.({
+                      title,
+                      description,
+                      tierListSettings: tierListSettings ?? undefined,
+                      tab: displayTab ?? undefined
+                    })
+                  }
+                >
+                  <FaShare /> {t('results.share')}
+                </Button>
+                <Button variant="subtle" onClick={() => void screenshot()}>
+                  <FaCopy /> {t('results.copy')}
+                </Button>
+                <Button onClick={() => void download()}>
+                  <FaDownload /> {t('results.download')}
+                </Button>
+              </Wrap>
+            </HStack>
           </>
         )}
         <Tabs.Root
@@ -273,6 +295,15 @@ export function ResultsView({
           </Stack>
         </Box>
       )}
+      <EditResultsModal
+        setOrder={setSavedDisplayOrder}
+        charactersData={charactersData}
+        open={showEditResults}
+        onOpenChange={({ open }) => setShowEditResults(open)}
+        originalOrder={order ?? []}
+        isSeiyuu={isSeiyuu}
+        order={savedDisplayOrder ?? []}
+      />
     </>
   );
 }

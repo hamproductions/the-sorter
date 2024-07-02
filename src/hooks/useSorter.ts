@@ -37,6 +37,7 @@ export const useSorter = <T>(items: T[]) => {
     setState(initSort(shuffle(items)));
     // setState(initSort(items));
     setHistory([]);
+    localStorage.removeItem('results-display-order');
   };
 
   const handleUndo = () => {
@@ -61,6 +62,7 @@ export const useSorter = <T>(items: T[]) => {
   const clear = () => {
     setHistory(undefined);
     setState(undefined);
+    localStorage.removeItem('results-display-order');
   };
 
   const progress = getProgress();

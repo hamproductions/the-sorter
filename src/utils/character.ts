@@ -21,23 +21,37 @@ export const getCharacterFromId = (
   };
 };
 
-export const stateToCharacterList = (state: string[][], data: Character[], isSeiyuu: boolean) => {
-  return (state
-    ?.flatMap((ids, idx, arr) => {
-      const startRank = arr
-        .slice(0, idx)
-        .reduce((p, c) => p + (Array.isArray(c) ? c.length : 1), 1);
-      if (Array.isArray(ids)) {
-        return ids
-          .map((id) => ({ rank: startRank, ...getCharacterFromId(data, id, isSeiyuu) }))
-          .filter((d) => 'id' in d);
-      } else {
-        const chara = data.find((i) => i.id === (ids as string));
-        if (!chara) return [];
-        return [{ rank: startRank, ...chara }];
-      }
-    })
-    .filter((c) => !!c) ?? []) as WithRank<Character>[];
+export const stateToCharacterList = (
+  state: string[][],
+  data: Character[],
+  isSeiyuu: boolean
+): WithRank<Character>[][] => {
+  return (
+    state
+      ?.map((ids, idx, arr) => {
+        const startRank = arr
+          .slice(0, idx)
+          .reduce((p, c) => p + (Array.isArray(c) ? c.length : 1), 1);
+        if (Array.isArray(ids)) {
+          return ids
+            .map((id) => ({ rank: startRank, ...getCharacterFromId(data, id, isSeiyuu) }))
+            .filter((d) => 'id' in d);
+        } else {
+          const chara = data.find((i) => i.id === (ids as string));
+          if (!chara) return [];
+          return [{ rank: startRank, ...chara }];
+        }
+      })
+      .filter((c): c is WithRank<Character>[] => !!c) ?? []
+  );
+};
+
+export const parseSortResult = (
+  state: string[][],
+  data: Character[],
+  isSeiyuu: boolean
+): WithRank<Character>[] => {
+  return stateToCharacterList(state, data, isSeiyuu).flatMap((r) => r);
 };
 
 export const getFullName = (character: Character, locale: Locale) => {

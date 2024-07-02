@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 //@ts-expect-error @types/react-dom not updated for 19 yet
 import { preload } from 'react-dom';
 import { useTranslation } from 'react-i18next';
@@ -18,7 +18,6 @@ import { getCurrentItem } from '../../utils/sort';
 import { addPresetParams, serializeData } from '~/utils/share';
 import { getNextItems } from '~/utils/preloading';
 import { getFilterTitle, isValidFilter } from '~/utils/filter';
-import { stateToCharacterList } from '~/utils/character';
 import { getPicUrl } from '~/utils/assets';
 import { useDialogData } from '~/hooks/useDialogData';
 import { LoadingCharacterFilters } from '~/components/sorter/LoadingCharacterFilters';
@@ -85,11 +84,6 @@ export function Page() {
     isOpen: isShowCharacterInfo,
     setData: setShowCharacterInfo
   } = useDialogData<Character>();
-
-  const charaList = useMemo(() => {
-    if (!state?.arr) return [];
-    return stateToCharacterList(state.arr, data, seiyuu);
-  }, [state?.arr, data, seiyuu]);
 
   const { left: leftItem, right: rightItem } =
     (state && getCurrentItem(state)) || ({} as { left: string[]; right: string[] });
@@ -307,15 +301,16 @@ export function Page() {
                 />
               </Stack>
             )}
-            {charaList && progress === 1 && (
+            {state.arr && progress === 1 && (
               <Suspense>
                 <ResultsView
                   titlePrefix={titlePrefix}
-                  characters={charaList}
+                  charactersData={data}
                   isSeiyuu={seiyuu}
                   onShareResults={(results) => void shareResultsUrl(results)}
                   onSelectCharacter={setShowCharacterInfo}
                   w="full"
+                  order={state.arr}
                 />
               </Suspense>
             )}

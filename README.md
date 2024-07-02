@@ -12,6 +12,12 @@ Sort your favorite seiyuu, characters inspired by charasort and more...
 - Share pic / Links
 - \*New\* Tier List
 
+### Ideas
+
+- No-Tie mode
+  - 
+- Timer
+
 ## Need Help (If anyone is kind enough...)
 
 - [x] Localized Names

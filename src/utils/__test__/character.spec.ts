@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getCastName, getCharacterFromId, getFullName, stateToCharacterList } from '../character';
+import { getCastName, getCharacterFromId, getFullName, parseSortResult } from '../character';
 
 import { mockCharacter } from '~/__test__/utils/mocks';
 
@@ -23,30 +23,26 @@ describe('Character Utils', () => {
       expect(getCharacterFromId([character], '', false)).toEqual(undefined);
     });
   });
-  describe('stateToCharacterList', () => {
+  describe('parseSortResult', () => {
     const kanata = mockCharacter('近江彼方');
     it('Convert 2d array of IDs (state) to list of characters and rank', () => {
-      expect(stateToCharacterList([[character.id]], [character], false)).toEqual([
+      expect(parseSortResult([[character.id]], [character], false)).toEqual([
         { rank: 1, ...character }
       ]);
-      expect(
-        stateToCharacterList([[character.id], [kanata.id]], [character, kanata], false)
-      ).toEqual([
+      expect(parseSortResult([[character.id], [kanata.id]], [character, kanata], false)).toEqual([
         { rank: 1, ...character },
         { rank: 2, ...kanata }
       ]);
     });
     it('Handle Ties', () => {
-      expect(stateToCharacterList([[character.id, kanata.id]], [character, kanata], false)).toEqual(
-        [
-          { rank: 1, ...character },
-          { rank: 1, ...kanata }
-        ]
-      );
+      expect(parseSortResult([[character.id, kanata.id]], [character, kanata], false)).toEqual([
+        { rank: 1, ...character },
+        { rank: 1, ...kanata }
+      ]);
     });
     it('Legacy Support ', () => {
       //@ts-expect-error Legacy support just in case
-      expect(stateToCharacterList([character.id, kanata.id], [character, kanata], false)).toEqual([
+      expect(parseSortResult([character.id, kanata.id], [character, kanata], false)).toEqual([
         { rank: 1, ...character },
         { rank: 2, ...kanata }
       ]);
