@@ -6,6 +6,8 @@
   "seiyuu": "Seiyuu",
   "character": "Character",
   "ranking": "No.",
+  "save": "Save",
+  "cancel": "Cancel",
   "settings": {
     "sort_count": "{{ count }} to be sorted",
     "seiyuu": "Do you like seiyuu ? (Seiyuu Mode)",
@@ -51,6 +53,7 @@
     "default_results_title": "LoveLive! {{ sortType }} {{ type }}",
     "generated_at": "Generated at",
     "tier": "Tier List",
+    "edit": "編集",
     "settings": {
       "tier": {
         "settings": "Tier Settings",

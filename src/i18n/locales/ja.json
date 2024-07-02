@@ -6,6 +6,8 @@
   "seiyuu": "声優",
   "character": "キャラクター",
   "ranking": "順位",
+  "save": "保存",
+  "cancel": "キャンセル",
   "settings": {
     "sort_count": "{{ count }}人をランキングする",
     "seiyuu": "声優が好きか？（声優モード）",
@@ -51,6 +53,7 @@
     "default_results_title": "ラブライブシリーズ　{{ sortType }}{{ type }}",
     "generated_at": "作成日",
     "tier": "ティアリスト",
+    "edit": "編集",
     "settings": {
       "tier": {
         "settings": "Tier設定",
