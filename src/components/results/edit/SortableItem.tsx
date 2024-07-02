@@ -6,7 +6,7 @@ import { CharacterIcon } from '../../sorter/CharacterIcon';
 import { HStack, Stack, Wrap } from 'styled-system/jsx';
 import type { Locale } from '~/i18n';
 import type { Character, WithRank } from '~/types';
-import { getCastName } from '~/utils/character';
+import { getCastName, getFullName } from '~/utils/character';
 
 export function SortableItem(props: {
   id: UniqueIdentifier;
@@ -15,7 +15,7 @@ export function SortableItem(props: {
   isSeiyuu: boolean;
   locale: Locale;
 }) {
-  const { rank, id, characters, isSeiyuu, locale } = props;
+  const { rank, characters, isSeiyuu, locale } = props;
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: props.id,
@@ -31,14 +31,17 @@ export function SortableItem(props: {
       ref={setNodeRef}
       data-active={isDragging === true ? 'true' : undefined}
       opacity={{ _active: 0.4 }}
+      cursor="pointer"
       {...attributes}
       {...listeners}
     >
       {characters?.map((character) => {
-        const { colorCode, seriesColor, casts = [], fullName } = character ?? {};
+        const { id, colorCode, seriesColor, casts = [] } = character ?? {};
 
+        const fullName = getFullName(character, locale);
         return (
           <HStack
+            key={id}
             style={{
               ['--color' as 'color']: (colorCode ?? seriesColor) as 'red',
               ['--seriesColor' as 'borderLeftColor']: seriesColor ?? colorCode

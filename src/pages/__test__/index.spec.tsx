@@ -192,6 +192,40 @@ describe('Home Page', () => {
       describe.todo('Grid View');
       describe.todo('Tier list');
     });
+
+    describe('Result Editing', () => {
+      it.only('Shows edit modal', async () => {
+        const [container, user] = await render(<Page />);
+        const { findByText, findAllByText, queryByText } = container;
+        await selectPreset(container, user);
+        await user.click(await findByText('Start', {}, {}));
+
+        while (!!queryByText('Keyboard Shortcuts')) {
+          await selectCurrentItem(container, user);
+        }
+        expect(await findByText('Sort Results')).toBeInTheDocument();
+
+        const before = await findAllByText(/(Nirei|Hanamiya|Sakurai)/i);
+        expect(before).toHaveLength(3);
+        expect(before[0].textContent).toMatch(/Nozomi Nirei/i);
+        expect(before[1].textContent).toMatch(/Nina Hanamiya/i);
+        expect(before[2].textContent).toMatch(/Hina Sakurai/i);
+
+        await user.click(await findByText('Edit'));
+        await user.keyboard('[Space][ArrowDown]');
+        await user.keyboard('[Space]');
+
+        await user.click(await findByText('Save'));
+
+        //TODO: Continue Testing The results
+        // const after = await findAllByText(/(Nirei|Hanamiya|Sakurai)/i);
+        // expect(after).toHaveLength(3);
+        // expect(after[0].textContent).toMatch(/Nina Hanamiya/i);
+        // expect(after[1].textContent).toMatch(/Nozomi Nirei/i);
+        // expect(after[2].textContent).toMatch(/Hina Sakurai/i);
+      });
+    });
+
     describe.todo('Share');
 
     describe.todo('CharacterInfo');

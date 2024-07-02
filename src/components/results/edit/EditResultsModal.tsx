@@ -57,7 +57,7 @@ export function EditResultsModal(
         .map((e) => [e[0]?.id, e] as const)
         .filter((i) => !!i[0])
     );
-  }, [charactersData, isSeiyuu]);
+  }, [charactersData, isSeiyuu, order]);
 
   useEffect(() => {
     const ids = originalOrder.map((o) => o[0]).filter((i) => !!i);
@@ -82,6 +82,7 @@ export function EditResultsModal(
   }
 
   function handleDragEnd(event: DragEndEvent) {
+    console.log('DRAG END');
     const { active, over } = event;
 
     if (active.id !== over?.id) {

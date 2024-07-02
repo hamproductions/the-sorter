@@ -53,7 +53,7 @@
     "default_results_title": "LoveLive! {{ sortType }} {{ type }}",
     "generated_at": "Generated at",
     "tier": "Tier List",
-    "edit": "編集",
+    "edit": "Edit",
     "settings": {
       "tier": {
         "settings": "Tier Settings",
@@ -64,7 +64,7 @@
         "show_info": "Show Info",
         "tier_name": "Tier Name",
         "ranks": "Ranks",
-        "hide_bottom_tier": "最下位を非表示する"
+        "hide_bottom_tier": "Hide bottom tier"
       }
     }
   },
