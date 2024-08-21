@@ -53,7 +53,13 @@
     "default_results_title": "ラブライブシリーズ　{{ sortType }}{{ type }}",
     "generated_at": "作成日",
     "tier": "ティアリスト",
-    "edit": "編集",
+    "edit": " 結果を修正する（未完成）",
+    "share_text": {
+      "title": "私の #ラブライブランキング",
+      "footer": "作ってみてね！"
+    },
+    "share_x": "Xにポストする",
+    "copy_results": "結果をコピーする",
     "settings": {
       "tier": {
         "settings": "Tier設定",
@@ -72,7 +78,8 @@
     "url_copied": "URLをコピーしました",
     "screenshot_copied": "画像をコピーしました",
     "generating_screenshot": "画像生成しています…",
-    "tie_not_allowed": "DDはダメです。"
+    "tie_not_allowed": "DDはダメです。",
+    "text_copied": "結果をコピーしました"
   },
   "share": {
     "copy_text": "僕のラブライブシリーズランキングをみて！",

@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { FaCopy, FaDownload, FaPencil, FaShare } from 'react-icons/fa6';
+import { FaChevronDown, FaCopy, FaDownload, FaPencil, FaShare, FaXTwitter } from 'react-icons/fa6';
 
 import { useTranslation } from 'react-i18next';
+import * as Accordion from '../ui/styled/accordion';
 import { Button } from '../ui/styled/button';
 import { FormLabel } from '../ui/styled/form-label';
 import { Heading } from '../ui/styled/heading';
@@ -17,11 +18,12 @@ import type { TierListSettings as TierListSettingsData } from './TierList';
 import { DEFAULT_TIERS, TierList } from './TierList';
 import { TierListSettings } from './TierListSettings';
 import { EditResultsModal } from './edit/EditResultsModal';
+import { getCastName, getCharacterFromId, getFullName, parseSortResult } from '~/utils/character';
 import type { Character } from '~/types';
 import { useLocalStorage } from '~/hooks/useLocalStorage';
 import { useToaster } from '~/context/ToasterContext';
 import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
-import { parseSortResult } from '~/utils/character';
+
 export type ShareDisplayData = {
   title: string;
   description?: string;
@@ -72,7 +74,7 @@ export function ResultsView({
   );
   const [timestamp, setTimestamp] = useState(new Date());
   const [showRenderingCanvas, setShowRenderingCanvas] = useState(false);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const tabs = [
     { id: 'default', label: t('results.list') },
@@ -133,6 +135,29 @@ export function ResultsView({
     }
   };
 
+  const getShareText = () => {
+    const seiyuuList = order
+      ?.flatMap((ids, idx) =>
+        ids.map((id) => {
+          const character = getCharacterFromId(charactersData, id, isSeiyuu);
+          if (!character) return;
+          return `${idx + 1}. ${isSeiyuu ? getCastName(character?.casts[0], i18n.language) : getFullName(character, i18n.language)}`;
+        })
+      )
+      .slice(0, 5)
+      .join('\n');
+    return `${t('results.share_text.title')}\n${seiyuuList}\n${t('results.share_text.footer')}\nhttps://hamproductions.github.io/the-sorter/`;
+  };
+  const shareToX = () => {
+    const shareURL = `https://twitter.com/intent/tweet?text=${encodeURIComponent(getShareText())}`;
+    window.open(shareURL, '_blank');
+  };
+
+  const copyText = async () => {
+    await navigator.clipboard.writeText(getShareText());
+    toast?.(t('toast.text_copied'));
+  };
+
   const {
     title: displayTitle,
     description: displayDescription,
@@ -163,31 +188,56 @@ export function ResultsView({
         </Heading>
         {displayDescription && <Text>{displayDescription}</Text>}
         {!readOnly && (
-          <>
-            <Stack w="full" textAlign="start">
-              <Text fontSize="lg" fontWeight="bold">
-                {t('results.export_settings')}
-              </Text>
-              <Wrap>
-                <FormLabel htmlFor="title">{t('results.title')}</FormLabel>
-                <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} />
-              </Wrap>
-              <Wrap>
-                <FormLabel htmlFor="description">{t('results.description')}</FormLabel>
-                <Textarea
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                />
-              </Wrap>
-              {currentTab === 'tier' && tierListSettings && (
-                <TierListSettings
-                  settings={tierListSettings}
-                  setSettings={setTierListSettings}
-                  count={characters.length}
-                />
-              )}
-            </Stack>
+          <Stack w="full">
+            <HStack justifyContent="center">
+              <Button variant="subtle" onClick={() => void copyText()}>
+                {t('results.copy_results')}
+              </Button>
+              <Button onClick={() => void shareToX()}>
+                <FaXTwitter /> {t('results.share_x')}
+              </Button>
+            </HStack>
+            <Accordion.Root size="md" collapsible>
+              <Accordion.Item value="default" width="100%">
+                <Accordion.ItemTrigger>
+                  <Text fontSize="lg" fontWeight="bold">
+                    {t('results.export_settings')}
+                  </Text>
+                  <Accordion.ItemIndicator>
+                    <FaChevronDown />
+                  </Accordion.ItemIndicator>
+                </Accordion.ItemTrigger>
+                <Accordion.ItemContent>
+                  <Stack>
+                    <Stack w="full" textAlign="start">
+                      <Wrap>
+                        <FormLabel htmlFor="title">{t('results.title')}</FormLabel>
+                        <Input
+                          id="title"
+                          value={title}
+                          onChange={(e) => setTitle(e.target.value)}
+                        />
+                      </Wrap>
+                      <Wrap>
+                        <FormLabel htmlFor="description">{t('results.description')}</FormLabel>
+                        <Textarea
+                          id="description"
+                          value={description}
+                          onChange={(e) => setDescription(e.target.value)}
+                        />
+                      </Wrap>
+                      {currentTab === 'tier' && tierListSettings && (
+                        <TierListSettings
+                          settings={tierListSettings}
+                          setSettings={setTierListSettings}
+                          count={characters.length}
+                        />
+                      )}
+                    </Stack>
+                  </Stack>
+                </Accordion.ItemContent>
+              </Accordion.Item>
+            </Accordion.Root>
             <HStack justifyContent="space-between" w="full">
               <Button variant="subtle" onClick={() => setShowEditResults(true)}>
                 <FaPencil /> {t('results.edit')}
@@ -214,7 +264,7 @@ export function ResultsView({
                 </Button>
               </Wrap>
             </HStack>
-          </>
+          </Stack>
         )}
         <Tabs.Root
           lazyMount

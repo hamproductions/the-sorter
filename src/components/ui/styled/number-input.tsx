@@ -4,6 +4,7 @@ import {
   type NumberInputRootProps
 } from '@ark-ui/react/number-input';
 import { forwardRef } from 'react';
+import { FaChevronDown, FaChevronUp } from 'react-icons/fa6';
 import { css, cx } from 'styled-system/css';
 import { splitCssProps } from 'styled-system/jsx';
 import { type NumberInputVariantProps, numberInput } from 'styled-system/recipes';
@@ -29,10 +30,10 @@ export const NumberInput = forwardRef<HTMLDivElement, NumberInputProps>((props, 
       <ArkNumberInput.Control className={styles.control}>
         <ArkNumberInput.Input className={styles.input} />
         <ArkNumberInput.IncrementTrigger className={styles.incrementTrigger}>
-          <ChevronUpIcon />
+          <FaChevronUp />
         </ArkNumberInput.IncrementTrigger>
         <ArkNumberInput.DecrementTrigger className={styles.decrementTrigger}>
-          <ChevronDownIcon />
+          <FaChevronDown />
         </ArkNumberInput.DecrementTrigger>
       </ArkNumberInput.Control>
     </ArkNumberInput.Root>
@@ -40,31 +41,3 @@ export const NumberInput = forwardRef<HTMLDivElement, NumberInputProps>((props, 
 });
 
 NumberInput.displayName = 'NumberInput';
-
-const ChevronUpIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-    <title>Chevron Up Icon</title>
-    <path
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="2"
-      d="m18 15l-6-6l-6 6"
-    />
-  </svg>
-);
-
-const ChevronDownIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-    <title>Chevron Down Icon</title>
-    <path
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="2"
-      d="m6 9l6 6l6-6"
-    />
-  </svg>
-);

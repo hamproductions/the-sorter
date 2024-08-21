@@ -53,7 +53,13 @@
     "default_results_title": "LoveLive! {{ sortType }} {{ type }}",
     "generated_at": "Generated at",
     "tier": "Tier List",
-    "edit": "Edit",
+    "edit": "Edit Results (Experimental)",
+    "share_text": {
+      "title": "My #LoveLiveRanking",
+      "footer": "Go make your own!"
+    },
+    "share_x": "Post on X",
+    "copy_results": "Copy Results",
     "settings": {
       "tier": {
         "settings": "Tier Settings",
@@ -72,7 +78,8 @@
     "url_copied": "URL Copied to Clipboard",
     "screenshot_copied": "Screenshot Copied to Clipboard",
     "generating_screenshot": "Generating Screenshot...",
-    "tie_not_allowed": "DD is not Allowed here."
+    "tie_not_allowed": "DD is not Allowed here.",
+    "text_copied": "Text copied to clipboard"
   },
   "dialog": {
     "ended_confirm": {
