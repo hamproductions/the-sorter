@@ -211,7 +211,7 @@ describe('Home Page', () => {
         expect(before[1].textContent).toMatch(/Nina Hanamiya/i);
         expect(before[2].textContent).toMatch(/Hina Sakurai/i);
 
-        await user.click(await findByText('Edit'));
+        await user.click(await findByText('Edit Results (Experimental)'));
         await user.keyboard('[Space][ArrowDown]');
         await user.keyboard('[Space]');
 
