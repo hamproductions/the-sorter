@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Text } from '../ui/text';
+import { Text } from '../ui/styled/text';
 import { CharacterIcon } from './CharacterIcon';
 import { SchoolBadge } from './SchoolBadge';
 import type { StackProps } from 'styled-system/jsx';
@@ -68,7 +68,7 @@ export function CharacterCard({
           />
         </Center>
       </Stack>
-      <Text color="var(--color)" fontSize="2xl" fontWeight="bold">
+      <Text layerStyle="textStroke" color="var(--color)" fontSize="2xl" fontWeight="bold">
         {isSeiyuu ? getCastName(character.casts[0], lang) : getFullName(character, lang)}
       </Text>
       {isSeiyuu ? (

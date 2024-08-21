@@ -36,7 +36,7 @@ export default defineConfig({
         '**/*.d.ts',
         'styled-system/*',
         '*/__test__/*',
-        '*/components/ui/*',
+        '*/components/ui/styled/*',
         '*/theme/*'
       ]
     },

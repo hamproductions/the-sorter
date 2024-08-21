@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Fragment, useMemo } from 'react';
-import { Text } from '../ui/text';
+import { Text } from '../ui/styled/text';
 import { TierListItem } from './TierListItem';
 import { Grid, GridItem, Stack } from 'styled-system/jsx';
 import type { Character, WithRank } from '~/types';

@@ -29,7 +29,7 @@ export const useSorter = <T>(items: T[]) => {
     if (state) {
       setHistory([...(history ?? []), cloneDeep(state)]);
       const nextStep = step(value, state);
-      state && setState(nextStep);
+      setState(nextStep);
     }
   };
 

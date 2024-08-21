@@ -1,5 +1,5 @@
 import { CharacterIcon } from '../sorter/CharacterIcon';
-import { Text } from '../ui/text';
+import { Text } from '../ui/styled/text';
 import { Box, Center, Stack, Wrap, styled } from 'styled-system/jsx';
 import { getPicUrl } from '~/utils/assets';
 
@@ -80,7 +80,13 @@ export function GridViewItem({
         <Wrap gap="0.5" justifyContent="center" alignItems="center" w="full">
           <Stack gap="1">
             <Stack gap="1" alignItems="center">
-              <Text color="var(--color)" textAlign="center" fontSize="lg" fontWeight="bold">
+              <Text
+                layerStyle="textStroke"
+                color="var(--color)"
+                textAlign="center"
+                fontSize="lg"
+                fontWeight="bold"
+              >
                 {isSeiyuu ? getCastName(casts[0], locale) : fullName}
               </Text>
             </Stack>

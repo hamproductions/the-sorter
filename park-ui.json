@@ -1,10 +1,5 @@
 {
-  "$schema": "https://park-ui.com/schema.json",
-  "cssFramework": "panda",
+  "$schema": "https://park-ui.com/registry/latest/schema.json",
   "jsFramework": "react",
-  "importAliases": {
-    "components": "~/components/ui",
-    "utils": "~/lib"
-  },
-  "useReactServerComponents": true
+  "outputPath": "./src/components/ui/styled"
 }

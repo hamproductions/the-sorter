@@ -1,5 +1,5 @@
 import { FaMoon, FaSun } from 'react-icons/fa6';
-import { IconButton } from '../ui/icon-button';
+import { IconButton } from '../ui/styled/icon-button';
 import { useColorModeContext } from '~/context/ColorModeContext';
 
 export function ColorModeToggle() {

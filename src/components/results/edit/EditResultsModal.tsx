@@ -20,9 +20,9 @@ import {
 } from '@dnd-kit/sortable';
 import { useEffect, useMemo, useState } from 'react';
 import { isEqual } from 'lodash-es';
-import * as Dialog from '../../ui/dialog';
-import { IconButton } from '../../ui/icon-button';
-import { Button } from '../../ui/button';
+import * as Dialog from '../../ui/styled/dialog';
+import { IconButton } from '../../ui/styled/icon-button';
+import { Button } from '../../ui/styled/button';
 import { SortableItem } from './SortableItem';
 import { HStack, Stack } from 'styled-system/jsx';
 import type { Character } from '~/types';

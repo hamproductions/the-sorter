@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next';
 import { FaXmark } from 'react-icons/fa6';
 import { Stack } from 'styled-system/jsx';
-import { Button } from '~/components/ui/button';
-import * as Dialog from '~/components/ui/dialog';
-import { IconButton } from '~/components/ui/icon-button';
+import { Button } from '~/components/ui/styled/button';
+import * as Dialog from '~/components/ui/styled/dialog';
+import { IconButton } from '~/components/ui/styled/icon-button';
 
 const createConfirmDialog = (key: 'mid_sort_confirm' | 'ended_confirm') => {
   return function ConfirmDialog(props: Dialog.RootProps & { onConfirm: () => void }) {

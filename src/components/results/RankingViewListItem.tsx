@@ -1,5 +1,5 @@
 import { CharacterIcon } from '../sorter/CharacterIcon';
-import { Text } from '../ui/text';
+import { Text } from '../ui/styled/text';
 import { HStack, Stack } from 'styled-system/jsx';
 
 import type { Locale } from '~/i18n';
@@ -33,13 +33,13 @@ export function RankingViewListItem({
       py="0.5"
       px="2"
     >
-      <Text color="var(--color)" fontSize="sm" fontWeight="bold">
+      <Text layerStyle="textStroke" color="var(--color)" fontSize="sm" fontWeight="bold">
         {rank}.
       </Text>
       <HStack gap="0.5" textAlign="start">
         <CharacterIcon locale={locale} character={character} w="auto" h="8" />
         <Stack gap="0.5">
-          <Text color="var(--color)" fontSize="sm" fontWeight="bold">
+          <Text layerStyle="textStroke" color="var(--color)" fontSize="sm" fontWeight="bold">
             {isSeiyuu ? getCastName(casts[0], locale) : fullName}
           </Text>
           {isSeiyuu ? (

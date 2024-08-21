@@ -1,5 +1,5 @@
-import type { BadgeProps } from '../ui/badge';
-import { Badge } from '../ui/badge';
+import type { BadgeProps } from '../ui/styled/badge';
+import { Badge } from '../ui/styled/badge';
 import type { Locale } from '~/i18n';
 import type { Character } from '~/types';
 import { getSeriesName } from '~/utils/names';

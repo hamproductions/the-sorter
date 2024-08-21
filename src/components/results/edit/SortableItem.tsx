@@ -1,7 +1,7 @@
 import type { UniqueIdentifier } from '@dnd-kit/core';
 import { defaultAnimateLayoutChanges, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Text } from '../../ui/text';
+import { Text } from '../../ui/styled/text';
 import { CharacterIcon } from '../../sorter/CharacterIcon';
 import { HStack, Stack, Wrap } from 'styled-system/jsx';
 import type { Locale } from '~/i18n';
@@ -55,14 +55,19 @@ export function SortableItem(props: {
             shadow="md"
           >
             {rank && (
-              <Text color="var(--color)" fontSize="lg" fontWeight="bold">
+              <Text layerStyle="textStroke" color="var(--color)" fontSize="lg" fontWeight="bold">
                 {rank}.
               </Text>
             )}
             <Wrap flex={1} gap="0.5" alignItems="center">
               <Stack gap="1">
                 <Stack gap="1" alignItems="center">
-                  <Text color="var(--color)" fontSize="md" fontWeight="bold">
+                  <Text
+                    layerStyle="textStroke"
+                    color="var(--color)"
+                    fontSize="md"
+                    fontWeight="bold"
+                  >
                     {isSeiyuu ? getCastName(casts[0], locale) : fullName}
                   </Text>
                 </Stack>

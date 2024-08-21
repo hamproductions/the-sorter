@@ -1,9 +1,9 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button } from '../ui/button';
-import { Checkbox, CheckboxGroup } from '../ui/checkbox';
-import { Text } from '../ui/text';
+import { Button } from '../ui/styled/button';
+import { Checkbox, CheckboxGroup } from '../ui/styled/checkbox';
+import { Text } from '../ui/styled/text';
 
 import school from '../../../data/school.json';
 import series from '../../../data/series.json';

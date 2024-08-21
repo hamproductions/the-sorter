@@ -1,7 +1,7 @@
 import groupBy from 'lodash-es/groupBy';
 import { useTranslation } from 'react-i18next';
-import * as Table from '../ui/table';
-import { Text } from '../ui/text';
+import * as Table from '../ui/styled/table';
+import { Text } from '../ui/styled/text';
 import { CharacterIcon } from '../sorter/CharacterIcon';
 import { SchoolBadge } from '../sorter/SchoolBadge';
 import { getPicUrl } from '~/utils/assets';
@@ -78,7 +78,12 @@ export function RankingTable({
                   <Wrap gap="1" justifyContent="center" alignItems="center">
                     <CharacterIcon locale={lang} character={c} w="auto" h="8" />
                     <Stack gap="1" alignItems="center">
-                      <Text color="var(--color)" fontSize="md" fontWeight="bold">
+                      <Text
+                        layerStyle="textStroke"
+                        color="var(--color)"
+                        fontSize="md"
+                        fontWeight="bold"
+                      >
                         {isSeiyuu ? getCastName(casts[0], lang) : fullName}
                       </Text>
                       {isSeiyuu && casts[0].note && (

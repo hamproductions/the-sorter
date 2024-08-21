@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { Link } from '../ui/link';
-import { Text } from '../ui/text';
+import { Link } from '../ui/styled/link';
+import { Text } from '../ui/styled/text';
 import { Stack, Wrap } from 'styled-system/jsx';
 
 export function Footer() {

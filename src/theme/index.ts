@@ -1,6 +1,16 @@
 import { type PartialTheme } from '@pandacss/types';
 
 export const theme: PartialTheme = {
+  layerStyles: {
+    textStroke: {
+      value: {
+        //@ts-expect-error TODO: incompatible type
+        WebkitTextStrokeWidth: '0.23',
+        //@ts-expect-error TODO: incompatible type
+        WebkitTextStrokeColor: '{colors.fg.default}'
+      }
+    }
+  },
   tokens: {
     colors: {
       ll: {

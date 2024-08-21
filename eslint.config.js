@@ -33,7 +33,7 @@ const config = tseslint.config(
   {
     ignores: [
       '**/styled-system/*',
-      '**/components/ui/**/*',
+      '**/components/ui/styled/**/*',
       '**/lib/**/*',
       '*.config.*',
       '*-setup.js'
