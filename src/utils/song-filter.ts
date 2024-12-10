@@ -18,7 +18,7 @@ export const matchSongFilter = (item: Song, filter: SongFilterType) => {
             item.id.toString().charAt(3) === '1' &&
             !item.title.includes('（104期Ver.）') &&
             !item.title.includes('人Ver.)') &&
-            !item.title.includes('(ReC Ver.))
+            !item.title.includes('(ReC Ver.)')
           );
         } else if (type === 'covers') {
           return item.id.toString().charAt(3) === '2' || item.id.toString().charAt(3) === '3';
