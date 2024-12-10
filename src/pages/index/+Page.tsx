@@ -1,15 +1,14 @@
 import { Suspense, lazy, useEffect, useState } from 'react';
-//@ts-expect-error @types/react-dom not updated for 19 yet
 import { preload } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { FaShare } from 'react-icons/fa6';
 import type { ShareDisplayData } from '../../components/results/ResultsView';
 import { CharacterCard } from '../../components/sorter/CharacterCard';
-import { Button } from '../../components/ui/styled/button';
-import { Kbd } from '../../components/ui/styled/kbd';
-import { Progress } from '../../components/ui/styled/progress';
-import { Switch } from '../../components/ui/styled/switch';
-import { Text } from '../../components/ui/styled/text';
+import { Button } from '../../components/ui/button';
+import { Kbd } from '../../components/ui/kbd';
+import { Progress } from '../../components/ui/progress';
+import { Switch } from '../../components/ui/switch';
+import { Text } from '../../components/ui/text';
 import { useToaster } from '../../context/ToasterContext';
 import { useData } from '../../hooks/useData';
 import { useSortData } from '../../hooks/useSortData';
@@ -103,7 +102,7 @@ export function Page() {
     try {
       await navigator.clipboard.writeText(url);
       toast?.(t('toast.url_copied'));
-    } catch (e) {}
+    } catch {}
   };
 
   const shareResultsUrl = async (shareData: ShareDisplayData) => {
@@ -116,7 +115,7 @@ export function Page() {
     try {
       await navigator.clipboard.writeText(url);
       toast?.(t('toast.url_copied'));
-    } catch (e) {}
+    } catch {}
   };
 
   useEffect(() => {

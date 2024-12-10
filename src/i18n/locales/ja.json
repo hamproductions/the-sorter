@@ -8,8 +8,11 @@
   "ranking": "順位",
   "save": "保存",
   "cancel": "キャンセル",
+  "hasu-songs": "蓮ノ空楽曲",
+  "songs": "楽曲",
   "settings": {
     "sort_count": "{{ count }}人をランキングする",
+    "song_sort_count": "{{ count }}曲をランキングする",
     "seiyuu": "声優が好きか？（声優モード）",
     "share": "設定を共有する",
     "series": "シリーズ",
@@ -17,7 +20,19 @@
     "units": "ユニット",
     "select_all": "全部を選択する",
     "deselect_all": "クリアする",
-    "no_tie_mode": "DD禁止モード"
+    "no_tie_mode": "DD禁止モード",
+    "generation": {
+      "103": "103期",
+      "104": "104期"
+    },
+    "generations": "期生",
+    "types": "種別",
+    "type": {
+      "original": "オリジナル",
+      "covers": "カバー",
+      "104ver": "104期 ver.",
+      "nver": "○人 ver."
+    }
   },
   "sort": {
     "start": "開始",

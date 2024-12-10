@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next';
 import { FaXmark } from 'react-icons/fa6';
 import { Stack } from 'styled-system/jsx';
-import { Button } from '~/components/ui/styled/button';
-import * as Dialog from '~/components/ui/styled/dialog';
-import { IconButton } from '~/components/ui/styled/icon-button';
+import { Button } from '~/components/ui/button';
+import { Dialog } from '~/components/ui/dialog';
+import { IconButton } from '~/components/ui/icon-button';
 
 const createConfirmDialog = (key: 'mid_sort_confirm' | 'ended_confirm') => {
   return function ConfirmDialog(props: Dialog.RootProps & { onConfirm: () => void }) {
@@ -21,11 +21,11 @@ const createConfirmDialog = (key: 'mid_sort_confirm' | 'ended_confirm') => {
               </Stack>
               <Stack gap="3" direction="row" width="full">
                 <Dialog.CloseTrigger asChild>
-                  <Button variant="outline" width="full">
+                  <Button variant="outline" flex={1}>
                     {t('dialog.cancel')}
                   </Button>
                 </Dialog.CloseTrigger>
-                <Button onClick={onConfirm} width="full">
+                <Button onClick={onConfirm} flex={1}>
                   {t('dialog.proceed')}
                 </Button>
               </Stack>

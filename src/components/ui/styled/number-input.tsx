@@ -1,43 +1,57 @@
-import type { Assign } from '@ark-ui/react';
-import {
-  NumberInput as ArkNumberInput,
-  type NumberInputRootProps
-} from '@ark-ui/react/number-input';
-import { forwardRef } from 'react';
-import { FaChevronDown, FaChevronUp } from 'react-icons/fa6';
-import { css, cx } from 'styled-system/css';
-import { splitCssProps } from 'styled-system/jsx';
-import { type NumberInputVariantProps, numberInput } from 'styled-system/recipes';
-import type { JsxStyleProps } from 'styled-system/types';
+'use client'
+import type { Assign } from '@ark-ui/react'
+import { NumberInput } from '@ark-ui/react/number-input'
+import { type NumberInputVariantProps, numberInput } from 'styled-system/recipes'
+import type { ComponentProps, HTMLStyledProps } from 'styled-system/types'
+import { createStyleContext } from './utils/create-style-context'
 
-export interface NumberInputProps
-  extends Assign<JsxStyleProps, NumberInputRootProps>,
-    NumberInputVariantProps {}
+const { withProvider, withContext } = createStyleContext(numberInput)
 
-export const NumberInput = forwardRef<HTMLDivElement, NumberInputProps>((props, ref) => {
-  const [variantProps, numberInputProps] = numberInput.splitVariantProps(props);
-  const [cssProps, localProps] = splitCssProps(numberInputProps);
-  const { children, className, ...rootProps } = localProps;
-  const styles = numberInput(variantProps);
+export type RootProviderProps = ComponentProps<typeof RootProvider>
+export const RootProvider = withProvider<
+  HTMLDivElement,
+  Assign<Assign<HTMLStyledProps<'div'>, NumberInput.RootProviderBaseProps>, NumberInputVariantProps>
+>(NumberInput.RootProvider, 'root')
 
-  return (
-    <ArkNumberInput.Root
-      className={cx(styles.root, css(cssProps), className)}
-      ref={ref}
-      {...rootProps}
-    >
-      {children && <ArkNumberInput.Label className={styles.label}>{children}</ArkNumberInput.Label>}
-      <ArkNumberInput.Control className={styles.control}>
-        <ArkNumberInput.Input className={styles.input} />
-        <ArkNumberInput.IncrementTrigger className={styles.incrementTrigger}>
-          <FaChevronUp />
-        </ArkNumberInput.IncrementTrigger>
-        <ArkNumberInput.DecrementTrigger className={styles.decrementTrigger}>
-          <FaChevronDown />
-        </ArkNumberInput.DecrementTrigger>
-      </ArkNumberInput.Control>
-    </ArkNumberInput.Root>
-  );
-});
+export type RootProps = ComponentProps<typeof Root>
+export const Root = withProvider<
+  HTMLDivElement,
+  Assign<Assign<HTMLStyledProps<'div'>, NumberInput.RootBaseProps>, NumberInputVariantProps>
+>(NumberInput.Root, 'root')
 
-NumberInput.displayName = 'NumberInput';
+export const Control = withContext<
+  HTMLDivElement,
+  Assign<HTMLStyledProps<'div'>, NumberInput.ControlBaseProps>
+>(NumberInput.Control, 'control')
+
+export const DecrementTrigger = withContext<
+  HTMLButtonElement,
+  Assign<HTMLStyledProps<'button'>, NumberInput.DecrementTriggerBaseProps>
+>(NumberInput.DecrementTrigger, 'decrementTrigger')
+
+export const IncrementTrigger = withContext<
+  HTMLButtonElement,
+  Assign<HTMLStyledProps<'button'>, NumberInput.IncrementTriggerBaseProps>
+>(NumberInput.IncrementTrigger, 'incrementTrigger')
+
+export const Input = withContext<
+  HTMLInputElement,
+  Assign<HTMLStyledProps<'input'>, NumberInput.InputBaseProps>
+>(NumberInput.Input, 'input')
+
+export const Label = withContext<
+  HTMLLabelElement,
+  Assign<HTMLStyledProps<'label'>, NumberInput.LabelBaseProps>
+>(NumberInput.Label, 'label')
+
+export const Scrubber = withContext<
+  HTMLDivElement,
+  Assign<HTMLStyledProps<'div'>, NumberInput.ScrubberBaseProps>
+>(NumberInput.Scrubber, 'scrubber')
+
+export const ValueText = withContext<
+  HTMLSpanElement,
+  Assign<HTMLStyledProps<'span'>, NumberInput.ValueTextBaseProps>
+>(NumberInput.ValueText, 'valueText')
+
+export { NumberInputContext as Context } from '@ark-ui/react/number-input'

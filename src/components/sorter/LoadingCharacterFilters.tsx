@@ -1,4 +1,4 @@
-import { Skeleton } from '../ui/styled/skeleton';
+import { Skeleton } from '../ui/skeleton';
 import { Stack } from 'styled-system/jsx';
 
 export function LoadingCharacterFilters() {

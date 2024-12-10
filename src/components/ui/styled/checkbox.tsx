@@ -1,69 +1,45 @@
-'use no memo';
+'use client'
+import type { Assign } from '@ark-ui/react'
+import { Checkbox } from '@ark-ui/react/checkbox'
+import { type CheckboxVariantProps, checkbox } from 'styled-system/recipes'
+import type { ComponentProps, HTMLStyledProps } from 'styled-system/types'
+import { createStyleContext } from './utils/create-style-context'
 
-import type { Assign } from '@ark-ui/react';
-import { Checkbox as ArkCheckbox } from '@ark-ui/react/checkbox';
-import { forwardRef } from 'react';
-import { css, cx } from 'styled-system/css';
-import { splitCssProps } from 'styled-system/jsx';
-import { type CheckboxVariantProps, checkbox } from 'styled-system/recipes';
-import type { JsxStyleProps } from 'styled-system/types';
+const { withProvider, withContext } = createStyleContext(checkbox)
 
-export interface CheckboxProps
-  extends Assign<JsxStyleProps, ArkCheckbox.RootProps>,
-    CheckboxVariantProps {}
+export type RootProviderProps = ComponentProps<typeof RootProvider>
+export const RootProvider = withProvider<
+  HTMLLabelElement,
+  Assign<Assign<HTMLStyledProps<'label'>, Checkbox.RootProviderBaseProps>, CheckboxVariantProps>
+>(Checkbox.RootProvider, 'root')
 
-export const Checkbox = forwardRef<HTMLLabelElement, CheckboxProps>((props, ref) => {
-  const [variantProps, checkboxProps] = checkbox.splitVariantProps(props);
-  const [cssProps, localProps] = splitCssProps(checkboxProps);
-  const { children, className, ...rootProps } = localProps;
-  const styles = checkbox(variantProps);
+export type RootProps = ComponentProps<typeof Root>
+export const Root = withProvider<
+  HTMLLabelElement,
+  Assign<Assign<HTMLStyledProps<'label'>, Checkbox.RootBaseProps>, CheckboxVariantProps>
+>(Checkbox.Root, 'root')
 
-  return (
-    <ArkCheckbox.Root
-      className={cx(styles.root, css(cssProps), className)}
-      ref={ref}
-      {...rootProps}
-    >
-      <ArkCheckbox.Control className={styles.control}>
-        <ArkCheckbox.Indicator className={styles.indicator}>
-          <CheckIcon />
-        </ArkCheckbox.Indicator>
-        <ArkCheckbox.Indicator className={styles.indicator} indeterminate>
-          <MinusIcon />
-        </ArkCheckbox.Indicator>
-      </ArkCheckbox.Control>
-      {children && <ArkCheckbox.Label className={styles.label}>{children}</ArkCheckbox.Label>}
-      <ArkCheckbox.HiddenInput />
-    </ArkCheckbox.Root>
-  );
-});
+export const Control = withContext<
+  HTMLDivElement,
+  Assign<HTMLStyledProps<'div'>, Checkbox.ControlBaseProps>
+>(Checkbox.Control, 'control')
 
-Checkbox.displayName = 'Checkbox';
+export const Group = withContext<
+  HTMLDivElement,
+  Assign<HTMLStyledProps<'div'>, Checkbox.GroupBaseProps>
+>(Checkbox.Group, 'group')
 
-const CheckIcon = () => (
-  <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <title>Check Icon</title>
-    <path
-      d="M11.6666 3.5L5.24992 9.91667L2.33325 7"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
+export const Indicator = withContext<
+  HTMLDivElement,
+  Assign<HTMLStyledProps<'div'>, Checkbox.IndicatorBaseProps>
+>(Checkbox.Indicator, 'indicator')
 
-const MinusIcon = () => (
-  <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <title>Minus Icon</title>
-    <path
-      d="M2.91675 7H11.0834"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
+export const Label = withContext<
+  HTMLSpanElement,
+  Assign<HTMLStyledProps<'span'>, Checkbox.LabelBaseProps>
+>(Checkbox.Label, 'label')
 
-export { CheckboxGroup } from '@ark-ui/react/checkbox';
+export {
+  CheckboxContext as Context,
+  CheckboxHiddenInput as HiddenInput,
+} from '@ark-ui/react/checkbox'

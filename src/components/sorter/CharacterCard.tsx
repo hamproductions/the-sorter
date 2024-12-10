@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Text } from '../ui/styled/text';
+import { Text } from '../ui/text';
 import { CharacterIcon } from './CharacterIcon';
 import { SchoolBadge } from './SchoolBadge';
 import type { StackProps } from 'styled-system/jsx';

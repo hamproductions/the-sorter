@@ -1,9 +1,10 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button } from '../ui/styled/button';
-import { Checkbox, CheckboxGroup } from '../ui/styled/checkbox';
-import { Text } from '../ui/styled/text';
+import { Button } from '../ui/button';
+import { Group } from '../ui/styled/checkbox';
+import { Checkbox } from '../ui/checkbox';
+import { Text } from '../ui/text';
 
 import school from '../../../data/school.json';
 import series from '../../../data/series.json';
@@ -89,7 +90,7 @@ export function CharacterFilters({
             {t('settings.select_all')}
           </Button>
         </HStack>
-        <CheckboxGroup
+        <Group
           asChild
           defaultValue={[]}
           value={selectedSeries}
@@ -107,7 +108,7 @@ export function CharacterFilters({
               );
             })}
           </Wrap>
-        </CheckboxGroup>
+        </Group>
       </Stack>
       <Stack>
         <HStack justifyContent="space-between">
@@ -116,7 +117,7 @@ export function CharacterFilters({
             {t('settings.select_all')}
           </Button>
         </HStack>
-        <CheckboxGroup
+        <Group
           asChild
           defaultValue={[]}
           value={selectedSchools}
@@ -134,7 +135,7 @@ export function CharacterFilters({
               );
             })}
           </Wrap>
-        </CheckboxGroup>
+        </Group>
       </Stack>
       <Stack>
         <HStack justifyContent="space-between">
@@ -143,7 +144,7 @@ export function CharacterFilters({
             {t('settings.select_all')}
           </Button>
         </HStack>
-        <CheckboxGroup
+        <Group
           asChild
           defaultValue={[]}
           value={selectedUnits}
@@ -161,7 +162,7 @@ export function CharacterFilters({
               );
             })}
           </Wrap>
-        </CheckboxGroup>
+        </Group>
       </Stack>
       <HStack justifyContent="center">
         <Button onClick={deselectAll}>{t('settings.deselect_all')}</Button>

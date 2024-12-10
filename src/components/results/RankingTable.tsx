@@ -1,7 +1,7 @@
 import groupBy from 'lodash-es/groupBy';
 import { useTranslation } from 'react-i18next';
-import * as Table from '../ui/styled/table';
-import { Text } from '../ui/styled/text';
+import { Table } from '../ui/table';
+import { Text } from '../ui/text';
 import { CharacterIcon } from '../sorter/CharacterIcon';
 import { SchoolBadge } from '../sorter/SchoolBadge';
 import { getPicUrl } from '~/utils/assets';
