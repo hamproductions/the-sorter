@@ -36,7 +36,10 @@ export const useHasuSongsSortData = () => {
     progress,
     clear
     // reset
-  } = useSorter(listToSort.map((l) => l.id));
+  } = useSorter(
+    listToSort.map((l) => l.id),
+    'songs'
+  );
 
   const { toast } = useToaster();
 

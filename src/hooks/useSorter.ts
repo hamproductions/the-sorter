@@ -5,9 +5,14 @@ import type { SortState } from '../utils/sort';
 import { step, initSort } from '../utils/sort';
 import { useLocalStorage } from './useLocalStorage';
 
-export const useSorter = <T>(items: T[]) => {
-  const [state, setState] = useLocalStorage<SortState<T>>('sort-state');
-  const [history, setHistory] = useLocalStorage<SortState<T>[]>('sort-state-history', undefined);
+export const useSorter = <T>(items: T[], statePrefix?: string) => {
+  const [state, setState] = useLocalStorage<SortState<T>>(
+    `${statePrefix ? statePrefix + '-' : ''}sort-state`
+  );
+  const [history, setHistory] = useLocalStorage<SortState<T>[]>(
+    `${statePrefix ? statePrefix + '-' : ''}sort-state-history`,
+    undefined
+  );
 
   useEffect(() => {
     if (

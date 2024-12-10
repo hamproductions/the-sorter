@@ -36,7 +36,7 @@ export function SongCard({ song, ...rest }: { song?: Song } & StackProps) {
         w="full"
         minH={{ base: 0, sm: '240px' }}
       >
-        <Center position="absolute" flex={1} h="full">
+        <Center position="absolute" flex={1} w="full" h="full">
           <Center w="full" h="full">
             <styled.img
               src={getPicUrl(`${song.id}`, 'thumbnail')}
