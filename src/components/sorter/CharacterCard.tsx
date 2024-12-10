@@ -3,7 +3,7 @@ import { Text } from '../ui/text';
 import { CharacterIcon } from './CharacterIcon';
 import { SchoolBadge } from './SchoolBadge';
 import type { StackProps } from 'styled-system/jsx';
-import { Center, Stack, styled } from 'styled-system/jsx';
+import { Box, Center, Stack, styled } from 'styled-system/jsx';
 import { getPicUrl } from '~/utils/assets';
 import type { Character } from '~/types';
 import { getCastName, getFullName } from '~/utils/character';
@@ -43,14 +43,16 @@ export function CharacterCard({
         minH={{ base: 0, sm: '240px' }}
       >
         <Center position="absolute" flex={1} h="full">
-          <styled.img
-            src={getPicUrl(character.id, isSeiyuu ? 'seiyuu' : 'character')}
-            alt={getFullName(character, lang)}
-            minW={0}
-            maxW="full"
-            minH={0}
-            maxH="full"
-          />
+          <Box w="full" h="full">
+            <styled.img
+              src={getPicUrl(character.id, isSeiyuu ? 'seiyuu' : 'character')}
+              alt={getFullName(character, lang)}
+              minW={0}
+              maxW="full"
+              minH={0}
+              maxH="full"
+            />
+          </Box>
           <CharacterIcon
             locale={lang}
             character={character}
