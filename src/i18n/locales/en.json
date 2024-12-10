@@ -12,7 +12,7 @@
   "songs": "Songs",
   "settings": {
     "sort_count": "{{ count }} to be sorted",
-    "songs_sort_count": "{{ count }} songs to be sorted",
+    "song_sort_count": "{{ count }} songs to be sorted",
     "seiyuu": "Do you like seiyuu ? (Seiyuu Mode)",
     "share": "Share current settings",
     "series": "Series",
