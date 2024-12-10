@@ -43,7 +43,7 @@ export function CharacterCard({
         minH={{ base: 0, sm: '240px' }}
       >
         <Center position="absolute" flex={1} h="full">
-          <Box w="full" h="full">
+          <Center w="full" h="full">
             <styled.img
               src={getPicUrl(character.id, isSeiyuu ? 'seiyuu' : 'character')}
               alt={getFullName(character, lang)}
@@ -52,7 +52,7 @@ export function CharacterCard({
               minH={0}
               maxH="full"
             />
-          </Box>
+          </Center>
           <CharacterIcon
             locale={lang}
             character={character}
