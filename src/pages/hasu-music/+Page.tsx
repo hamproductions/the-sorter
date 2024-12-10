@@ -51,8 +51,8 @@ export function Page() {
     tie,
     undo,
     progress,
-    filters,
-    setFilters,
+    songFilters,
+    setSongFilters,
     listToSort,
     listCount,
     clear
@@ -70,7 +70,7 @@ export function Page() {
 
   // const titlePrefix = getFilterTitle(filters, data, i18n.language) ?? t('defaultTitlePrefix');
   const title = t('title', {
-    titlePrefix: 'Hasu Songs'
+    titlePrefix: t('hasu-songs')
   });
 
   // Preload Assets
@@ -121,7 +121,7 @@ export function Page() {
               {import.meta.env.SSR ? (
                 <LoadingCharacterFilters />
               ) : (
-                <SongFilters filters={filters} setFilters={setFilters} />
+                <SongFilters filters={songFilters} setFilters={setSongFilters} />
               )}
             </Suspense>
             <Wrap>
@@ -136,7 +136,7 @@ export function Page() {
           </>
         )}
         <Text fontSize="sm" fontWeight="bold">
-          {t('settings.sort_count', { count: listCount })}
+          {t('settings.song_sort_count', { count: listCount })}
         </Text>
         <Wrap justifyContent="center">
           <Button variant="solid" onClick={() => handleStart()}>

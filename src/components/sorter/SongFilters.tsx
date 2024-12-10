@@ -13,13 +13,13 @@ import { isValidSongFilter } from '~/utils/song-filter';
 export interface SongFilterType {
   generations?: string[];
   units?: string[];
-  types?: ('original' | 'covers')[];
+  types?: ('original' | 'covers' | '104ver' | 'nver')[];
 }
 
 const DATA = {
   generations: ['103', '104'],
   units: Array.from(new Set(songs.data.map((s) => s.unit))),
-  types: ['original', 'covers']
+  types: ['original', 'covers', '104ver', 'nver']
 } as const;
 
 export function SongFilters({
@@ -29,8 +29,8 @@ export function SongFilters({
   filters: SongFilterType | null | undefined;
   setFilters: Dispatch<SetStateAction<SongFilterType | null | undefined>>;
 }) {
-  const { t, i18n } = useTranslation();
-  const lang = i18n.language;
+  const { t, i18n: _i18n } = useTranslation();
+  // const _lang = i18n.language;
   const selectAll = (key: keyof SongFilterType) => () => {
     setFilters((f) => {
       const isAllSelected = f?.[key]?.length === DATA[key].length;
@@ -88,7 +88,7 @@ export function SongFilters({
             {DATA.generations.map((s) => {
               return (
                 <Checkbox size="sm" key={s} value={s}>
-                  {t(s)}
+                  {t(`settings.generation.${s}`)}
                 </Checkbox>
               );
             })}
@@ -115,7 +115,7 @@ export function SongFilters({
             {DATA.types.map((s) => {
               return (
                 <Checkbox size="sm" key={s} value={s}>
-                  {t(s)}
+                  {t(`settings.type.${s}`)}
                 </Checkbox>
               );
             })}

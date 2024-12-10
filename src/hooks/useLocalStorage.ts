@@ -40,7 +40,8 @@ export const useLocalStorage = function <T>(
     //@ts-expect-error force convert to function
     const newData = typeof s === 'function' ? s.call(s, data) : s;
     storage.current.value = newData;
-    setData(newData);
+    setData(s);
+    console.log(s);
   };
 
   const updateValue = (updateKey: string) => (storageEvent: StorageEvent) => {

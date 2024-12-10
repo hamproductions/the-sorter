@@ -7,6 +7,7 @@ import type { WithRank } from '~/types';
 import { token } from 'styled-system/tokens';
 import type { Song } from '~/types/songs';
 import { Text } from '~/components/ui/text';
+import { getSongColor } from '~/utils/song';
 
 function _TierListItem({
   song,
@@ -29,8 +30,8 @@ function _TierListItem({
   return (
     <Stack
       style={{
-        // ['--color' as 'color']: (colorCode ?? seriesColor) as 'red',
-        // ['--seriesColor' as 'borderLeftColor']: seriesColor ?? colorCode,
+        ['--color' as 'color']: getSongColor(song) as 'red',
+        ['--seriesColor' as 'borderLeftColor']: getSongColor(song),
         ['--padding' as 'padding']: token(`spacing.${showRank ? '4' : '1'}`),
         ['--padding-top' as 'paddingTop']: token(`spacing.${showRank ? '4' : '2'}`)
       }}

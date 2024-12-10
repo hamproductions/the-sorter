@@ -5,6 +5,7 @@ import type { Locale } from '~/i18n';
 import type { WithRank } from '~/types';
 import type { Song } from '~/types/songs';
 import { Text } from '~/components/ui/text';
+import { getSongColor } from '~/utils/song';
 
 export function SongGridViewItem({
   song,
@@ -20,10 +21,10 @@ export function SongGridViewItem({
 
   return (
     <Stack
-      // style={{
-      //   ['--color' as 'color']: (colorCode ?? seriesColor) as 'red',
-      //   ['--seriesColor' as 'borderLeftColor']: seriesColor ?? colorCode
-      // }}
+      style={{
+        ['--color' as 'color']: getSongColor(song) as 'red',
+        ['--seriesColor' as 'borderLeftColor']: getSongColor(song)
+      }}
       justifyContent="flex-end"
       borderTop="8px solid"
       borderColor="var(--seriesColor)"

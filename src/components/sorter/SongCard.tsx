@@ -5,6 +5,7 @@ import type { StackProps } from 'styled-system/jsx';
 import { Center, Stack, styled } from 'styled-system/jsx';
 import type { Song } from '~/types/songs';
 import { getPicUrl } from '~/utils/assets';
+import { getSongColor } from '~/utils/song';
 
 export function SongCard({ song, ...rest }: { song?: Song } & StackProps) {
   const { i18n: _i18n } = useTranslation();
@@ -15,7 +16,7 @@ export function SongCard({ song, ...rest }: { song?: Song } & StackProps) {
 
   return (
     <Stack
-      // style={{ ['--color' as 'color']: character.colorCode ?? undefined }}
+      style={{ ['--color' as 'color']: getSongColor(song) ?? undefined }}
       gap={1}
       alignItems="center"
       rounded="l1"

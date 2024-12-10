@@ -12,14 +12,17 @@ export const useHasuSongsSortData = () => {
   const { t } = useTranslation();
   const songs = useSongData();
   const [noTieMode, setNoTieMode] = useLocalStorage('dd-mode', false);
-  const [filters, setFilters] = useLocalStorage<SongFilterType>('hasu-song-filters', undefined);
+  const [songFilters, setSongFilters] = useLocalStorage<SongFilterType>(
+    'hasu-song-filters',
+    undefined
+  );
   const listToSort = useMemo(() => {
-    return songs && filters && hasFilter(filters)
+    return songs && songFilters && hasFilter(songFilters)
       ? songs.filter((s) => {
-          return matchSongFilter(s, filters ?? {});
+          return matchSongFilter(s, songFilters ?? {});
         })
       : songs;
-  }, [songs, filters]);
+  }, [songs, songFilters]);
 
   const {
     init,
@@ -95,8 +98,8 @@ export const useHasuSongsSortData = () => {
     tie: handleTie,
     undo,
     progress,
-    filters: null,
-    setFilters,
+    songFilters,
+    setSongFilters,
     listToSort,
     listCount: listToSort.length,
     clear

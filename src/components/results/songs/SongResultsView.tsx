@@ -46,8 +46,6 @@ export function SongResultsView({
   const { t, i18n: _i18n } = useTranslation();
 
   const tabs = [
-    { id: 'default', label: t('results.list') },
-    { id: 'table', label: t('results.table') },
     { id: 'grid', label: t('results.grid') },
     { id: 'tier', label: t('results.tier') }
   ];
@@ -122,7 +120,7 @@ export function SongResultsView({
   };
 
   useEffect(() => {
-    const sortType = t('songs');
+    const sortType = t('hasu-songs');
     const type = currentTab === 'tier' ? t('results.tierlist') : t('results.ranking');
     setTitle(
       titlePrefix

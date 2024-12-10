@@ -98,6 +98,7 @@ export function SongTierList({
                       key={id}
                       onClick={onSelect && (() => onSelect(c))}
                       rounded="l1"
+                      h="full"
                       bgColor="bg.canvas"
                       shadow={{ base: 'md', _hover: 'lg' }}
                       transition="shadow"

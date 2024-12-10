@@ -22,6 +22,7 @@ export function SongGridView({
               key={id}
               onClick={onSelect && (() => onSelect(c))}
               rounded="l1"
+              h="full"
               bgColor="bg.canvas"
               shadow={{ base: 'sm', _hover: 'md' }}
               transition="shadow"

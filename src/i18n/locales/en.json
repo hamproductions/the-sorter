@@ -8,8 +8,11 @@
   "ranking": "No.",
   "save": "Save",
   "cancel": "Cancel",
+  "hasu-songs": "Hasu no Sora Songs",
+  "songs": "Songs",
   "settings": {
     "sort_count": "{{ count }} to be sorted",
+    "songs_sort_count": "{{ count }} songs to be sorted",
     "seiyuu": "Do you like seiyuu ? (Seiyuu Mode)",
     "share": "Share current settings",
     "series": "Series",
@@ -17,7 +20,19 @@
     "units": "Units",
     "select_all": "Select All",
     "deselect_all": "Deselect All",
-    "no_tie_mode": "No DD Allowed Mode (Hard)"
+    "no_tie_mode": "No DD Allowed Mode (Hard)",
+    "generation": {
+      "103": "103th",
+      "104": "104th"
+    },
+    "generations": "Generation",
+    "types": "Type",
+    "type": {
+      "original": "Original",
+      "covers": "Covers",
+      "104ver": "104th ver.",
+      "nver": "N members ver."
+    }
   },
   "sort": {
     "start": "Start",
