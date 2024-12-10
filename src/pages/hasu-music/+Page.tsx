@@ -1,31 +1,22 @@
 import { Suspense, lazy, useEffect, useState } from 'react';
 import { preload } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { FaShare } from 'react-icons/fa6';
-import type { ShareDisplayData } from '../../components/results/ResultsView';
-import { CharacterCard } from '../../components/sorter/CharacterCard';
 import { Button } from '../../components/ui/styled/button';
 import { Kbd } from '../../components/ui/styled/kbd';
 import { Progress } from '../../components/ui/styled/progress';
 import { Switch } from '../../components/ui/styled/switch';
 import { Text } from '../../components/ui/styled/text';
 import { useToaster } from '../../context/ToasterContext';
-import { useData } from '../../hooks/useData';
-import { useSortData } from '../../hooks/useSortData';
-import type { Character } from '../../types';
 import { getCurrentItem } from '../../utils/sort';
-import { addPresetParams, serializeData } from '~/utils/share';
 import { getNextItems } from '~/utils/preloading';
-import { getFilterTitle, isValidFilter } from '~/utils/filter';
-import { getPicUrl } from '~/utils/assets';
-import { useDialogData } from '~/hooks/useDialogData';
 import { LoadingCharacterFilters } from '~/components/sorter/LoadingCharacterFilters';
 import { Metadata } from '~/components/layout/Metadata';
 import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
-
-const ResultsView = lazy(() =>
-  import('../../components/results/ResultsView').then((m) => ({ default: m.ResultsView }))
-);
+import { useHasuSongsSortData } from '~/hooks/useHasuSongsSortData';
+import { SongCard } from '~/components/sorter/SongCard';
+import { useSongData } from '~/hooks/useSongData';
+import { getPicUrl } from '~/utils/assets';
+import { SongResultsView } from '~/components/results/songs/SongResultsView';
 
 const ConfirmMidSortDialog = lazy(() =>
   import('../../components/dialog/ConfirmDialog').then((m) => ({
@@ -39,25 +30,17 @@ const ConfirmEndedDialog = lazy(() =>
   }))
 );
 
-const CharacterInfoDialog = lazy(() =>
-  import('../../components/dialog/CharacterInfoDialog').then((m) => ({
-    default: m.CharacterInfoDialog
-  }))
-);
-
-const CharacterFilters = lazy(() =>
-  import('../../components/sorter/CharacterFilters').then((m) => ({
-    default: m.CharacterFilters
+const SongFilters = lazy(() =>
+  import('../../components/sorter/SongFilters').then((m) => ({
+    default: m.SongFilters
   }))
 );
 
 export function Page() {
-  const data = useData();
-  const { toast } = useToaster();
-  const { t, i18n } = useTranslation();
+  const songs = useSongData();
+  const { toast: _toast } = useToaster();
+  const { t, i18n: _i18n } = useTranslation();
   const {
-    seiyuu,
-    setSeiyuu,
     noTieMode,
     setNoTieMode,
     init,
@@ -73,16 +56,11 @@ export function Page() {
     listToSort,
     listCount,
     clear
-  } = useSortData();
+  } = useHasuSongsSortData();
   const [showConfirmDialog, setShowConfirmDialog] = useState<{
     type: 'mid-sort' | 'ended';
     action: 'reset' | 'clear';
   }>();
-  const {
-    data: showCharacterInfo,
-    isOpen: isShowCharacterInfo,
-    setData: setShowCharacterInfo
-  } = useDialogData<Character>();
 
   const { left: leftItem, right: rightItem } =
     (state && getCurrentItem(state)) || ({} as { left: string[]; right: string[] });
@@ -90,52 +68,18 @@ export function Page() {
   const currentLeft = leftItem && listToSort.find((l) => l.id === leftItem[0]);
   const currentRight = rightItem && listToSort.find((l) => l.id === rightItem[0]);
 
-  const titlePrefix = getFilterTitle(filters, data, i18n.language) ?? t('defaultTitlePrefix');
+  // const titlePrefix = getFilterTitle(filters, data, i18n.language) ?? t('defaultTitlePrefix');
   const title = t('title', {
-    titlePrefix
+    titlePrefix: 'Hasu Songs'
   });
-
-  const shareUrl = async () => {
-    if (!isValidFilter(filters)) return;
-    const params = addPresetParams(new URLSearchParams(), filters, seiyuu);
-    const url = `${location.origin}${location.pathname}?${params.toString()}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      toast?.(t('toast.url_copied'));
-    } catch (e) {}
-  };
-
-  const shareResultsUrl = async (shareData: ShareDisplayData) => {
-    if (!isValidFilter(filters)) return;
-    const params = addPresetParams(new URLSearchParams(), filters, seiyuu);
-    params.append('data', await serializeData({ ...shareData, results: state?.arr ?? undefined }));
-    const url = `${location.origin}${
-      import.meta.env.PUBLIC_ENV__BASE_URL ?? ''
-    }/share?${params.toString()}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      toast?.(t('toast.url_copied'));
-    } catch (e) {}
-  };
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const urlSeiyuu = params.get('seiyuu');
-
-    if (urlSeiyuu !== null) {
-      setSeiyuu(urlSeiyuu === 'true');
-    }
-  }, []);
 
   // Preload Assets
   useEffect(() => {
     if (!state) return;
     const nextItems = getNextItems(state);
     for (const item of nextItems) {
-      preload(getPicUrl(item, seiyuu ? 'seiyuu' : 'character'), { as: 'image' });
-      if (listToSort.find((c) => c.id === item)?.hasIcon) {
-        preload(getPicUrl(item, 'icons'), { as: 'image' });
-      }
+      const url = getPicUrl(`${item}`, 'thumbnail');
+      if (url) preload(url, { as: 'image' });
     }
   }, [state]);
 
@@ -179,17 +123,10 @@ export function Page() {
               {import.meta.env.SSR ? (
                 <LoadingCharacterFilters />
               ) : (
-                <CharacterFilters filters={filters} setFilters={setFilters} />
+                <SongFilters filters={filters} setFilters={setFilters} />
               )}
             </Suspense>
             <Wrap>
-              <Switch
-                checked={seiyuu}
-                disabled={isSorting}
-                onCheckedChange={(e) => setSeiyuu(e.checked)}
-              >
-                {t('settings.seiyuu')}
-              </Switch>
               <Switch
                 checked={noTieMode}
                 disabled={isSorting}
@@ -204,9 +141,6 @@ export function Page() {
           {t('settings.sort_count', { count: listCount })}
         </Text>
         <Wrap justifyContent="center">
-          <Button onClick={() => void shareUrl()} variant="subtle">
-            <FaShare /> {t('settings.share')}
-          </Button>
           <Button variant="solid" onClick={() => handleStart()}>
             {!isSorting ? t('sort.start') : t('sort.start_over')}
           </Button>
@@ -230,23 +164,13 @@ export function Page() {
                       width="full"
                     >
                       <Stack flex="1" alignItems="center" w="full">
-                        <CharacterCard
-                          onClick={() => left()}
-                          character={currentLeft}
-                          isSeiyuu={seiyuu}
-                          flex={1}
-                        />
+                        <SongCard onClick={() => left()} song={currentLeft} flex={1} />
                         <Box hideBelow="sm">
                           <Kbd>←</Kbd>
                         </Box>
                       </Stack>
                       <Stack flex="1" alignItems="center" w="full">
-                        <CharacterCard
-                          onClick={() => right()}
-                          character={currentRight}
-                          isSeiyuu={seiyuu}
-                          flex={1}
-                        />
+                        <SongCard onClick={() => right()} song={currentRight} flex={1} />
                         <Box hideBelow="sm">
                           <Kbd>→</Kbd>
                         </Box>
@@ -304,15 +228,7 @@ export function Page() {
             )}
             {state.arr && progress === 1 && (
               <Suspense>
-                <ResultsView
-                  titlePrefix={titlePrefix}
-                  charactersData={data}
-                  isSeiyuu={seiyuu}
-                  onShareResults={(results) => void shareResultsUrl(results)}
-                  onSelectCharacter={setShowCharacterInfo}
-                  w="full"
-                  order={state.arr}
-                />
+                <SongResultsView songsData={songs} w="full" order={state.arr} />
               </Suspense>
             )}
           </Stack>
@@ -352,16 +268,6 @@ export function Page() {
           onOpenChange={({ open }) => {
             if (!open) {
               setShowConfirmDialog(undefined);
-            }
-          }}
-        />
-        <CharacterInfoDialog
-          character={showCharacterInfo}
-          isSeiyuu={seiyuu}
-          open={isShowCharacterInfo}
-          onOpenChange={(e) => {
-            if (!e.open) {
-              return setShowCharacterInfo(undefined);
             }
           }}
         />
