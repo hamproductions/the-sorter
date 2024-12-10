@@ -2,12 +2,12 @@ import { max, sortBy } from 'lodash-es';
 import { Fragment, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaPlus, FaTrash } from 'react-icons/fa6';
-import { Button } from '../ui/styled/button';
-import { Checkbox } from '../ui/styled/checkbox';
-import { IconButton } from '../ui/styled/icon-button';
-import { Input } from '../ui/styled/input';
-import { NumberInput } from '../ui/styled/number-input';
-import { Text } from '../ui/styled/text';
+import { Button } from '../ui/button';
+import { Checkbox } from '../ui/checkbox';
+import { IconButton } from '../ui/icon-button';
+import { Input } from '../ui/input';
+import { NumberInput } from '../ui/number-input';
+import { Text } from '../ui/text';
 import type { TierListSettings as TierListSettingsData } from './TierList';
 import { Grid, HStack, Stack, Wrap } from 'styled-system/jsx';
 

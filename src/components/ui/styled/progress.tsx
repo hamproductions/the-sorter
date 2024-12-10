@@ -1,49 +1,62 @@
-import type { Assign } from '@ark-ui/react';
-import { Progress as ArkProgress, type ProgressRootProps } from '@ark-ui/react/progress';
-import { forwardRef } from 'react';
-import { css, cx } from 'styled-system/css';
-import { splitCssProps } from 'styled-system/jsx';
-import { type ProgressVariantProps, progress } from 'styled-system/recipes';
-import type { JsxStyleProps } from 'styled-system/types';
+'use client'
+import type { Assign } from '@ark-ui/react'
+import { Progress } from '@ark-ui/react/progress'
+import { type ProgressVariantProps, progress } from 'styled-system/recipes'
+import type { ComponentProps, HTMLStyledProps } from 'styled-system/types'
+import { createStyleContext } from './utils/create-style-context'
 
-export interface ProgressProps
-  extends Assign<JsxStyleProps, ProgressRootProps>,
-    ProgressVariantProps {
-  /**
-   * The type of progress to render.
-   * @default linear
-   */
-  type?: 'linear' | 'circular';
-}
+const { withProvider, withContext } = createStyleContext(progress)
 
-export const Progress = forwardRef<HTMLDivElement, ProgressProps>((props, ref) => {
-  const [variantProps, progressProps] = progress.splitVariantProps(props);
-  const [cssProps, localProps] = splitCssProps(progressProps);
-  const { children, className, type = 'linear', ...rootProps } = localProps;
-  const styles = progress(variantProps);
+export type RootProviderProps = ComponentProps<typeof RootProvider>
+export const RootProvider = withProvider<
+  HTMLDivElement,
+  Assign<Assign<HTMLStyledProps<'div'>, Progress.RootProviderBaseProps>, ProgressVariantProps>
+>(Progress.RootProvider, 'root')
 
-  return (
-    <ArkProgress.Root
-      className={cx(styles.root, css(cssProps), className)}
-      ref={ref}
-      {...rootProps}
-    >
-      {children && <ArkProgress.Label className={styles.label}>{children}</ArkProgress.Label>}
-      {type === 'linear' && (
-        <ArkProgress.Track className={styles.track}>
-          <ArkProgress.Range className={styles.range} />
-        </ArkProgress.Track>
-      )}
-      {type === 'circular' && (
-        <ArkProgress.Circle className={styles.circle}>
-          <ArkProgress.CircleTrack className={styles.circleTrack} />
-          <ArkProgress.CircleRange className={styles.circleRange} />
-          <ArkProgress.ValueText className={styles.valueText} />
-        </ArkProgress.Circle>
-      )}
-      <ArkProgress.ValueText className={styles.valueText} />
-    </ArkProgress.Root>
-  );
-});
+export type RootProps = ComponentProps<typeof Root>
+export const Root = withProvider<
+  HTMLDivElement,
+  Assign<Assign<HTMLStyledProps<'div'>, Progress.RootBaseProps>, ProgressVariantProps>
+>(Progress.Root, 'root')
 
-Progress.displayName = 'Progress';
+export const Circle = withContext<
+  SVGSVGElement,
+  Assign<HTMLStyledProps<'svg'>, Progress.CircleBaseProps>
+>(Progress.Circle, 'circle')
+
+export const CircleRange = withContext<
+  SVGCircleElement,
+  Assign<HTMLStyledProps<'circle'>, Progress.CircleRangeBaseProps>
+>(Progress.CircleRange, 'circleRange')
+
+export const CircleTrack = withContext<
+  SVGCircleElement,
+  Assign<HTMLStyledProps<'circle'>, Progress.CircleTrackBaseProps>
+>(Progress.CircleTrack, 'circleTrack')
+
+export const Label = withContext<
+  HTMLLabelElement,
+  Assign<HTMLStyledProps<'label'>, Progress.LabelBaseProps>
+>(Progress.Label, 'label')
+
+export const Range = withContext<
+  HTMLDivElement,
+  Assign<HTMLStyledProps<'div'>, Progress.RangeBaseProps>
+>(Progress.Range, 'range')
+
+export const Track = withContext<
+  HTMLDivElement,
+  Assign<HTMLStyledProps<'div'>, Progress.TrackBaseProps>
+>(Progress.Track, 'track')
+
+export const ValueText = withContext<
+  HTMLSpanElement,
+  Assign<HTMLStyledProps<'span'>, Progress.ValueTextBaseProps>
+>(Progress.ValueText, 'valueText')
+
+export const View = withContext<
+  HTMLSpanElement,
+  Assign<HTMLStyledProps<'span'>, Progress.ViewBaseProps>
+>(Progress.View, 'view')
+
+export { ProgressContext as Context } from '@ark-ui/react/progress'

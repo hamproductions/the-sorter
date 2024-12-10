@@ -6,7 +6,7 @@ import type { Locale } from '~/i18n';
 import type { WithRank } from '~/types';
 import { token } from 'styled-system/tokens';
 import type { Song } from '~/types/songs';
-import { Text } from '~/components/ui/styled/text';
+import { Text } from '~/components/ui/text';
 
 function _TierListItem({
   song,

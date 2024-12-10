@@ -3,8 +3,8 @@ import { preload } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../components/ui/styled/button';
 import { Kbd } from '../../components/ui/styled/kbd';
-import { Progress } from '../../components/ui/styled/progress';
-import { Switch } from '../../components/ui/styled/switch';
+import { Progress } from '../../components/ui/progress';
+import { Switch } from '../../components/ui/switch';
 import { Text } from '../../components/ui/styled/text';
 import { useToaster } from '../../context/ToasterContext';
 import { getCurrentItem } from '../../utils/sort';
@@ -106,8 +106,6 @@ export function Page() {
       clear();
     }
   };
-
-  console.log('FILTERS', filters);
 
   return (
     <>

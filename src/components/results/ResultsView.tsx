@@ -2,15 +2,16 @@ import { useEffect, useMemo, useState } from 'react';
 import { FaChevronDown, FaCopy, FaDownload, FaPencil, FaShare, FaXTwitter } from 'react-icons/fa6';
 
 import { useTranslation } from 'react-i18next';
-import * as Accordion from '../ui/styled/accordion';
-import { Button } from '../ui/styled/button';
-import { FormLabel } from '../ui/styled/form-label';
-import { Heading } from '../ui/styled/heading';
-import { Input } from '../ui/styled/input';
+import { Accordion } from '../ui/accordion';
+import { Button } from '../ui/button';
+import { FormLabel } from '../ui/form-label';
+import { Heading } from '../ui/heading';
+import { Input } from '../ui/input';
+
+import { Tabs } from '../ui/tabs';
+import { Text } from '../ui/text';
+import { Textarea } from '../ui/textarea';
 import type { RootProps } from '../ui/styled/tabs';
-import * as Tabs from '../ui/styled/tabs';
-import { Text } from '../ui/styled/text';
-import { Textarea } from '../ui/styled/textarea';
 import { GridView } from './GridView';
 import { RankingTable } from './RankingTable';
 import { RankingView } from './RankingView';
@@ -141,12 +142,18 @@ export function ResultsView({
         ids.map((id) => {
           const character = getCharacterFromId(charactersData, id, isSeiyuu);
           if (!character) return;
-          return `${idx + 1}. ${isSeiyuu ? getCastName(character?.casts[0], i18n.language) : getFullName(character, i18n.language)}`;
+          return `${idx + 1}. ${
+            isSeiyuu
+              ? getCastName(character?.casts[0], i18n.language)
+              : getFullName(character, i18n.language)
+          }`;
         })
       )
       .slice(0, 5)
       .join('\n');
-    return `${t('results.share_text.title')}\n${seiyuuList}\n${t('results.share_text.footer')}\nhttps://hamproductions.github.io/the-sorter/`;
+    return `${t('results.share_text.title')}\n${seiyuuList}\n${t(
+      'results.share_text.footer'
+    )}\nhttps://hamproductions.github.io/the-sorter/`;
   };
   const shareToX = () => {
     const shareURL = `https://twitter.com/intent/tweet?text=${encodeURIComponent(getShareText())}`;

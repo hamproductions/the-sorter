@@ -4,7 +4,7 @@ import { getPicUrl } from '~/utils/assets';
 import type { Locale } from '~/i18n';
 import type { WithRank } from '~/types';
 import type { Song } from '~/types/songs';
-import { Text } from '~/components/ui/styled/text';
+import { Text } from '~/components/ui/text';
 
 export function SongGridViewItem({
   song,

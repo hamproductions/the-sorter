@@ -8,20 +8,20 @@ import { DEFAULT_TIERS } from '../TierList';
 import { TierListSettings } from '../TierListSettings';
 import { SongGridView } from './SongGridView';
 import { SongTierList } from './SongTierList';
-import * as Tabs from '~/components/ui/styled/tabs';
-import * as Accordion from '~/components/ui/styled/accordion';
+import { Tabs } from '~/components/ui/tabs';
+import { Accordion } from '~/components/ui/accordion';
 import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
-import type { RootProps } from '~/components/ui/styled/tabs';
-import { FormLabel } from '~/components/ui/styled/form-label';
-import { Heading } from '~/components/ui/styled/heading';
-import { Input } from '~/components/ui/styled/input';
-import { Textarea } from '~/components/ui/styled/textarea';
+import { FormLabel } from '~/components/ui/form-label';
+import { Heading } from '~/components/ui/heading';
+import { Input } from '~/components/ui/input';
+import { Textarea } from '~/components/ui/textarea';
 import { useToaster } from '~/context/ToasterContext';
 import { useLocalStorage } from '~/hooks/useLocalStorage';
 import type { WithRank } from '~/types';
-import { Text } from '~/components/ui/styled/text';
+import { Text } from '~/components/ui/text';
 import type { Song } from '~/types/songs';
-import { Button } from '~/components/ui/styled/button';
+import { Button } from '~/components/ui/button';
+import type { RootProps } from '~/components/ui/styled/tabs';
 
 export function SongResultsView({
   titlePrefix,

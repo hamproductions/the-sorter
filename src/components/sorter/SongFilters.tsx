@@ -1,8 +1,9 @@
 import { useEffect, type Dispatch, type SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button } from '../ui/styled/button';
-import { Checkbox, CheckboxGroup } from '../ui/styled/checkbox';
-import { Text } from '../ui/styled/text';
+import { Button } from '../ui/button';
+import { Checkbox } from '../ui/checkbox';
+import { Group } from '../ui/styled/checkbox';
+import { Text } from '../ui/text';
 
 import songs from '../../../data/hasu-songs.json';
 
@@ -74,7 +75,7 @@ export function SongFilters({
             {t('settings.select_all')}
           </Button>
         </HStack>
-        <CheckboxGroup
+        <Group
           asChild
           defaultValue={[]}
           value={filters?.generations}
@@ -92,7 +93,7 @@ export function SongFilters({
               );
             })}
           </Wrap>
-        </CheckboxGroup>
+        </Group>
       </Stack>
       <Stack>
         <HStack justifyContent="space-between">
@@ -101,7 +102,7 @@ export function SongFilters({
             {t('settings.select_all')}
           </Button>
         </HStack>
-        <CheckboxGroup
+        <Group
           asChild
           defaultValue={[]}
           value={filters?.types}
@@ -119,7 +120,7 @@ export function SongFilters({
               );
             })}
           </Wrap>
-        </CheckboxGroup>
+        </Group>
       </Stack>
       <Stack>
         <HStack justifyContent="space-between">
@@ -128,7 +129,7 @@ export function SongFilters({
             {t('settings.select_all')}
           </Button>
         </HStack>
-        <CheckboxGroup
+        <Group
           asChild
           defaultValue={[]}
           value={filters?.units}
@@ -146,7 +147,7 @@ export function SongFilters({
               );
             })}
           </Wrap>
-        </CheckboxGroup>
+        </Group>
       </Stack>
       <HStack justifyContent="center">
         <Button onClick={deselectAll}>{t('settings.deselect_all')}</Button>

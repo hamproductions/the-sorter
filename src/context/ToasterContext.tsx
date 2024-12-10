@@ -2,8 +2,8 @@ import { createToaster } from '@ark-ui/react/toast';
 import type { ReactNode } from 'react';
 import { Suspense, createContext, useContext } from 'react';
 import { FaXmark } from 'react-icons/fa6';
-import { IconButton } from '~/components/ui/styled/icon-button';
-import * as Toast from '~/components/ui/styled/toast';
+import { IconButton } from '~/components/ui/icon-button';
+import { Toast } from '~/components/ui/toast';
 
 type ToastOptions = Parameters<typeof toaster.create>[0];
 const ToasterContext = createContext<{ toast?: (msg: ReactNode, options?: ToastOptions) => void }>(

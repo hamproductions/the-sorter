@@ -3,10 +3,10 @@ import React from 'react';
 import { FaArrowsRotate, FaCopy, FaTrash } from 'react-icons/fa6';
 import type { WithTranslation } from 'react-i18next';
 import { withTranslation } from 'react-i18next';
-import { Button } from '../ui/styled/button';
-import { Code } from '../ui/styled/code';
-import { Link } from '../ui/styled/link';
-import { Text } from '../ui/styled/text';
+import { Button } from '../ui/button';
+import { Code } from '../ui/code';
+import { Link } from '../ui/link';
+import { Text } from '../ui/text';
 import { Center, Stack, Wrap } from 'styled-system/jsx';
 
 class ErrorBoundaryInner extends React.Component<

@@ -5,7 +5,7 @@ import { SongTierListItem } from './SongTierListItem';
 import { Grid, GridItem, Stack } from 'styled-system/jsx';
 import type { WithRank } from '~/types';
 import type { Song } from '~/types/songs';
-import { Text } from '~/components/ui/styled/text';
+import { Text } from '~/components/ui/text';
 
 export const DEFAULT_TIERS: string[] = ['S', 'A', 'B', 'C', 'D'];
 

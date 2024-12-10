@@ -1,8 +1,8 @@
 import { Suspense, lazy } from 'react';
 import { useTranslation } from 'react-i18next';
 import { decompressFromEncodedURIComponent } from 'lz-string';
-import { Link } from '../../components/ui/styled/link';
-import { Text } from '../../components/ui/styled/text';
+import { Link } from '../../components/ui/link';
+import { Text } from '../../components/ui/text';
 import { useData } from '../../hooks/useData';
 import type { Character } from '../../types';
 import school from '../../../data/school.json';
@@ -12,7 +12,7 @@ import { Container, Stack } from 'styled-system/jsx';
 import { ResultsView } from '~/components/results/ResultsView';
 import { getFilterTitle } from '~/utils/filter';
 
-import { Button } from '~/components/ui/styled/button';
+import { Button } from '~/components/ui/button';
 import { Metadata } from '~/components/layout/Metadata';
 import type { TierListSettings } from '~/components/results/TierList';
 import { useDialogData } from '~/hooks/useDialogData';

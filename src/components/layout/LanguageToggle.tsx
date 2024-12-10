@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Button } from '../ui/styled/button';
+import { Button } from '../ui/button';
 import { Wrap } from 'styled-system/jsx';
 import type { Locale } from '~/i18n';
 
