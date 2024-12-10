@@ -1,25 +1,25 @@
-'use client'
-import { CheckSquareIcon, ChevronRightIcon, FileIcon, FolderIcon } from 'lucide-react'
-import { forwardRef } from 'react'
-import * as StyledTreeView from './styled/tree-view'
+'use client';
+import { CheckSquareIcon, ChevronRightIcon, FileIcon, FolderIcon } from 'lucide-react';
+import { forwardRef } from 'react';
+import * as StyledTreeView from './styled/tree-view';
 
 export const TreeView = forwardRef<HTMLDivElement, StyledTreeView.RootProps>((props, ref) => {
   return (
     <StyledTreeView.Root ref={ref} {...props}>
       <StyledTreeView.Tree>
-        {/* @ts-expect-error */}
+        {/* @ts-expect-error no type*/}
         {props.collection.rootNode.children.map((node, index) => (
           <TreeNode key={node.id} node={node} indexPath={[index]} />
         ))}
       </StyledTreeView.Tree>
     </StyledTreeView.Root>
-  )
-})
+  );
+});
 
-TreeView.displayName = 'TreeView'
+TreeView.displayName = 'TreeView';
 
-const TreeNode = (props: StyledTreeView.NodeProviderProps) => {
-  const { node, indexPath } = props
+function TreeNode(props: StyledTreeView.NodeProviderProps) {
+  const { node, indexPath } = props;
   return (
     <StyledTreeView.NodeProvider key={node.id} node={node} indexPath={indexPath}>
       {node.children ? (
@@ -34,7 +34,7 @@ const TreeNode = (props: StyledTreeView.NodeProviderProps) => {
           </StyledTreeView.BranchControl>
           <StyledTreeView.BranchContent>
             <StyledTreeView.BranchIndentGuide />
-            {/* @ts-expect-error */}
+            {/* @ts-expect-error no type*/}
             {node.children.map((child, index) => (
               <TreeNode key={child.id} node={child} indexPath={[...indexPath, index]} />
             ))}
@@ -52,5 +52,5 @@ const TreeNode = (props: StyledTreeView.NodeProviderProps) => {
         </StyledTreeView.Item>
       )}
     </StyledTreeView.NodeProvider>
-  )
+  );
 }

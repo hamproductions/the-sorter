@@ -8,7 +8,7 @@ export class LocalStorage<T = unknown> {
     try {
       const val = localStorage.getItem(this.key);
       return val !== null ? JSON.parse(val) : null;
-    } catch (error) {
+    } catch {
       return null;
     }
   }

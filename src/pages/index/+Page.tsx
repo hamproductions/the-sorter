@@ -102,7 +102,7 @@ export function Page() {
     try {
       await navigator.clipboard.writeText(url);
       toast?.(t('toast.url_copied'));
-    } catch (e) {}
+    } catch {}
   };
 
   const shareResultsUrl = async (shareData: ShareDisplayData) => {
@@ -115,7 +115,7 @@ export function Page() {
     try {
       await navigator.clipboard.writeText(url);
       toast?.(t('toast.url_copied'));
-    } catch (e) {}
+    } catch {}
   };
 
   useEffect(() => {
