@@ -4,7 +4,7 @@ import { Text } from '../ui/text';
 import type { StackProps } from 'styled-system/jsx';
 import { Center, Stack, styled } from 'styled-system/jsx';
 import type { Song } from '~/types/songs';
-import { getPicUrl } from '~/utils/assets';
+import { getAudioUrl, getPicUrl } from '~/utils/assets';
 import { getSongColor } from '~/utils/song';
 
 export function SongCard({ song, ...rest }: { song?: Song } & StackProps) {
@@ -51,7 +51,7 @@ export function SongCard({ song, ...rest }: { song?: Song } & StackProps) {
         {song.title}
       </Text>
       <Text fontSize="sm">{song.unit}</Text>
-      <audio src={song.audioFile} controls preload="auto" />
+      <audio src={getAudioUrl(`${song.id}`)} controls preload="auto" />
     </Stack>
   );
 }

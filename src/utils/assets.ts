@@ -28,3 +28,7 @@ export const getPicUrl = (
 
   return getAssetUrl(join(prefix, `${photoId}.webp`));
 };
+
+export const getAudioUrl = (id: string) => {
+  return getAssetUrl(join('assets/songs/audio', `${id}.webm`));
+};
