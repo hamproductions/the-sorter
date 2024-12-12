@@ -87,7 +87,9 @@
         "ranks": "Ranks",
         "hide_bottom_tier": "Hide bottom tier"
       }
-    }
+    },
+    "copy_text": "Copy results as Text",
+    "export_json": "Export JSON"
   },
   "toast": {
     "url_copied": "URL Copied to Clipboard",

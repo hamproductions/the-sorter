@@ -108,6 +108,38 @@ export function SongResultsView({
     }
   };
 
+  const exportText = async () => {
+    await navigator.clipboard.writeText(
+      order
+        ?.flatMap((item, idx) =>
+          item.map((i) => {
+            const s = songsData.find((s) => s.id === i);
+            return `${idx + 1}. ${s?.title} - ${s?.unit}`;
+          })
+        )
+        .join('\n') ?? ''
+    );
+    toast?.(t('toast.text_copied'));
+  };
+
+  const exportJSON = async () => {
+    await navigator.clipboard.writeText(
+      JSON.stringify(
+        order?.flatMap((item, idx) =>
+          item.map((i) => {
+            const s = songsData.find((s) => s.id === i);
+            return {
+              rank: idx + 1,
+              title: s?.title,
+              unit: s?.unit
+            };
+          })
+        )
+      )
+    );
+    toast?.(t('toast.text_copied'));
+  };
+
   const download = async () => {
     try {
       const blob = await makeScreenshot();
@@ -179,6 +211,12 @@ export function SongResultsView({
           </Accordion.Root>
           <HStack justifyContent="space-between" w="full">
             <Wrap justifyContent="flex-end" w="full">
+              <Button variant="subtle" onClick={() => void exportJSON()}>
+                <FaCopy /> {t('results.export_json')}
+              </Button>
+              <Button variant="subtle" onClick={() => void exportText()}>
+                <FaCopy /> {t('results.copy_text')}
+              </Button>
               <Button variant="subtle" onClick={() => void screenshot()}>
                 <FaCopy /> {t('results.copy')}
               </Button>

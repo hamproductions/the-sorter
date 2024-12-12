@@ -87,7 +87,9 @@
         "start_rank": "ランク",
         "hide_bottom_tier": "最下位を非表示する"
       }
-    }
+    },
+    "copy_text": "テキストをコピーする",
+    "export_json": "JSONデータをコピーする"
   },
   "toast": {
     "url_copied": "URLをコピーしました",
