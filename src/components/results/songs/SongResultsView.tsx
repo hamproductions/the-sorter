@@ -147,7 +147,7 @@ export function SongResultsView({
       const saveAs = (await import('file-saver')).saveAs;
       saveAs(new File([blob], `${titlePrefix ?? 'll'}-sorted-${timestamp.valueOf()}.png`));
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 

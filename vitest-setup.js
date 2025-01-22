@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom/vitest';
 import { cleanup, configure, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 import './src/index.css';
 
 import { afterEach, beforeAll, beforeEach, onTestFailed } from 'vitest';
@@ -10,9 +11,9 @@ beforeAll(() => {
   });
 });
 beforeEach(async () => {
+  vi.spyOn(window.HTMLElement.prototype, 'focus').mockImplementation(() => {});
   window.PointerEvent = MouseEvent;
   delete window.location;
-  // @ts-ignore
   window.location = new URL('http://localhost/');
   window.localStorage.clear();
 });

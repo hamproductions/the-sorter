@@ -84,7 +84,6 @@ export function EditResultsModal(
   }
 
   function handleDragEnd(event: DragEndEvent) {
-    console.log('DRAG END');
     const { active, over } = event;
 
     if (active.id !== over?.id) {

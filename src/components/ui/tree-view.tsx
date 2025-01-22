@@ -1,6 +1,6 @@
 'use client';
-import { CheckSquareIcon, ChevronRightIcon, FileIcon, FolderIcon } from 'lucide-react';
 import { forwardRef } from 'react';
+import { FaChevronRight, FaFile, FaFolder, FaSquareCheck } from 'react-icons/fa6';
 import * as StyledTreeView from './styled/tree-view';
 
 export const TreeView = forwardRef<HTMLDivElement, StyledTreeView.RootProps>((props, ref) => {
@@ -26,10 +26,10 @@ function TreeNode(props: StyledTreeView.NodeProviderProps) {
         <StyledTreeView.Branch>
           <StyledTreeView.BranchControl>
             <StyledTreeView.BranchText>
-              <FolderIcon /> {node.name}
+              <FaFolder /> {node.name}
             </StyledTreeView.BranchText>
             <StyledTreeView.BranchIndicator>
-              <ChevronRightIcon />
+              <FaChevronRight />
             </StyledTreeView.BranchIndicator>
           </StyledTreeView.BranchControl>
           <StyledTreeView.BranchContent>
@@ -43,10 +43,10 @@ function TreeNode(props: StyledTreeView.NodeProviderProps) {
       ) : (
         <StyledTreeView.Item>
           <StyledTreeView.ItemIndicator>
-            <CheckSquareIcon />
+            <FaSquareCheck />
           </StyledTreeView.ItemIndicator>
           <StyledTreeView.ItemText>
-            <FileIcon />
+            <FaFile />
             {node.name}
           </StyledTreeView.ItemText>
         </StyledTreeView.Item>
