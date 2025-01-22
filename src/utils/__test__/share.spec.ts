@@ -22,8 +22,8 @@ describe('Share Utils', () => {
   });
 
   describe('serializeData function', () => {
-    it('Serialize Data with lz compression algorithm', () => {
-      expect(serializeData({ data: 'hoge' })).toMatchSnapshot();
+    it('Serialize Data with lz compression algorithm', async () => {
+      expect(await serializeData({ data: 'hoge' })).toMatchSnapshot();
     });
   });
 });

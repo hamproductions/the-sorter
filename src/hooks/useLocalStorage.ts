@@ -41,7 +41,6 @@ export const useLocalStorage = function <T>(
     const newData = typeof s === 'function' ? s.call(s, data) : s;
     storage.current.value = newData;
     setData(s);
-    console.log(s);
   };
 
   const updateValue = (updateKey: string) => (storageEvent: StorageEvent) => {

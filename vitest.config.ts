@@ -13,7 +13,6 @@ export default defineConfig({
       }
     })
   ],
-  //@ts-expect-error TODO: fix
   test: {
     environment: 'jsdom',
     css: process.env.TEST_PREVIEW === 'true',
