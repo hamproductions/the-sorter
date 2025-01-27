@@ -85,33 +85,6 @@ export function CharacterFilters({
     <Stack border="1px solid" borderColor="border.default" rounded="l1" p="4">
       <Stack>
         <HStack justifyContent="space-between">
-          <Text fontWeight="bold">{t('settings.series')}</Text>
-          <Button size="sm" onClick={selectAll('series')}>
-            {t('settings.select_all')}
-          </Button>
-        </HStack>
-        <Group
-          asChild
-          defaultValue={[]}
-          value={selectedSeries}
-          onValueChange={(series) => {
-            if (!filters) return;
-            setFilters({ ...filters, series });
-          }}
-        >
-          <Wrap>
-            {DATA.series.map((s) => {
-              return (
-                <Checkbox size="sm" key={s} value={s}>
-                  {getSeriesName(s, lang)}
-                </Checkbox>
-              );
-            })}
-          </Wrap>
-        </Group>
-      </Stack>
-      <Stack>
-        <HStack justifyContent="space-between">
           <Text fontWeight="bold">{t('settings.school')}</Text>
           <Button size="sm" onClick={selectAll('school')}>
             {t('settings.select_all')}
@@ -131,6 +104,33 @@ export function CharacterFilters({
               return (
                 <Checkbox size="sm" key={s} value={s}>
                   {getSchoolName(s, lang)}
+                </Checkbox>
+              );
+            })}
+          </Wrap>
+        </Group>
+      </Stack>
+      <Stack>
+        <HStack justifyContent="space-between">
+          <Text fontWeight="bold">{t('settings.series')}</Text>
+          <Button size="sm" onClick={selectAll('series')}>
+            {t('settings.select_all')}
+          </Button>
+        </HStack>
+        <Group
+          asChild
+          defaultValue={[]}
+          value={selectedSeries}
+          onValueChange={(series) => {
+            if (!filters) return;
+            setFilters({ ...filters, series });
+          }}
+        >
+          <Wrap>
+            {DATA.series.map((s) => {
+              return (
+                <Checkbox size="sm" key={s} value={s}>
+                  {getSeriesName(s, lang)}
                 </Checkbox>
               );
             })}
