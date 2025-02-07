@@ -64,7 +64,7 @@ describe('Home Page', () => {
         await user.click(await findByText('Cerise Bouquet', {}, { timeout: 2000 }));
         await user.click(await findByText("Hasunosora Girls' High School"));
         await user.click((await findAllByText("Hasunosora Girls' High School Idol Club"))[0]);
-        expect(await findByText('9 to be sorted')).toBeInTheDocument();
+        expect(await findByText('11 to be sorted')).toBeInTheDocument();
         const mockCopy = vi.spyOn(global.window.navigator.clipboard, 'writeText');
         await user.click(await findByText('Share current settings'));
         expect(mockCopy).toBeCalledWith(
