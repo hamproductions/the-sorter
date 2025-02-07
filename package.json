@@ -29,6 +29,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@pandacss/dev": "^0.51.1",
     "@park-ui/panda-preset": "^0.43.1",
+    "@sentry/react": "^8.54.0",
     "file-saver": "^2.0.5",
     "i18next": "^24.2.1",
     "lodash-es": "^4.17.21",

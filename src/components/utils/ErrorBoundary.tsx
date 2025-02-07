@@ -7,12 +7,16 @@ import { Button } from '../ui/button';
 import { Code } from '../ui/code';
 import { Link } from '../ui/link';
 import { Text } from '../ui/text';
+import { SentryContext } from './SentryContext';
 import { Center, Stack, Wrap } from 'styled-system/jsx';
-
 class ErrorBoundaryInner extends React.Component<
   WithTranslation & { children: React.ReactNode },
   { error?: Error; info?: ErrorInfo }
 > {
+  static contextType = SentryContext;
+
+  declare context: React.ContextType<typeof SentryContext>;
+
   constructor(props: WithTranslation & { children: React.ReactNode }) {
     super(props);
     this.state = {};
@@ -25,6 +29,17 @@ class ErrorBoundaryInner extends React.Component<
 
   componentDidCatch(error: Error, info: ErrorInfo) {
     this.setState({ error, info });
+
+    const errorBoundaryError = new Error(error.message);
+    errorBoundaryError.name = `React ErrorBoundary ${error.name}`;
+    errorBoundaryError.stack = info.componentStack ?? undefined;
+
+    console.log('CAUGHT!!!', error, this.context);
+    this.context?.captureException(error, {
+      captureContext: {
+        contexts: { react: { componentStack: info.componentStack } }
+      }
+    });
   }
 
   copyMessage() {
