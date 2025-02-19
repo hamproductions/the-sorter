@@ -50,9 +50,9 @@ export function SchoolBadge({
       textWrap="wrap"
       {...rest}
     >
-      {song.seriesIds.map((s) =>
-        getSeriesName(seriesData.find((d) => `${s}` === d.id)?.name ?? '', locale)
-      )}
+      {song.seriesIds
+        .map((s) => getSeriesName(seriesData.find((d) => `${s}` === d.id)?.name ?? '', locale))
+        .join(', ')}
     </Badge>
   );
 }
