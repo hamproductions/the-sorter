@@ -68,6 +68,7 @@ export function Page() {
     tie,
     undo,
     progress,
+    isEnded,
     filters,
     setFilters,
     listToSort,
@@ -300,7 +301,7 @@ export function Page() {
                 />
               </Stack>
             )}
-            {state.arr && progress === 1 && (
+            {state.arr && isEnded && (
               <Suspense>
                 <ResultsView
                   titlePrefix={titlePrefix}

@@ -12,11 +12,11 @@ import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
 import { Metadata } from '~/components/layout/Metadata';
 import { HasuSongResultsView } from '~/components/results/songs/HasuSongResultsView';
 import { LoadingCharacterFilters } from '~/components/sorter/LoadingCharacterFilters';
-import { SongCard } from '~/components/sorter/SongCard';
 import { useHasuSongData } from '~/hooks/useHasuSongData';
 import { useHasuSongsSortData } from '~/hooks/useHasuSongsSortData';
 import { getPicUrl } from '~/utils/assets';
 import { getNextItems } from '~/utils/preloading';
+import { HasuSongCard } from '~/components/sorter/HasuSongCard';
 
 const ConfirmMidSortDialog = lazy(() =>
   import('../../components/dialog/ConfirmDialog').then((m) => ({
@@ -30,8 +30,8 @@ const ConfirmEndedDialog = lazy(() =>
   }))
 );
 
-const SongFilters = lazy(() =>
-  import('../../components/sorter/SongFilters').then((m) => ({
+const HasuSongFilters = lazy(() =>
+  import('../../components/sorter/HasuSongFilters').then((m) => ({
     default: m.HasuSongFilters
   }))
 );
@@ -55,7 +55,8 @@ export function Page() {
     setSongFilters,
     listToSort,
     listCount,
-    clear
+    clear,
+    isEnded
   } = useHasuSongsSortData();
   const [showConfirmDialog, setShowConfirmDialog] = useState<{
     type: 'mid-sort' | 'ended';
@@ -121,7 +122,7 @@ export function Page() {
               {import.meta.env.SSR ? (
                 <LoadingCharacterFilters />
               ) : (
-                <SongFilters filters={songFilters} setFilters={setSongFilters} />
+                <HasuSongFilters filters={songFilters} setFilters={setSongFilters} />
               )}
             </Suspense>
             <Wrap>
@@ -162,13 +163,13 @@ export function Page() {
                       width="full"
                     >
                       <Stack flex="1" alignItems="center" w="full">
-                        <SongCard onClick={() => left()} song={currentLeft} flex={1} />
+                        <HasuSongCard onClick={() => left()} song={currentLeft} flex={1} />
                         <Box hideBelow="sm">
                           <Kbd>←</Kbd>
                         </Box>
                       </Stack>
                       <Stack flex="1" alignItems="center" w="full">
-                        <SongCard onClick={() => right()} song={currentRight} flex={1} />
+                        <HasuSongCard onClick={() => right()} song={currentRight} flex={1} />
                         <Box hideBelow="sm">
                           <Kbd>→</Kbd>
                         </Box>
@@ -224,7 +225,7 @@ export function Page() {
                 />
               </Stack>
             )}
-            {state.arr && progress === 1 && (
+            {state.arr && isEnded && (
               <Suspense>
                 <HasuSongResultsView songsData={songs} w="full" order={state.arr} />
               </Suspense>

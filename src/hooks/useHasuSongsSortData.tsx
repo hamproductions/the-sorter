@@ -4,9 +4,9 @@ import { useLocalStorage } from './useLocalStorage';
 import { useSorter } from './useSorter';
 import { useHasuSongData } from './useHasuSongData';
 import { useToaster } from '~/context/ToasterContext';
-import { matchSongFilter } from '~/utils/song-filter';
+import { matchSongFilter } from '~/utils/hasu-song-filter';
 import { hasFilter } from '~/utils/filter';
-import type { HasuSongFilterType } from '~/components/sorter/SongFilters';
+import type { HasuSongFilterType } from '~/components/sorter/HasuSongFilters';
 
 export const useHasuSongsSortData = () => {
   const { t } = useTranslation();
@@ -34,11 +34,12 @@ export const useHasuSongsSortData = () => {
     tie,
     undo,
     progress,
-    clear
+    clear,
+    isEnded
     // reset
   } = useSorter(
     listToSort.map((l) => l.id),
-    'songs'
+    'hasu-songs'
   );
 
   const { toast } = useToaster();
@@ -98,6 +99,7 @@ export const useHasuSongsSortData = () => {
     setSongFilters,
     listToSort,
     listCount: listToSort.length,
-    clear
+    clear,
+    isEnded
   };
 };

@@ -2,7 +2,7 @@ import { getSchoolName, getSeriesName, getUnitName } from './names';
 import type { Character } from '~/types';
 import type { FilterType } from '~/components/sorter/CharacterFilters';
 import type { Locale } from '~/i18n';
-import type { HasuSongFilterType } from '~/components/sorter/SongFilters';
+import type { HasuSongFilterType } from '~/components/sorter/HasuSongFilters';
 
 export const hasFilter = (filters: FilterType | HasuSongFilterType) => {
   return Object.values(filters).some(

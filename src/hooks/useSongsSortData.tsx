@@ -2,20 +2,19 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocalStorage } from './useLocalStorage';
 import { useSorter } from './useSorter';
-import { useHasuSongData } from './useHasuSongData';
+import { useSongData } from './useSongData';
 import { useToaster } from '~/context/ToasterContext';
-import { matchSongFilter } from '~/utils/song-filter';
+
 import { hasFilter } from '~/utils/filter';
-import type { HasuSongFilterType } from '~/components/sorter/SongFilters';
+
+import { matchSongFilter } from '~/utils/song-filter';
+import type { SongFilterType } from '~/components/sorter/SongFilters';
 
 export const useSongsSortData = () => {
   const { t } = useTranslation();
-  const songs = useHasuSongData();
+  const songs = useSongData();
   const [noTieMode, setNoTieMode] = useLocalStorage('dd-mode', false);
-  const [songFilters, setSongFilters] = useLocalStorage<HasuSongFilterType>(
-    'song-filters',
-    undefined
-  );
+  const [songFilters, setSongFilters] = useLocalStorage<SongFilterType>('song-filters', undefined);
   const listToSort = useMemo(() => {
     return songs && songFilters && hasFilter(songFilters)
       ? songs.filter((s) => {
@@ -34,8 +33,8 @@ export const useSongsSortData = () => {
     tie,
     undo,
     progress,
-    clear
-    // reset
+    clear,
+    isEnded
   } = useSorter(
     listToSort.map((l) => l.id),
     'songs'
@@ -101,6 +100,7 @@ export const useSongsSortData = () => {
     tie: handleTie,
     undo,
     progress,
+    isEnded,
     songFilters,
     setSongFilters,
     listToSort,

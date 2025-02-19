@@ -1,6 +1,8 @@
-import type { HasuSong } from '~/types/songs';
+import { uniq } from 'lodash-es';
+import seriesInfo from '../../data/series-info.json';
+import type { HasuSong, Song } from '~/types/songs';
 
-export const getSongColor = (song: HasuSong) => {
+export const getHasuSongColor = (song: HasuSong) => {
   switch (song.unit) {
     case 'スリーズブーケ':
       return 'rgb(229,162,193)';
@@ -11,4 +13,10 @@ export const getSongColor = (song: HasuSong) => {
     default:
       return '#fb8a9b';
   }
+};
+
+export const getSongColor = (song: Song) => {
+  const series = uniq(song.seriesIds);
+  if (series.length > 1) return '#e4007f';
+  return seriesInfo.find((s) => s.id === series[0] + '')?.color ?? '#e4007f';
 };

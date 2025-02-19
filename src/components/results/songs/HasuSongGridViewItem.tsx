@@ -5,7 +5,7 @@ import type { Locale } from '~/i18n';
 import type { WithRank } from '~/types';
 import type { HasuSong } from '~/types/songs';
 import { Text } from '~/components/ui/text';
-import { getSongColor } from '~/utils/song';
+import { getHasuSongColor } from '~/utils/song';
 
 export function HasuSongGridViewItem({
   song,
@@ -22,8 +22,8 @@ export function HasuSongGridViewItem({
   return (
     <Stack
       style={{
-        ['--color' as 'color']: getSongColor(song) as 'red',
-        ['--seriesColor' as 'borderLeftColor']: getSongColor(song)
+        ['--color' as 'color']: getHasuSongColor(song) as 'red',
+        ['--seriesColor' as 'borderLeftColor']: getHasuSongColor(song)
       }}
       justifyContent="flex-end"
       borderTop="8px solid"

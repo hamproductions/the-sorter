@@ -13,9 +13,10 @@ import { LoadingCharacterFilters } from '~/components/sorter/LoadingCharacterFil
 import { Metadata } from '~/components/layout/Metadata';
 import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
 import { SongCard } from '~/components/sorter/SongCard';
-// import { useSongData } from '~/hooks/useSongData';
-import { getPicUrl } from '~/utils/assets';
 import { useSongsSortData } from '~/hooks/useSongsSortData';
+import { SongResultsView } from '~/components/results/songs/SongResultsView';
+import { useSongData } from '~/hooks/useSongData';
+import { useArtistsData } from '~/hooks/useArtistsData';
 
 const ConfirmMidSortDialog = lazy(() =>
   import('../../components/dialog/ConfirmDialog').then((m) => ({
@@ -29,14 +30,15 @@ const ConfirmEndedDialog = lazy(() =>
   }))
 );
 
-const HasuSongFilters = lazy(() =>
+const SongFilters = lazy(() =>
   import('../../components/sorter/SongFilters').then((m) => ({
-    default: m.HasuSongFilters
+    default: m.SongFilters
   }))
 );
 
 export function Page() {
-  // const songs = useSongData();
+  const songs = useSongData();
+  const artists = useArtistsData();
   const { toast: _toast } = useToaster();
   const { t, i18n: _i18n } = useTranslation();
   const {
@@ -54,7 +56,8 @@ export function Page() {
     setSongFilters,
     listToSort,
     listCount,
-    clear
+    clear,
+    isEnded
   } = useSongsSortData();
   const [showConfirmDialog, setShowConfirmDialog] = useState<{
     type: 'mid-sort' | 'ended';
@@ -65,7 +68,15 @@ export function Page() {
     (state && getCurrentItem(state)) || ({} as { left: string[]; right: string[] });
 
   const currentLeft = leftItem && listToSort.find((l) => l.id === leftItem[0]);
+  const artistLeft =
+    currentLeft?.artists
+      .map((i) => artists.find((a) => a.id === i))
+      .filter((i) => i !== undefined) ?? [];
   const currentRight = rightItem && listToSort.find((l) => l.id === rightItem[0]);
+  const artistRight =
+    currentRight?.artists
+      .map((i) => artists.find((a) => a.id === i))
+      .filter((i) => i !== undefined) ?? [];
 
   // const titlePrefix = getFilterTitle(filters, data, i18n.language) ?? t('defaultTitlePrefix');
   const title = t('title', {
@@ -77,8 +88,11 @@ export function Page() {
     if (!state) return;
     const nextItems = getNextItems(state);
     for (const item of nextItems) {
-      const url = getPicUrl(`${item}`, 'thumbnail');
-      if (url) preload(url, { as: 'image' });
+      const song = listToSort.find((l) => l.id === item);
+      const url =
+        song &&
+        `https://www.youtube.com/embed/${song.musicVideo?.videoId}?start=${song.musicVideo?.videoOffset}`;
+      if (url) preload(url, { as: 'document' });
     }
   }, [state]);
 
@@ -120,7 +134,7 @@ export function Page() {
               {import.meta.env.SSR ? (
                 <LoadingCharacterFilters />
               ) : (
-                <HasuSongFilters filters={songFilters} setFilters={setSongFilters} />
+                <SongFilters filters={songFilters} setFilters={setSongFilters} />
               )}
             </Suspense>
             <Wrap>
@@ -161,13 +175,23 @@ export function Page() {
                       width="full"
                     >
                       <Stack flex="1" alignItems="center" w="full">
-                        <SongCard onClick={() => left()} song={currentLeft} flex={1} />
+                        <SongCard
+                          onClick={() => left()}
+                          song={currentLeft}
+                          artists={artistLeft}
+                          flex={1}
+                        />
                         <Box hideBelow="sm">
                           <Kbd>←</Kbd>
                         </Box>
                       </Stack>
                       <Stack flex="1" alignItems="center" w="full">
-                        <SongCard onClick={() => right()} song={currentRight} flex={1} />
+                        <SongCard
+                          onClick={() => right()}
+                          song={currentRight}
+                          artists={artistRight}
+                          flex={1}
+                        />
                         <Box hideBelow="sm">
                           <Kbd>→</Kbd>
                         </Box>
@@ -223,10 +247,9 @@ export function Page() {
                 />
               </Stack>
             )}
-            {state.arr && progress === 1 && (
+            {state.arr && isEnded && (
               <Suspense>
-                {JSON.stringify(state.arr)}
-                {/* <HasuSongsResultsView songsData={songs} w="full" order={state.arr} /> */}
+                <SongResultsView songsData={songs} w="full" order={state.arr} />
               </Suspense>
             )}
           </Stack>
