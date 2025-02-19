@@ -5,64 +5,48 @@ import { Checkbox } from '../ui/checkbox';
 import { Group } from '../ui/styled/checkbox';
 import { Text } from '../ui/text';
 
-import series from '../../../data/series-info.json';
-import artists from '../../../data/artists-info.json';
-import character from '../../../data/character-info.json';
+import songs from '../../../data/hasu-songs.json';
 
 import { HStack, Stack, Wrap } from 'styled-system/jsx';
-import { isValidSongFilter } from '~/utils/song-filter';
+import { isValidSongFilter } from '~/utils/hasu-song-filter';
 
-export type SongFilterType = {
-  series: string[];
-  artists: string[];
-  types: ('group' | 'solo' | 'unit')[];
-};
+export interface HasuSongFilterType {
+  generations?: string[];
+  units?: string[];
+  types?: ('original' | 'covers' | '104ver' | 'nver')[];
+}
 
-const artistsWithoutCharacters = artists.filter(
-  (a) =>
-    !a.seriesIds.includes(5) &&
-    !a.seriesIds.includes(7) &&
-    ![
-      '早乙女リリエル、竜崎クロウエル、白鳥ラナエル、綾小路シェリエル、東條ネルエル',
-      '恋塚フルーネティ',
-      '神楽坂ミナモ',
-      'アサギ',
-      'ミザリィ',
-      ...'早乙女リリエル、竜崎クロウエル、白鳥ラナエル、綾小路シェリエル、東條ネルエル'.split('、')
-    ].includes(a.name) &&
-    !character.some((c) => a.name.includes(c.fullName))
-);
-const FILTER_VALUES = {
-  series: series.map((s) => s.id),
-  artists: artistsWithoutCharacters.map((v) => v.id),
-  types: ['group', 'solo', 'unit']
-} satisfies Record<keyof SongFilterType, unknown>;
+const DATA = {
+  generations: ['103', '104'],
+  units: Array.from(new Set(songs.data.map((s) => s.unit))),
+  types: ['original', 'covers', '104ver', 'nver']
+} as const;
 
-export function SongFilters({
+export function HasuSongFilters({
   filters,
   setFilters
 }: {
-  filters: SongFilterType | null | undefined;
-  setFilters: Dispatch<SetStateAction<SongFilterType | null | undefined>>;
+  filters: HasuSongFilterType | null | undefined;
+  setFilters: Dispatch<SetStateAction<HasuSongFilterType | null | undefined>>;
 }) {
   const { t, i18n: _i18n } = useTranslation();
   // const _lang = i18n.language;
-  const selectAll = (key: keyof SongFilterType) => () => {
+  const selectAll = (key: keyof HasuSongFilterType) => () => {
     setFilters((f) => {
-      const isAllSelected = f?.[key]?.length === FILTER_VALUES[key].length;
-      const res = isAllSelected ? [] : FILTER_VALUES[key];
+      const isAllSelected = f?.[key]?.length === DATA[key].length;
+      const res = isAllSelected ? [] : DATA[key];
       return {
         ...f,
         [key]: res
-      } as SongFilterType;
+      } as HasuSongFilterType;
     });
   };
 
   const deselectAll = () => {
     setFilters(() => {
       return {
-        series: [],
-        artists: [],
+        generations: [],
+        units: [],
         types: []
       };
     });
@@ -70,8 +54,8 @@ export function SongFilters({
 
   const initFilters = () => {
     setFilters({
-      series: [],
-      artists: [],
+      generations: [],
+      units: [],
       types: []
     });
   };
@@ -86,25 +70,25 @@ export function SongFilters({
     <Stack border="1px solid" borderColor="border.default" rounded="l1" p="4">
       <Stack>
         <HStack justifyContent="space-between">
-          <Text fontWeight="bold">{t('settings.series')}</Text>
-          <Button size="sm" onClick={selectAll('series')}>
+          <Text fontWeight="bold">{t('settings.generations')}</Text>
+          <Button size="sm" onClick={selectAll('generations')}>
             {t('settings.select_all')}
           </Button>
         </HStack>
         <Group
           asChild
           defaultValue={[]}
-          value={filters?.series ?? []}
-          onValueChange={(series) => {
+          value={filters?.generations}
+          onValueChange={(generations) => {
             if (!filters) return;
-            setFilters({ ...filters, series });
+            setFilters({ ...filters, generations });
           }}
         >
           <Wrap>
-            {series.map((s) => {
+            {DATA.generations.map((s) => {
               return (
-                <Checkbox size="sm" key={s.id} value={s.id}>
-                  {s.name}
+                <Checkbox size="sm" key={s} value={s}>
+                  {t(`settings.generation.${s}`)}
                 </Checkbox>
               );
             })}
@@ -124,11 +108,11 @@ export function SongFilters({
           value={filters?.types}
           onValueChange={(types) => {
             if (!filters) return;
-            setFilters({ ...filters, types: types as ('group' | 'solo' | 'unit')[] });
+            setFilters({ ...filters, types: types as ('original' | 'covers')[] });
           }}
         >
           <Wrap>
-            {FILTER_VALUES.types.map((s) => {
+            {DATA.types.map((s) => {
               return (
                 <Checkbox size="sm" key={s} value={s}>
                   {t(`settings.type.${s}`)}
@@ -140,25 +124,25 @@ export function SongFilters({
       </Stack>
       <Stack>
         <HStack justifyContent="space-between">
-          <Text fontWeight="bold">{t('settings.artists')}</Text>
-          <Button size="sm" onClick={selectAll('artists')}>
+          <Text fontWeight="bold">{t('settings.units')}</Text>
+          <Button size="sm" onClick={selectAll('units')}>
             {t('settings.select_all')}
           </Button>
         </HStack>
         <Group
           asChild
           defaultValue={[]}
-          value={filters?.artists}
-          onValueChange={(artists) => {
+          value={filters?.units}
+          onValueChange={(units) => {
             if (!filters) return;
-            setFilters({ ...filters, artists });
+            setFilters({ ...filters, units });
           }}
         >
           <Wrap>
-            {artistsWithoutCharacters.map((s) => {
+            {DATA.units.map((s) => {
               return (
-                <Checkbox size="sm" key={s.id} value={s.id}>
-                  {s.name}
+                <Checkbox size="sm" key={s} value={s}>
+                  {s}
                 </Checkbox>
               );
             })}

@@ -71,6 +71,7 @@ export const useSorter = <T>(items: T[], statePrefix?: string) => {
   };
 
   const progress = getProgress();
+  const isEnded = progress === 1 || isNaN(progress);
 
   return {
     state,
@@ -82,6 +83,7 @@ export const useSorter = <T>(items: T[], statePrefix?: string) => {
     tie: handleStep('tie'),
     undo: () => handleUndo(),
     progress,
+    isEnded,
     reset,
     loadState,
     clear

@@ -2,20 +2,19 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocalStorage } from './useLocalStorage';
 import { useSorter } from './useSorter';
-import { useHasuSongData } from './useHasuSongData';
+import { useSongData } from './useSongData';
 import { useToaster } from '~/context/ToasterContext';
-import { matchSongFilter } from '~/utils/hasu-song-filter';
-import { hasFilter } from '~/utils/filter';
-import type { HasuSongFilterType } from '~/components/sorter/HasuSongFilters';
 
-export const useHasuSongsSortData = () => {
+import { hasFilter } from '~/utils/filter';
+
+import { matchSongFilter } from '~/utils/song-filter';
+import type { SongFilterType } from '~/components/sorter/SongFilters';
+
+export const useSongsSortData = () => {
   const { t } = useTranslation();
-  const songs = useHasuSongData();
+  const songs = useSongData();
   const [noTieMode, setNoTieMode] = useLocalStorage('dd-mode', false);
-  const [songFilters, setSongFilters] = useLocalStorage<HasuSongFilterType>(
-    'hasu-song-filters',
-    undefined
-  );
+  const [songFilters, setSongFilters] = useLocalStorage<SongFilterType>('song-filters', undefined);
   const listToSort = useMemo(() => {
     return songs && songFilters && hasFilter(songFilters)
       ? songs.filter((s) => {
@@ -36,13 +35,19 @@ export const useHasuSongsSortData = () => {
     progress,
     clear,
     isEnded
-    // reset
   } = useSorter(
     listToSort.map((l) => l.id),
-    'hasu-songs'
+    'songs'
   );
 
   const { toast } = useToaster();
+
+  // useEffect(() => {
+  //   if (history === null) return;
+  //   if (history === undefined || history.length === 0) {
+  //     reset();
+  //   }
+  // }, [listToSort]);
 
   const handleTie = useCallback(() => {
     if (!noTieMode) {
@@ -95,11 +100,11 @@ export const useHasuSongsSortData = () => {
     tie: handleTie,
     undo,
     progress,
+    isEnded,
     songFilters,
     setSongFilters,
     listToSort,
     listCount: listToSort.length,
-    clear,
-    isEnded
+    clear
   };
 };

@@ -47,7 +47,8 @@ export const useSortData = () => {
     tie,
     undo,
     progress,
-    clear
+    clear,
+    isEnded
     // reset
   } = useSorter(listToSort.map((l) => l.id));
 
@@ -113,6 +114,7 @@ export const useSortData = () => {
     tie: handleTie,
     undo,
     progress,
+    isEnded,
     filters: isValidFilter(filters) ? filters : null,
     setFilters,
     listToSort,

@@ -24,9 +24,8 @@ dist-ssr
 *.sw?
 
 styled-system
-
-out.json
-pic-*.json*
+ 
+data/raw/*
 scripts
 
 *_report.json

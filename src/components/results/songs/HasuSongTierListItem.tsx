@@ -5,9 +5,9 @@ import { getPicUrl } from '~/utils/assets';
 import type { Locale } from '~/i18n';
 import type { WithRank } from '~/types';
 import { token } from 'styled-system/tokens';
-import type { Song } from '~/types/songs';
+import type { HasuSong } from '~/types/songs';
 import { Text } from '~/components/ui/text';
-import { getSongColor } from '~/utils/song';
+import { getHasuSongColor } from '~/utils/song';
 
 function _TierListItem({
   song,
@@ -16,7 +16,7 @@ function _TierListItem({
   showName,
   showRank
 }: {
-  song: WithRank<Song>;
+  song: WithRank<HasuSong>;
   locale: Locale;
   showName?: boolean;
   showInfo?: boolean;
@@ -30,8 +30,8 @@ function _TierListItem({
   return (
     <Stack
       style={{
-        ['--color' as 'color']: getSongColor(song) as 'red',
-        ['--seriesColor' as 'borderLeftColor']: getSongColor(song),
+        ['--color' as 'color']: getHasuSongColor(song) as 'red',
+        ['--seriesColor' as 'borderLeftColor']: getHasuSongColor(song),
         ['--padding' as 'padding']: token(`spacing.${showRank ? '4' : '1'}`),
         ['--padding-top' as 'paddingTop']: token(`spacing.${showRank ? '4' : '2'}`)
       }}
@@ -99,4 +99,4 @@ function _TierListItem({
   );
 }
 
-export const SongTierListItem = memo(_TierListItem);
+export const HasuSongTierListItem = memo(_TierListItem);

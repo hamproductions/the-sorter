@@ -3,8 +3,11 @@ import { FaChevronDown, FaCopy, FaDownload } from 'react-icons/fa6';
 
 import { useTranslation } from 'react-i18next';
 
-import { uniq } from 'lodash-es';
-import { SongRankingTable } from './SongRankingTable';
+import type { TierListSettings as TierListSettingsData } from '../TierList';
+import { DEFAULT_TIERS } from '../TierList';
+import { TierListSettings } from '../TierListSettings';
+import { HasuSongGridView } from './HasuSongGridView';
+import { HasuSongTierList } from './HasuSongTierList';
 import { Tabs } from '~/components/ui/tabs';
 import { Accordion } from '~/components/ui/accordion';
 import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
@@ -16,33 +19,36 @@ import { useToaster } from '~/context/ToasterContext';
 import { useLocalStorage } from '~/hooks/useLocalStorage';
 import type { WithRank } from '~/types';
 import { Text } from '~/components/ui/text';
-import type { Song } from '~/types/songs';
+import type { HasuSong } from '~/types/songs';
 import { Button } from '~/components/ui/button';
 import type { RootProps } from '~/components/ui/styled/tabs';
-import { useArtistsData } from '~/hooks/useArtistsData';
-import { useSeriesData } from '~/hooks/useSeriesData';
 
-export function SongResultsView({
+export function HasuSongResultsView({
   titlePrefix,
   songsData,
   order,
   ...props
 }: RootProps & {
   titlePrefix?: string;
-  songsData: Song[];
-  order?: string[][];
+  songsData: HasuSong[];
+  order?: number[][];
 }) {
-  const artists = useArtistsData();
-  const seriesData = useSeriesData();
   const { toast } = useToaster();
-  const [title, setTitle] = useState<string>('My LoveLive! Song Ranking');
+  const [tierListSettings, setTierListSettings] = useLocalStorage<TierListSettingsData>(
+    'tier-settings',
+    { tiers: DEFAULT_TIERS }
+  );
+  const [title, setTitle] = useState<string>('My LoveLive! Ranking');
   const [description, setDescription] = useState<string>();
-  const [currentTab, setCurrentTab] = useLocalStorage<'table'>('songs-result-tab', 'table');
+  const [currentTab, setCurrentTab] = useLocalStorage<'grid' | 'tier'>('songs-result-tab', 'grid');
   const [timestamp, setTimestamp] = useState(new Date());
   const [showRenderingCanvas, setShowRenderingCanvas] = useState(false);
   const { t, i18n: _i18n } = useTranslation();
 
-  const tabs = [{ id: 'table', label: t('results.table') }];
+  const tabs = [
+    { id: 'grid', label: t('results.grid') },
+    { id: 'tier', label: t('results.tier') }
+  ];
 
   const songs = useMemo(() => {
     return (
@@ -55,7 +61,7 @@ export function SongResultsView({
             return ids
               .map((id) => ({
                 rank: startRank,
-                ...(songsData.find((s) => s.id === `${id}`) ?? {})
+                ...(songsData.find((s) => s.id === id) ?? {})
               }))
               .filter((d) => 'id' in d);
           } else {
@@ -64,7 +70,7 @@ export function SongResultsView({
             return [{ rank: startRank, ...chara }];
           }
         })
-        .filter((c): c is WithRank<Song>[] => !!c) ?? []
+        .filter((c): c is WithRank<HasuSong>[] => !!c) ?? []
     ).flatMap((s) => s);
   }, [order, songsData]);
 
@@ -107,9 +113,8 @@ export function SongResultsView({
       order
         ?.flatMap((item, idx) =>
           item.map((i) => {
-            const s = songsData.find((s) => s.id === `${i}`);
-            const artist = uniq(s?.artists).map((id) => artists.find((a) => a.id === id));
-            return `${idx + 1}. ${s?.name} - ${artist?.[0]?.name ?? 'unknown'}`;
+            const s = songsData.find((s) => s.id === i);
+            return `${idx + 1}. ${s?.title} - ${s?.unit}`;
           })
         )
         .join('\n') ?? ''
@@ -122,14 +127,11 @@ export function SongResultsView({
       JSON.stringify(
         order?.flatMap((item, idx) =>
           item.map((i) => {
-            const s = songsData.find((s) => s.id === `${i}`);
-            const artist = uniq(s?.artists).map((id) => artists.find((a) => a.id === id));
-            const series = uniq(s?.seriesIds).map((id) => seriesData.find((a) => a.id === `${id}`));
+            const s = songsData.find((s) => s.id === i);
             return {
               rank: idx + 1,
-              title: s?.name,
-              series: series.map((a) => a?.name)?.join(', '),
-              unit: artist.map((a) => a?.name)?.join(', ')
+              title: s?.title,
+              unit: s?.unit
             };
           })
         )
@@ -150,8 +152,8 @@ export function SongResultsView({
   };
 
   useEffect(() => {
-    const sortType = t('songs');
-    const type = t('results.ranking');
+    const sortType = t('hasu-songs');
+    const type = currentTab === 'tier' ? t('results.tierlist') : t('results.ranking');
     setTitle(
       titlePrefix
         ? t('results.results_title', { titlePrefix, sortType, type })
@@ -195,6 +197,13 @@ export function SongResultsView({
                         onChange={(e) => setDescription(e.target.value)}
                       />
                     </Wrap>
+                    {currentTab === 'tier' && tierListSettings && (
+                      <TierListSettings
+                        settings={tierListSettings}
+                        setSettings={setTierListSettings}
+                        count={songs.length}
+                      />
+                    )}
                   </Stack>
                 </Stack>
               </Accordion.ItemContent>
@@ -220,9 +229,9 @@ export function SongResultsView({
 
         <Tabs.Root
           lazyMount
-          defaultValue="table"
+          defaultValue="default"
           value={currentTab}
-          onValueChange={(d) => setCurrentTab(d.value as 'table')}
+          onValueChange={(d) => setCurrentTab(d.value as 'tier' | 'grid')}
           {...props}
         >
           <Tabs.List>
@@ -234,8 +243,11 @@ export function SongResultsView({
             <Tabs.Indicator />
           </Tabs.List>
           <Box w="full" p="4">
-            <Tabs.Content value="table">
-              <SongRankingTable songs={songs} />
+            <Tabs.Content value="grid">
+              <HasuSongGridView songs={songs} />
+            </Tabs.Content>
+            <Tabs.Content value="tier">
+              <HasuSongTierList songs={songs} settings={tierListSettings} />
             </Tabs.Content>
           </Box>
         </Tabs.Root>
@@ -249,10 +261,10 @@ export function SongResultsView({
               </Heading>
             )}
             {description && <Text>{description}</Text>}
-            {currentTab === 'table' ? (
-              <SongRankingTable songs={songs} />
+            {currentTab === 'grid' ? (
+              <HasuSongGridView songs={songs} />
             ) : (
-              <SongRankingTable songs={songs} />
+              <HasuSongTierList songs={songs} settings={tierListSettings} />
             )}
             <Text textAlign="end">
               {t('results.generated_at')}: {timestamp.toLocaleString()}

@@ -1,22 +1,22 @@
 import { Suspense, lazy, useEffect, useState } from 'react';
 import { preload } from 'react-dom';
 import { useTranslation } from 'react-i18next';
+import { Progress } from '../../components/ui/progress';
 import { Button } from '../../components/ui/styled/button';
 import { Kbd } from '../../components/ui/styled/kbd';
-import { Progress } from '../../components/ui/progress';
-import { Switch } from '../../components/ui/switch';
 import { Text } from '../../components/ui/styled/text';
+import { Switch } from '../../components/ui/switch';
 import { useToaster } from '../../context/ToasterContext';
 import { getCurrentItem } from '../../utils/sort';
-import { getNextItems } from '~/utils/preloading';
-import { LoadingCharacterFilters } from '~/components/sorter/LoadingCharacterFilters';
-import { Metadata } from '~/components/layout/Metadata';
 import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
+import { Metadata } from '~/components/layout/Metadata';
+import { HasuSongResultsView } from '~/components/results/songs/HasuSongResultsView';
+import { LoadingCharacterFilters } from '~/components/sorter/LoadingCharacterFilters';
+import { useHasuSongData } from '~/hooks/useHasuSongData';
 import { useHasuSongsSortData } from '~/hooks/useHasuSongsSortData';
-import { SongCard } from '~/components/sorter/SongCard';
-import { useSongData } from '~/hooks/useSongData';
 import { getPicUrl } from '~/utils/assets';
-import { SongResultsView } from '~/components/results/songs/SongResultsView';
+import { getNextItems } from '~/utils/preloading';
+import { HasuSongCard } from '~/components/sorter/HasuSongCard';
 
 const ConfirmMidSortDialog = lazy(() =>
   import('../../components/dialog/ConfirmDialog').then((m) => ({
@@ -30,14 +30,14 @@ const ConfirmEndedDialog = lazy(() =>
   }))
 );
 
-const SongFilters = lazy(() =>
-  import('../../components/sorter/SongFilters').then((m) => ({
-    default: m.SongFilters
+const HasuSongFilters = lazy(() =>
+  import('../../components/sorter/HasuSongFilters').then((m) => ({
+    default: m.HasuSongFilters
   }))
 );
 
 export function Page() {
-  const songs = useSongData();
+  const songs = useHasuSongData();
   const { toast: _toast } = useToaster();
   const { t, i18n: _i18n } = useTranslation();
   const {
@@ -55,7 +55,8 @@ export function Page() {
     setSongFilters,
     listToSort,
     listCount,
-    clear
+    clear,
+    isEnded
   } = useHasuSongsSortData();
   const [showConfirmDialog, setShowConfirmDialog] = useState<{
     type: 'mid-sort' | 'ended';
@@ -121,7 +122,7 @@ export function Page() {
               {import.meta.env.SSR ? (
                 <LoadingCharacterFilters />
               ) : (
-                <SongFilters filters={songFilters} setFilters={setSongFilters} />
+                <HasuSongFilters filters={songFilters} setFilters={setSongFilters} />
               )}
             </Suspense>
             <Wrap>
@@ -162,13 +163,13 @@ export function Page() {
                       width="full"
                     >
                       <Stack flex="1" alignItems="center" w="full">
-                        <SongCard onClick={() => left()} song={currentLeft} flex={1} />
+                        <HasuSongCard onClick={() => left()} song={currentLeft} flex={1} />
                         <Box hideBelow="sm">
                           <Kbd>←</Kbd>
                         </Box>
                       </Stack>
                       <Stack flex="1" alignItems="center" w="full">
-                        <SongCard onClick={() => right()} song={currentRight} flex={1} />
+                        <HasuSongCard onClick={() => right()} song={currentRight} flex={1} />
                         <Box hideBelow="sm">
                           <Kbd>→</Kbd>
                         </Box>
@@ -224,9 +225,9 @@ export function Page() {
                 />
               </Stack>
             )}
-            {state.arr && progress === 1 && (
+            {state.arr && isEnded && (
               <Suspense>
-                <SongResultsView songsData={songs} w="full" order={state.arr} />
+                <HasuSongResultsView songsData={songs} w="full" order={state.arr} />
               </Suspense>
             )}
           </Stack>

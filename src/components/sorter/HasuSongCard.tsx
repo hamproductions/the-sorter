@@ -1,15 +1,13 @@
+/* eslint-disable jsx-a11y/media-has-caption */
 import { useTranslation } from 'react-i18next';
 import { Text } from '../ui/text';
 import type { StackProps } from 'styled-system/jsx';
-import { Center, Stack } from 'styled-system/jsx';
-import type { Artist, Song } from '~/types/songs';
-import { getSongColor } from '~/utils/song';
+import { Center, Stack, styled } from 'styled-system/jsx';
+import type { HasuSong } from '~/types/songs';
+import { getAudioUrl, getPicUrl } from '~/utils/assets';
+import { getHasuSongColor } from '~/utils/song';
 
-export function SongCard({
-  song,
-  artists,
-  ...rest
-}: { song?: Song; artists: Artist[] } & StackProps) {
+export function HasuSongCard({ song, ...rest }: { song?: HasuSong } & StackProps) {
   const { i18n: _i18n } = useTranslation();
 
   // const lang = i18n.language;
@@ -18,7 +16,7 @@ export function SongCard({
 
   return (
     <Stack
-      style={{ ['--color' as 'color']: getSongColor(song) ?? undefined }}
+      style={{ ['--color' as 'color']: getHasuSongColor(song) ?? undefined }}
       gap={1}
       alignItems="center"
       rounded="l1"
@@ -40,22 +38,22 @@ export function SongCard({
       >
         <Center position="absolute" flex={1} w="full" h="full">
           <Center w="full" h="full">
-            {song.musicVideo && (
-              <iframe
-                src={`https://www.youtube.com/embed/${song.musicVideo.videoId}?start=${song.musicVideo.videoOffset}`}
-                frameBorder="0"
-                allow="autoplay; encrypted-media"
-                height="240"
-                title={song.name}
-              />
-            )}
+            <styled.img
+              src={getPicUrl(`${song.id}`, 'thumbnail')}
+              alt={song.title}
+              minW={0}
+              maxW="full"
+              minH={0}
+              maxH="full"
+            />
           </Center>
         </Center>
       </Stack>
       <Text layerStyle="textStroke" color="var(--color)" fontSize="2xl" fontWeight="bold">
-        {song.name}
+        {song.title}
       </Text>
-      <Text fontSize="sm">{artists?.map((a) => a.name).join(', ')}</Text>
+      <Text fontSize="sm">{song.unit}</Text>
+      <audio src={getAudioUrl(`${song.id}`)} controls preload="auto" />
     </Stack>
   );
 }

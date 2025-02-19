@@ -1,15 +1,15 @@
 import { useTranslation } from 'react-i18next';
-import { SongGridViewItem } from './SongGridViewItem';
+import { HasuSongGridViewItem } from './HasuSongGridViewItem';
 import { Grid, GridItem, Stack } from 'styled-system/jsx';
 import type { WithRank } from '~/types';
-import type { Song } from '~/types/songs';
+import type { HasuSong } from '~/types/songs';
 
-export function SongGridView({
+export function HasuSongGridView({
   songs,
   onSelect
 }: {
-  songs: WithRank<Song>[];
-  onSelect?: (character: WithRank<Song>) => void;
+  songs: WithRank<HasuSong>[];
+  onSelect?: (character: WithRank<HasuSong>) => void;
 }) {
   const { i18n } = useTranslation();
   return (
@@ -29,7 +29,7 @@ export function SongGridView({
               cursor="pointer"
               overflow="hidden"
             >
-              <SongGridViewItem song={c} locale={i18n.language} />
+              <HasuSongGridViewItem song={c} locale={i18n.language} />
             </GridItem>
           );
         })}

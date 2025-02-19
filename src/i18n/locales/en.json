@@ -10,6 +10,13 @@
   "cancel": "Cancel",
   "hasu-songs": "Hasu no Sora Songs",
   "songs": "Songs",
+  "artist": "アーティスト",
+  "song-name": "タイトル",
+  "navigation": {
+    "characters": "Characters",
+    "hasu-music": "Hasunosora",
+    "songs": "Songs"
+  },
   "settings": {
     "sort_count": "{{ count }} to be sorted",
     "song_sort_count": "{{ count }} songs to be sorted",
@@ -26,12 +33,16 @@
       "104": "104th"
     },
     "generations": "Generation",
+    "artists": "Artist",
     "types": "Type",
     "type": {
       "original": "Original",
       "covers": "Covers",
       "104ver": "104th ver.",
-      "nver": "N members ver."
+      "nver": "N members ver.",
+      "group": "Group Songs",
+      "unit": "Unit Songs",
+      "solo": "Solo"
     }
   },
   "sort": {

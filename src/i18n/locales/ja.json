@@ -10,6 +10,11 @@
   "cancel": "キャンセル",
   "hasu-songs": "蓮ノ空楽曲",
   "songs": "楽曲",
+  "navigation": {
+    "characters": "キャラ",
+    "hasu-music": "蓮ノ空",
+    "songs": "楽曲"
+  },
   "settings": {
     "sort_count": "{{ count }}人をランキングする",
     "song_sort_count": "{{ count }}曲をランキングする",
@@ -21,6 +26,7 @@
     "select_all": "全部を選択する",
     "deselect_all": "クリアする",
     "no_tie_mode": "DD禁止モード",
+    "artists": "アーティスト",
     "generation": {
       "103": "103期",
       "104": "104期"
@@ -31,7 +37,10 @@
       "original": "オリジナル",
       "covers": "カバー",
       "104ver": "104期 ver.",
-      "nver": "○人 ver."
+      "nver": "○人 ver.",
+      "group": "グループ曲",
+      "unit": "ユニット曲",
+      "solo": "ソロ曲"
     }
   },
   "sort": {
