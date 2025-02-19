@@ -3,15 +3,15 @@ import { getPicUrl } from '~/utils/assets';
 
 import type { Locale } from '~/i18n';
 import type { WithRank } from '~/types';
-import type { Song } from '~/types/songs';
+import type { HasuSong } from '~/types/songs';
 import { Text } from '~/components/ui/text';
 import { getSongColor } from '~/utils/song';
 
-export function SongGridViewItem({
+export function HasuSongGridViewItem({
   song,
   locale: _locale
 }: {
-  song: WithRank<Song>;
+  song: WithRank<HasuSong>;
   locale: Locale;
 }) {
   const { id, rank, title, unit } = song;

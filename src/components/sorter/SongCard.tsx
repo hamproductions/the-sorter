@@ -3,11 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { Text } from '../ui/text';
 import type { StackProps } from 'styled-system/jsx';
 import { Center, Stack, styled } from 'styled-system/jsx';
-import type { Song } from '~/types/songs';
+import type { HasuSong } from '~/types/songs';
 import { getAudioUrl, getPicUrl } from '~/utils/assets';
 import { getSongColor } from '~/utils/song';
 
-export function SongCard({ song, ...rest }: { song?: Song } & StackProps) {
+export function SongCard({ song, ...rest }: { song?: HasuSong } & StackProps) {
   const { i18n: _i18n } = useTranslation();
 
   // const lang = i18n.language;

@@ -2,9 +2,9 @@ import { getSchoolName, getSeriesName, getUnitName } from './names';
 import type { Character } from '~/types';
 import type { FilterType } from '~/components/sorter/CharacterFilters';
 import type { Locale } from '~/i18n';
-import type { SongFilterType } from '~/components/sorter/SongFilters';
+import type { HasuSongFilterType } from '~/components/sorter/SongFilters';
 
-export const hasFilter = (filters: FilterType | SongFilterType) => {
+export const hasFilter = (filters: FilterType | HasuSongFilterType) => {
   return Object.values(filters).some(
     (a) => Object.values(a).length >= 0 && Object.values(a).some((a) => !!a)
   );

@@ -1,3 +1,3 @@
-import type songsData from '../../data/hasu-songs.json';
+import type HasuSongsData from '../../data/hasu-songs.json';
 
-export type Song = (typeof songsData.data)[0];
+export type HasuSong = (typeof HasuSongsData.data)[0];

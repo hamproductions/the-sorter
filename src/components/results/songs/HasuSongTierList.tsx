@@ -1,15 +1,15 @@
 import { useTranslation } from 'react-i18next';
 import { Fragment, useMemo } from 'react';
 
-import { SongTierListItem } from './SongTierListItem';
+import { HasuSongTierListItem } from './HasuSongTierListItem';
 import { Grid, GridItem, Stack } from 'styled-system/jsx';
 import type { WithRank } from '~/types';
-import type { Song } from '~/types/songs';
+import type { HasuSong } from '~/types/songs';
 import { Text } from '~/components/ui/text';
 
 export const DEFAULT_TIERS: string[] = ['S', 'A', 'B', 'C', 'D'];
 
-export type TierListSettings = {
+export type HasuTierListSettings = {
   tiers: string[];
   tierRanks?: number[];
   showName?: boolean;
@@ -18,14 +18,14 @@ export type TierListSettings = {
   hideBottomTier?: boolean;
 };
 
-export function SongTierList({
+export function HasuSongTierList({
   songs,
   settings,
   onSelect
 }: {
-  songs: WithRank<Song>[];
-  settings?: TierListSettings | null;
-  onSelect?: (character: WithRank<Song>) => void;
+  songs: WithRank<HasuSong>[];
+  settings?: HasuTierListSettings | null;
+  onSelect?: (character: WithRank<HasuSong>) => void;
 }) {
   const { tiers, tierRanks, showName, showInfo, showRank, hideBottomTier } = settings ?? {
     tiers: DEFAULT_TIERS
@@ -105,7 +105,7 @@ export function SongTierList({
                       cursor="pointer"
                       overflow="hidden"
                     >
-                      <SongTierListItem
+                      <HasuSongTierListItem
                         song={c}
                         locale={i18n.language}
                         showName={showName}

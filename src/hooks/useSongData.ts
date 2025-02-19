@@ -1,5 +1,5 @@
-import hasuSongs from '../../data/hasu-songs.json';
+import songData from '../../data/song-info.json';
 
 export const useSongData = () => {
-  return hasuSongs.data;
+  return songData;
 };

@@ -5,7 +5,7 @@ import { getPicUrl } from '~/utils/assets';
 import type { Locale } from '~/i18n';
 import type { WithRank } from '~/types';
 import { token } from 'styled-system/tokens';
-import type { Song } from '~/types/songs';
+import type { HasuSong } from '~/types/songs';
 import { Text } from '~/components/ui/text';
 import { getSongColor } from '~/utils/song';
 
@@ -16,7 +16,7 @@ function _TierListItem({
   showName,
   showRank
 }: {
-  song: WithRank<Song>;
+  song: WithRank<HasuSong>;
   locale: Locale;
   showName?: boolean;
   showInfo?: boolean;
@@ -99,4 +99,4 @@ function _TierListItem({
   );
 }
 
-export const SongTierListItem = memo(_TierListItem);
+export const HasuSongTierListItem = memo(_TierListItem);

@@ -10,7 +10,7 @@ import songs from '../../../data/hasu-songs.json';
 import { HStack, Stack, Wrap } from 'styled-system/jsx';
 import { isValidSongFilter } from '~/utils/song-filter';
 
-export interface SongFilterType {
+export interface HasuSongFilterType {
   generations?: string[];
   units?: string[];
   types?: ('original' | 'covers' | '104ver' | 'nver')[];
@@ -22,23 +22,23 @@ const DATA = {
   types: ['original', 'covers', '104ver', 'nver']
 } as const;
 
-export function SongFilters({
+export function HasuSongFilters({
   filters,
   setFilters
 }: {
-  filters: SongFilterType | null | undefined;
-  setFilters: Dispatch<SetStateAction<SongFilterType | null | undefined>>;
+  filters: HasuSongFilterType | null | undefined;
+  setFilters: Dispatch<SetStateAction<HasuSongFilterType | null | undefined>>;
 }) {
   const { t, i18n: _i18n } = useTranslation();
   // const _lang = i18n.language;
-  const selectAll = (key: keyof SongFilterType) => () => {
+  const selectAll = (key: keyof HasuSongFilterType) => () => {
     setFilters((f) => {
       const isAllSelected = f?.[key]?.length === DATA[key].length;
       const res = isAllSelected ? [] : DATA[key];
       return {
         ...f,
         [key]: res
-      } as SongFilterType;
+      } as HasuSongFilterType;
     });
   };
 

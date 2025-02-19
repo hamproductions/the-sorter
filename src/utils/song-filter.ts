@@ -1,7 +1,7 @@
-import type { SongFilterType } from '~/components/sorter/SongFilters';
-import type { Song } from '~/types/songs';
+import type { HasuSongFilterType } from '~/components/sorter/SongFilters';
+import type { HasuSong } from '~/types/songs';
 
-export const matchSongFilter = (item: Song, filter: SongFilterType) => {
+export const matchSongFilter = (item: HasuSong, filter: HasuSongFilterType) => {
   if (!filter) return true;
   const { generations, types, units } = filter;
   if (!isValidSongFilter(filter)) return true;
@@ -36,7 +36,9 @@ export const matchSongFilter = (item: Song, filter: SongFilterType) => {
   return isValid;
 };
 
-export const isValidSongFilter = (filter?: SongFilterType | null): filter is SongFilterType => {
+export const isValidSongFilter = (
+  filter?: HasuSongFilterType | null
+): filter is HasuSongFilterType => {
   if (!filter) return false;
   const { generations, types, units } = filter;
   if (!Array.isArray(generations) || !Array.isArray(types) || !Array.isArray(units)) return false;

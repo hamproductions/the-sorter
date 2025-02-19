@@ -1,6 +1,6 @@
-import type { Song } from '~/types/songs';
+import type { HasuSong } from '~/types/songs';
 
-export const getSongColor = (song: Song) => {
+export const getSongColor = (song: HasuSong) => {
   switch (song.unit) {
     case 'スリーズブーケ':
       return 'rgb(229,162,193)';

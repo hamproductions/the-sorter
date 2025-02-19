@@ -8,12 +8,12 @@ import { matchSongFilter } from '~/utils/song-filter';
 import { hasFilter } from '~/utils/filter';
 import type { HasuSongFilterType } from '~/components/sorter/SongFilters';
 
-export const useHasuSongsSortData = () => {
+export const useSongsSortData = () => {
   const { t } = useTranslation();
   const songs = useHasuSongData();
   const [noTieMode, setNoTieMode] = useLocalStorage('dd-mode', false);
   const [songFilters, setSongFilters] = useLocalStorage<HasuSongFilterType>(
-    'hasu-song-filters',
+    'song-filters',
     undefined
   );
   const listToSort = useMemo(() => {
@@ -42,6 +42,13 @@ export const useHasuSongsSortData = () => {
   );
 
   const { toast } = useToaster();
+
+  // useEffect(() => {
+  //   if (history === null) return;
+  //   if (history === undefined || history.length === 0) {
+  //     reset();
+  //   }
+  // }, [listToSort]);
 
   const handleTie = useCallback(() => {
     if (!noTieMode) {

@@ -1,22 +1,21 @@
 import { Suspense, lazy, useEffect, useState } from 'react';
 import { preload } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { Progress } from '../../components/ui/progress';
 import { Button } from '../../components/ui/styled/button';
 import { Kbd } from '../../components/ui/styled/kbd';
-import { Text } from '../../components/ui/styled/text';
+import { Progress } from '../../components/ui/progress';
 import { Switch } from '../../components/ui/switch';
+import { Text } from '../../components/ui/styled/text';
 import { useToaster } from '../../context/ToasterContext';
 import { getCurrentItem } from '../../utils/sort';
-import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
-import { Metadata } from '~/components/layout/Metadata';
-import { HasuSongResultsView } from '~/components/results/songs/HasuSongResultsView';
-import { LoadingCharacterFilters } from '~/components/sorter/LoadingCharacterFilters';
-import { SongCard } from '~/components/sorter/SongCard';
-import { useHasuSongData } from '~/hooks/useHasuSongData';
-import { useHasuSongsSortData } from '~/hooks/useHasuSongsSortData';
-import { getPicUrl } from '~/utils/assets';
 import { getNextItems } from '~/utils/preloading';
+import { LoadingCharacterFilters } from '~/components/sorter/LoadingCharacterFilters';
+import { Metadata } from '~/components/layout/Metadata';
+import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
+import { SongCard } from '~/components/sorter/SongCard';
+// import { useSongData } from '~/hooks/useSongData';
+import { getPicUrl } from '~/utils/assets';
+import { useSongsSortData } from '~/hooks/useSongsSortData';
 
 const ConfirmMidSortDialog = lazy(() =>
   import('../../components/dialog/ConfirmDialog').then((m) => ({
@@ -30,14 +29,14 @@ const ConfirmEndedDialog = lazy(() =>
   }))
 );
 
-const SongFilters = lazy(() =>
+const HasuSongFilters = lazy(() =>
   import('../../components/sorter/SongFilters').then((m) => ({
     default: m.HasuSongFilters
   }))
 );
 
 export function Page() {
-  const songs = useHasuSongData();
+  // const songs = useSongData();
   const { toast: _toast } = useToaster();
   const { t, i18n: _i18n } = useTranslation();
   const {
@@ -56,7 +55,7 @@ export function Page() {
     listToSort,
     listCount,
     clear
-  } = useHasuSongsSortData();
+  } = useSongsSortData();
   const [showConfirmDialog, setShowConfirmDialog] = useState<{
     type: 'mid-sort' | 'ended';
     action: 'reset' | 'clear';
@@ -70,7 +69,7 @@ export function Page() {
 
   // const titlePrefix = getFilterTitle(filters, data, i18n.language) ?? t('defaultTitlePrefix');
   const title = t('title', {
-    titlePrefix: t('hasu-songs')
+    titlePrefix: t('songs')
   });
 
   // Preload Assets
@@ -121,7 +120,7 @@ export function Page() {
               {import.meta.env.SSR ? (
                 <LoadingCharacterFilters />
               ) : (
-                <SongFilters filters={songFilters} setFilters={setSongFilters} />
+                <HasuSongFilters filters={songFilters} setFilters={setSongFilters} />
               )}
             </Suspense>
             <Wrap>
@@ -226,7 +225,8 @@ export function Page() {
             )}
             {state.arr && progress === 1 && (
               <Suspense>
-                <HasuSongResultsView songsData={songs} w="full" order={state.arr} />
+                {JSON.stringify(state.arr)}
+                {/* <HasuSongsResultsView songsData={songs} w="full" order={state.arr} /> */}
               </Suspense>
             )}
           </Stack>

@@ -6,8 +6,8 @@ import { useTranslation } from 'react-i18next';
 import type { TierListSettings as TierListSettingsData } from '../TierList';
 import { DEFAULT_TIERS } from '../TierList';
 import { TierListSettings } from '../TierListSettings';
-import { SongGridView } from './SongGridView';
-import { SongTierList } from './SongTierList';
+import { HasuSongGridView } from './HasuSongGridView';
+import { HasuSongTierList } from './HasuSongTierList';
 import { Tabs } from '~/components/ui/tabs';
 import { Accordion } from '~/components/ui/accordion';
 import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
@@ -19,18 +19,18 @@ import { useToaster } from '~/context/ToasterContext';
 import { useLocalStorage } from '~/hooks/useLocalStorage';
 import type { WithRank } from '~/types';
 import { Text } from '~/components/ui/text';
-import type { Song } from '~/types/songs';
+import type { HasuSong } from '~/types/songs';
 import { Button } from '~/components/ui/button';
 import type { RootProps } from '~/components/ui/styled/tabs';
 
-export function SongResultsView({
+export function HasuSongResultsView({
   titlePrefix,
   songsData,
   order,
   ...props
 }: RootProps & {
   titlePrefix?: string;
-  songsData: Song[];
+  songsData: HasuSong[];
   order?: number[][];
 }) {
   const { toast } = useToaster();
@@ -70,7 +70,7 @@ export function SongResultsView({
             return [{ rank: startRank, ...chara }];
           }
         })
-        .filter((c): c is WithRank<Song>[] => !!c) ?? []
+        .filter((c): c is WithRank<HasuSong>[] => !!c) ?? []
     ).flatMap((s) => s);
   }, [order, songsData]);
 
@@ -244,10 +244,10 @@ export function SongResultsView({
           </Tabs.List>
           <Box w="full" p="4">
             <Tabs.Content value="grid">
-              <SongGridView songs={songs} />
+              <HasuSongGridView songs={songs} />
             </Tabs.Content>
             <Tabs.Content value="tier">
-              <SongTierList songs={songs} settings={tierListSettings} />
+              <HasuSongTierList songs={songs} settings={tierListSettings} />
             </Tabs.Content>
           </Box>
         </Tabs.Root>
@@ -262,9 +262,9 @@ export function SongResultsView({
             )}
             {description && <Text>{description}</Text>}
             {currentTab === 'grid' ? (
-              <SongGridView songs={songs} />
+              <HasuSongGridView songs={songs} />
             ) : (
-              <SongTierList songs={songs} settings={tierListSettings} />
+              <HasuSongTierList songs={songs} settings={tierListSettings} />
             )}
             <Text textAlign="end">
               {t('results.generated_at')}: {timestamp.toLocaleString()}
