@@ -22,6 +22,7 @@
     "noFallthroughCasesInSwitch": true,
     "paths": { "~/*": ["./*"], "styled-system/*": ["../styled-system/*"] }
   },
-  "include": ["src", "styled-system"],
+  "include": ["src", "styled-system", "scripts"],
+  "exclude": ["scripts/internal"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

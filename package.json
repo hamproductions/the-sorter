@@ -1,7 +1,7 @@
 {
   "name": "the-sorter",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -21,7 +21,18 @@
     "test:dev": "bunx concurrently \"TEST_PREVIEW=true bun test:ui\" \"bun test:preview\"",
     "ci:test": "vitest --coverage.enabled",
     "analyze": "bunx vite-bundle-visualizer",
-    "codegen:components": "bunx @park-ui/cli components add --all"
+    "codegen:components": "bunx @park-ui/cli components add --all",
+    "version:patch": "npm version patch --no-git-tag-version && bun update-version",
+    "version:minor": "npm version minor --no-git-tag-version && bun update-version",
+    "version:major": "npm version major --no-git-tag-version && bun update-version",
+    "update-version": "bun scripts/update-version.ts",
+    "update-changelog": "bun scripts/update-changelog.ts",
+    "release": "bun scripts/version-and-changelog.ts",
+    "release:patch": "bun scripts/version-and-changelog.ts patch",
+    "release:minor": "bun scripts/version-and-changelog.ts minor",
+    "release:major": "bun scripts/version-and-changelog.ts major",
+    "install-hooks": "chmod +x .git/hooks/pre-commit && chmod +x scripts/check-version.ts",
+    "check-version": "bun scripts/check-version.ts"
   },
   "dependencies": {
     "@ark-ui/react": "^4.8.1",

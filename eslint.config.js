@@ -32,6 +32,7 @@ function legacyPlugin(name, alias = name) {
 const config = tseslint.config(
   {
     ignores: [
+      '**/scripts/internal/*',
       '**/styled-system/*',
       '**/components/ui/styled/**/*',
       '**/lib/**/*',

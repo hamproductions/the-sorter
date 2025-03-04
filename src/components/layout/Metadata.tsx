@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Fragment } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { VERSION } from '../../version';
 
 export function Metadata(props: { title?: string; helmet?: boolean }) {
   const { t } = useTranslation();
@@ -27,6 +28,8 @@ export function Metadata(props: { title?: string; helmet?: boolean }) {
       <meta data-rh="true" property="og:description" content={description} />
       <meta data-rh="true" name="description" content={description} />
       <meta data-rh="true" name="twitter:description" content={description} />
+
+      <meta data-rh="true" name="version" content={VERSION} />
 
       {/* <meta property="og:image" content={image} /> */}
       {/* <meta name="twitter:image:src" content={image} /> */}

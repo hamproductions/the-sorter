@@ -15,8 +15,131 @@ Sort your favorite seiyuu, characters inspired by charasort and more...
 ### Ideas
 
 - No-Tie mode
-  - 
+  -
 - Timer
+
+## Versioning
+
+This project uses semantic versioning (MAJOR.MINOR.PATCH):
+- MAJOR version for incompatible API changes
+- MINOR version for new functionality in a backward compatible manner
+- PATCH version for backward compatible bug fixes
+
+### Version and Changelog Management
+
+This project provides two ways to update versions and is optimized for conventional commits.
+
+#### Basic Version Update
+
+```bash
+# For patch updates (bug fixes)
+bun version:patch
+
+# For minor updates (new features)
+bun version:minor
+
+# For major updates (breaking changes)
+bun version:major
+```
+
+These commands will:
+1. Update the version in package.json
+2. Update the version.ts file with the new version information
+3. The version is displayed in the footer of the application
+
+#### Complete Release Process
+
+For a more comprehensive release process that includes changelog updates:
+
+```bash
+# Automatically determine version type based on conventional commits
+bun release
+
+# Or specify version type manually
+bun release:patch
+bun release:minor
+bun release:major
+```
+
+These commands will:
+1. Update the version in package.json (automatically determining the version type from commits if not specified)
+2. Update the version.ts file with the new version information
+3. Generate changelog entries automatically from conventional commits
+4. Allow you to review and edit the generated changelog entries
+5. Provide instructions for committing and tagging the release
+
+#### Manual Changelog Update
+
+You can also update the changelog separately:
+
+```bash
+bun update-changelog
+```
+
+This will:
+1. Automatically categorize your conventional commits into changelog sections
+2. Allow you to review and edit the generated entries
+3. Update the CHANGELOG.md file with your changes
+
+Note: These commands use npm internally for version bumping since Bun doesn't support the version command yet.
+
+### Conventional Commits
+
+This project uses conventional commits to standardize commit messages and automate versioning and changelog generation.
+
+#### Commit Message Format
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+#### Types
+
+- `feat`: A new feature (minor version bump)
+- `fix`: A bug fix (patch version bump)
+- `docs`: Documentation changes
+- `style`: Changes that don't affect code functionality (formatting, etc.)
+- `refactor`: Code changes that neither fix bugs nor add features
+- `perf`: Performance improvements
+- `test`: Adding or correcting tests
+- `chore`: Changes to the build process or auxiliary tools
+- `revert`: Reverting a previous commit
+
+#### Breaking Changes
+
+Breaking changes should be indicated by:
+- Adding an exclamation mark after the type/scope: `feat!: breaking change`
+- Or including `BREAKING CHANGE:` in the commit body
+
+Breaking changes trigger a major version bump.
+
+#### Pre-commit Validation
+
+The pre-commit hook checks that:
+1. Your commit message follows the conventional commit format
+2. The version has been updated if non-version files are changed
+3. Version-related files are in sync
+
+### Pre-commit Hook
+
+This project includes a pre-commit hook that checks if the version has been updated before allowing a commit. This ensures that version changes are not forgotten when making changes to the codebase.
+
+The pre-commit hook:
+- Checks if any non-version files are being committed
+- If so, verifies that the version has been updated since the last commit
+- Ensures that version-related files are in sync
+
+If you're setting up the project for the first time or after a fresh clone, run:
+
+```bash
+bun install-hooks
+```
+
+This will install the pre-commit hook and make it executable.
 
 ## Need Help (If anyone is kind enough...)
 

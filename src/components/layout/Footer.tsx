@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from '../ui/link';
 import { Text } from '../ui/text';
+import { Version } from '../utils/Version';
 import { Stack, Wrap } from 'styled-system/jsx';
 
 export function Footer() {
@@ -22,6 +23,9 @@ export function Footer() {
         <Link href="https://github.com/hamproductions/the-sorter" target="_blank">
           GitHub
         </Link>
+        <Text color="text.muted" fontSize="xs">
+          <Version format="version" />
+        </Text>
       </Wrap>
     </Stack>
   );

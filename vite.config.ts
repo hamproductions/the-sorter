@@ -6,14 +6,24 @@ import { join, resolve } from 'path';
 import vike from 'vike/plugin';
 import { cjsInterop } from 'vite-plugin-cjs-interop';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import fs from 'fs';
 
 const ReactCompilerConfig = {
   // compilationMode: 'annotation'
 };
 
+// Read package.json to get version information
+const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf-8'));
+const appVersion = packageJson.version;
+const buildTimestamp = new Date().toISOString();
+
 const isProduction = process.env.NODE_ENV === 'production';
 // https://vitejs.dev/config/
 export default defineConfig({
+  define: {
+    'import.meta.env.PUBLIC_ENV__APP_VERSION': JSON.stringify(appVersion),
+    'import.meta.env.PUBLIC_ENV__BUILD_TIMESTAMP': JSON.stringify(buildTimestamp)
+  },
   ssr: {
     // noExternal: ['react']
   },
