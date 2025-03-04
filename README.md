@@ -127,6 +127,15 @@ bun release-it --dry-run
 
 This will show you the version that would be bumped, the changelog entries that would be generated, and the git operations that would be performed.
 
+#### GitHub Releases
+
+When you push a new version tag (e.g., v1.0.0) to GitHub, a GitHub Actions workflow will automatically:
+
+1. Create a GitHub release for that tag
+2. Include the relevant section from the CHANGELOG.md as the release notes
+
+This ensures that GitHub releases are always in sync with your version tags and changelog.
+
 ### Conventional Commits
 
 This project uses conventional commits to standardize commit messages and automate versioning and changelog generation.
