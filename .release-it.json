@@ -4,7 +4,7 @@
     "tagName": "v${version}",
     "tagAnnotation": "Version ${version}",
     "push": true,
-    "requireCleanWorkingDir": true
+    "requireCleanWorkingDir": false
   },
   "github": {
     "release": false
