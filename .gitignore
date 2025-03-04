@@ -32,3 +32,6 @@ scripts/internal/*
 
 coverage*
 .vitest-preview
+
+# release-it
+.release-it.json.cache
