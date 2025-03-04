@@ -66,7 +66,8 @@ These commands will:
 2. Update the version.ts file with the new version information
 3. Generate changelog entries automatically from conventional commits
 4. Allow you to review and edit the generated changelog entries
-5. Provide instructions for committing and tagging the release
+5. Automatically commit and create a git tag (with your confirmation)
+6. Provide instructions for pushing the changes and tags
 
 #### Manual Changelog Update
 

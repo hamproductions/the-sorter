@@ -95,8 +95,23 @@ function determineVersionTypeFromCommits(): 'patch' | 'minor' | 'major' | null {
   }
 }
 
+// Function to prompt the user for input
+function prompt(question: string): Promise<string> {
+  const readline = require('readline').createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+
+  return new Promise((resolve) => {
+    readline.question(question, (answer: string) => {
+      readline.close();
+      resolve(answer);
+    });
+  });
+}
+
 // Main function
-function main() {
+async function main() {
   // Get the version type from command line arguments
   const args = process.argv.slice(2);
   let versionType = args[0]?.toLowerCase();
@@ -139,12 +154,46 @@ function main() {
   console.log('\n🔄 Updating changelog...');
   updateChangelog();
   
-  console.log(`\n✅ All updates completed for version ${newVersion}`);
-  console.log('\nRemember to commit these changes:');
-  console.log('  git add package.json src/version.ts CHANGELOG.md');
-  console.log(`  git commit -m "chore: release v${newVersion}"`);
-  console.log('  git tag -a v' + newVersion + ' -m "Version ' + newVersion + '"');
+  // Ask if user wants to automatically commit and tag
+  const answer = await prompt('\nDo you want to automatically commit and tag this release? (Y/n): ');
+  
+  if (answer.toLowerCase() !== 'n') {
+    try {
+      // Stage changes
+      console.log('\n🔄 Staging changes...');
+      execSync('git add package.json src/version.ts CHANGELOG.md', { stdio: 'inherit' });
+      
+      // Commit changes
+      console.log('\n🔄 Committing changes...');
+      execSync(`git commit -m "chore: release v${newVersion}"`, { stdio: 'inherit' });
+      
+      // Create tag
+      console.log('\n🔄 Creating tag...');
+      execSync(`git tag -a v${newVersion} -m "Version ${newVersion}"`, { stdio: 'inherit' });
+      
+      console.log(`\n✅ All updates completed for version ${newVersion}`);
+      console.log(`✅ Created tag v${newVersion}`);
+      console.log('\nRemember to push the changes and tag:');
+      console.log('  git push');
+      console.log('  git push --tags');
+    } catch (error) {
+      console.error(`\n❌ Error during git operations: ${error}`);
+      console.log('\nYou can manually commit and tag with:');
+      console.log('  git add package.json src/version.ts CHANGELOG.md');
+      console.log(`  git commit -m "chore: release v${newVersion}"`);
+      console.log(`  git tag -a v${newVersion} -m "Version ${newVersion}"`);
+    }
+  } else {
+    console.log(`\n✅ All updates completed for version ${newVersion}`);
+    console.log('\nRemember to commit these changes:');
+    console.log('  git add package.json src/version.ts CHANGELOG.md');
+    console.log(`  git commit -m "chore: release v${newVersion}"`);
+    console.log(`  git tag -a v${newVersion} -m "Version ${newVersion}"`);
+  }
 }
 
 // Run the main function
-main();
+main().catch(error => {
+  console.error('Error:', error);
+  process.exit(1);
+});
