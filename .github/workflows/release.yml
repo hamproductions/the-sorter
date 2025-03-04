@@ -1,0 +1,57 @@
+name: Create GitHub Release
+
+on:
+  push:
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0.0, v20.15.10
+
+jobs:
+  build:
+    name: Create Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history for changelog generation
+
+      - name: Setup Dependencies
+        uses: ./.github/composite-actions/setup
+
+      - name: Get version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Extract changelog for version
+        id: extract_changelog
+        run: |
+          VERSION=${{ steps.get_version.outputs.VERSION }}
+          # Extract changelog section for this version
+          CHANGELOG_SECTION=$(awk -v ver="$VERSION" '
+            BEGIN { in_section = 0; section = ""; }
+            /^## \['"$VERSION"'\]/ { in_section = 1; }
+            /^## \[[0-9]+\.[0-9]+\.[0-9]+\]/ && !/^## \['"$VERSION"'\]/ { if (in_section) in_section = 0; }
+            { if (in_section) section = section $0 "\n"; }
+            END { print section; }
+          ' CHANGELOG.md)
+          
+          # Escape newlines and other special characters for GitHub Actions
+          CHANGELOG_SECTION="${CHANGELOG_SECTION//'%'/'%25'}"
+          CHANGELOG_SECTION="${CHANGELOG_SECTION//$'\n'/'%0A'}"
+          CHANGELOG_SECTION="${CHANGELOG_SECTION//$'\r'/'%0D'}"
+          
+          echo "CHANGELOG_SECTION=$CHANGELOG_SECTION" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release v${{ steps.get_version.outputs.VERSION }}
+          body: ${{ steps.extract_changelog.outputs.CHANGELOG_SECTION }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
