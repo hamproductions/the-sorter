@@ -3,11 +3,13 @@
     "commitMessage": "chore: release v${version}",
     "tagName": "v${version}",
     "tagAnnotation": "Version ${version}",
-    "push": true,
-    "requireCleanWorkingDir": true
+    "push": false,
+    "requireCleanWorkingDir": true,
+    "commit": true,
+    "tag": true
   },
   "github": {
-    "release": true,
+    "release": false,
     "releaseName": "Release v${version}"
   },
   "npm": {
