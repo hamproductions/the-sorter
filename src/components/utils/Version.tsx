@@ -1,4 +1,5 @@
 import { BUILD_TIMESTAMP, getVersionString, VERSION } from '../../version';
+import { Text } from '../ui/text';
 
 interface VersionProps {
   /**
@@ -8,17 +9,12 @@ interface VersionProps {
    * - 'timestamp': Shows only the build timestamp (Built: 3/4/2025, 4:22:19 PM)
    */
   format?: 'full' | 'version' | 'timestamp';
-
-  /**
-   * Additional CSS class names
-   */
-  className?: string;
 }
 
 /**
  * Component to display application version information
  */
-export function Version({ format = 'full', className = '' }: VersionProps) {
+export function Version({ format = 'full' }: VersionProps) {
   let content = '';
 
   switch (format) {
@@ -34,11 +30,7 @@ export function Version({ format = 'full', className = '' }: VersionProps) {
       break;
   }
 
-  return (
-    <span className={className} title={getVersionString()}>
-      {content}
-    </span>
-  );
+  return <Text title={getVersionString()}>{content}</Text>;
 }
 
 export default Version;
