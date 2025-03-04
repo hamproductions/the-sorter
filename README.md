@@ -92,62 +92,40 @@ This project uses semantic versioning (MAJOR.MINOR.PATCH):
 
 ### Version and Changelog Management
 
-This project provides two ways to update versions and is optimized for conventional commits.
+This project uses [release-it](https://github.com/release-it/release-it) for version and changelog management, optimized for conventional commits.
 
-#### Basic Version Update
-
-```bash
-# For patch updates (bug fixes)
-bun version:patch
-
-# For minor updates (new features)
-bun version:minor
-
-# For major updates (breaking changes)
-bun version:major
-```
-
-These commands will:
-1. Update the version in package.json
-2. Update the version.ts file with the new version information
-3. The version is displayed in the footer of the application
-
-#### Complete Release Process
-
-For a more comprehensive release process that includes changelog updates:
+#### Release Process
 
 ```bash
 # Automatically determine version type based on conventional commits
 bun release
 
 # Or specify version type manually
-bun release:patch
-bun release:minor
-bun release:major
+bun release:patch  # For bug fixes
+bun release:minor  # For new features
+bun release:major  # For breaking changes
 ```
 
 These commands will:
-1. Update the version in package.json (automatically determining the version type from commits if not specified)
-2. Update the version.ts file with the new version information
-3. Generate changelog entries automatically from conventional commits
-4. Allow you to review and edit the generated changelog entries
-5. Automatically commit and create a git tag (with your confirmation)
-6. Provide instructions for pushing the changes and tags
+1. Analyze commit messages to determine the appropriate version bump (if not specified)
+2. Update the version in package.json
+3. Update the version.ts file with the new version information
+4. Generate changelog entries automatically from conventional commits
+5. Commit the changes with a standardized commit message
+6. Create a git tag for the release
+7. Push the changes and tags to the remote repository (with your confirmation)
 
-#### Manual Changelog Update
+The version is displayed in the footer of the application.
 
-You can also update the changelog separately:
+#### Dry Run
+
+To see what would happen during a release without making any changes:
 
 ```bash
-bun update-changelog
+bun release-it --dry-run
 ```
 
-This will:
-1. Automatically categorize your conventional commits into changelog sections
-2. Allow you to review and edit the generated entries
-3. Update the CHANGELOG.md file with your changes
-
-Note: These commands use npm internally for version bumping since Bun doesn't support the version command yet.
+This will show you the version that would be bumped, the changelog entries that would be generated, and the git operations that would be performed.
 
 ### Conventional Commits
 
@@ -185,19 +163,15 @@ Breaking changes trigger a major version bump.
 
 #### Pre-commit Validation
 
-The pre-commit hook checks that:
-1. Your commit message follows the conventional commit format
-2. The version has been updated if non-version files are changed
-3. Version-related files are in sync
+The pre-commit hook checks that your commit message follows the conventional commit format.
 
 ### Pre-commit Hook
 
-This project includes a pre-commit hook that checks if the version has been updated before allowing a commit. This ensures that version changes are not forgotten when making changes to the codebase.
+This project includes a pre-commit hook that ensures commit messages follow the conventional commit format. This standardization is essential for automated versioning and changelog generation with release-it.
 
 The pre-commit hook:
-- Checks if any non-version files are being committed
-- If so, verifies that the version has been updated since the last commit
-- Ensures that version-related files are in sync
+- Validates that commit messages follow the conventional commit format
+- Skips validation for merge commits and release commits
 
 If you're setting up the project for the first time or after a fresh clone, run:
 
