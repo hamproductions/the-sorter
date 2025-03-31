@@ -1,15 +1,15 @@
 // This file is auto-generated. Do not edit manually.
-// Generated on: 2025-03-18T06:39:41.329Z
+// Generated on: 2025-03-31T07:58:09.652Z
 
 /**
  * Application version from package.json
  */
-export const VERSION = '1.1.1';
+export const VERSION = '1.2.0';
 
 /**
  * Build timestamp
  */
-export const BUILD_TIMESTAMP = '2025-03-18T06:39:41.329Z';
+export const BUILD_TIMESTAMP = '2025-03-31T07:58:09.653Z';
 
 /**
  * Returns the application version with build information
