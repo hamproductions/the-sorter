@@ -36,7 +36,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               >
                 {t(`navigation.characters`)}
               </Link>
-              {/* <Link
+              <Link
                 href={join(import.meta.env.BASE_URL, '/songs')}
                 data-active={
                   currentPath === join(import.meta.env.BASE_URL, '/songs') ? true : undefined
@@ -46,7 +46,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 }}
               >
                 {t(`navigation.songs`)}
-              </Link> */}
+              </Link>
               <Link
                 href={join(import.meta.env.BASE_URL, '/hasu-music')}
                 data-active={

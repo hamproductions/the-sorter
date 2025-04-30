@@ -13,13 +13,13 @@ import { isValidSongFilter } from '~/utils/hasu-song-filter';
 export interface HasuSongFilterType {
   generations?: string[];
   units?: string[];
-  types?: ('original' | 'covers' | '104ver' | 'nver')[];
+  types?: ('original' | 'covers' | '104ver' | '105ver' | 'nver')[];
 }
 
 const DATA = {
-  generations: ['103', '104'],
+  generations: ['103', '104', '105'],
   units: Array.from(new Set(songs.data.map((s) => s.unit))),
-  types: ['original', 'covers', '104ver', 'nver']
+  types: ['original', 'covers', '104ver', '105ver', 'nver']
 } as const;
 
 export function HasuSongFilters({

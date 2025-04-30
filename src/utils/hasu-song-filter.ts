@@ -17,15 +17,17 @@ export const matchSongFilter = (item: HasuSong, filter: HasuSongFilterType) => {
           return (
             item.id.toString().charAt(3) === '1' &&
             !item.title.includes('（104期Ver.）') &&
-            !item.title.includes('人Ver.)') &&
-            !item.title.includes('(ReC Ver.)')
+            !item.title.includes('人Ver.）') &&
+            !item.title.includes('（ReC Ver.）')
           );
         } else if (type === 'covers') {
           return item.id.toString().charAt(3) === '2' || item.id.toString().charAt(3) === '3';
         } else if (type === '104ver') {
           return item.title.includes('（104期Ver.）');
+        } else if (type === '105ver') {
+          return item.title.includes('（105期Ver.）');
         } else if (type === 'nver') {
-          return item.title.includes('人Ver.)') || item.title.includes('(ReC Ver.)');
+          return item.title.includes('人Ver.）') || item.title.includes('（ReC Ver.）');
         }
       });
   }
