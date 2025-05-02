@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { FaChevronDown, FaCopy, FaDownload } from 'react-icons/fa6';
+import { FaChevronDown, FaCopy, FaDownload, FaXTwitter } from 'react-icons/fa6';
 
 import { useTranslation } from 'react-i18next';
 
@@ -140,6 +140,32 @@ export function HasuSongResultsView({
     toast?.(t('toast.text_copied'));
   };
 
+  const getShareText = () => {
+    const seiyuuList = order
+      ?.flatMap((ids, idx) =>
+        ids.map((id) => {
+          const song = songsData.find((s) => s.id === id);
+          if (!song) return;
+          return `${idx + 1}. ${song.title}`;
+        })
+      )
+      .slice(0, 5)
+      .join('\n');
+    return `${t('results.hasu_songs.share_text.title')}\n${seiyuuList}\n${t(
+      'results.hasu_songs.share_text.footer'
+    )}\nhttps://hamproductions.github.io/the-sorter/hasu-music`;
+  };
+
+  const shareToX = () => {
+    const shareURL = `https://twitter.com/intent/tweet?text=${encodeURIComponent(getShareText())}`;
+    window.open(shareURL, '_blank');
+  };
+
+  const copyText = async () => {
+    await navigator.clipboard.writeText(getShareText());
+    toast?.(t('toast.text_copied'));
+  };
+
   const download = async () => {
     try {
       const blob = await makeScreenshot();
@@ -170,7 +196,14 @@ export function HasuSongResultsView({
         <Heading fontSize="2xl" fontWeight="bold">
           {t('results.sort_results')}
         </Heading>
-
+        <HStack justifyContent="center">
+          <Button variant="subtle" onClick={() => void copyText()}>
+            {t('results.copy_results')}
+          </Button>
+          <Button onClick={() => void shareToX()}>
+            <FaXTwitter /> {t('results.share_x')}
+          </Button>
+        </HStack>
         <Stack w="full">
           <Accordion.Root size="md" collapsible>
             <Accordion.Item value="default" width="100%">

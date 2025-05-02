@@ -84,6 +84,12 @@
       "title": "My #LoveLiveRanking",
       "footer": "Go make your own!"
     },
+    "hasu_songs": {
+      "share_text": {
+        "title": "My #HasuSongsRanking",
+        "footer": "Go make your own!\n#LoveLiveRanking"
+      }
+    },
     "share_x": "Post on X",
     "copy_results": "Copy Results",
     "settings": {

@@ -84,6 +84,12 @@
       "title": "私の #ラブライブランキング",
       "footer": "作ってみてね！"
     },
+    "hasu_songs": {
+      "share_text": {
+        "title": "私の #蓮ノ空楽曲ランキング",
+        "footer": "作ってみてね！\n#ラブライブランキング"
+      }
+    },
     "share_x": "Xにポストする",
     "copy_results": "結果をコピーする",
     "settings": {
