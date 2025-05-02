@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [1.5.0](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.4.0...v1.5.0) (2025-05-02)
+
+
+### Features
+
+* feslive update ([bf0f53e](https://github.com/Tanyawat-Arsaga/the-sorter/commit/bf0f53e1a428c30eddcad01bc00cc91208206307))
+
 # [1.4.0](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.3.0...v1.4.0) (2025-04-30)
 
 
