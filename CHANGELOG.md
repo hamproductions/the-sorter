@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [1.7.0](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.6.0...v1.7.0) (2025-05-12)
+
+
+### Features
+
+* hasu song update ([d9cbbd2](https://github.com/Tanyawat-Arsaga/the-sorter/commit/d9cbbd246532d2f3354e22da927022f8b82815dd))
+* ikizulive update ([a3714a1](https://github.com/Tanyawat-Arsaga/the-sorter/commit/a3714a11defa3a320d8f3c62588131ccf677dc41))
+
 # [1.6.0](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.5.0...v1.6.0) (2025-05-02)
 
 
