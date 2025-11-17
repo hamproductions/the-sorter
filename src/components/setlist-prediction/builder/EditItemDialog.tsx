@@ -23,21 +23,13 @@ import type { SetlistItem, SongSetlistItem } from '~/types/setlist-prediction';
 import { isSongItem } from '~/types/setlist-prediction';
 import { useSongData } from '~/hooks/useSongData';
 import { getSongColor } from '~/utils/song';
+import type { Song } from '~/types';
 
 export interface EditItemDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   item: SetlistItem;
   onSave: (updates: Partial<SetlistItem>) => void;
-}
-
-interface Song {
-  id: string;
-  name: string;
-  'name-romaji'?: string;
-  'name-english'?: string;
-  seriesIds?: number[];
-  artists?: string[];
 }
 
 export function EditItemDialog({ open, onOpenChange, item, onSave }: EditItemDialogProps) {
@@ -63,23 +55,22 @@ export function EditItemDialog({ open, onOpenChange, item, onSave }: EditItemDia
     const songs = Array.isArray(songData) ? songData : [];
     return songs
       .filter((song) => {
-        const s = song as Song;
-        const searchText =
-          `${s.name} ${s['name-romaji'] || ''} ${s['name-english'] || ''}`.toLowerCase();
+        const s = song;
+        const searchText = `${s.name}`.toLowerCase();
         return searchText.includes(query);
       })
       .slice(0, 20) // Limit results
       .map((song) => {
-        const s = song as Song;
+        const s = song;
         const artistId = s.artists?.[0];
         const artist = artistId ? artistsData.find((a) => a.id === artistId) : null;
 
         return {
           id: s.id,
           name: s.name,
-          nameRomaji: s['name-romaji'],
+          nameRomaji: undefined,
           artist: artist?.name,
-          color: getSongColor(s as any)
+          color: getSongColor(s)
         };
       });
   }, [songData, searchQuery]);
@@ -118,7 +109,7 @@ export function EditItemDialog({ open, onOpenChange, item, onSave }: EditItemDia
     if (item.isCustomSong) return item.customSongName || 'Custom Song';
 
     const songs = Array.isArray(songData) ? songData : [];
-    const song = songs.find((s: any) => s.id === item.songId);
+    const song = songs.find((s: Song) => s.id === item.songId);
     return song?.name || `Song ${item.songId}`;
   }, [item, songData]);
 

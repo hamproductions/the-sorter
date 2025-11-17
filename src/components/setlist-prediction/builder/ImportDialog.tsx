@@ -514,7 +514,7 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
                   if (importType === 'performance') {
                     handlePerformanceImport();
                   } else if (importType === 'file') {
-                    handleFileImport();
+                    void handleFileImport();
                   } else {
                     handleTextImport();
                   }

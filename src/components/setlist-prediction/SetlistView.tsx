@@ -112,17 +112,13 @@ export function SetlistView({
               songName = item.customSongName || 'Custom Song';
             } else {
               const songs = Array.isArray(songData) ? songData : [];
-              const songDetails = songs.find(
-                (song: any) => String(song.id) === String(item.songId)
-              );
+              const songDetails = songs.find((song) => String(song.id) === String(item.songId));
               songName = songDetails?.name || `Song ${item.songId}`;
-              songColor = songDetails ? getSongColor(songDetails as any) : undefined;
+              songColor = songDetails ? getSongColor(songDetails) : undefined;
 
               // Get artist name
               if (songDetails?.artists && songDetails.artists[0]) {
-                const artist = artistsData.find(
-                  (a: any) => a.id === String(songDetails.artists[0])
-                );
+                const artist = artistsData.find((a) => a.id === String(songDetails.artists[0]));
                 artistName = artist?.name;
               }
             }

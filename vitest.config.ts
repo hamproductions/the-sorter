@@ -17,9 +17,11 @@ export default defineConfig({
     environment: 'jsdom',
     css: process.env.TEST_PREVIEW === 'true',
     // testTimeout: process.env.CI === 'true' ? 5000 : 10000,
-    // environmentOptions: {
-    //   jsdom: {}
-    // },
+    environmentOptions: {
+      jsdom: {
+        resources: 'usable'
+      }
+    },
     isolate: true,
     setupFiles: ['./vitest-setup.js'],
     coverage: {

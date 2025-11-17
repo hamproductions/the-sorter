@@ -10,6 +10,7 @@ import { Box, Stack, HStack } from 'styled-system/jsx';
 import { Text } from '~/components/ui/styled/text';
 import { Button } from '~/components/ui/styled/button';
 import type { SetlistItem } from '~/types/setlist-prediction';
+import type { Song } from '~/types';
 
 export interface SetlistEditorPanelProps {
   items: SetlistItem[];
@@ -20,8 +21,8 @@ export interface SetlistEditorPanelProps {
   dropIndicator?: {
     itemId: string;
     position: 'top' | 'bottom';
-    draggedItem?: any;
-    songDetails?: any;
+    draggedItem?: SetlistItem;
+    songDetails?: Song;
   } | null;
 }
 
@@ -92,73 +93,75 @@ export function SetlistEditorPanel({
         </HStack>
 
         {items.map((item, index) => {
-        // Find the first encore divider
-        const encoreDividerIndex = items.findIndex((i) => {
-          const isSong = i.type === 'song';
-          return (
-            !isSong &&
-            'title' in i &&
-            i.title &&
-            (i.title.includes('━━ ENCORE ━━') || i.title.toUpperCase().includes('ENCORE'))
-          );
-        });
+          // Find the first encore divider
+          const encoreDividerIndex = items.findIndex((i) => {
+            const isSong = i.type === 'song';
+            return (
+              !isSong &&
+              'title' in i &&
+              i.title &&
+              (i.title.includes('━━ ENCORE ━━') || i.title.toUpperCase().includes('ENCORE'))
+            );
+          });
 
-        // Determine if this item is after the encore divider
-        const isAfterEncoreDivider = encoreDividerIndex !== -1 && index > encoreDividerIndex;
-        const isEncore = isAfterEncoreDivider;
+          // Determine if this item is after the encore divider
+          const isAfterEncoreDivider = encoreDividerIndex !== -1 && index > encoreDividerIndex;
+          const isEncore = isAfterEncoreDivider;
 
-        // Calculate numbers based on position relative to encore
-        const mcsBeforeThis = items.slice(0, index).filter((i) => i.type === 'mc');
+          // Calculate numbers based on position relative to encore
+          const mcsBeforeThis = items.slice(0, index).filter((i) => i.type === 'mc');
 
-        let songNumber: number | undefined;
-        let encoreNumber: number | undefined;
+          let songNumber: number | undefined;
+          let encoreNumber: number | undefined;
 
-        if (item.type === 'song') {
-          if (isEncore) {
-            // Count encore songs (songs after encore divider)
-            const encoreSongsBeforeThis = items.slice(0, index).filter((i) => {
-              if (i.type !== 'song') return false;
-              const iIdx = items.indexOf(i);
-              return encoreDividerIndex !== -1 && iIdx > encoreDividerIndex;
-            });
-            encoreNumber = encoreSongsBeforeThis.length + 1;
-          } else {
-            // Count regular songs (songs before encore divider)
-            const regularSongsBeforeThis = items.slice(0, index).filter((i) => {
-              if (i.type !== 'song') return false;
-              const iIdx = items.indexOf(i);
-              return encoreDividerIndex === -1 || iIdx < encoreDividerIndex;
-            });
-            songNumber = regularSongsBeforeThis.length + 1;
-          }
-        }
-
-        const mcNumber = item.type === 'mc' ? mcsBeforeThis.length + 1 : undefined;
-
-        // Check if this item should show drop indicator
-        const showDropIndicator =
-          dropIndicator?.itemId === item.id ? dropIndicator.position : null;
-
-        return (
-          <SetlistItemComponent
-            key={item.id}
-            item={item}
-            index={index}
-            songNumber={songNumber}
-            encoreNumber={encoreNumber}
-            mcNumber={mcNumber}
-            showSectionDivider={false}
-            sectionName={undefined}
-            onRemove={() => onRemove(item.id)}
-            onUpdate={(updates) => onUpdate(item.id, updates)}
-            dropIndicatorPosition={showDropIndicator}
-            draggedItem={dropIndicator?.itemId === item.id ? dropIndicator.draggedItem : undefined}
-            draggedSongDetails={
-              dropIndicator?.itemId === item.id ? dropIndicator.songDetails : undefined
+          if (item.type === 'song') {
+            if (isEncore) {
+              // Count encore songs (songs after encore divider)
+              const encoreSongsBeforeThis = items.slice(0, index).filter((i) => {
+                if (i.type !== 'song') return false;
+                const iIdx = items.indexOf(i);
+                return encoreDividerIndex !== -1 && iIdx > encoreDividerIndex;
+              });
+              encoreNumber = encoreSongsBeforeThis.length + 1;
+            } else {
+              // Count regular songs (songs before encore divider)
+              const regularSongsBeforeThis = items.slice(0, index).filter((i) => {
+                if (i.type !== 'song') return false;
+                const iIdx = items.indexOf(i);
+                return encoreDividerIndex === -1 || iIdx < encoreDividerIndex;
+              });
+              songNumber = regularSongsBeforeThis.length + 1;
             }
-          />
-        );
-      })}
+          }
+
+          const mcNumber = item.type === 'mc' ? mcsBeforeThis.length + 1 : undefined;
+
+          // Check if this item should show drop indicator
+          const showDropIndicator =
+            dropIndicator?.itemId === item.id ? dropIndicator.position : null;
+
+          return (
+            <SetlistItemComponent
+              key={item.id}
+              item={item}
+              index={index}
+              songNumber={songNumber}
+              encoreNumber={encoreNumber}
+              mcNumber={mcNumber}
+              showSectionDivider={false}
+              sectionName={undefined}
+              onRemove={() => onRemove(item.id)}
+              onUpdate={(updates) => onUpdate(item.id, updates)}
+              dropIndicatorPosition={showDropIndicator}
+              draggedItem={
+                dropIndicator?.itemId === item.id ? dropIndicator.draggedItem : undefined
+              }
+              draggedSongDetails={
+                dropIndicator?.itemId === item.id ? dropIndicator.songDetails : undefined
+              }
+            />
+          );
+        })}
       </Stack>
     </SortableContext>
   );

@@ -15,16 +15,6 @@ import { Text } from '~/components/ui/styled/text';
 import { useSongData } from '~/hooks/useSongData';
 import { getSongColor } from '~/utils/song';
 
-interface Song {
-  id: string;
-  name: string;
-  'name-romaji'?: string;
-  'name-english'?: string;
-  series?: string;
-  seriesIds?: number[];
-  artists?: string[];
-}
-
 interface DraggableSongItemProps {
   song: {
     id: string;
@@ -37,7 +27,10 @@ interface DraggableSongItemProps {
   onAddSong: (songId: string, songTitle: string) => void;
 }
 
-const DraggableSongItem = memo(function DraggableSongItem({ song, onAddSong }: DraggableSongItemProps) {
+const DraggableSongItem = memo(function DraggableSongItem({
+  song,
+  onAddSong
+}: DraggableSongItemProps) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `search-${song.id}`,
     data: {
@@ -111,14 +104,13 @@ export function SongSearchPanel({ onAddSong, onAddCustomSong }: SongSearchPanelP
     const songs = Array.isArray(songData) ? songData : [];
     return songs
       .filter((song) => {
-        const s = song as Song;
-        const searchText =
-          `${s.name} ${s['name-romaji'] || ''} ${s['name-english'] || ''}`.toLowerCase();
+        const s = song;
+        const searchText = `${s.name}`.toLowerCase();
         return searchText.includes(query);
       })
       .slice(0, 50) // Limit results to 50
       .map((song) => {
-        const s = song as Song;
+        const s = song;
         // Get artist name
         const artistId = s.artists?.[0];
         const artist = artistId ? artistsData.find((a) => a.id === artistId) : null;
@@ -126,11 +118,11 @@ export function SongSearchPanel({ onAddSong, onAddCustomSong }: SongSearchPanelP
         return {
           id: s.id,
           name: s.name,
-          nameRomaji: s['name-romaji'],
-          series: s.series,
+          nameRomaji: undefined,
+          series: undefined,
           seriesIds: s.seriesIds,
           artist: artist?.name,
-          color: getSongColor(s as any)
+          color: getSongColor(s)
         };
       });
   }, [songData, searchQuery]);

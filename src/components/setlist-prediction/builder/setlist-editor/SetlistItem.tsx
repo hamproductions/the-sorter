@@ -18,6 +18,7 @@ import type { SetlistItem as SetlistItemType } from '~/types/setlist-prediction'
 import { isSongItem } from '~/types/setlist-prediction';
 import { useSongData } from '~/hooks/useSongData';
 import { getSongColor } from '~/utils/song';
+import type { Song } from '~/types';
 
 export interface SetlistItemProps {
   item: SetlistItemType;
@@ -30,8 +31,8 @@ export interface SetlistItemProps {
   showSectionDivider?: boolean;
   sectionName?: string;
   dropIndicatorPosition?: 'top' | 'bottom' | null;
-  draggedItem?: any;
-  draggedSongDetails?: any;
+  draggedItem?: SetlistItemType;
+  draggedSongDetails?: Song;
 }
 
 // Convert number to circled number (①②③...)
@@ -63,7 +64,7 @@ const SetlistItemComponent = memo(function SetlistItem({
     if (!isSongItem(item) || item.isCustomSong) return null;
 
     const songs = Array.isArray(songData) ? songData : [];
-    return songs.find((song: any) => String(song.id) === String(item.songId)) || null;
+    return songs.find((song: Song) => String(song.id) === String(item.songId)) || null;
   }, [item, songData]);
 
   const {
@@ -91,7 +92,7 @@ const SetlistItemComponent = memo(function SetlistItem({
   // Get song color for border
   const songColor = useMemo(() => {
     if (!isSongItem(item) || !songDetails) return undefined;
-    return getSongColor(songDetails as any);
+    return getSongColor(songDetails);
   }, [item, songDetails]);
 
   // Get artist/unit name
@@ -103,7 +104,7 @@ const SetlistItemComponent = memo(function SetlistItem({
     if (!firstArtistId) return undefined;
 
     // Look up the artist name
-    const artist = artistsData.find((a: any) => a.id === String(firstArtistId));
+    const artist = artistsData.find((a) => a.id === String(firstArtistId));
     return artist?.name;
   }, [item, songDetails]);
 
@@ -136,14 +137,14 @@ const SetlistItemComponent = memo(function SetlistItem({
   // Get dragged item details for preview
   const draggedItemColor = useMemo(() => {
     if (!draggedSongDetails) return undefined;
-    return getSongColor(draggedSongDetails as any);
+    return getSongColor(draggedSongDetails);
   }, [draggedSongDetails]);
 
   const draggedArtistName = useMemo(() => {
     if (!draggedSongDetails || !draggedSongDetails.artists) return undefined;
     const firstArtistId = draggedSongDetails.artists[0];
     if (!firstArtistId) return undefined;
-    const artist = artistsData.find((a: any) => a.id === String(firstArtistId));
+    const artist = artistsData.find((a) => a.id === String(firstArtistId));
     return artist?.name;
   }, [draggedSongDetails]);
 
@@ -152,16 +153,16 @@ const SetlistItemComponent = memo(function SetlistItem({
     if (!draggedItem) return null;
 
     return (
-      <Box mb={position === 'top' ? 1 : 0} mt={position === 'bottom' ? 1 : 0} opacity={0.6}>
+      <Box mt={position === 'bottom' ? 1 : 0} mb={position === 'top' ? 1 : 0} opacity={0.6}>
         <Box
           borderLeft={isSongItem(draggedItem) && draggedItemColor ? '4px solid' : undefined}
           borderColor={isSongItem(draggedItem) && draggedItemColor ? draggedItemColor : undefined}
           borderRadius="md"
           borderWidth="2px"
-          borderStyle="dashed"
           py={2}
           px={3}
           bgColor="bg.muted"
+          borderStyle="dashed"
         >
           <HStack gap={2} justifyContent="space-between" alignItems="flex-start">
             <HStack flex={1} gap={2} alignItems="flex-start">

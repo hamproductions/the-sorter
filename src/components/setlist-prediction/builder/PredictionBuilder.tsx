@@ -21,6 +21,7 @@ import {
 import { arrayMove } from '@dnd-kit/sortable';
 import { BiMenu, BiX } from 'react-icons/bi';
 import { MdDragIndicator } from 'react-icons/md';
+import artistsData from '../../../../data/artists-info.json';
 import { SetlistEditorPanel } from './SetlistEditorPanel';
 import { ExportShareTools } from './ExportShareTools';
 import { SongSearchPanel } from './SongSearchPanel';
@@ -30,11 +31,15 @@ import { Button } from '~/components/ui/styled/button';
 import { IconButton } from '~/components/ui/styled/icon-button';
 import { Input } from '~/components/ui/styled/input';
 import { Text } from '~/components/ui/styled/text';
-import type { SetlistPrediction, Performance } from '~/types/setlist-prediction';
+import type {
+  SetlistPrediction,
+  Performance,
+  SetlistItem as SetlistItemType
+} from '~/types/setlist-prediction';
 import { usePredictionBuilder } from '~/hooks/setlist-prediction/usePredictionBuilder';
 import { useSongData } from '~/hooks/useSongData';
 import { getSongColor } from '~/utils/song';
-import artistsData from '../../../../data/artists-info.json';
+import type { Song } from '~/types';
 
 export interface PredictionBuilderProps {
   performanceId: string;
@@ -46,7 +51,7 @@ export interface PredictionBuilderProps {
 /**
  * Drag Preview Component - rendered inside DragOverlay
  */
-function DragPreview({ activeData }: { activeData: any }) {
+function DragPreview({ activeData }: { activeData: Record<string, unknown> | null }) {
   const songData = useSongData();
 
   if (!activeData) {
@@ -57,10 +62,11 @@ function DragPreview({ activeData }: { activeData: any }) {
 
   // Handle search result preview
   if (sourceData.type === 'search-result') {
-    const { songId, songName } = sourceData;
+    const songId = sourceData.songId as string;
+    const songName = sourceData.songName as string;
     const songs = Array.isArray(songData) ? songData : [];
-    const songDetails = songs.find((song: any) => String(song.id) === String(songId));
-    const songColor = songDetails ? getSongColor(songDetails as any) : undefined;
+    const songDetails = songs.find((song: Song) => String(song.id) === String(songId));
+    const songColor = songDetails ? getSongColor(songDetails) : undefined;
 
     // Get artist name
     const artistId = songDetails?.artists?.[0];
@@ -71,13 +77,13 @@ function DragPreview({ activeData }: { activeData: any }) {
         borderLeft={songColor ? '4px solid' : undefined}
         borderColor={songColor ? songColor : undefined}
         borderRadius="md"
+        minW="250px"
         py={2}
         px={3}
+        opacity={0.95}
         bgColor="bg.default"
         shadow="lg"
-        opacity={0.95}
         cursor="grabbing"
-        minW="250px"
       >
         <HStack gap={2} alignItems="flex-start">
           <Box pt={1}>
@@ -87,11 +93,6 @@ function DragPreview({ activeData }: { activeData: any }) {
             <Text fontSize="sm" fontWeight="medium">
               {songName}
             </Text>
-            {(songDetails as any)?.['name-romaji'] && (
-              <Text color="fg.muted" fontSize="xs">
-                {(songDetails as any)['name-romaji']}
-              </Text>
-            )}
             {artist?.name && (
               <Text style={{ color: songColor }} fontSize="xs" fontWeight="medium">
                 {artist.name}
@@ -105,8 +106,9 @@ function DragPreview({ activeData }: { activeData: any }) {
 
   // Handle setlist item preview
   if (sourceData.type === 'setlist-item') {
-    const { item, songDetails } = sourceData;
-    const songColor = songDetails ? getSongColor(songDetails as any) : undefined;
+    const item = sourceData.item as SetlistItemType;
+    const songDetails = sourceData.songDetails as Song | undefined;
+    const songColor = songDetails ? getSongColor(songDetails) : undefined;
 
     // Get artist name
     const artistId = songDetails?.artists?.[0];
@@ -117,13 +119,13 @@ function DragPreview({ activeData }: { activeData: any }) {
         borderLeft={item.type === 'song' && songColor ? '4px solid' : undefined}
         borderColor={item.type === 'song' && songColor ? songColor : undefined}
         borderRadius="md"
+        minW="250px"
         py={2}
         px={3}
+        opacity={0.95}
         bgColor="bg.default"
         shadow="lg"
-        opacity={0.95}
         cursor="grabbing"
-        minW="250px"
       >
         <HStack gap={2} alignItems="flex-start">
           <Box pt={1}>
@@ -201,7 +203,7 @@ export function PredictionBuilder({
 
   // Track active drag state
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [activeData, setActiveData] = useState<any>(null);
+  const [activeData, setActiveData] = useState<Record<string, unknown> | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
 
   // Calculate drop indicator for visual feedback (without triggering reorders)
@@ -214,17 +216,21 @@ export function PredictionBuilder({
     // Only show indicator for cross-list dragging (search to setlist)
     if (activeData.type === 'search-result') {
       const songs = Array.isArray(songData) ? songData : [];
-      const songDetails = songs.find((song: any) => String(song.id) === String(activeData.songId));
+      const songId = activeData.songId as string;
+      const songDetails = songs.find((song: Song) => String(song.id) === String(songId));
+
+      const tempItem: SetlistItemType = {
+        id: `temp-${songId}`,
+        type: 'song' as const,
+        songId: String(songId),
+        isCustomSong: false,
+        position: 0
+      };
 
       return {
         itemId: overId,
         position: 'top' as const,
-        draggedItem: {
-          id: `temp-${activeData.songId}`,
-          type: 'song' as const,
-          songId: String(activeData.songId),
-          isCustomSong: false
-        },
+        draggedItem: tempItem,
         songDetails
       };
     }
@@ -235,7 +241,7 @@ export function PredictionBuilder({
   // Handle drag start
   const handleDragStart = useCallback((event: DragStartEvent) => {
     setActiveId(String(event.active.id));
-    setActiveData(event.active.data.current);
+    setActiveData((event.active.data.current as Record<string, unknown>) || null);
   }, []);
 
   // Handle drag over - only track position, don't update items yet
@@ -620,9 +626,7 @@ export function PredictionBuilder({
       </Stack>
 
       {/* Drag Overlay - provides visual feedback during drag */}
-      <DragOverlay>
-        {activeId ? <DragPreview activeData={activeData} /> : null}
-      </DragOverlay>
+      <DragOverlay>{activeId ? <DragPreview activeData={activeData} /> : null}</DragOverlay>
     </DndContext>
   );
 }
