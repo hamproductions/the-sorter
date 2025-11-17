@@ -2,21 +2,17 @@
  * LocalStorage utilities for setlist predictions
  */
 
-import {
+import type {
   SetlistPrediction,
   SaveSlotManager,
-  PerformanceHistoryCache,
   UserSettings,
-  Performance,
-  STORAGE_KEYS,
-  type LocalStorageSchema
+  Performance
 } from '~/types/setlist-prediction';
+import { STORAGE_KEYS, type LocalStorageSchema } from '~/types/setlist-prediction';
 
 // ==================== Generic Storage Helpers ====================
 
-function getItem<K extends keyof LocalStorageSchema>(
-  key: K
-): LocalStorageSchema[K] | null {
+function getItem<K extends keyof LocalStorageSchema>(key: K): LocalStorageSchema[K] | null {
   if (typeof window === 'undefined') return null;
 
   try {
@@ -28,10 +24,7 @@ function getItem<K extends keyof LocalStorageSchema>(
   }
 }
 
-function setItem<K extends keyof LocalStorageSchema>(
-  key: K,
-  value: LocalStorageSchema[K]
-): void {
+function setItem<K extends keyof LocalStorageSchema>(key: K, value: LocalStorageSchema[K]): void {
   if (typeof window === 'undefined') return;
 
   try {
@@ -75,9 +68,7 @@ export class PredictionStorage {
 
   static getAllForPerformance(performanceId: string): SetlistPrediction[] {
     const predictions = this.getAll();
-    return Object.values(predictions).filter(
-      (p) => p.performanceId === performanceId
-    );
+    return Object.values(predictions).filter((p) => p.performanceId === performanceId);
   }
 
   static delete(id: string): void {
@@ -141,9 +132,7 @@ export class SaveSlotStorage {
     if (!slot) {
       // Create new slot
       const slotNumber =
-        manager.slots.length > 0
-          ? Math.max(...manager.slots.map((s) => s.slot)) + 1
-          : 1;
+        manager.slots.length > 0 ? Math.max(...manager.slots.map((s) => s.slot)) + 1 : 1;
 
       slot = {
         slot: slotNumber,
@@ -175,8 +164,7 @@ export class SaveSlotStorage {
         slot.lastModified = new Date().toISOString();
 
         if (slot.activePredictionId === predictionId) {
-          slot.activePredictionId =
-            slot.predictions.length > 0 ? slot.predictions[0] : undefined;
+          slot.activePredictionId = slot.predictions.length > 0 ? slot.predictions[0] : undefined;
         }
 
         // Remove empty slots
@@ -226,27 +214,6 @@ export class PerformanceCacheStorage {
 
   static clear(): void {
     setItem(this.KEY, []);
-  }
-}
-
-// ==================== Song History Cache ====================
-
-export class HistoryCacheStorage {
-  private static KEY = STORAGE_KEYS.HISTORY_CACHE;
-
-  static get(songId: string): PerformanceHistoryCache | null {
-    const cache = getItem(this.KEY) || {};
-    return cache[songId] || null;
-  }
-
-  static save(songId: string, history: PerformanceHistoryCache): void {
-    const cache = getItem(this.KEY) || {};
-    cache[songId] = history;
-    setItem(this.KEY, cache);
-  }
-
-  static clear(): void {
-    setItem(this.KEY, {});
   }
 }
 
@@ -302,6 +269,6 @@ export function clearAllPredictionData(): void {
   ActivePredictionStorage.clear();
   SaveSlotStorage.clear();
   PerformanceCacheStorage.clear();
-  HistoryCacheStorage.clear();
+  // HistoryCacheStorage.clear(); // TODO: Implement HistoryCacheStorage
   SettingsStorage.clear();
 }

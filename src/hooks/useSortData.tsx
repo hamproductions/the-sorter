@@ -63,11 +63,11 @@ export const useSortData = () => {
 
   const handleTie = useCallback(() => {
     if (!noTieMode) {
-      toast?.('ヒトリダケナンテエラベナイヨー');
+      toast?.({ description: 'ヒトリダケナンテエラベナイヨー' });
       tie();
     } else {
       //TODO: somehow add a pic
-      toast?.(t('toast.tie_not_allowed'), { type: 'error' });
+      toast?.({ description: t('toast.tie_not_allowed'), type: 'error' });
     }
   }, [toast, tie, noTieMode, t]);
 

@@ -42,27 +42,28 @@ export function usePredictionStorage() {
 
   const getPredictionsForPerformance = useCallback(
     (performanceId: string): SetlistPrediction[] => {
-      return Object.values(predictions).filter(
-        (p) => p.performanceId === performanceId
-      );
+      return Object.values(predictions).filter((p) => p.performanceId === performanceId);
     },
     [predictions]
   );
 
-  const deletePrediction = useCallback((id: string) => {
-    PredictionStorage.delete(id);
-    SaveSlotStorage.removePrediction(id);
+  const deletePrediction = useCallback(
+    (id: string) => {
+      PredictionStorage.delete(id);
+      SaveSlotStorage.removePrediction(id);
 
-    setPredictions((prev) => {
-      const { [id]: _, ...rest } = prev;
-      return rest;
-    });
+      setPredictions((prev) => {
+        const { [id]: _, ...rest } = prev;
+        return rest;
+      });
 
-    if (activePredictionId === id) {
-      setActivePredictionId(null);
-      ActivePredictionStorage.clear();
-    }
-  }, [activePredictionId]);
+      if (activePredictionId === id) {
+        setActivePredictionId(null);
+        ActivePredictionStorage.clear();
+      }
+    },
+    [activePredictionId]
+  );
 
   const setActivePrediction = useCallback((id: string | null) => {
     if (id) {

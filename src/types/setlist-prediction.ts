@@ -38,26 +38,18 @@ export interface Performance {
 
 // ==================== Setlist Items ====================
 
-export type SetlistItemType =
-  | 'song'
-  | 'mc'
-  | 'encore'
-  | 'special'
-  | 'vtr'
-  | 'opening'
-  | 'custom';
+export type SetlistItemType = 'song' | 'mc' | 'other';
 
 export interface BaseSetlistItem {
   id: string;
   type: SetlistItemType;
   position: number;
-  section?: string;
   remarks?: string;
   remarksJa?: string;
 }
 
 export interface SongSetlistItem extends BaseSetlistItem {
-  type: 'song' | 'encore';
+  type: 'song';
   songId: string;
   artistIds?: string[];
   isCustomSong?: boolean;
@@ -66,7 +58,7 @@ export interface SongSetlistItem extends BaseSetlistItem {
 }
 
 export interface NonSongSetlistItem extends BaseSetlistItem {
-  type: Exclude<SetlistItemType, 'song' | 'encore'>;
+  type: 'mc' | 'other';
   title: string;
   titleJa?: string;
   duration?: number; // seconds
@@ -166,14 +158,21 @@ export interface PredictionScore {
     };
   };
 
-  itemScores: {
-    itemId: string;
-    matched: boolean;
-    matchType?: 'exact' | 'close' | 'present' | 'section';
-    positionDiff?: number;
-    points: number;
-    actualItemId?: string;
-  }[];
+  itemScores: Array<
+    | {
+        itemId: string;
+        matched: true;
+        matchType: 'exact' | 'close' | 'present' | 'section';
+        positionDiff: number;
+        points: number;
+        actualItemId: string;
+      }
+    | {
+        itemId: string;
+        matched: false;
+        points: number;
+      }
+  >;
 
   globalRank?: number; // Phase 2
   friendsRank?: number; // Phase 2
@@ -263,19 +262,6 @@ export interface SongWithPredictionMeta {
   };
 }
 
-export interface PerformanceHistoryCache {
-  songId: string;
-  performances: {
-    id: string;
-    name: string;
-    date: string;
-    position: number;
-    section: string;
-    artistIds: string[];
-  }[];
-  lastUpdated: string;
-}
-
 // ==================== LocalStorage Schema ====================
 
 export const STORAGE_KEYS = {
@@ -283,7 +269,6 @@ export const STORAGE_KEYS = {
   ACTIVE_PREDICTION: 'active-prediction-id',
   SAVE_SLOTS: 'setlist-save-slots-v1',
   PERFORMANCE_CACHE: 'performance-cache-v1',
-  HISTORY_CACHE: 'song-history-cache-v1',
   SETTINGS: 'setlist-prediction-settings-v1',
   DRAFTS: 'setlist-prediction-drafts-v1'
 } as const;
@@ -293,7 +278,6 @@ export interface LocalStorageSchema {
   [STORAGE_KEYS.ACTIVE_PREDICTION]: string | null;
   [STORAGE_KEYS.SAVE_SLOTS]: SaveSlotManager;
   [STORAGE_KEYS.PERFORMANCE_CACHE]: Performance[];
-  [STORAGE_KEYS.HISTORY_CACHE]: Record<string, PerformanceHistoryCache>;
   [STORAGE_KEYS.SETTINGS]: UserSettings;
   [STORAGE_KEYS.DRAFTS]: Record<string, SetlistPrediction>;
 }
@@ -320,7 +304,6 @@ export interface ShareItem {
   s?: string; // songId (if song)
   c?: string; // custom name (if not song)
   r?: string; // remarks
-  sec?: string; // section
 }
 
 export interface ShareSection {
@@ -333,7 +316,7 @@ export interface ShareSection {
 // ==================== Type Guards ====================
 
 export function isSongItem(item: SetlistItem): item is SongSetlistItem {
-  return item.type === 'song' || item.type === 'encore';
+  return item.type === 'song';
 }
 
 export function isNonSongItem(item: SetlistItem): item is NonSongSetlistItem {

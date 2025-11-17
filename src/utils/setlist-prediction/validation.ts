@@ -2,13 +2,12 @@
  * Validation utilities for setlist predictions
  */
 
-import {
+import type {
   SetlistPrediction,
   PerformanceSetlist,
-  SetlistItem,
-  isSongItem,
-  isCustomSong
+  SetlistItem
 } from '~/types/setlist-prediction';
+import { isSongItem, isCustomSong } from '~/types/setlist-prediction';
 
 // ==================== Prediction Validation ====================
 
@@ -18,9 +17,7 @@ export interface ValidationResult {
   warnings: string[];
 }
 
-export function validatePrediction(
-  prediction: SetlistPrediction
-): ValidationResult {
+export function validatePrediction(prediction: SetlistPrediction): ValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
 
@@ -91,16 +88,12 @@ export function validateSetlist(setlist: PerformanceSetlist): ValidationResult {
       }
 
       if (isCustomSong(item) && !item.customSongName) {
-        errors.push(
-          `Custom song at position ${item.position} is missing customSongName`
-        );
+        errors.push(`Custom song at position ${item.position} is missing customSongName`);
       }
     } else {
       // Non-song item
       if (!item.title || item.title.trim() === '') {
-        errors.push(
-          `Non-song item at position ${item.position} is missing title`
-        );
+        errors.push(`Non-song item at position ${item.position} is missing title`);
       }
     }
   }
@@ -128,9 +121,7 @@ export function validateSetlist(setlist: PerformanceSetlist): ValidationResult {
       }
 
       if (section.startIndex > section.endIndex) {
-        errors.push(
-          `Section "${section.name}" startIndex is greater than endIndex`
-        );
+        errors.push(`Section "${section.name}" startIndex is greater than endIndex`);
       }
     }
   }
@@ -195,27 +186,19 @@ export function checkForDuplicateSongs(items: SetlistItem[]): string[] {
 
   songIds.forEach((positions, songId) => {
     if (positions.length > 1) {
-      duplicates.push(
-        `Song ${songId} appears at positions: ${positions.join(', ')}`
-      );
+      duplicates.push(`Song ${songId} appears at positions: ${positions.join(', ')}`);
     }
   });
 
   return duplicates;
 }
 
-export function checkMinimumSongCount(
-  items: SetlistItem[],
-  minimum: number = 1
-): boolean {
+export function checkMinimumSongCount(items: SetlistItem[], minimum: number = 1): boolean {
   const songCount = items.filter((item) => isSongItem(item)).length;
   return songCount >= minimum;
 }
 
-export function checkMaximumSongCount(
-  items: SetlistItem[],
-  maximum: number = 50
-): boolean {
+export function checkMaximumSongCount(items: SetlistItem[], maximum: number = 50): boolean {
   const songCount = items.filter((item) => isSongItem(item)).length;
   return songCount <= maximum;
 }

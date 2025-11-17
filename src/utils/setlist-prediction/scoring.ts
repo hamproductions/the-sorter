@@ -2,15 +2,14 @@
  * Scoring system for setlist predictions
  */
 
-import {
+import type {
   SetlistPrediction,
   PerformanceSetlist,
   PredictionScore,
   ScoringRules,
-  DEFAULT_SCORING_RULES,
-  SetlistItem,
-  isSongItem
+  SetlistItem
 } from '~/types/setlist-prediction';
+import { DEFAULT_SCORING_RULES, isSongItem } from '~/types/setlist-prediction';
 
 // ==================== Main Scoring Function ====================
 
@@ -24,7 +23,7 @@ export function calculateScore(
 
   // Calculate scores for each item
   let totalScore = 0;
-  const itemScores = matches.map((match) => {
+  const itemScores: PredictionScore['itemScores'] = matches.map((match) => {
     const points = calculateItemScore(match, rules);
     totalScore += points;
     return {
@@ -41,6 +40,7 @@ export function calculateScore(
   const matchedPredIds = new Set(matches.map((m) => m.predItemId));
   prediction.items.forEach((item) => {
     if (isSongItem(item) && !matchedPredIds.has(item.id)) {
+      // Unmatched items don't have a match type or actual item
       itemScores.push({
         itemId: item.id,
         matched: false,
@@ -51,10 +51,7 @@ export function calculateScore(
 
   // Calculate bonuses
   const bonuses = calculateBonuses(prediction, actual, matches, rules);
-  const totalBonusPoints = Object.values(bonuses).reduce(
-    (sum, v) => sum + (v || 0),
-    0
-  );
+  const totalBonusPoints = Object.values(bonuses).reduce((sum, v) => sum + (v || 0), 0);
   totalScore += totalBonusPoints;
 
   // Calculate breakdown
@@ -85,14 +82,10 @@ interface Match {
   predPos: number;
   actualPos: number;
   positionDiff: number;
-  sameSection: boolean;
   matchType: 'exact' | 'close' | 'present' | 'section';
 }
 
-function matchSongs(
-  predItems: SetlistItem[],
-  actualItems: SetlistItem[]
-): Match[] {
+function matchSongs(predItems: SetlistItem[], actualItems: SetlistItem[]): Match[] {
   const matches: Match[] = [];
   const usedActual = new Set<string>();
 
@@ -108,15 +101,12 @@ function matchSongs(
 
     if (actualItem) {
       const positionDiff = Math.abs(predItem.position - actualItem.position);
-      const sameSection = predItem.section === actualItem.section;
 
       let matchType: Match['matchType'] = 'present';
-      if (positionDiff === 0 && sameSection) {
+      if (positionDiff === 0) {
         matchType = 'exact';
       } else if (positionDiff <= DEFAULT_SCORING_RULES.closeMatch.range) {
         matchType = 'close';
-      } else if (sameSection) {
-        matchType = 'section';
       }
 
       matches.push({
@@ -125,7 +115,6 @@ function matchSongs(
         predPos: predItem.position,
         actualPos: actualItem.position,
         positionDiff,
-        sameSection,
         matchType
       });
 
@@ -167,7 +156,7 @@ function calculateItemScore(match: Match, rules: ScoringRules): number {
 function calculateBonuses(
   prediction: PerformanceSetlist,
   actual: PerformanceSetlist,
-  matches: Match[],
+  _matches: Match[],
   rules: ScoringRules
 ): PredictionScore['breakdown']['bonusPoints'] {
   const bonuses: PredictionScore['breakdown']['bonusPoints'] = {};
@@ -176,11 +165,7 @@ function calculateBonuses(
   const predFirstSong = prediction.items.find(isSongItem);
   const actualFirstSong = actual.items.find(isSongItem);
 
-  if (
-    predFirstSong &&
-    actualFirstSong &&
-    predFirstSong.songId === actualFirstSong.songId
-  ) {
+  if (predFirstSong && actualFirstSong && predFirstSong.songId === actualFirstSong.songId) {
     bonuses.openingSong = rules.bonuses.openingSong;
   }
 
@@ -188,11 +173,7 @@ function calculateBonuses(
   const predLastSong = [...prediction.items].reverse().find(isSongItem);
   const actualLastSong = [...actual.items].reverse().find(isSongItem);
 
-  if (
-    predLastSong &&
-    actualLastSong &&
-    predLastSong.songId === actualLastSong.songId
-  ) {
+  if (predLastSong && actualLastSong && predLastSong.songId === actualLastSong.songId) {
     bonuses.closingSong = rules.bonuses.closingSong;
   }
 
@@ -216,7 +197,6 @@ function calculateBreakdown(
 ): PredictionScore['breakdown'] {
   const exactMatches = matches.filter((m) => m.matchType === 'exact').length;
   const closeMatches = matches.filter((m) => m.matchType === 'close').length;
-  const sectionMatches = matches.filter((m) => m.matchType === 'section').length;
   const presentMatches = matches.filter((m) => m.matchType === 'present').length;
 
   return {
@@ -229,8 +209,8 @@ function calculateBreakdown(
     presentMatches,
     presentMatchPoints: presentMatches * rules.presentMatch,
 
-    sectionMatches,
-    sectionMatchPoints: sectionMatches * rules.sectionMatch,
+    sectionMatches: 0,
+    sectionMatchPoints: 0,
 
     missedSongs: 0, // Would need to calculate from actual - matches
     extraSongs: 0, // Would need to calculate from prediction - matches
@@ -241,10 +221,7 @@ function calculateBreakdown(
 
 // ==================== Max Score Calculation ====================
 
-function calculateMaxScore(
-  actual: PerformanceSetlist,
-  rules: ScoringRules
-): number {
+function calculateMaxScore(actual: PerformanceSetlist, rules: ScoringRules): number {
   const songCount = actual.items.filter(isSongItem).length;
 
   // All songs matched exactly

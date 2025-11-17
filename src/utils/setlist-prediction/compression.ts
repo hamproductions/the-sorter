@@ -2,10 +2,7 @@
  * URL compression and decompression for sharing predictions
  */
 
-import {
-  compressToEncodedURIComponent,
-  decompressFromEncodedURIComponent
-} from 'lz-string';
+import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
 import { generateId, generateSetlistId } from './id';
 import type {
   SetlistPrediction,
@@ -26,25 +23,21 @@ export function compressPrediction(prediction: SetlistPrediction): string {
     v: 1, // version
     p: prediction.performanceId,
     n: prediction.name,
-    i: prediction.setlist.items.map(
-      (item): ShareItem => {
-        if (isSongItem(item)) {
-          return {
-            t: item.type,
-            s: item.songId,
-            r: item.remarks,
-            sec: item.section
-          };
-        } else {
-          return {
-            t: item.type,
-            c: item.title,
-            r: item.remarks,
-            sec: item.section
-          };
-        }
+    i: prediction.setlist.items.map((item): ShareItem => {
+      if (isSongItem(item)) {
+        return {
+          t: item.type,
+          s: item.songId,
+          r: item.remarks
+        };
+      } else {
+        return {
+          t: item.type,
+          c: item.title,
+          r: item.remarks
+        };
       }
-    ),
+    }),
     sec: prediction.setlist.sections.map(
       (s): ShareSection => ({
         n: s.name,
@@ -92,22 +85,21 @@ export function decompressPrediction(compressed: string): SetlistPrediction {
       const baseItem = {
         id: generateId(),
         position: idx,
-        remarks: item.r,
-        section: item.sec
+        remarks: item.r
       };
 
       if (item.s) {
         // Song item
         return {
           ...baseItem,
-          type: item.t as 'song' | 'encore',
+          type: 'song',
           songId: item.s
         } as SongSetlistItem;
       } else {
         // Non-song item
         return {
           ...baseItem,
-          type: item.t as Exclude<typeof item.t, 'song' | 'encore'>,
+          type: item.t as 'mc' | 'other',
           title: item.c || ''
         } as NonSongSetlistItem;
       }
@@ -120,7 +112,7 @@ export function decompressPrediction(compressed: string): SetlistPrediction {
       type: s.t
     }));
 
-    const songCount = items.filter((item) => item.type === 'song' || item.type === 'encore').length;
+    const songCount = items.filter((item) => item.type === 'song').length;
 
     return {
       id: predictionId,
@@ -165,25 +157,21 @@ export function estimateShareUrlSize(prediction: SetlistPrediction): {
     v: 1,
     p: prediction.performanceId,
     n: prediction.name,
-    i: prediction.setlist.items.map(
-      (item): ShareItem => {
-        if (isSongItem(item)) {
-          return {
-            t: item.type,
-            s: item.songId,
-            r: item.remarks,
-            sec: item.section
-          };
-        } else {
-          return {
-            t: item.type,
-            c: item.title,
-            r: item.remarks,
-            sec: item.section
-          };
-        }
+    i: prediction.setlist.items.map((item): ShareItem => {
+      if (isSongItem(item)) {
+        return {
+          t: item.type,
+          s: item.songId,
+          r: item.remarks
+        };
+      } else {
+        return {
+          t: item.type,
+          c: item.title,
+          r: item.remarks
+        };
       }
-    ),
+    }),
     sec: prediction.setlist.sections.map(
       (s): ShareSection => ({
         n: s.name,

@@ -3,17 +3,11 @@
  */
 
 import { useMemo, useState } from 'react';
+import performancesData from '../../../data/performances/performances.json';
 import type { Performance, PerformanceFilters } from '~/types/setlist-prediction';
 
-// TODO: Import actual performance data when it's available
-// import performancesData from '~/data/performances/performances.json';
-
-// Mock data for now - replace with actual data import
-const MOCK_PERFORMANCES: Performance[] = [];
-
 export function usePerformanceData() {
-  // In production, this would load from the JSON file
-  const allPerformances = MOCK_PERFORMANCES;
+  const allPerformances = performancesData as Performance[];
 
   return {
     performances: allPerformances,
@@ -29,9 +23,7 @@ export function useFilteredPerformances(filters: PerformanceFilters) {
     return performances.filter((perf) => {
       // Filter by series
       if (filters.seriesIds.length > 0) {
-        const hasMatchingSeries = perf.seriesIds.some((id) =>
-          filters.seriesIds.includes(id)
-        );
+        const hasMatchingSeries = perf.seriesIds.some((id) => filters.seriesIds.includes(id));
         if (!hasMatchingSeries) return false;
       }
 
@@ -60,9 +52,7 @@ export function useFilteredPerformances(filters: PerformanceFilters) {
         const searchLower = filters.search.toLowerCase();
         const matchesName = perf.name.toLowerCase().includes(searchLower);
         const matchesVenue = perf.venue?.toLowerCase().includes(searchLower);
-        const matchesDescription = perf.description
-          ?.toLowerCase()
-          .includes(searchLower);
+        const matchesDescription = perf.description?.toLowerCase().includes(searchLower);
 
         if (!matchesName && !matchesVenue && !matchesDescription) {
           return false;
@@ -113,9 +103,7 @@ export function usePerformanceSearch(query: string) {
     return performances.filter((perf) => {
       const matchesName = perf.name.toLowerCase().includes(searchLower);
       const matchesVenue = perf.venue?.toLowerCase().includes(searchLower);
-      const matchesDescription = perf.description
-        ?.toLowerCase()
-        .includes(searchLower);
+      const matchesDescription = perf.description?.toLowerCase().includes(searchLower);
 
       return matchesName || matchesVenue || matchesDescription;
     });

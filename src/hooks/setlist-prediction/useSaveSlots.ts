@@ -7,9 +7,7 @@ import type { SaveSlotManager, SaveSlot } from '~/types/setlist-prediction';
 import { SaveSlotStorage } from '~/utils/setlist-prediction/storage';
 
 export function useSaveSlots() {
-  const [slotManager, setSlotManager] = useState<SaveSlotManager>(() =>
-    SaveSlotStorage.get()
-  );
+  const [slotManager, setSlotManager] = useState<SaveSlotManager>(() => SaveSlotStorage.get());
 
   // Sync with localStorage
   useEffect(() => {
@@ -31,13 +29,10 @@ export function useSaveSlots() {
     [slotManager]
   );
 
-  const createSlot = useCallback(
-    (performanceId: string, predictionId: string) => {
-      SaveSlotStorage.addPrediction(performanceId, predictionId);
-      setSlotManager(SaveSlotStorage.get());
-    },
-    []
-  );
+  const createSlot = useCallback((performanceId: string, predictionId: string) => {
+    SaveSlotStorage.addPrediction(performanceId, predictionId);
+    setSlotManager(SaveSlotStorage.get());
+  }, []);
 
   const deleteSlot = useCallback((slotNumber: number) => {
     const manager = SaveSlotStorage.get();

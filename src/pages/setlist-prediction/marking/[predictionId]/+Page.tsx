@@ -5,17 +5,17 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { usePageContext } from 'vike-react/usePageContext';
 import { Stack, Box, HStack, Grid } from 'styled-system/jsx';
 import { Text } from '~/components/ui/styled/text';
 import { Button } from '~/components/ui/styled/button';
 import { Textarea } from '~/components/ui/styled/textarea';
 import { Metadata } from '~/components/layout/Metadata';
-import { usePageContext } from 'vike-react/usePageContext';
 import { usePredictionStorage } from '~/hooks/setlist-prediction/usePredictionStorage';
 import { usePerformance } from '~/hooks/setlist-prediction/usePerformanceData';
 import { parseActualSetlist } from '~/utils/setlist-prediction/import';
 import { calculateScore } from '~/utils/setlist-prediction/scoring';
-import type { PerformanceSetlist } from '~/types/setlist-prediction';
+import type { PerformanceSetlist, SetlistItemType } from '~/types/setlist-prediction';
 import { generateSetlistId } from '~/utils/setlist-prediction/id';
 import { isSongItem } from '~/types/setlist-prediction';
 
@@ -26,7 +26,7 @@ export function Page() {
 
   const predictionId = (pageContext.routeParams as { predictionId: string }).predictionId;
   const prediction = getPrediction(predictionId);
-  const performance = prediction ? usePerformance(prediction.performanceId) : null;
+  const performance = usePerformance(prediction?.performanceId ?? '');
 
   const [actualSetlistText, setActualSetlistText] = useState('');
   const [actualSetlist, setActualSetlist] = useState<PerformanceSetlist | null>(null);
@@ -40,24 +40,38 @@ export function Page() {
       const actualSetlistData: PerformanceSetlist = {
         id: generateSetlistId(prediction!.performanceId),
         performanceId: prediction!.performanceId,
-        items: parsed.items.map((item, index) => ({
-          id: `actual-${index}`,
-          type: item.type as any,
-          position: index,
-          songId: item.songId,
-          title: item.title,
-          remarks: item.remarks
-        })),
+        items: parsed.items.map((item, index) => {
+          const itemType = item.type as SetlistItemType;
+          if (itemType === 'song') {
+            return {
+              id: `actual-${index}`,
+              type: 'song' as const,
+              position: index,
+              songId: item.songId || item.title || '',
+              remarks: item.remarks
+            };
+          } else {
+            return {
+              id: `actual-${index}`,
+              type: itemType,
+              position: index,
+              title: item.title || '',
+              remarks: item.remarks
+            };
+          }
+        }),
         sections: [],
         totalSongs: parsed.items.filter((i) => i.type === 'song').length,
         isActual: true
       };
 
       setActualSetlist(actualSetlistData);
-    } catch (error) {
-      alert(t('setlistPrediction.failedToParse', {
-        defaultValue: 'Failed to parse setlist. Please check the format.'
-      }));
+    } catch {
+      alert(
+        t('setlistPrediction.failedToParse', {
+          defaultValue: 'Failed to parse setlist. Please check the format.'
+        })
+      );
     }
   };
 
@@ -81,9 +95,14 @@ export function Page() {
   if (!prediction) {
     return (
       <>
-        <Metadata title={t('setlistPrediction.markingMode', { defaultValue: 'Marking Mode' })} helmet />
+        <Metadata
+          title={t('setlistPrediction.markingMode', { defaultValue: 'Marking Mode' })}
+          helmet
+        />
         <Stack alignItems="center" w="full" p={8}>
-          <Text>{t('setlistPrediction.predictionNotFound', { defaultValue: 'Prediction not found' })}</Text>
+          <Text>
+            {t('setlistPrediction.predictionNotFound', { defaultValue: 'Prediction not found' })}
+          </Text>
         </Stack>
       </>
     );
@@ -96,17 +115,17 @@ export function Page() {
         helmet
       />
 
-      <Stack w="full" p={4} gap={4} maxW="6xl" mx="auto">
+      <Stack gap={4} w="full" maxW="6xl" mx="auto" p={4}>
         {/* Header */}
         <Box>
-          <Text fontSize="2xl" fontWeight="bold" mb={2}>
+          <Text mb={2} fontSize="2xl" fontWeight="bold">
             {t('setlistPrediction.markingMode', { defaultValue: 'Marking Mode' })}
           </Text>
-          <Text fontSize="md" color="fg.muted">
+          <Text color="fg.muted" fontSize="md">
             {prediction.name}
           </Text>
           {performance && (
-            <Text fontSize="sm" color="fg.muted">
+            <Text color="fg.muted" fontSize="sm">
               {performance.name} • {new Date(performance.date).toLocaleDateString()}
             </Text>
           )}
@@ -114,14 +133,14 @@ export function Page() {
 
         {/* Import Actual Setlist */}
         {!actualSetlist && (
-          <Box p={4} borderWidth="1px" borderRadius="lg" bgColor="bg.default">
+          <Box borderRadius="lg" borderWidth="1px" p={4} bgColor="bg.default">
             <Stack gap={3}>
               <Text fontSize="lg" fontWeight="bold">
                 {t('setlistPrediction.importActualSetlist', {
                   defaultValue: 'Import Actual Setlist'
                 })}
               </Text>
-              <Text fontSize="sm" color="fg.muted">
+              <Text color="fg.muted" fontSize="sm">
                 {t('setlistPrediction.importActualHint', {
                   defaultValue: 'Paste the actual setlist (one song per line)'
                 })}
@@ -145,16 +164,16 @@ export function Page() {
 
         {/* Comparison View */}
         {actualSetlist && (
-          <Grid gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={4}>
+          <Grid gap={4} gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }}>
             {/* Prediction */}
-            <Box p={4} borderWidth="1px" borderRadius="lg" bgColor="bg.default">
-              <Text fontSize="lg" fontWeight="bold" mb={3}>
+            <Box borderRadius="lg" borderWidth="1px" p={4} bgColor="bg.default">
+              <Text mb={3} fontSize="lg" fontWeight="bold">
                 {t('setlistPrediction.yourPrediction', { defaultValue: 'Your Prediction' })}
               </Text>
               <Stack gap={1}>
                 {prediction.setlist.items.map((item, index) => (
-                  <HStack key={item.id} gap={2} p={2} borderRadius="sm" bgColor="bg.subtle">
-                    <Text fontSize="sm" fontWeight="bold" color="fg.muted" minW="30px">
+                  <HStack key={item.id} gap={2} borderRadius="sm" p={2} bgColor="bg.subtle">
+                    <Text minW="30px" color="fg.muted" fontSize="sm" fontWeight="bold">
                       {index + 1}.
                     </Text>
                     <Text fontSize="sm">
@@ -166,18 +185,18 @@ export function Page() {
             </Box>
 
             {/* Actual */}
-            <Box p={4} borderWidth="1px" borderRadius="lg" bgColor="bg.default">
-              <Text fontSize="lg" fontWeight="bold" mb={3}>
+            <Box borderRadius="lg" borderWidth="1px" p={4} bgColor="bg.default">
+              <Text mb={3} fontSize="lg" fontWeight="bold">
                 {t('setlistPrediction.actualSetlist', { defaultValue: 'Actual Setlist' })}
               </Text>
               <Stack gap={1}>
                 {actualSetlist.items.map((item, index) => (
-                  <HStack key={item.id} gap={2} p={2} borderRadius="sm" bgColor="bg.subtle">
-                    <Text fontSize="sm" fontWeight="bold" color="fg.muted" minW="30px">
+                  <HStack key={item.id} gap={2} borderRadius="sm" p={2} bgColor="bg.subtle">
+                    <Text minW="30px" color="fg.muted" fontSize="sm" fontWeight="bold">
                       {index + 1}.
                     </Text>
                     <Text fontSize="sm">
-                      {isSongItem(item) ? `♪ Song ${item.songId || item.title}` : `[${item.title}]`}
+                      {isSongItem(item) ? `♪ Song ${item.songId}` : `[${item.title}]`}
                     </Text>
                   </HStack>
                 ))}
@@ -188,13 +207,13 @@ export function Page() {
 
         {/* Score Display */}
         {isScored && prediction.score && (
-          <Box p={6} borderWidth="2px" borderRadius="lg" bgColor="bg.emphasized">
+          <Box borderRadius="lg" borderWidth="2px" p={6} bgColor="bg.emphasized">
             <Stack gap={3} alignItems="center">
               <Text fontSize="2xl" fontWeight="bold">
                 {t('setlistPrediction.yourScore', { defaultValue: 'Your Score' })}
               </Text>
 
-              <Text fontSize="4xl" fontWeight="bold" color="green.600">
+              <Text color="green.600" fontSize="4xl" fontWeight="bold">
                 {prediction.score.totalScore} / {prediction.score.maxPossibleScore}
               </Text>
 
@@ -203,8 +222,8 @@ export function Page() {
                 {prediction.score.accuracy.toFixed(1)}%
               </Text>
 
-              <Box w="full" p={4} borderRadius="md" bgColor="bg.default">
-                <Text fontSize="md" fontWeight="bold" mb={2}>
+              <Box borderRadius="md" w="full" p={4} bgColor="bg.default">
+                <Text mb={2} fontSize="md" fontWeight="bold">
                   {t('setlistPrediction.breakdown', { defaultValue: 'Breakdown' })}
                 </Text>
                 <Stack gap={1}>

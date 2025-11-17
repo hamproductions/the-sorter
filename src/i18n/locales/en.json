@@ -15,7 +15,8 @@
   "navigation": {
     "characters": "Characters",
     "hasu-music": "Hasunosora",
-    "songs": "Songs (New)"
+    "songs": "Songs (New)",
+    "setlist-prediction": "Setlist Prediction"
   },
   "settings": {
     "sort_count": "{{ count }} to be sorted",
@@ -231,11 +232,42 @@
     "closeMatches": "Close Matches",
     "presentMatches": "Present Matches",
     "backToBuilder": "Back to Builder",
-    "calculateScore": "Calculate Score"
+    "calculateScore": "Calculate Score",
+    "startTyping": "Start typing to search for songs...",
+    "imageExportInstructions": "Take a screenshot of the setlist below to share on social media or save as an image.",
+    "importSetlist": "Import Setlist",
+    "importDescription": "Import a setlist from text, JSON, or a file.",
+    "importType": "Import Type",
+    "fromPerformance": "From Performance",
+    "textList": "Text List",
+    "file": "File",
+    "searchPerformances": "Search Performances",
+    "sameTour": "Same Tour/Series",
+    "allPerformances": "All Performances with Setlists",
+    "showingResults": "Showing {{count}} results",
+    "exportingImage": "Exporting...",
+    "imageDownloaded": "Image downloaded",
+    "failedToExportImage": "Failed to export image",
+    "search": "Search",
+    "hideCompleted": "Hide ended events",
+    "sortBy": "Sort by",
+    "upcomingFirst": "Upcoming first",
+    "dateOldest": "Date (oldest)",
+    "dateNewest": "Date (newest)",
+    "nameAZ": "Name (A-Z)",
+    "nameZA": "Name (Z-A)",
+    "selectPerformance": "Select performance:"
   },
   "common": {
     "error": "Error",
     "edit": "Edit",
-    "confirmDelete": "Are you sure?"
+    "confirmDelete": "Are you sure?",
+    "back": "Back",
+    "save": "Save",
+    "import": "Import",
+    "clear": "Clear",
+    "close": "Close",
+    "cancel": "Cancel",
+    "unsavedChanges": "Unsaved changes"
   }
 }

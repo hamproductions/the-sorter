@@ -13,7 +13,8 @@
   "navigation": {
     "characters": "キャラ",
     "hasu-music": "蓮ノ空",
-    "songs": "楽曲"
+    "songs": "楽曲",
+    "setlist-prediction": "セトリ予想"
   },
   "settings": {
     "sort_count": "{{ count }}人をランキングする",

@@ -2,9 +2,9 @@
  * Import utilities for setlist predictions
  */
 
-import { SetlistPrediction } from '~/types/setlist-prediction';
 import { generateId, generateSetlistId, generateItemId } from './id';
 import { validatePrediction } from './validation';
+import type { SetlistPrediction, SetlistItem, SetlistItemType } from '~/types/setlist-prediction';
 
 // ==================== JSON Import ====================
 
@@ -33,10 +33,11 @@ export function importFromJSON(json: string): ImportResult {
       setlist: {
         ...data.setlist,
         id: data.setlist?.id || generateSetlistId(data.performanceId),
-        items: data.setlist?.items?.map((item: any) => ({
-          ...item,
-          id: item.id || generateItemId()
-        })) || []
+        items:
+          data.setlist?.items?.map((item: unknown) => ({
+            ...(item as Record<string, unknown>),
+            id: (item as { id?: string }).id || generateItemId()
+          })) || []
       },
       createdAt: data.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -149,11 +150,7 @@ export function parseActualSetlist(text: string): ActualSetlistData {
 function inferItemType(text: string): string {
   const lower = text.toLowerCase();
   if (lower.includes('mc')) return 'mc';
-  if (lower.includes('vtr') || lower.includes('映像')) return 'vtr';
-  if (lower.includes('encore')) return 'encore';
-  if (lower.includes('幕間')) return 'vtr';
-  if (lower.includes('opening')) return 'opening';
-  return 'custom';
+  return 'other';
 }
 
 // ==================== CSV Import ====================
@@ -169,26 +166,32 @@ export function importFromCSV(csv: string): ImportResult {
       };
     }
 
-    // Parse header
-    const header = lines[0].split(',').map((h) => h.trim());
-
-    // Parse rows
-    const items = [];
+    // Parse rows (skip header)
+    const items: SetlistItem[] = [];
     for (let i = 1; i < lines.length; i++) {
       const row = lines[i].split(',').map((cell) => cell.trim().replace(/^"|"$/g, ''));
 
-      const item: any = {
-        id: generateItemId(),
-        position: parseInt(row[0]) - 1,
-        type: row[1] || 'song'
-      };
+      const itemType = (row[1] || 'song') as SetlistItemType;
+      const position = parseInt(row[0]) - 1;
+      const id = generateItemId();
 
-      if (row[2]) item.songId = row[2];
-      if (row[3]) item.title = row[3];
-      if (row[4]) item.section = row[4];
-      if (row[5]) item.remarks = row[5];
-
-      items.push(item);
+      if (itemType === 'song') {
+        items.push({
+          id,
+          position,
+          type: 'song' as const,
+          songId: row[2] || '',
+          remarks: row[5]
+        });
+      } else {
+        items.push({
+          id,
+          position,
+          type: itemType,
+          title: row[3] || '',
+          remarks: row[5]
+        });
+      }
     }
 
     const prediction: SetlistPrediction = {

@@ -3,16 +3,10 @@
  */
 
 import { useState } from 'react';
-import type { SetlistItem } from '~/types/setlist-prediction';
-import {
-  DragEndEvent,
-  DragStartEvent,
-  PointerSensor,
-  TouchSensor,
-  useSensor,
-  useSensors
-} from '@dnd-kit/core';
+import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
+import { PointerSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
+import type { SetlistItem } from '~/types/setlist-prediction';
 
 export interface UseSetlistDragDropOptions {
   items: SetlistItem[];

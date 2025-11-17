@@ -3,9 +3,10 @@
  * Provides buttons for exporting and sharing predictions
  */
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Stack } from 'styled-system/jsx';
+import { domToPng } from 'modern-screenshot';
+import { Box, Stack } from 'styled-system/jsx';
 import { Button } from '~/components/ui/styled/button';
 import { Text } from '~/components/ui/styled/text';
 import type { SetlistPrediction, Performance } from '~/types/setlist-prediction';
@@ -14,13 +15,9 @@ import {
   canShareUrl,
   estimateShareUrlSize
 } from '~/utils/setlist-prediction/compression';
-import {
-  exportAsJSON,
-  downloadJSON,
-  downloadCSV,
-  copyTextToClipboard
-} from '~/utils/setlist-prediction/export';
+import { downloadJSON, downloadCSV, copyTextToClipboard } from '~/utils/setlist-prediction/export';
 import { useToaster } from '~/context/ToasterContext';
+import { SetlistView } from '~/components/setlist-prediction/SetlistView';
 
 export interface ExportShareToolsProps {
   prediction: SetlistPrediction;
@@ -31,6 +28,8 @@ export function ExportShareTools({ prediction, performance }: ExportShareToolsPr
   const { t } = useTranslation();
   const { toast } = useToaster();
   const [isSharing, setIsSharing] = useState(false);
+  const [isExportingImage, setIsExportingImage] = useState(false);
+  const setlistExportRef = useRef<HTMLDivElement>(null);
 
   const handleShareUrl = async () => {
     setIsSharing(true);
@@ -62,7 +61,7 @@ export function ExportShareTools({ prediction, performance }: ExportShareToolsPr
         }),
         type: 'success'
       });
-    } catch (error) {
+    } catch {
       toast({
         title: t('common.error', { defaultValue: 'Error' }),
         description: t('setlistPrediction.failedToCopy', {
@@ -83,7 +82,7 @@ export function ExportShareTools({ prediction, performance }: ExportShareToolsPr
         title: t('toast.text_copied', { defaultValue: 'Text copied to clipboard' }),
         type: 'success'
       });
-    } catch (error) {
+    } catch {
       toast({
         title: t('common.error', { defaultValue: 'Error' }),
         description: t('setlistPrediction.failedToCopy', {
@@ -104,7 +103,7 @@ export function ExportShareTools({ prediction, performance }: ExportShareToolsPr
         }),
         type: 'success'
       });
-    } catch (error) {
+    } catch {
       toast({
         title: t('common.error', { defaultValue: 'Error' }),
         description: t('setlistPrediction.failedToDownload', {
@@ -123,7 +122,7 @@ export function ExportShareTools({ prediction, performance }: ExportShareToolsPr
         title: t('setlistPrediction.csvDownloaded', { defaultValue: 'CSV file downloaded' }),
         type: 'success'
       });
-    } catch (error) {
+    } catch {
       toast({
         title: t('common.error', { defaultValue: 'Error' }),
         description: t('setlistPrediction.failedToDownload', {
@@ -134,14 +133,58 @@ export function ExportShareTools({ prediction, performance }: ExportShareToolsPr
     }
   };
 
-  const handleExportImage = () => {
-    toast({
-      title: t('setlistPrediction.comingSoon', { defaultValue: 'Coming Soon!' }),
-      description: t('setlistPrediction.imageExportHint', {
-        defaultValue: 'Image export will be available soon'
-      }),
-      type: 'info'
-    });
+  const handleExportImage = async () => {
+    if (!setlistExportRef.current) return;
+
+    setIsExportingImage(true);
+    try {
+      // Get the current background color from computed styles
+      const bgColor = window.getComputedStyle(setlistExportRef.current).backgroundColor;
+
+      const dataUrl = await domToPng(setlistExportRef.current, {
+        scale: 2, // 2x resolution for better quality
+        backgroundColor: bgColor
+      });
+
+      // Generate filename from performance info
+      let filename = 'setlist-prediction';
+      if (performance) {
+        const datePart = new Date(performance.date).toISOString().split('T')[0]; // YYYY-MM-DD
+        const namePart = performance.name
+          .replace(/[^a-zA-Z0-9-_]/g, '-')
+          .replace(/-+/g, '-')
+          .toLowerCase();
+        filename = `${datePart}-${namePart}`;
+      } else if (prediction.name && prediction.name !== 'New Prediction') {
+        filename = prediction.name
+          .replace(/[^a-zA-Z0-9-_]/g, '-')
+          .replace(/-+/g, '-')
+          .toLowerCase();
+      }
+
+      // Create download link
+      const link = document.createElement('a');
+      link.download = `${filename}.png`;
+      link.href = dataUrl;
+      link.click();
+
+      toast({
+        title: t('setlistPrediction.imageDownloaded', {
+          defaultValue: 'Image downloaded'
+        }),
+        type: 'success'
+      });
+    } catch {
+      toast({
+        title: t('common.error', { defaultValue: 'Error' }),
+        description: t('setlistPrediction.failedToExportImage', {
+          defaultValue: 'Failed to export image'
+        }),
+        type: 'error'
+      });
+    } finally {
+      setIsExportingImage(false);
+    }
   };
 
   return (
@@ -151,12 +194,12 @@ export function ExportShareTools({ prediction, performance }: ExportShareToolsPr
       </Text>
 
       {/* Share URL */}
-      <Button size="sm" onClick={handleShareUrl} loading={isSharing}>
+      <Button size="sm" onClick={() => void handleShareUrl()} disabled={isSharing}>
         {t('setlistPrediction.shareUrl', { defaultValue: 'Share URL' })}
       </Button>
 
       {/* Copy Text */}
-      <Button size="sm" variant="outline" onClick={handleCopyText}>
+      <Button size="sm" variant="outline" onClick={() => void handleCopyText()}>
         {t('setlistPrediction.copyText', { defaultValue: 'Copy as Text' })}
       </Button>
 
@@ -171,9 +214,28 @@ export function ExportShareTools({ prediction, performance }: ExportShareToolsPr
       </Button>
 
       {/* Export Image */}
-      <Button size="sm" variant="outline" onClick={handleExportImage}>
-        {t('setlistPrediction.exportImage', { defaultValue: 'Export Image' })}
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => void handleExportImage()}
+        disabled={isExportingImage}
+      >
+        {isExportingImage
+          ? t('setlistPrediction.exportingImage', { defaultValue: 'Exporting...' })
+          : t('setlistPrediction.exportImage', { defaultValue: 'Export Image' })}
       </Button>
+
+      {/* Hidden setlist view for image export */}
+      <Box position="absolute" top="-9999px" left="-9999px">
+        <Box ref={setlistExportRef} w="800px" p={8} bgColor="bg.default">
+          <SetlistView
+            setlist={prediction.setlist}
+            performance={performance}
+            showHeader={true}
+            compact={false}
+          />
+        </Box>
+      </Box>
     </Stack>
   );
 }

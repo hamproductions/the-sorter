@@ -1,4 +1,4 @@
-import { lazy, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { HasuSongFilterType } from '../../../components/sorter/HasuSongFilters';
@@ -13,12 +13,6 @@ import { matchSongFilter } from '~/utils/hasu-song-filter';
 import { getAudioUrl } from '~/utils/assets';
 import { detectSoundStart } from '~/utils/intro-don/detectSoundStart';
 
-const HasuSongFilters = lazy(() =>
-  import('../../../components/sorter/HasuSongFilters').then((m) => ({
-    default: m.HasuSongFilters
-  }))
-);
-
 const randomInt = (max: number) => Math.round(Math.random() * max);
 
 export function Page() {
@@ -26,10 +20,7 @@ export function Page() {
   const { toast: _toast } = useToaster();
   const { t, i18n: _i18n } = useTranslation();
 
-  const [songFilters, setSongFilters] = useLocalStorage<HasuSongFilterType>(
-    'hasu-song-filters',
-    undefined
-  );
+  const [songFilters] = useLocalStorage<HasuSongFilterType>('hasu-song-filters', undefined);
 
   const songList = useMemo(() => {
     return songs && songFilters && hasFilter(songFilters)
@@ -40,16 +31,9 @@ export function Page() {
   }, [songs, songFilters]);
 
   const [songIndex, setSongIndex] = useState(0);
-  const [nextSongIndex, setNextSongIndex] = useState(0);
 
   const initialize = () => {
     setSongIndex(randomInt(songList.length));
-    setNextSongIndex(randomInt(songList.length));
-  };
-
-  const nextSong = () => {
-    setSongIndex(nextSongIndex);
-    setNextSongIndex(randomInt(songList.length));
   };
 
   const currentSong = songList[songIndex];
@@ -62,7 +46,7 @@ export function Page() {
   }, []);
 
   useEffect(() => {
-    detectSoundStart(window.location.origin + songUrl).then(console.log);
+    void detectSoundStart(window.location.origin + songUrl).then(console.log);
   }, [currentSong]);
   console.log(songIndex, songUrl, currentSong);
 

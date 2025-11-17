@@ -5,16 +5,16 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { usePageContext } from 'vike-react/usePageContext';
 import { Stack, Box, HStack } from 'styled-system/jsx';
 import { Text } from '~/components/ui/styled/text';
 import { Button } from '~/components/ui/styled/button';
 import { Metadata } from '~/components/layout/Metadata';
-import { usePageContext } from 'vike-react/usePageContext';
 import { decompressPrediction } from '~/utils/setlist-prediction/compression';
 import { usePerformance } from '~/hooks/setlist-prediction/usePerformanceData';
 import { usePredictionStorage } from '~/hooks/setlist-prediction/usePredictionStorage';
+import { SetlistView } from '~/components/setlist-prediction/SetlistView';
 import type { SetlistPrediction } from '~/types/setlist-prediction';
-import { isSongItem } from '~/types/setlist-prediction';
 
 export function Page() {
   const { t } = useTranslation();
@@ -26,7 +26,7 @@ export function Page() {
   const [prediction, setPrediction] = useState<SetlistPrediction | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const performance = prediction ? usePerformance(prediction.performanceId) : null;
+  const performance = usePerformance(prediction?.performanceId ?? '');
 
   useEffect(() => {
     if (!shareId) return;
@@ -36,31 +36,38 @@ export function Page() {
       setPrediction(decompressed);
     } catch (err) {
       console.error('Failed to decompress prediction:', err);
-      setError(t('setlistPrediction.invalidShareUrl', {
-        defaultValue: 'Invalid or corrupted share URL'
-      }));
+      setError(
+        t('setlistPrediction.invalidShareUrl', {
+          defaultValue: 'Invalid or corrupted share URL'
+        })
+      );
     }
   }, [shareId, t]);
 
   const handleSave = () => {
     if (prediction) {
       savePrediction(prediction);
-      alert(t('setlistPrediction.predictionSaved', {
-        defaultValue: 'Prediction saved to your collection!'
-      }));
+      alert(
+        t('setlistPrediction.predictionSaved', {
+          defaultValue: 'Prediction saved to your collection!'
+        })
+      );
     }
   };
 
   if (error) {
     return (
       <>
-        <Metadata title={t('setlistPrediction.sharedPrediction', { defaultValue: 'Shared Prediction' })} helmet />
+        <Metadata
+          title={t('setlistPrediction.sharedPrediction', { defaultValue: 'Shared Prediction' })}
+          helmet
+        />
         <Stack alignItems="center" w="full" p={8}>
-          <Box p={8} borderWidth="1px" borderRadius="lg" bgColor="bg.error" textAlign="center">
-            <Text fontSize="lg" fontWeight="bold" mb={2} color="fg.error">
+          <Box borderRadius="lg" borderWidth="1px" p={8} textAlign="center" bgColor="bg.error">
+            <Text mb={2} color="fg.error" fontSize="lg" fontWeight="bold">
               {t('common.error', { defaultValue: 'Error' })}
             </Text>
-            <Text fontSize="sm" color="fg.error">
+            <Text color="fg.error" fontSize="sm">
               {error}
             </Text>
           </Box>
@@ -72,7 +79,10 @@ export function Page() {
   if (!prediction) {
     return (
       <>
-        <Metadata title={t('setlistPrediction.sharedPrediction', { defaultValue: 'Shared Prediction' })} helmet />
+        <Metadata
+          title={t('setlistPrediction.sharedPrediction', { defaultValue: 'Shared Prediction' })}
+          helmet
+        />
         <Stack alignItems="center" w="full" p={8}>
           <Text>{t('common.loading', { defaultValue: 'Loading...' })}</Text>
         </Stack>
@@ -87,7 +97,7 @@ export function Page() {
         helmet
       />
 
-      <Stack w="full" p={4} gap={4} alignItems="center">
+      <Stack gap={4} alignItems="center" w="full" p={4}>
         {/* Header */}
         <Box w="full" maxW="4xl">
           <Stack gap={2}>
@@ -97,19 +107,21 @@ export function Page() {
                   {prediction.name}
                 </Text>
                 {performance && (
-                  <Text fontSize="md" color="fg.muted">
+                  <Text color="fg.muted" fontSize="md">
                     {performance.name} • {new Date(performance.date).toLocaleDateString()}
                   </Text>
                 )}
               </Stack>
 
               <Button onClick={handleSave}>
-                {t('setlistPrediction.saveToMyCollection', { defaultValue: 'Save to My Collection' })}
+                {t('setlistPrediction.saveToMyCollection', {
+                  defaultValue: 'Save to My Collection'
+                })}
               </Button>
             </HStack>
 
             {prediction.description && (
-              <Text fontSize="sm" color="fg.muted">
+              <Text color="fg.muted" fontSize="sm">
                 {prediction.description}
               </Text>
             )}
@@ -117,64 +129,22 @@ export function Page() {
         </Box>
 
         {/* Setlist Display */}
-        <Box w="full" maxW="4xl" p={6} borderWidth="1px" borderRadius="lg" bgColor="bg.default">
-          <Stack gap={3}>
-            <HStack justifyContent="space-between" alignItems="center">
-              <Text fontSize="lg" fontWeight="bold">
-                {t('setlistPrediction.predictedSetlist', { defaultValue: 'Predicted Setlist' })}
-              </Text>
-              <Text fontSize="sm" color="fg.muted">
-                {prediction.setlist.totalSongs} {t('setlistPrediction.songs', { defaultValue: 'songs' })}
-              </Text>
-            </HStack>
+        <Box borderRadius="lg" borderWidth="1px" w="full" maxW="4xl" p={6} bgColor="bg.default">
+          <Text mb={4} fontSize="lg" fontWeight="bold">
+            {t('setlistPrediction.predictedSetlist', { defaultValue: 'Predicted Setlist' })}
+          </Text>
 
-            {/* Items */}
-            <Stack gap={1}>
-              {prediction.setlist.items.map((item, index) => (
-                <HStack key={item.id} gap={2} p={2} borderRadius="md" bgColor="bg.subtle">
-                  <Text fontSize="sm" fontWeight="bold" color="fg.muted" minW="40px">
-                    {index + 1}.
-                  </Text>
-
-                  <Stack gap={0} flex={1}>
-                    {isSongItem(item) ? (
-                      <>
-                        <Text fontSize="sm" fontWeight="medium">
-                          ♪ {item.isCustomSong ? item.customSongName : `Song ${item.songId}`}
-                        </Text>
-                        {item.remarks && (
-                          <Text fontSize="xs" color="fg.muted">
-                            {item.remarks}
-                          </Text>
-                        )}
-                      </>
-                    ) : (
-                      <Text fontSize="sm" fontStyle="italic">
-                        [{item.title}]
-                      </Text>
-                    )}
-                  </Stack>
-
-                  {item.section && (
-                    <Text
-                      fontSize="xs"
-                      px={2}
-                      py={0.5}
-                      bgColor="bg.emphasized"
-                      borderRadius="sm"
-                    >
-                      {item.section}
-                    </Text>
-                  )}
-                </HStack>
-              ))}
-            </Stack>
-          </Stack>
+          <SetlistView
+            setlist={prediction.setlist}
+            performance={performance || undefined}
+            showHeader={false}
+            compact={false}
+          />
         </Box>
 
         {/* Footer */}
-        <Box w="full" maxW="4xl" p={4} borderRadius="md" bgColor="bg.muted" textAlign="center">
-          <Text fontSize="xs" color="fg.muted">
+        <Box borderRadius="md" w="full" maxW="4xl" p={4} textAlign="center" bgColor="bg.muted">
+          <Text color="fg.muted" fontSize="xs">
             {t('setlistPrediction.sharedVia', {
               defaultValue: 'Shared via LoveLive! Setlist Predictor'
             })}
@@ -182,8 +152,8 @@ export function Page() {
           <Button
             size="sm"
             variant="link"
-            mt={2}
             onClick={() => (window.location.href = '/setlist-prediction')}
+            mt={2}
           >
             {t('setlistPrediction.createYourOwn', {
               defaultValue: 'Create your own prediction'

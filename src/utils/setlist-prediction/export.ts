@@ -2,7 +2,8 @@
  * Export utilities for setlist predictions
  */
 
-import { SetlistPrediction, isSongItem, Performance } from '~/types/setlist-prediction';
+import type { SetlistPrediction, Performance } from '~/types/setlist-prediction';
+import { isSongItem } from '~/types/setlist-prediction';
 
 // ==================== JSON Export ====================
 
@@ -25,10 +26,7 @@ export function downloadJSON(prediction: SetlistPrediction, filename?: string): 
 
 // ==================== Text Export ====================
 
-export function exportAsText(
-  prediction: SetlistPrediction,
-  performance?: Performance
-): string {
+export function exportAsText(prediction: SetlistPrediction, performance?: Performance): string {
   const lines: string[] = [];
 
   // Header
@@ -58,17 +56,8 @@ export function exportAsText(
   lines.push('');
 
   // Setlist
-  let currentSection = '';
   for (let i = 0; i < prediction.setlist.items.length; i++) {
     const item = prediction.setlist.items[i];
-
-    // Check if new section
-    if (item.section && item.section !== currentSection) {
-      currentSection = item.section;
-      lines.push('');
-      lines.push(`【 ${currentSection} 】`);
-      lines.push('');
-    }
 
     // Format item
     const position = `${i + 1}.`.padEnd(4);
@@ -128,17 +117,14 @@ export function copyTextToClipboard(
       return Promise.resolve();
     } catch (err) {
       document.body.removeChild(textarea);
-      return Promise.reject(err);
+      return Promise.reject(new Error(err instanceof Error ? err.message : String(err)));
     }
   }
 }
 
 // ==================== Markdown Export ====================
 
-export function exportAsMarkdown(
-  prediction: SetlistPrediction,
-  performance?: Performance
-): string {
+export function exportAsMarkdown(prediction: SetlistPrediction, performance?: Performance): string {
   const lines: string[] = [];
 
   // Header
@@ -167,17 +153,8 @@ export function exportAsMarkdown(
   lines.push('');
 
   // Setlist
-  let currentSection = '';
   for (let i = 0; i < prediction.setlist.items.length; i++) {
     const item = prediction.setlist.items[i];
-
-    // Check if new section
-    if (item.section && item.section !== currentSection) {
-      currentSection = item.section;
-      lines.push('');
-      lines.push(`## ${currentSection}`);
-      lines.push('');
-    }
 
     // Format item
     let itemText = '';
@@ -218,7 +195,7 @@ export function exportAsCSV(prediction: SetlistPrediction): string {
   const lines: string[] = [];
 
   // Header
-  lines.push('Position,Type,Song ID,Title,Section,Remarks');
+  lines.push('Position,Type,Song ID,Title,Remarks');
 
   // Items
   for (const item of prediction.setlist.items) {
@@ -230,12 +207,9 @@ export function exportAsCSV(prediction: SetlistPrediction): string {
         ? item.customSongName || ''
         : ''
       : item.title;
-    const section = item.section || '';
     const remarks = item.remarks || '';
 
-    lines.push(
-      `${position},"${type}","${songId}","${title}","${section}","${remarks}"`
-    );
+    lines.push(`${position},"${type}","${songId}","${title}","${remarks}"`);
   }
 
   return lines.join('\n');

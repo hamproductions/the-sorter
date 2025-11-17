@@ -52,9 +52,7 @@ export function usePredictionBuilder({
   });
 
   const [isDirty, setIsDirty] = useState(false);
-  const [validationResult, setValidationResult] = useState(
-    validatePrediction(prediction)
-  );
+  const [validationResult, setValidationResult] = useState(validatePrediction(prediction));
 
   // Auto-save when prediction changes
   useEffect(() => {
@@ -96,9 +94,7 @@ export function usePredictionBuilder({
           items.push(newItem);
         }
 
-        const totalSongs = items.filter(
-          (item) => item.type === 'song' || item.type === 'encore'
-        ).length;
+        const totalSongs = items.filter((item) => item.type === 'song').length;
 
         return {
           ...prev,
@@ -167,9 +163,7 @@ export function usePredictionBuilder({
           position: idx
         }));
 
-      const totalSongs = items.filter(
-        (item) => item.type === 'song' || item.type === 'encore'
-      ).length;
+      const totalSongs = items.filter((item) => item.type === 'song').length;
 
       return {
         ...prev,
@@ -185,27 +179,24 @@ export function usePredictionBuilder({
     setIsDirty(true);
   }, []);
 
-  const updateItem = useCallback(
-    (itemId: string, updates: Partial<SetlistItem>) => {
-      setPrediction((prev) => {
-        const items = prev.setlist.items.map((item) =>
-          item.id === itemId ? { ...item, ...updates } : item
-        );
+  const updateItem = useCallback((itemId: string, updates: Partial<SetlistItem>) => {
+    setPrediction((prev) => {
+      const items = prev.setlist.items.map((item) =>
+        item.id === itemId ? ({ ...item, ...updates } as SetlistItem) : item
+      );
 
-        return {
-          ...prev,
-          setlist: {
-            ...prev.setlist,
-            items
-          },
-          updatedAt: new Date().toISOString()
-        };
-      });
+      return {
+        ...prev,
+        setlist: {
+          ...prev.setlist,
+          items
+        },
+        updatedAt: new Date().toISOString()
+      };
+    });
 
-      setIsDirty(true);
-    },
-    []
-  );
+    setIsDirty(true);
+  }, []);
 
   const reorderItems = useCallback((newItems: SetlistItem[]) => {
     setPrediction((prev) => {
@@ -244,12 +235,7 @@ export function usePredictionBuilder({
   // ==================== Sections ====================
 
   const addSection = useCallback(
-    (
-      name: string,
-      startIndex: number,
-      endIndex: number,
-      type?: 'main' | 'encore' | 'special'
-    ) => {
+    (name: string, startIndex: number, endIndex: number, type?: 'main' | 'encore' | 'special') => {
       setPrediction((prev) => {
         const sections = [
           ...prev.setlist.sections,
