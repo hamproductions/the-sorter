@@ -4,9 +4,23 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { useState, useRef, useEffect } from 'react';
-import { DragDropProvider, KeyboardSensor, PointerSensor } from '@dnd-kit/react';
+import { useState, useCallback, useMemo } from 'react';
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  DragOverlay,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragStartEvent,
+  type DragEndEvent,
+  type DragOverEvent,
+  MeasuringStrategy
+} from '@dnd-kit/core';
+import { arrayMove } from '@dnd-kit/sortable';
 import { BiMenu, BiX } from 'react-icons/bi';
+import { MdDragIndicator } from 'react-icons/md';
 import { SetlistEditorPanel } from './SetlistEditorPanel';
 import { ExportShareTools } from './ExportShareTools';
 import { SongSearchPanel } from './SongSearchPanel';
@@ -18,12 +32,136 @@ import { Input } from '~/components/ui/styled/input';
 import { Text } from '~/components/ui/styled/text';
 import type { SetlistPrediction, Performance } from '~/types/setlist-prediction';
 import { usePredictionBuilder } from '~/hooks/setlist-prediction/usePredictionBuilder';
+import { useSongData } from '~/hooks/useSongData';
+import { getSongColor } from '~/utils/song';
+import artistsData from '../../../../data/artists-info.json';
 
 export interface PredictionBuilderProps {
   performanceId: string;
   initialPrediction?: SetlistPrediction;
   performance?: Performance;
   onSave?: (prediction: SetlistPrediction) => void;
+}
+
+/**
+ * Drag Preview Component - rendered inside DragOverlay
+ */
+function DragPreview({ activeData }: { activeData: any }) {
+  const songData = useSongData();
+
+  if (!activeData) {
+    return null;
+  }
+
+  const sourceData = activeData;
+
+  // Handle search result preview
+  if (sourceData.type === 'search-result') {
+    const { songId, songName } = sourceData;
+    const songs = Array.isArray(songData) ? songData : [];
+    const songDetails = songs.find((song: any) => String(song.id) === String(songId));
+    const songColor = songDetails ? getSongColor(songDetails as any) : undefined;
+
+    // Get artist name
+    const artistId = songDetails?.artists?.[0];
+    const artist = artistId ? artistsData.find((a) => a.id === artistId) : null;
+
+    return (
+      <Box
+        borderLeft={songColor ? '4px solid' : undefined}
+        borderColor={songColor ? songColor : undefined}
+        borderRadius="md"
+        py={2}
+        px={3}
+        bgColor="bg.default"
+        shadow="lg"
+        opacity={0.95}
+        cursor="grabbing"
+        minW="250px"
+      >
+        <HStack gap={2} alignItems="flex-start">
+          <Box pt={1}>
+            <MdDragIndicator size={16} />
+          </Box>
+          <Stack flex={1} gap={0.5}>
+            <Text fontSize="sm" fontWeight="medium">
+              {songName}
+            </Text>
+            {(songDetails as any)?.['name-romaji'] && (
+              <Text color="fg.muted" fontSize="xs">
+                {(songDetails as any)['name-romaji']}
+              </Text>
+            )}
+            {artist?.name && (
+              <Text style={{ color: songColor }} fontSize="xs" fontWeight="medium">
+                {artist.name}
+              </Text>
+            )}
+          </Stack>
+        </HStack>
+      </Box>
+    );
+  }
+
+  // Handle setlist item preview
+  if (sourceData.type === 'setlist-item') {
+    const { item, songDetails } = sourceData;
+    const songColor = songDetails ? getSongColor(songDetails as any) : undefined;
+
+    // Get artist name
+    const artistId = songDetails?.artists?.[0];
+    const artist = artistId ? artistsData.find((a) => a.id === artistId) : null;
+
+    return (
+      <Box
+        borderLeft={item.type === 'song' && songColor ? '4px solid' : undefined}
+        borderColor={item.type === 'song' && songColor ? songColor : undefined}
+        borderRadius="md"
+        py={2}
+        px={3}
+        bgColor="bg.default"
+        shadow="lg"
+        opacity={0.95}
+        cursor="grabbing"
+        minW="250px"
+      >
+        <HStack gap={2} alignItems="flex-start">
+          <Box pt={1}>
+            <MdDragIndicator size={16} />
+          </Box>
+          <Stack flex={1} gap={0.5}>
+            {item.type === 'song' ? (
+              <>
+                <Text fontSize="sm" fontWeight="medium">
+                  {item.isCustomSong
+                    ? item.customSongName
+                    : songDetails?.name || item.customSongName || `Song ${item.songId}`}
+                </Text>
+                {!item.isCustomSong && (item.remarks || artist?.name) && (
+                  <Text color="fg.muted" fontSize="xs">
+                    {item.remarks || artist?.name}
+                  </Text>
+                )}
+              </>
+            ) : (
+              <>
+                <Text fontSize="sm" fontWeight="medium">
+                  {item.title}
+                </Text>
+                {item.remarks && (
+                  <Text color="fg.muted" fontSize="xs">
+                    {item.remarks}
+                  </Text>
+                )}
+              </>
+            )}
+          </Stack>
+        </HStack>
+      </Box>
+    );
+  }
+
+  return null;
 }
 
 export function PredictionBuilder({
@@ -33,6 +171,7 @@ export function PredictionBuilder({
   onSave
 }: PredictionBuilderProps) {
   const { t } = useTranslation();
+  const songData = useSongData();
 
   const {
     prediction,
@@ -60,162 +199,103 @@ export function PredictionBuilder({
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(false);
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
 
-  // State for drag operations
-  const [items, setItems] = useState(prediction.setlist.items);
-  const [previewItem, setPreviewItem] = useState<any>(null);
-  const lastOverRef = useRef<any>(null);
+  // Track active drag state
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [activeData, setActiveData] = useState<any>(null);
+  const [overId, setOverId] = useState<string | null>(null);
 
-  // Sync items with prediction
-  useEffect(() => {
-    setItems(prediction.setlist.items);
-  }, [prediction.setlist.items]);
+  // Calculate drop indicator for visual feedback (without triggering reorders)
+  const dropIndicator = useMemo(() => {
+    if (!activeId || !overId || !activeData) return null;
 
-  // Handle drag over - only for cross-list preview
-  const handleDragOver = (event: any) => {
-    const active = event?.operation?.source;
-    const over = event?.operation?.target;
+    const overData = prediction.setlist.items.find((item) => item.id === overId);
+    if (!overData) return null;
 
-    lastOverRef.current = over;
+    // Only show indicator for cross-list dragging (search to setlist)
+    if (activeData.type === 'search-result') {
+      const songs = Array.isArray(songData) ? songData : [];
+      const songDetails = songs.find((song: any) => String(song.id) === String(activeData.songId));
 
-    if (!active || !over) {
-      setPreviewItem(null);
-      return;
+      return {
+        itemId: overId,
+        position: 'top' as const,
+        draggedItem: {
+          id: `temp-${activeData.songId}`,
+          type: 'song' as const,
+          songId: String(activeData.songId),
+          isCustomSong: false
+        },
+        songDetails
+      };
     }
 
-    // Only handle preview for cross-list dragging (search to setlist)
-    if (active.data?.type === 'search-result') {
-      if (over.id === 'setlist-drop-zone') {
-        setPreviewItem({
-          songId: active.data.songId,
-          songName: active.data.songName,
-          insertIndex: items.length
-        });
-      } else {
-        const overIndex = items.findIndex((item) => item.id === over.id);
-        if (overIndex !== -1) {
-          setPreviewItem({
-            songId: active.data.songId,
-            songName: active.data.songName,
-            insertIndex: overIndex
-          });
+    return null;
+  }, [activeId, overId, activeData, prediction.setlist.items, songData]);
+
+  // Handle drag start
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    setActiveId(String(event.active.id));
+    setActiveData(event.active.data.current);
+  }, []);
+
+  // Handle drag over - only track position, don't update items yet
+  const handleDragOver = useCallback((event: DragOverEvent) => {
+    const { over } = event;
+    setOverId(over ? String(over.id) : null);
+  }, []);
+
+  // Handle drag end - commit changes
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      // Clear active state
+      setActiveId(null);
+      setActiveData(null);
+      setOverId(null);
+
+      const { active, over } = event;
+
+      // If no target, don't do anything
+      if (!over) {
+        return;
+      }
+
+      const activeData = active.data.current;
+      const overData = over.data.current;
+
+      // Handle cross-list dragging (search to setlist)
+      if (activeData?.type === 'search-result') {
+        const { songId } = activeData;
+        const currentItems = prediction.setlist.items;
+        let insertPosition = currentItems.length;
+
+        // Find insert position if dropping over an item
+        if (over.id !== 'setlist-drop-zone') {
+          const overIndex = currentItems.findIndex((item) => item.id === over.id);
+          if (overIndex !== -1) {
+            insertPosition = overIndex;
+          }
+        }
+
+        // Add the song at the correct position
+        _addSong(songId, insertPosition);
+        return;
+      }
+
+      // Handle within-list reordering
+      if (activeData?.type === 'setlist-item' && overData?.type === 'setlist-item') {
+        const draggedItem = activeData.item;
+        const currentItems = prediction.setlist.items;
+        const activeIndex = currentItems.findIndex((item) => item.id === draggedItem.id);
+        const overIndex = currentItems.findIndex((item) => item.id === over.id);
+
+        if (activeIndex !== -1 && overIndex !== -1 && activeIndex !== overIndex) {
+          const newItems = arrayMove(currentItems, activeIndex, overIndex);
+          reorderItems(newItems);
         }
       }
-    } else {
-      // For within-list, let useSortable handle the visual reordering
-      setPreviewItem(null);
-    }
-  };
-
-  // Handle drag end - commit changes or revert on cancel
-  const handleDragEnd = (event: any) => {
-    console.log('[DRAG END] Called!', event);
-    console.log('[DRAG END] Full event:', JSON.stringify(event, null, 2));
-    const active = event?.operation?.source;
-    const over = lastOverRef.current;
-
-    // Debug logging to window object so we can inspect it
-    if (!window.__dragDebug) window.__dragDebug = [];
-    window.__dragDebug.push({
-      timestamp: Date.now(),
-      activeType: active?.data?.type,
-      hasOver: !!over,
-      overId: over?.id,
-      eventCanceled: event?.canceled,
-      hasActive: !!active,
-      fullEvent: event
-    });
-
-    setPreviewItem(null);
-    lastOverRef.current = null;
-
-    // If drag was cancelled, don't do anything
-    if (event?.canceled) {
-      console.log('[DRAG END] Cancelled');
-      window.__dragDebug.push({ action: 'CANCELLED' });
-      return;
-    }
-
-    if (!active) {
-      console.log('[DRAG END] No active', { active });
-      window.__dragDebug.push({ action: 'NO_ACTIVE' });
-      return;
-    }
-
-    console.log('[DRAG END] Active type:', active.data?.type);
-    console.log('[DRAG END] Active data:', active.data);
-    console.log('[DRAG END] Over:', over);
-    window.__dragDebug.push({ action: 'PROCESSING', activeType: active.data?.type });
-
-    // Handle cross-list dragging (search to setlist)
-    if (active.data?.type === 'search-result') {
-      if (!over) {
-        console.log('[DRAG END] No over target for cross-list drag');
-        return;
-      }
-
-      const { songId } = active.data;
-      let insertPosition = items.length;
-
-      if (over.id !== 'setlist-drop-zone') {
-        const overIndex = items.findIndex((item) => item.id === over.id);
-        if (overIndex !== -1) {
-          insertPosition = overIndex;
-        }
-      }
-
-      _addSong(songId, insertPosition);
-      return;
-    }
-
-    // Handle within-list reordering
-    if (active.data?.type === 'setlist-item') {
-      console.log('[DRAG END] Within-list reorder detected');
-      window.__dragDebug.push({ action: 'WITHIN_LIST_DETECTED' });
-
-      if (!over) {
-        console.log('[DRAG END] No over target for within-list drag');
-        window.__dragDebug.push({ action: 'NO_OVER' });
-        return;
-      }
-
-      // Get the dragged item and the target item
-      const draggedItem = active.data.item;
-      const activeIndex = items.findIndex((item) => item.id === draggedItem.id);
-      const overIndex = items.findIndex((item) => item.id === over.id);
-
-      console.log('[DRAG END] Active index:', activeIndex, 'Over index:', overIndex);
-      window.__dragDebug.push({
-        action: 'INDICES',
-        activeIndex,
-        overIndex,
-        draggedItemId: draggedItem.id,
-        overItemId: over.id
-      });
-
-      if (activeIndex === -1 || overIndex === -1) {
-        console.log('[DRAG END] Could not find indices');
-        window.__dragDebug.push({ action: 'INVALID_INDICES' });
-        return;
-      }
-
-      if (activeIndex === overIndex) {
-        console.log('[DRAG END] Same position, no change needed');
-        window.__dragDebug.push({ action: 'SAME_POSITION' });
-        return;
-      }
-
-      // Create new array with reordered items
-      const newItems = [...items];
-      const [removed] = newItems.splice(activeIndex, 1);
-      newItems.splice(overIndex, 0, removed);
-
-      console.log('[DRAG END] Calling reorderItems!');
-      console.log('[DRAG END] Moved from index', activeIndex, 'to', overIndex);
-      window.__dragDebug.push({ action: 'CALLING_REORDER', from: activeIndex, to: overIndex });
-      reorderItems(newItems);
-      window.__dragDebug.push({ action: 'REORDER_CALLED' });
-    }
-  };
+    },
+    [prediction.setlist.items, _addSong, reorderItems]
+  );
 
   const handleSave = () => {
     updateMetadata({ name: predictionName });
@@ -246,20 +326,33 @@ export function PredictionBuilder({
     updateMetadata({ name: imported.name });
   };
 
-  const sensors = [
-    PointerSensor.configure({
-      activatorElements(source) {
-        return [source.element, source.handle];
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8
       }
     }),
-    KeyboardSensor
-  ];
+    useSensor(KeyboardSensor)
+  );
+
+  // Measuring configuration for better performance
+  const measuring = useMemo(
+    () => ({
+      droppable: {
+        strategy: MeasuringStrategy.WhileDragging
+      }
+    }),
+    []
+  );
 
   return (
-    <DragDropProvider
+    <DndContext
       sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
+      measuring={measuring}
     >
       <Stack gap={0} w="full" h="full">
         {/* Prediction Name Bar */}
@@ -309,13 +402,6 @@ export function PredictionBuilder({
                 {validation.errors[0]}
               </Text>
             </Box>
-          )}
-
-          {/* Dirty indicator */}
-          {isDirty && (
-            <Text mt={2} color="fg.muted" fontSize="xs">
-              {t('common.unsavedChanges', { defaultValue: 'Unsaved changes' })}
-            </Text>
           )}
         </Box>
 
@@ -438,11 +524,11 @@ export function PredictionBuilder({
           <Box flex={1} bgColor="bg.subtle" overflow="auto">
             <SetlistEditorPanel
               items={prediction.setlist.items}
-              previewItem={previewItem}
               onReorder={reorderItems}
               onRemove={removeItem}
               onUpdate={updateItem}
               onOpenImport={() => setImportDialogOpen(true)}
+              dropIndicator={dropIndicator}
             />
           </Box>
 
@@ -532,6 +618,11 @@ export function PredictionBuilder({
           performanceId={performanceId}
         />
       </Stack>
-    </DragDropProvider>
+
+      {/* Drag Overlay - provides visual feedback during drag */}
+      <DragOverlay>
+        {activeId ? <DragPreview activeData={activeData} /> : null}
+      </DragOverlay>
+    </DndContext>
   );
 }

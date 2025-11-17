@@ -18,7 +18,6 @@ import {
 import type { SetlistPrediction, SetlistItem } from '~/types/setlist-prediction';
 import { usePerformanceData } from '~/hooks/setlist-prediction/usePerformanceData';
 import { SetlistView } from '~/components/setlist-prediction/SetlistView';
-import { getSongColor } from '~/utils/song';
 import {
   Root as DialogRoot,
   Backdrop as DialogBackdrop,
@@ -291,8 +290,14 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
     >
       <DialogBackdrop />
       <DialogPositioner>
-        <DialogContent maxW="1000px" maxH="90vh" overflow="hidden" display="flex" flexDirection="column">
-          <Stack gap={4} p={6} flex={1} overflow="hidden" minH={0}>
+        <DialogContent
+          display="flex"
+          flexDirection="column"
+          maxW="1000px"
+          maxH="90vh"
+          overflow="hidden"
+        >
+          <Stack flex={1} gap={4} minH={0} p={6} overflow="hidden">
             <DialogTitle>
               {t('setlistPrediction.importSetlist', { defaultValue: 'Import Setlist' })}
             </DialogTitle>
@@ -344,9 +349,9 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
 
             {/* Input Area */}
             {importType === 'performance' ? (
-              <Grid gap={4} columns={2} flex={1} overflow="hidden">
+              <Grid flex={1} gap={4} columns={2} overflow="hidden">
                 {/* Left column: Performance selection */}
-                <Stack gap={3} display="flex" flexDirection="column" overflow="hidden">
+                <Stack display="flex" gap={3} flexDirection="column" overflow="hidden">
                   {/* Search Input */}
                   <Box>
                     <Text mb={1} fontSize="sm" fontWeight="medium">
@@ -367,14 +372,14 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
 
                   {/* Performance List */}
                   {sameTourPerformances.length > 0 && (
-                    <Box flex={1} display="flex" flexDirection="column" minH={0}>
+                    <Box display="flex" flex={1} flexDirection="column" minH={0}>
                       <Box
                         flex={1}
                         borderRadius="md"
                         borderWidth="1px"
+                        minH={0}
                         bgColor="bg.default"
                         overflow="auto"
-                        minH={0}
                       >
                         {sameTourPerformances.map((perf) => (
                           <Box
@@ -402,7 +407,6 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
                       </Box>
                     </Box>
                   )}
-
                 </Stack>
 
                 {/* Right column: Setlist preview */}
@@ -420,11 +424,11 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
                           flex={1}
                           borderRadius="md"
                           borderWidth="1px"
+                          minH={0}
+                          maxH="100%"
                           p={3}
                           bgColor="bg.subtle"
                           overflow="auto"
-                          minH={0}
-                          maxH="100%"
                         >
                           <SetlistView
                             setlist={selectedPerf.actualSetlist}
@@ -437,16 +441,16 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
                     })()
                   ) : (
                     <Box
+                      display="flex"
                       flex={1}
+                      justifyContent="center"
+                      alignItems="center"
                       borderRadius="md"
                       borderWidth="1px"
-                      p={4}
-                      bgColor="bg.subtle"
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
                       minH={0}
                       maxH="100%"
+                      p={4}
+                      bgColor="bg.subtle"
                     >
                       <Text color="fg.muted" fontSize="sm">
                         {t('setlistPrediction.selectPerformanceToPreview', {
@@ -494,7 +498,14 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
             )}
 
             {/* Actions */}
-            <Box display="flex" gap={2} justifyContent="flex-end" borderTopWidth="1px" pt={4} mt={4}>
+            <Box
+              display="flex"
+              gap={2}
+              justifyContent="flex-end"
+              borderTopWidth="1px"
+              mt={4}
+              pt={4}
+            >
               <DialogCloseTrigger asChild>
                 <Button variant="outline">{t('common.cancel', { defaultValue: 'Cancel' })}</Button>
               </DialogCloseTrigger>

@@ -4,8 +4,8 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { useState, useMemo } from 'react';
-import { useSortable } from '@dnd-kit/react/sortable';
+import { useState, useMemo, memo } from 'react';
+import { useDraggable } from '@dnd-kit/core';
 import { MdDragIndicator } from 'react-icons/md';
 import artistsData from '../../../../data/artists-info.json';
 import { Box, Stack, HStack } from 'styled-system/jsx';
@@ -37,14 +37,9 @@ interface DraggableSongItemProps {
   onAddSong: (songId: string, songTitle: string) => void;
 }
 
-function DraggableSongItem({ song, onAddSong }: DraggableSongItemProps) {
-  const { ref, isDragging } = useSortable({
+const DraggableSongItem = memo(function DraggableSongItem({ song, onAddSong }: DraggableSongItemProps) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `search-${song.id}`,
-    index: 0,
-    group: 'search',
-    type: 'item',
-    accept: 'item',
-    feedback: 'default',
     data: {
       type: 'search-result',
       songId: song.id,
@@ -54,16 +49,18 @@ function DraggableSongItem({ song, onAddSong }: DraggableSongItemProps) {
 
   return (
     <Box
-      ref={ref}
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
+      onDoubleClick={() => onAddSong(song.id, song.name)}
       borderBottomWidth="1px"
       borderRadius="md"
       p={2}
-      cursor={isDragging ? 'grabbing' : 'grab'}
-      bgColor="bg.default"
       opacity={isDragging ? 0.5 : 1}
+      bgColor="bg.default"
       shadow={isDragging ? 'lg' : 'none'}
+      cursor={isDragging ? 'grabbing' : 'grab'}
       _hover={{ bgColor: 'bg.subtle' }}
-      onDoubleClick={() => onAddSong(song.id, song.name)}
     >
       <HStack gap={2} alignItems="flex-start">
         <Box pt={1}>
@@ -92,7 +89,7 @@ function DraggableSongItem({ song, onAddSong }: DraggableSongItemProps) {
       </HStack>
     </Box>
   );
-}
+});
 
 export interface SongSearchPanelProps {
   onAddSong: (songId: string, songTitle: string) => void;

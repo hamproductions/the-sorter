@@ -3,13 +3,14 @@
  * Draggable and editable setlist item - LLdays style
  */
 
-import { useSortable } from '@dnd-kit/react/sortable';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { BiTrash, BiPencil } from 'react-icons/bi';
 import { MdDragIndicator } from 'react-icons/md';
 import { useTranslation } from 'react-i18next';
-import { useMemo, useState } from 'react';
-import { EditItemDialog } from '../EditItemDialog';
+import { useMemo, useState, memo } from 'react';
 import artistsData from '../../../../../data/artists-info.json';
+import { EditItemDialog } from '../EditItemDialog';
 import { Box, HStack, Stack } from 'styled-system/jsx';
 import { Text } from '~/components/ui/styled/text';
 import { IconButton } from '~/components/ui/styled/icon-button';
@@ -28,6 +29,9 @@ export interface SetlistItemProps {
   onUpdate: (updates: Partial<SetlistItemType>) => void;
   showSectionDivider?: boolean;
   sectionName?: string;
+  dropIndicatorPosition?: 'top' | 'bottom' | null;
+  draggedItem?: any;
+  draggedSongDetails?: any;
 }
 
 // Convert number to circled number (①②③...)
@@ -36,7 +40,7 @@ const toCircledNumber = (num: number): string => {
   return circled[num - 1] || `(${num})`;
 };
 
-export function SetlistItem({
+const SetlistItemComponent = memo(function SetlistItem({
   item,
   index,
   songNumber,
@@ -45,7 +49,10 @@ export function SetlistItem({
   onRemove,
   onUpdate,
   showSectionDivider,
-  sectionName
+  sectionName,
+  dropIndicatorPosition,
+  draggedItem,
+  draggedSongDetails
 }: SetlistItemProps) {
   const { t } = useTranslation();
   const songData = useSongData();
@@ -59,13 +66,16 @@ export function SetlistItem({
     return songs.find((song: any) => String(song.id) === String(item.songId)) || null;
   }, [item, songData]);
 
-  const sortable = useSortable({
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging
+  } = useSortable({
     id: item.id,
-    index,
-    group: 'setlist',
-    type: 'item',
-    accept: 'item',
-    feedback: 'clone',
     data: {
       type: 'setlist-item',
       item: item,
@@ -73,7 +83,10 @@ export function SetlistItem({
     }
   });
 
-  const { ref, handleRef, isDragging, isDropping } = sortable;
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition
+  };
 
   // Get song color for border
   const songColor = useMemo(() => {
@@ -120,6 +133,79 @@ export function SetlistItem({
     !isSongItem(item) &&
     (item.title.includes('━━') || item.title.includes('---') || item.title.includes('==='));
 
+  // Get dragged item details for preview
+  const draggedItemColor = useMemo(() => {
+    if (!draggedSongDetails) return undefined;
+    return getSongColor(draggedSongDetails as any);
+  }, [draggedSongDetails]);
+
+  const draggedArtistName = useMemo(() => {
+    if (!draggedSongDetails || !draggedSongDetails.artists) return undefined;
+    const firstArtistId = draggedSongDetails.artists[0];
+    if (!firstArtistId) return undefined;
+    const artist = artistsData.find((a: any) => a.id === String(firstArtistId));
+    return artist?.name;
+  }, [draggedSongDetails]);
+
+  // Render drop preview for cross-list dragging only
+  const renderDropPreview = (position: 'top' | 'bottom') => {
+    if (!draggedItem) return null;
+
+    return (
+      <Box mb={position === 'top' ? 1 : 0} mt={position === 'bottom' ? 1 : 0} opacity={0.6}>
+        <Box
+          borderLeft={isSongItem(draggedItem) && draggedItemColor ? '4px solid' : undefined}
+          borderColor={isSongItem(draggedItem) && draggedItemColor ? draggedItemColor : undefined}
+          borderRadius="md"
+          borderWidth="2px"
+          borderStyle="dashed"
+          py={2}
+          px={3}
+          bgColor="bg.muted"
+        >
+          <HStack gap={2} justifyContent="space-between" alignItems="flex-start">
+            <HStack flex={1} gap={2} alignItems="flex-start">
+              <Box display="flex" alignItems="center">
+                <MdDragIndicator size={16} style={{ marginTop: '2px', flexShrink: 0 }} />
+              </Box>
+
+              {/* Preview Content */}
+              <Stack flex={1} gap={0.5}>
+                {isSongItem(draggedItem) ? (
+                  <>
+                    <Text fontSize="sm" fontWeight="medium" lineHeight="1.4">
+                      {draggedItem.isCustomSong
+                        ? draggedItem.customSongName
+                        : draggedSongDetails?.name ||
+                          draggedItem.customSongName ||
+                          `Song ${draggedItem.songId}`}
+                    </Text>
+                    {!draggedItem.isCustomSong && (draggedItem.remarks || draggedArtistName) && (
+                      <Text color="fg.muted" fontSize="xs" lineHeight="1.3">
+                        {draggedItem.remarks || draggedArtistName}
+                      </Text>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <Text fontSize="sm" fontWeight="medium" lineHeight="1.4">
+                      {draggedItem.title}
+                    </Text>
+                    {draggedItem.remarks && (
+                      <Text color="fg.muted" fontSize="xs" lineHeight="1.3">
+                        {draggedItem.remarks}
+                      </Text>
+                    )}
+                  </>
+                )}
+              </Stack>
+            </HStack>
+          </HStack>
+        </Box>
+      </Box>
+    );
+  };
+
   return (
     <>
       {/* Section Divider */}
@@ -142,13 +228,16 @@ export function SetlistItem({
         </Box>
       )}
 
+      {/* Drop Preview - Top */}
+      {dropIndicatorPosition === 'top' && renderDropPreview('top')}
+
       <Box
-        ref={ref}
+        ref={setNodeRef}
         data-item-id={item.id}
         style={{
+          ...style,
           ...(songColor ? { ['--songColor' as 'color']: songColor } : {}),
-          opacity: isDragging ? 0.5 : 1,
-          transition: 'opacity 200ms ease'
+          opacity: isDragging ? 0.5 : 1
         }}
         position="relative"
       >
@@ -164,7 +253,14 @@ export function SetlistItem({
           <HStack gap={2} justifyContent="space-between" alignItems="flex-start">
             {/* Drag Handle + Content */}
             <HStack flex={1} gap={2} alignItems="flex-start">
-              <Box ref={handleRef} display="flex" alignItems="center" cursor="grab">
+              <Box
+                ref={setActivatorNodeRef}
+                {...attributes}
+                {...listeners}
+                display="flex"
+                alignItems="center"
+                cursor="grab"
+              >
                 <MdDragIndicator size={16} style={{ marginTop: '2px', flexShrink: 0 }} />
               </Box>
 
@@ -249,6 +345,9 @@ export function SetlistItem({
         </Box>
       </Box>
 
+      {/* Drop Preview - Bottom */}
+      {dropIndicatorPosition === 'bottom' && renderDropPreview('bottom')}
+
       {/* Edit Dialog */}
       <EditItemDialog
         open={editDialogOpen}
@@ -258,4 +357,6 @@ export function SetlistItem({
       />
     </>
   );
-}
+});
+
+export { SetlistItemComponent as SetlistItem };
