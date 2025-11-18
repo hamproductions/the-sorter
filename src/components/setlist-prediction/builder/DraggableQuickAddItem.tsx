@@ -3,9 +3,9 @@
  */
 
 import { useDraggable } from '@dnd-kit/core';
+import { MdDragIndicator } from 'react-icons/md';
 import { Box, HStack, Stack } from 'styled-system/jsx';
 import { Text } from '~/components/ui/styled/text';
-import { MdDragIndicator } from 'react-icons/md';
 
 export interface DraggableQuickAddItemProps {
   id: string;

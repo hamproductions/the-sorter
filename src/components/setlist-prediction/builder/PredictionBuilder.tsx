@@ -554,21 +554,9 @@ export function PredictionBuilder({
                 <Text color="fg.muted" fontSize="xs">
                   {t('setlistPrediction.quickAddHint', { defaultValue: 'Drag items into setlist' })}
                 </Text>
-                <DraggableQuickAddItem
-                  id="mc"
-                  title="MC①"
-                  type="mc"
-                />
-                <DraggableQuickAddItem
-                  id="encore"
-                  title="━━ ENCORE ━━"
-                  type="other"
-                />
-                <DraggableQuickAddItem
-                  id="intermission"
-                  title="━━ INTERMISSION ━━"
-                  type="other"
-                />
+                <DraggableQuickAddItem id="mc" title="MC①" type="mc" />
+                <DraggableQuickAddItem id="encore" title="━━ ENCORE ━━" type="other" />
+                <DraggableQuickAddItem id="intermission" title="━━ INTERMISSION ━━" type="other" />
               </Stack>
             </Stack>
           </Box>

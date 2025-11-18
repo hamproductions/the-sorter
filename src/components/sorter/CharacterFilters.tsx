@@ -72,8 +72,7 @@ export function CharacterFilters({
     if (filters === undefined) {
       initFilters();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [filters, initFilters]);
 
   const {
     series: selectedSeries = [],

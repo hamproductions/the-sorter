@@ -213,15 +213,15 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
     const encoreStartIndex = encoreSection?.startIndex ?? -1;
 
     // Find intermission/break sections from sections array
-    const intermissionSection = selectedPerformance.actualSetlist.sections?.find(
-      (s) => {
-        const name = s.name.toLowerCase();
-        return name.includes('intermission') ||
-               name.includes('break') ||
-               name.includes('interval') ||
-               s.type === 'special';
-      }
-    );
+    const intermissionSection = selectedPerformance.actualSetlist.sections?.find((s) => {
+      const name = s.name.toLowerCase();
+      return (
+        name.includes('intermission') ||
+        name.includes('break') ||
+        name.includes('interval') ||
+        s.type === 'special'
+      );
+    });
     const intermissionStartIndex = intermissionSection?.startIndex ?? -1;
 
     // Transform the actual setlist from the selected performance
@@ -231,7 +231,11 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
 
     selectedPerformance.actualSetlist.items.forEach((item, index) => {
       // Insert intermission divider before first intermission item
-      if (intermissionStartIndex >= 0 && index === intermissionStartIndex && !intermissionDividerInserted) {
+      if (
+        intermissionStartIndex >= 0 &&
+        index === intermissionStartIndex &&
+        !intermissionDividerInserted
+      ) {
         transformedItems.push({
           id: `item-${Date.now()}-intermission-${transformedItems.length}`,
           type: 'other',
