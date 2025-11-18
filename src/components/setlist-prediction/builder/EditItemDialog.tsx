@@ -19,7 +19,7 @@ import { Box, Stack, HStack } from 'styled-system/jsx';
 import { Button } from '~/components/ui/styled/button';
 import { Input } from '~/components/ui/styled/input';
 import { Text } from '~/components/ui/styled/text';
-import type { SetlistItem, SongSetlistItem } from '~/types/setlist-prediction';
+import type { SetlistItem, SongSetlistItem, NonSongSetlistItem } from '~/types/setlist-prediction';
 import { isSongItem } from '~/types/setlist-prediction';
 import { useSongData } from '~/hooks/useSongData';
 import { getSongColor } from '~/utils/song';
@@ -44,6 +44,9 @@ export function EditItemDialog({ open, onOpenChange, item, onSave }: EditItemDia
   const [selectedSongId, setSelectedSongId] = useState(
     isSongItem(item) && !item.isCustomSong ? item.songId : null
   );
+
+  // For non-song items (MC/Other)
+  const [title, setTitle] = useState(!isSongItem(item) ? item.title : '');
 
   // Filter songs based on search query
   const filteredSongs = useMemo(() => {
@@ -89,6 +92,13 @@ export function EditItemDialog({ open, onOpenChange, item, onSave }: EditItemDia
         (updates as Partial<SongSetlistItem>).songId = selectedSongId;
         (updates as Partial<SongSetlistItem>).isCustomSong = false;
       }
+    } else {
+      // Update non-song items (MC/Other)
+      const nonSongUpdates = updates as Partial<NonSongSetlistItem>;
+
+      if (title && title !== item.title) {
+        nonSongUpdates.title = title;
+      }
     }
 
     onSave(updates);
@@ -100,6 +110,7 @@ export function EditItemDialog({ open, onOpenChange, item, onSave }: EditItemDia
     setRemarks(item.remarks || '');
     setCustomSongName(isSongItem(item) && item.isCustomSong ? item.customSongName || '' : '');
     setSelectedSongId(isSongItem(item) && !item.isCustomSong ? item.songId : null);
+    setTitle(!isSongItem(item) ? item.title : '');
     onOpenChange(false);
   };
 
@@ -146,6 +157,22 @@ export function EditItemDialog({ open, onOpenChange, item, onSave }: EditItemDia
                     {t('setlistPrediction.currentSong', { defaultValue: 'Current Song' })}
                   </Text>
                   <Text fontSize="sm">{currentSongName}</Text>
+                </Box>
+              )}
+
+              {/* Non-Song Item Editors (MC/Other) */}
+              {!isSongItem(item) && (
+                <Box>
+                  <Text mb={2} fontSize="sm" fontWeight="medium">
+                    {t('setlistPrediction.itemTitle', { defaultValue: 'Title' })}
+                  </Text>
+                  <Input
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder={t('setlistPrediction.enterTitle', {
+                      defaultValue: 'Enter item title...'
+                    })}
+                  />
                 </Box>
               )}
 

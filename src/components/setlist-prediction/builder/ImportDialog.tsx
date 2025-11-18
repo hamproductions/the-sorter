@@ -212,15 +212,39 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
     );
     const encoreStartIndex = encoreSection?.startIndex ?? -1;
 
+    // Find intermission/break sections from sections array
+    const intermissionSection = selectedPerformance.actualSetlist.sections?.find(
+      (s) => {
+        const name = s.name.toLowerCase();
+        return name.includes('intermission') ||
+               name.includes('break') ||
+               name.includes('interval') ||
+               s.type === 'special';
+      }
+    );
+    const intermissionStartIndex = intermissionSection?.startIndex ?? -1;
+
     // Transform the actual setlist from the selected performance
     const transformedItems: SetlistItem[] = [];
     let encoreDividerInserted = false;
+    let intermissionDividerInserted = false;
 
     selectedPerformance.actualSetlist.items.forEach((item, index) => {
+      // Insert intermission divider before first intermission item
+      if (intermissionStartIndex >= 0 && index === intermissionStartIndex && !intermissionDividerInserted) {
+        transformedItems.push({
+          id: `item-${Date.now()}-intermission-${transformedItems.length}`,
+          type: 'other',
+          title: '━━ INTERMISSION ━━',
+          position: transformedItems.length
+        });
+        intermissionDividerInserted = true;
+      }
+
       // Insert encore divider before first encore item
       if (encoreStartIndex >= 0 && index === encoreStartIndex && !encoreDividerInserted) {
         transformedItems.push({
-          id: `item-${Date.now()}-divider`,
+          id: `item-${Date.now()}-encore-${transformedItems.length}`,
           type: 'other',
           title: '━━ ENCORE ━━',
           position: transformedItems.length

@@ -9,6 +9,7 @@ import {
   DndContext,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   DragOverlay,
   closestCenter,
   useSensor,
@@ -26,6 +27,7 @@ import { SetlistEditorPanel } from './SetlistEditorPanel';
 import { ExportShareTools } from './ExportShareTools';
 import { SongSearchPanel } from './SongSearchPanel';
 import { ImportDialog } from './ImportDialog';
+import { DraggableQuickAddItem } from './DraggableQuickAddItem';
 import { Box, Stack, HStack } from 'styled-system/jsx';
 import { Button } from '~/components/ui/styled/button';
 import { IconButton } from '~/components/ui/styled/icon-button';
@@ -163,6 +165,35 @@ function DragPreview({ activeData }: { activeData: Record<string, unknown> | nul
     );
   }
 
+  // Handle quick-add item preview
+  if (sourceData.type === 'quick-add-item') {
+    const title = sourceData.title as string;
+
+    return (
+      <Box
+        borderRadius="md"
+        minW="250px"
+        py={2}
+        px={3}
+        opacity={0.95}
+        bgColor="bg.default"
+        shadow="lg"
+        cursor="grabbing"
+      >
+        <HStack gap={2} alignItems="flex-start">
+          <Box pt={1}>
+            <MdDragIndicator size={16} />
+          </Box>
+          <Stack flex={1} gap={0.5}>
+            <Text fontSize="sm" fontWeight="medium">
+              {title}
+            </Text>
+          </Stack>
+        </HStack>
+      </Box>
+    );
+  }
+
   return null;
 }
 
@@ -197,7 +228,6 @@ export function PredictionBuilder({
 
   const [predictionName, setPredictionName] = useState(prediction.name);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
-  const [otherItemText, setOtherItemText] = useState('');
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(false);
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
 
@@ -210,10 +240,13 @@ export function PredictionBuilder({
   const dropIndicator = useMemo(() => {
     if (!activeId || !overId || !activeData) return null;
 
+    // Skip if we're dragging over the drop zone itself
+    if (overId === 'setlist-drop-zone') return null;
+
     const overData = prediction.setlist.items.find((item) => item.id === overId);
     if (!overData) return null;
 
-    // Only show indicator for cross-list dragging (search to setlist)
+    // Show indicator for cross-list dragging (search to setlist)
     if (activeData.type === 'search-result') {
       const songs = Array.isArray(songData) ? songData : [];
       const songId = activeData.songId as string;
@@ -232,6 +265,26 @@ export function PredictionBuilder({
         position: 'top' as const,
         draggedItem: tempItem,
         songDetails
+      };
+    }
+
+    // Show indicator for quick-add items (MC/Encore/Other)
+    if (activeData.type === 'quick-add-item') {
+      const title = activeData.title as string;
+      const itemType = activeData.itemType as 'mc' | 'other';
+
+      const tempItem: SetlistItemType = {
+        id: `temp-quick-add`,
+        type: itemType,
+        title: title,
+        position: 0
+      };
+
+      return {
+        itemId: overId,
+        position: 'top' as const,
+        draggedItem: tempItem,
+        songDetails: undefined
       };
     }
 
@@ -287,6 +340,25 @@ export function PredictionBuilder({
         return;
       }
 
+      // Handle quick-add items (MC/Encore/Other)
+      if (activeData?.type === 'quick-add-item') {
+        const { title, itemType } = activeData;
+        const currentItems = prediction.setlist.items;
+        let insertPosition = currentItems.length;
+
+        // Find insert position if dropping over an item
+        if (over.id !== 'setlist-drop-zone') {
+          const overIndex = currentItems.findIndex((item) => item.id === over.id);
+          if (overIndex !== -1) {
+            insertPosition = overIndex;
+          }
+        }
+
+        // Add the non-song item at the correct position
+        addNonSongItem(title as string, itemType as 'mc' | 'other', insertPosition);
+        return;
+      }
+
       // Handle within-list reordering
       if (activeData?.type === 'setlist-item' && overData?.type === 'setlist-item') {
         const draggedItem = activeData.item;
@@ -336,6 +408,12 @@ export function PredictionBuilder({
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 8
+      }
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5
       }
     }),
     useSensor(KeyboardSensor)
@@ -468,60 +546,29 @@ export function PredictionBuilder({
             <Stack gap={3}>
               <SongSearchPanel onAddSong={handleAddSong} onAddCustomSong={handleAddCustomSong} />
 
-              {/* Quick Add Buttons */}
+              {/* Quick Add Items */}
               <Stack gap={2}>
                 <Text fontSize="sm" fontWeight="medium">
                   {t('setlistPrediction.quickAdd', { defaultValue: 'Quick Add' })}
                 </Text>
-                <Button
-                  size="sm"
-                  onClick={() => addNonSongItem('MC①', 'mc', prediction.setlist.items.length)}
-                >
-                  + MC
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() =>
-                    addNonSongItem('━━ ENCORE ━━', 'other', prediction.setlist.items.length)
-                  }
-                >
-                  + Encore Break
-                </Button>
-                <HStack gap={1}>
-                  <Input
-                    size="sm"
-                    value={otherItemText}
-                    onChange={(e) => setOtherItemText(e.target.value)}
-                    placeholder="VTR, Opening, etc..."
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && otherItemText.trim()) {
-                        addNonSongItem(
-                          otherItemText.trim(),
-                          'other',
-                          prediction.setlist.items.length
-                        );
-                        setOtherItemText('');
-                      }
-                    }}
-                  />
-                  <Button
-                    size="sm"
-                    onClick={() => {
-                      if (otherItemText.trim()) {
-                        addNonSongItem(
-                          otherItemText.trim(),
-                          'other',
-                          prediction.setlist.items.length
-                        );
-                        setOtherItemText('');
-                      }
-                    }}
-                    disabled={!otherItemText.trim()}
-                  >
-                    +
-                  </Button>
-                </HStack>
+                <Text color="fg.muted" fontSize="xs">
+                  {t('setlistPrediction.quickAddHint', { defaultValue: 'Drag items into setlist' })}
+                </Text>
+                <DraggableQuickAddItem
+                  id="mc"
+                  title="MC①"
+                  type="mc"
+                />
+                <DraggableQuickAddItem
+                  id="encore"
+                  title="━━ ENCORE ━━"
+                  type="other"
+                />
+                <DraggableQuickAddItem
+                  id="intermission"
+                  title="━━ INTERMISSION ━━"
+                  type="other"
+                />
               </Stack>
             </Stack>
           </Box>
