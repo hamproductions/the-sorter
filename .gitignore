@@ -25,7 +25,8 @@ dist-ssr
 
 styled-system
  
-data/raw/*
+**/raw/*
+
 scripts/internal/*
 
 *_report.json

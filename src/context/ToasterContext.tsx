@@ -6,9 +6,11 @@ import { IconButton } from '~/components/ui/icon-button';
 import { Toast } from '~/components/ui/toast';
 
 type ToastOptions = Parameters<typeof toaster.create>[0];
-const ToasterContext = createContext<{ toast?: (msg: ReactNode, options?: ToastOptions) => void }>(
-  {}
-);
+const ToasterContext = createContext<{ toast: (options: ToastOptions) => void }>({
+  toast: () => {
+    // noop - will be replaced by provider
+  }
+});
 
 const toaster = createToaster({
   placement: 'bottom-end',
@@ -20,9 +22,8 @@ export function ToasterProvider({ children }: { children: ReactNode }) {
   return (
     <ToasterContext.Provider
       value={{
-        toast: (message, options) => {
+        toast: (options) => {
           toaster.create({
-            description: message,
             type: 'info',
             ...options
           });

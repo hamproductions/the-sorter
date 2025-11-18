@@ -23,9 +23,7 @@ export function Footer() {
         <Link href="https://github.com/hamproductions/the-sorter" target="_blank">
           GitHub
         </Link>
-        <Text color="text.muted" fontSize="xs">
-          <Version format="version" />
-        </Text>
+        <Version format="version" />
       </Wrap>
     </Stack>
   );

@@ -58,6 +58,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
               >
                 {t(`navigation.hasu-music`)}
               </Link>
+              <Link
+                href={join(import.meta.env.BASE_URL, '/setlist-prediction')}
+                data-active={
+                  currentPath.startsWith(join(import.meta.env.BASE_URL, '/setlist-prediction'))
+                    ? true
+                    : undefined
+                }
+                _active={{
+                  fontWeight: 'bold'
+                }}
+              >
+                {t(`navigation.setlist-prediction`)}
+              </Link>
             </HStack>
             <HStack justifySelf="flex-end">
               <LanguageToggle />

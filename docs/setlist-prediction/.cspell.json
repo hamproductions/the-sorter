@@ -1,0 +1,20 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": [
+    "setlist",
+    "setlists",
+    "llfans",
+    "Aqours",
+    "Supabase",
+    "signup",
+    "Firestore",
+    "upvote",
+    "vike",
+    "qrcode",
+    "Pacifico"
+  ],
+  "ignoreRegExpList": [
+    "/\\\\u[0-9a-fA-F]{4}/g"
+  ]
+}

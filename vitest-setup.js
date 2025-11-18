@@ -15,7 +15,25 @@ beforeEach(async () => {
   window.PointerEvent = MouseEvent;
   delete window.location;
   window.location = new URL('http://localhost/');
-  window.localStorage.clear();
+
+  // Clear localStorage safely
+  try {
+    window.localStorage.clear();
+  } catch (e) {
+    // If localStorage is not available, mock it
+    const localStorageMock = {
+      getItem: vi.fn(),
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+      clear: vi.fn(),
+      length: 0,
+      key: vi.fn()
+    };
+    Object.defineProperty(window, 'localStorage', {
+      value: localStorageMock,
+      writable: true
+    });
+  }
 });
 
 afterEach(async () => {

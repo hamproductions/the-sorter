@@ -1,7 +1,7 @@
 {
   "name": "the-sorter",
   "private": true,
-  "version": "1.7.1",
+  "version": "1.8.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -34,6 +34,7 @@
     "@ark-ui/react": "^4.8.1",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@pandacss/dev": "^0.51.1",
     "@park-ui/panda-preset": "^0.43.1",
     "@sentry/react": "^8.54.0",

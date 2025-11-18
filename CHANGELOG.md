@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [1.8.0](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.7.1...v1.8.0) (2025-11-18)
+
+
+### Bug Fixes
+
+* song update ([46b67b6](https://github.com/Tanyawat-Arsaga/the-sorter/commit/46b67b65e10034ecacc185e62fc5dc06a50a4955))
+* tests ([af3fa9a](https://github.com/Tanyawat-Arsaga/the-sorter/commit/af3fa9a82fd104f2e5ace7ce5916f33f92c58d19))
+* tests and shit ([f0ab038](https://github.com/Tanyawat-Arsaga/the-sorter/commit/f0ab038ee8a0b409f1f7741d806fca5f2b9c88e4))
+
+
+### Features
+
+* docs and shit ([f07fce1](https://github.com/Tanyawat-Arsaga/the-sorter/commit/f07fce1d0bff566a7c3fda723024833f60b82086))
+* setlist dnd thing finally gdi ([3a35550](https://github.com/Tanyawat-Arsaga/the-sorter/commit/3a355504f7d662d537a602fbbb679cb8dcc44383))
+* slop ([e5d22f2](https://github.com/Tanyawat-Arsaga/the-sorter/commit/e5d22f2d1c228464b23440559aed9d442ec306a3))
+* update ([64b8ff7](https://github.com/Tanyawat-Arsaga/the-sorter/commit/64b8ff70d99eb334cc0d02ad7f50fa6f00c4582f))
+* update data ([a00698d](https://github.com/Tanyawat-Arsaga/the-sorter/commit/a00698d2b6d2dda7f09e44bbc1035eed83bb2c36))
+
 ## [1.7.1](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.7.0...v1.7.1) (2025-08-13)
 
 

@@ -1,0 +1,363 @@
+/**
+ * Individual Setlist Item Component
+ * Draggable and editable setlist item - LLdays style
+ */
+
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { BiTrash, BiPencil } from 'react-icons/bi';
+import { MdDragIndicator } from 'react-icons/md';
+import { useTranslation } from 'react-i18next';
+import { useMemo, useState, memo } from 'react';
+import artistsData from '../../../../../data/artists-info.json';
+import { EditItemDialog } from '../EditItemDialog';
+import { Box, HStack, Stack } from 'styled-system/jsx';
+import { Text } from '~/components/ui/styled/text';
+import { IconButton } from '~/components/ui/styled/icon-button';
+import type { SetlistItem as SetlistItemType } from '~/types/setlist-prediction';
+import { isSongItem } from '~/types/setlist-prediction';
+import { useSongData } from '~/hooks/useSongData';
+import { getSongColor } from '~/utils/song';
+import type { Song } from '~/types';
+
+export interface SetlistItemProps {
+  item: SetlistItemType;
+  index: number;
+  songNumber?: number; // Separate song numbering (M01, M02, etc.)
+  encoreNumber?: number; // Separate encore numbering (EN01, EN02, etc.)
+  mcNumber?: number; // Separate MC numbering (MC①, MC②, etc.)
+  onRemove: () => void;
+  onUpdate: (updates: Partial<SetlistItemType>) => void;
+  showSectionDivider?: boolean;
+  sectionName?: string;
+  dropIndicatorPosition?: 'top' | 'bottom' | null;
+  draggedItem?: SetlistItemType;
+  draggedSongDetails?: Song;
+}
+
+// Convert number to circled number (①②③...)
+const toCircledNumber = (num: number): string => {
+  const circled = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩'];
+  return circled[num - 1] || `(${num})`;
+};
+
+const SetlistItemComponent = memo(function SetlistItem({
+  item,
+  index,
+  songNumber,
+  encoreNumber,
+  mcNumber,
+  onRemove,
+  onUpdate,
+  showSectionDivider,
+  sectionName,
+  dropIndicatorPosition,
+  draggedItem,
+  draggedSongDetails
+}: SetlistItemProps) {
+  const { t } = useTranslation();
+  const songData = useSongData();
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+
+  // Look up song details if this is a song item (must be before useSortable)
+  const songDetails = useMemo(() => {
+    if (!isSongItem(item) || item.isCustomSong) return null;
+
+    const songs = Array.isArray(songData) ? songData : [];
+    return songs.find((song: Song) => String(song.id) === String(item.songId)) || null;
+  }, [item, songData]);
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging
+  } = useSortable({
+    id: item.id,
+    data: {
+      type: 'setlist-item',
+      item: item,
+      songDetails: songDetails
+    }
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition
+  };
+
+  // Get song color for border
+  const songColor = useMemo(() => {
+    if (!isSongItem(item) || !songDetails) return undefined;
+    return getSongColor(songDetails);
+  }, [item, songDetails]);
+
+  // Get artist/unit name
+  const artistName = useMemo(() => {
+    if (!isSongItem(item) || !songDetails || !songDetails.artists) return undefined;
+
+    // Get the first artist ID from the song's artists array
+    const firstArtistId = songDetails.artists[0];
+    if (!firstArtistId) return undefined;
+
+    // Look up the artist name
+    const artist = artistsData.find((a) => a.id === String(firstArtistId));
+    return artist?.name;
+  }, [item, songDetails]);
+
+  // Determine item number display
+  const itemNumber = useMemo(() => {
+    // For songs, check if they have encore number (position-based)
+    if (isSongItem(item)) {
+      if (encoreNumber) {
+        return `EN${encoreNumber.toString().padStart(2, '0')}`;
+      } else if (songNumber) {
+        return `M${songNumber.toString().padStart(2, '0')}`;
+      }
+      return `${index + 1}`;
+    }
+
+    // For MCs
+    if (item.type === 'mc') {
+      return mcNumber ? `MC${toCircledNumber(mcNumber)}` : `MC${toCircledNumber(index + 1)}`;
+    }
+
+    // Other items (dividers, etc.) have no number
+    return null;
+  }, [item, songNumber, encoreNumber, mcNumber, index]);
+
+  // Check if this is a divider-style item (e.g., "━━ ENCORE ━━")
+  const isDivider =
+    !isSongItem(item) &&
+    (item.title.includes('━━') || item.title.includes('---') || item.title.includes('==='));
+
+  // Get dragged item details for preview
+  const draggedItemColor = useMemo(() => {
+    if (!draggedSongDetails) return undefined;
+    return getSongColor(draggedSongDetails);
+  }, [draggedSongDetails]);
+
+  const draggedArtistName = useMemo(() => {
+    if (!draggedSongDetails || !draggedSongDetails.artists) return undefined;
+    const firstArtistId = draggedSongDetails.artists[0];
+    if (!firstArtistId) return undefined;
+    const artist = artistsData.find((a) => a.id === String(firstArtistId));
+    return artist?.name;
+  }, [draggedSongDetails]);
+
+  // Render drop preview for cross-list dragging only
+  const renderDropPreview = (position: 'top' | 'bottom') => {
+    if (!draggedItem) return null;
+
+    return (
+      <Box mt={position === 'bottom' ? 1 : 0} mb={position === 'top' ? 1 : 0} opacity={0.6}>
+        <Box
+          borderLeft={isSongItem(draggedItem) && draggedItemColor ? '4px solid' : undefined}
+          borderColor={isSongItem(draggedItem) && draggedItemColor ? draggedItemColor : undefined}
+          borderRadius="md"
+          borderWidth="2px"
+          py={2}
+          px={3}
+          bgColor="bg.muted"
+          borderStyle="dashed"
+        >
+          <HStack gap={2} justifyContent="space-between" alignItems="flex-start">
+            <HStack flex={1} gap={2} alignItems="flex-start">
+              <Box display="flex" alignItems="center">
+                <MdDragIndicator size={16} style={{ marginTop: '2px', flexShrink: 0 }} />
+              </Box>
+
+              {/* Preview Content */}
+              <Stack flex={1} gap={0.5}>
+                {isSongItem(draggedItem) ? (
+                  <>
+                    <Text fontSize="sm" fontWeight="medium" lineHeight="1.4">
+                      {draggedItem.isCustomSong
+                        ? draggedItem.customSongName
+                        : draggedSongDetails?.name ||
+                          draggedItem.customSongName ||
+                          `Song ${draggedItem.songId}`}
+                    </Text>
+                    {!draggedItem.isCustomSong && (draggedItem.remarks || draggedArtistName) && (
+                      <Text color="fg.muted" fontSize="xs" lineHeight="1.3">
+                        {draggedItem.remarks || draggedArtistName}
+                      </Text>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <Text fontSize="sm" fontWeight="medium" lineHeight="1.4">
+                      {draggedItem.title}
+                    </Text>
+                    {draggedItem.remarks && (
+                      <Text color="fg.muted" fontSize="xs" lineHeight="1.3">
+                        {draggedItem.remarks}
+                      </Text>
+                    )}
+                  </>
+                )}
+              </Stack>
+            </HStack>
+          </HStack>
+        </Box>
+      </Box>
+    );
+  };
+
+  return (
+    <>
+      {/* Section Divider */}
+      {showSectionDivider && sectionName && (
+        <Box
+          borderColor="border.emphasized"
+          borderRadius="md"
+          borderWidth="1px"
+          mb={1}
+          p={2}
+          bgColor="bg.emphasized"
+        >
+          <HStack gap={2} alignItems="center">
+            <Box flex={1} h="2px" bgColor="border.emphasized" />
+            <Text color="fg.emphasized" fontSize="sm" fontWeight="bold">
+              {sectionName}
+            </Text>
+            <Box flex={1} h="2px" bgColor="border.emphasized" />
+          </HStack>
+        </Box>
+      )}
+
+      {/* Drop Preview - Top */}
+      {dropIndicatorPosition === 'top' && renderDropPreview('top')}
+
+      <Box
+        ref={setNodeRef}
+        data-item-id={item.id}
+        style={{
+          ...style,
+          ...(songColor ? { ['--songColor' as 'color']: songColor } : {}),
+          opacity: isDragging ? 0.5 : 1
+        }}
+        position="relative"
+      >
+        <Box
+          borderLeft={isSongItem(item) && songColor ? '4px solid' : undefined}
+          borderColor={isSongItem(item) && songColor ? 'var(--songColor)' : undefined}
+          borderRadius="md"
+          py={isDivider ? 3 : 2}
+          px={3}
+          bgColor={isDivider ? 'bg.emphasized' : 'bg.default'}
+          _hover={{ bgColor: 'bg.muted' }}
+        >
+          <HStack gap={2} justifyContent="space-between" alignItems="flex-start">
+            {/* Drag Handle + Content */}
+            <HStack flex={1} gap={2} alignItems="flex-start">
+              <Box
+                ref={setActivatorNodeRef}
+                {...attributes}
+                {...listeners}
+                display="flex"
+                alignItems="center"
+                cursor="grab"
+              >
+                <MdDragIndicator size={16} style={{ marginTop: '2px', flexShrink: 0 }} />
+              </Box>
+
+              {/* Item Number */}
+              {itemNumber && (
+                <Text
+                  flexShrink={0}
+                  minW="45px"
+                  color={isSongItem(item) ? 'fg.default' : 'fg.muted'}
+                  fontSize="sm"
+                  fontWeight="medium"
+                >
+                  {itemNumber}
+                </Text>
+              )}
+
+              {/* Item Content */}
+              <Stack flex={1} gap={0.5}>
+                {isSongItem(item) ? (
+                  <>
+                    <Text fontSize="sm" fontWeight="medium" lineHeight="1.4">
+                      {item.isCustomSong
+                        ? item.customSongName
+                        : songDetails?.name || item.customSongName || `Song ${item.songId}`}
+                    </Text>
+                    {/* Show remarks if exists, otherwise show artist name */}
+                    {!item.isCustomSong && (item.remarks || artistName) && (
+                      <Text color="fg.muted" fontSize="xs" lineHeight="1.3">
+                        {item.remarks || artistName}
+                      </Text>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <Text
+                      w={isDivider ? 'full' : 'auto'}
+                      textAlign={isDivider ? 'center' : 'left'}
+                      fontSize="sm"
+                      fontWeight={isDivider ? 'bold' : 'medium'}
+                      lineHeight="1.4"
+                    >
+                      {item.title}
+                    </Text>
+                    {item.remarks && (
+                      <Text color="fg.muted" fontSize="xs" lineHeight="1.3">
+                        {item.remarks}
+                      </Text>
+                    )}
+                  </>
+                )}
+              </Stack>
+            </HStack>
+
+            {/* Actions */}
+            <HStack gap={0.5} flexShrink={0}>
+              <IconButton
+                size="xs"
+                variant="ghost"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditDialogOpen(true);
+                }}
+                aria-label={t('setlistPrediction.editItem', {
+                  defaultValue: 'Edit item'
+                })}
+              >
+                <BiPencil size={14} />
+              </IconButton>
+              <IconButton
+                size="xs"
+                variant="ghost"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemove();
+                }}
+                aria-label={t('common.delete', { defaultValue: 'Delete' })}
+              >
+                <BiTrash size={14} />
+              </IconButton>
+            </HStack>
+          </HStack>
+        </Box>
+      </Box>
+
+      {/* Drop Preview - Bottom */}
+      {dropIndicatorPosition === 'bottom' && renderDropPreview('bottom')}
+
+      {/* Edit Dialog */}
+      <EditItemDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        item={item}
+        onSave={onUpdate}
+      />
+    </>
+  );
+});
+
+export { SetlistItemComponent as SetlistItem };
