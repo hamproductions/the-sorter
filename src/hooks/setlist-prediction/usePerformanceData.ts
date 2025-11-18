@@ -3,7 +3,7 @@
  */
 
 import { useMemo, useState } from 'react';
-import performancesData from '../../../data/performances/performances.json';
+import performancesData from '../../../data/performance-info.json';
 import type { Performance, PerformanceFilters } from '~/types/setlist-prediction';
 
 export function usePerformanceData() {
