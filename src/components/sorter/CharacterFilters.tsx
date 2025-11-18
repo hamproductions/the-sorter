@@ -70,10 +70,11 @@ export function CharacterFilters({
   };
 
   useEffect(() => {
-    if (filters === undefined || !isValidFilter(filters)) {
+    if (filters === undefined) {
       initFilters();
     }
-  }, [filters]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const {
     series: selectedSeries = [],

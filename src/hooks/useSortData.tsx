@@ -14,7 +14,11 @@ export const useSortData = () => {
   const characters = useData();
   const [seiyuu, setSeiyuu] = useLocalStorage('seiyuu-mode', false);
   const [noTieMode, setNoTieMode] = useLocalStorage('dd-mode', false);
-  const [filters, setFilters] = useLocalStorage<FilterType>('filters', undefined);
+  const [filters, setFilters] = useLocalStorage<FilterType>('filters', {
+    series: [],
+    school: [],
+    units: []
+  });
   const listToSort = useMemo(() => {
     const charaSeiyuu = seiyuu
       ? Object.values(
