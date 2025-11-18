@@ -5,6 +5,7 @@
 
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { join } from 'path-browserify';
 import { Stack, Box, HStack } from 'styled-system/jsx';
 import { Text } from '~/components/ui/styled/text';
 import { Button } from '~/components/ui/styled/button';
@@ -287,9 +288,7 @@ export function Page() {
                     {tour.performances.map((performance) => (
                       <Box
                         key={performance.id}
-                        onClick={() => {
-                          window.location.href = `/setlist-prediction/builder?performance=${performance.id}`;
-                        }}
+                        asChild
                         borderRadius="md"
                         borderWidth="1px"
                         p={3}
@@ -297,24 +296,31 @@ export function Page() {
                         cursor="pointer"
                         _hover={{ bgColor: 'bg.muted', borderColor: 'border.emphasized' }}
                       >
-                        <HStack justifyContent="space-between" alignItems="center">
-                          <Stack flex={1} gap={0.5}>
-                            <Text fontSize="sm" fontWeight="medium">
-                              {performance.nameJa && performance.nameJa !== 'null'
-                                ? performance.nameJa
-                                : performance.description || 'Performance'}
-                            </Text>
-                            <Text color="fg.muted" fontSize="xs">
-                              {new Date(performance.date).toLocaleDateString()} •{' '}
-                              {performance.venue || 'TBA'}
-                            </Text>
-                          </Stack>
-                          <Button size="sm">
-                            {t('setlistPrediction.createPrediction', {
-                              defaultValue: 'Create Prediction'
-                            })}
-                          </Button>
-                        </HStack>
+                        <a
+                          href={join(
+                            import.meta.env.BASE_URL,
+                            `/setlist-prediction/builder?performance=${performance.id}`
+                          )}
+                        >
+                          <HStack justifyContent="space-between" alignItems="center">
+                            <Stack flex={1} gap={0.5}>
+                              <Text fontSize="sm" fontWeight="medium">
+                                {performance.nameJa && performance.nameJa !== 'null'
+                                  ? performance.nameJa
+                                  : performance.description || 'Performance'}
+                              </Text>
+                              <Text color="fg.muted" fontSize="xs">
+                                {new Date(performance.date).toLocaleDateString()} •{' '}
+                                {performance.venue || 'TBA'}
+                              </Text>
+                            </Stack>
+                            <Button size="sm">
+                              {t('setlistPrediction.createPrediction', {
+                                defaultValue: 'Create Prediction'
+                              })}
+                            </Button>
+                          </HStack>
+                        </a>
                       </Box>
                     ))}
                   </Stack>
