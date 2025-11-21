@@ -31,7 +31,7 @@ const DraggableSongItem = memo(function DraggableSongItem({
   song,
   onAddSong
 }: DraggableSongItemProps) {
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, isDragging } = useDraggable({
     id: `search-${song.id}`,
     data: {
       type: 'search-result',
@@ -43,8 +43,6 @@ const DraggableSongItem = memo(function DraggableSongItem({
   return (
     <Box
       ref={setNodeRef}
-      {...attributes}
-      {...listeners}
       onDoubleClick={() => onAddSong(song.id, song.name)}
       borderBottomWidth="1px"
       borderRadius="md"
@@ -52,11 +50,17 @@ const DraggableSongItem = memo(function DraggableSongItem({
       opacity={isDragging ? 0.5 : 1}
       bgColor="bg.default"
       shadow={isDragging ? 'lg' : 'none'}
-      cursor={isDragging ? 'grabbing' : 'grab'}
       _hover={{ bgColor: 'bg.subtle' }}
     >
       <HStack gap={2} alignItems="flex-start">
-        <Box pt={1}>
+        <Box
+          pt={1}
+          ref={setActivatorNodeRef}
+          {...attributes}
+          {...listeners}
+          cursor={isDragging ? 'grabbing' : 'grab'}
+          style={{ touchAction: 'none' }}
+        >
           <MdDragIndicator size={16} />
         </Box>
         <Stack flex={1} gap={0.5}>

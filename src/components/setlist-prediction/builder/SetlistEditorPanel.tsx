@@ -17,6 +17,8 @@ export interface SetlistEditorPanelProps {
   onReorder: (items: SetlistItem[]) => void;
   onRemove: (itemId: string) => void;
   onUpdate: (itemId: string, updates: Partial<SetlistItem>) => void;
+  onMoveUp: (index: number) => void;
+  onMoveDown: (index: number) => void;
   onOpenImport?: () => void;
   dropIndicator?: {
     itemId: string;
@@ -30,6 +32,8 @@ export function SetlistEditorPanel({
   items,
   onRemove,
   onUpdate,
+  onMoveUp,
+  onMoveDown,
   onOpenImport,
   dropIndicator
 }: SetlistEditorPanelProps) {
@@ -152,6 +156,10 @@ export function SetlistEditorPanel({
               sectionName={undefined}
               onRemove={() => onRemove(item.id)}
               onUpdate={(updates) => onUpdate(item.id, updates)}
+              onMoveUp={() => onMoveUp(index)}
+              onMoveDown={() => onMoveDown(index)}
+              isFirst={index === 0}
+              isLast={index === items.length - 1}
               dropIndicatorPosition={showDropIndicator}
               draggedItem={
                 dropIndicator?.itemId === item.id ? dropIndicator.draggedItem : undefined

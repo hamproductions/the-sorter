@@ -5,7 +5,7 @@
 
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { BiTrash, BiPencil } from 'react-icons/bi';
+import { BiTrash, BiPencil, BiChevronUp, BiChevronDown } from 'react-icons/bi';
 import { MdDragIndicator } from 'react-icons/md';
 import { useTranslation } from 'react-i18next';
 import { useMemo, useState, memo } from 'react';
@@ -28,6 +28,10 @@ export interface SetlistItemProps {
   mcNumber?: number; // Separate MC numbering (MC①, MC②, etc.)
   onRemove: () => void;
   onUpdate: (updates: Partial<SetlistItemType>) => void;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  isFirst: boolean;
+  isLast: boolean;
   showSectionDivider?: boolean;
   sectionName?: string;
   dropIndicatorPosition?: 'top' | 'bottom' | null;
@@ -49,6 +53,10 @@ const SetlistItemComponent = memo(function SetlistItem({
   mcNumber,
   onRemove,
   onUpdate,
+  onMoveUp,
+  onMoveDown,
+  isFirst,
+  isLast,
   showSectionDivider,
   sectionName,
   dropIndicatorPosition,
@@ -252,27 +260,30 @@ const SetlistItemComponent = memo(function SetlistItem({
           _hover={{ bgColor: 'bg.muted' }}
         >
           <HStack gap={2} justifyContent="space-between" alignItems="flex-start">
-            {/* Drag Handle + Content */}
-            <HStack flex={1} gap={2} alignItems="flex-start">
+            {/* Drag Handle */}
+            <HStack gap={2} flex={1} overflow="hidden">
               <Box
+                p={2}
                 ref={setActivatorNodeRef}
                 {...attributes}
                 {...listeners}
-                display="flex"
-                alignItems="center"
-                cursor="grab"
+                cursor={isDragging ? 'grabbing' : 'grab'}
+                style={{ touchAction: 'none' }}
+                color="fg.muted"
+                _hover={{ color: 'fg.default' }}
               >
-                <MdDragIndicator size={16} style={{ marginTop: '2px', flexShrink: 0 }} />
+                <MdDragIndicator size={20} />
               </Box>
 
               {/* Item Number */}
               {itemNumber && (
                 <Text
                   flexShrink={0}
-                  minW="45px"
+                  minW="24px"
                   color={isSongItem(item) ? 'fg.default' : 'fg.muted'}
                   fontSize="sm"
                   fontWeight="medium"
+                  textAlign="center"
                 >
                   {itemNumber}
                 </Text>
@@ -316,9 +327,41 @@ const SetlistItemComponent = memo(function SetlistItem({
             </HStack>
 
             {/* Actions */}
-            <HStack gap={0.5} flexShrink={0}>
+            <HStack gap={1} flexShrink={0}>
+              <Stack gap={0}>
+                <IconButton
+                  size="xs"
+                  variant="ghost"
+                  disabled={isFirst}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onMoveUp();
+                  }}
+                  aria-label={t('common.moveUp', { defaultValue: 'Move up' })}
+                  h="24px"
+                  minW="32px"
+                  _active={{ bg: 'bg.subtle' }}
+                >
+                  <BiChevronUp size={20} />
+                </IconButton>
+                <IconButton
+                  size="xs"
+                  variant="ghost"
+                  disabled={isLast}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onMoveDown();
+                  }}
+                  aria-label={t('common.moveDown', { defaultValue: 'Move down' })}
+                  h="24px"
+                  minW="32px"
+                  _active={{ bg: 'bg.subtle' }}
+                >
+                  <BiChevronDown size={20} />
+                </IconButton>
+              </Stack>
               <IconButton
-                size="xs"
+                size="sm"
                 variant="ghost"
                 onClick={(e) => {
                   e.stopPropagation();

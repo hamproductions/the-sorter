@@ -5,29 +5,18 @@
 
 import { useTranslation } from 'react-i18next';
 import { useState, useCallback, useMemo } from 'react';
-import {
-  DndContext,
-  KeyboardSensor,
-  PointerSensor,
-  TouchSensor,
-  DragOverlay,
-  closestCenter,
-  useSensor,
-  useSensors,
-  type DragStartEvent,
-  type DragEndEvent,
-  type DragOverEvent,
-  MeasuringStrategy
-} from '@dnd-kit/core';
+import { MeasuringStrategy, closestCenter, DndContext, DragOverlay, useSensors, useSensor, PointerSensor, TouchSensor, KeyboardSensor, DragStartEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
-import { BiMenu, BiX } from 'react-icons/bi';
+import { BiMenu, BiX, BiPlus, BiDotsVerticalRounded, BiSave, BiImport, BiTrash, BiStats } from 'react-icons/bi';
+import { AddItemDrawer } from './AddItemDrawer';
 import { MdDragIndicator } from 'react-icons/md';
 import artistsData from '../../../../data/artists-info.json';
 import { SetlistEditorPanel } from './SetlistEditorPanel';
-import { ExportShareTools } from './ExportShareTools';
 import { SongSearchPanel } from './SongSearchPanel';
-import { ImportDialog } from './ImportDialog';
 import { DraggableQuickAddItem } from './DraggableQuickAddItem';
+import { ImportDialog } from './ImportDialog';
+import { ExportShareTools } from './ExportShareTools';
+import { Menu } from '~/components/ui/menu';
 import { Box, Stack, HStack } from 'styled-system/jsx';
 import { Button } from '~/components/ui/styled/button';
 import { IconButton } from '~/components/ui/styled/icon-button';
@@ -230,6 +219,7 @@ export function PredictionBuilder({
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(false);
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
+  const [addItemDrawerOpen, setAddItemDrawerOpen] = useState(false);
 
   // Track active drag state
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -398,10 +388,28 @@ export function PredictionBuilder({
     });
   };
 
+  const handleAddQuickItem = (title: string, type: 'mc' | 'other') => {
+    addNonSongItem(title, type, prediction.setlist.items.length);
+  };
+
   const handleImport = (imported: SetlistPrediction) => {
     // Replace current prediction with imported one
     reorderItems(imported.setlist.items);
     updateMetadata({ name: imported.name });
+  };
+
+  const moveItemUp = (index: number) => {
+    if (index <= 0) return;
+    const currentItems = prediction.setlist.items;
+    const newItems = arrayMove(currentItems, index, index - 1);
+    reorderItems(newItems);
+  };
+
+  const moveItemDown = (index: number) => {
+    const currentItems = prediction.setlist.items;
+    if (index >= currentItems.length - 1) return;
+    const newItems = arrayMove(currentItems, index, index + 1);
+    reorderItems(newItems);
   };
 
   const sensors = useSensors(
@@ -412,7 +420,7 @@ export function PredictionBuilder({
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 250,
+        delay: 0,
         tolerance: 5
       }
     }),
@@ -440,8 +448,16 @@ export function PredictionBuilder({
     >
       <Stack gap={0} w="full" h="full">
         {/* Prediction Name Bar */}
-        <Box borderBottomWidth="1px" p={4} bgColor="bg.muted">
-          <HStack gap={2} alignItems="center">
+        <Box 
+          borderBottomWidth="1px" 
+          p={4} 
+          bgColor="bg.muted"
+          position="sticky"
+          top={0}
+          zIndex={20}
+        >
+          {/* Desktop: Single Line */}
+          <HStack gap={2} alignItems="center" hideBelow="md">
             <Input
               value={predictionName}
               onChange={(e) => handleNameChange(e.target.value)}
@@ -450,43 +466,47 @@ export function PredictionBuilder({
               })}
               flex={1}
             />
-            <Button onClick={handleSave} disabled={!isDirty}>
-              {t('common.save', { defaultValue: 'Save' })}
-            </Button>
-            <Button variant="outline" onClick={() => setImportDialogOpen(true)}>
-              {t('common.import', { defaultValue: 'Import' })}
-            </Button>
-            <Button variant="subtle" onClick={clearItems}>
-              {t('common.clear', { defaultValue: 'Clear' })}
-            </Button>
-            {/* Toggle for left sidebar (song search) on small screens */}
-            <IconButton
-              variant="outline"
-              onClick={() => setLeftSidebarOpen(!leftSidebarOpen)}
-              aria-label="Toggle song search panel"
-              hideFrom="md"
-            >
-              {leftSidebarOpen ? <BiX size={20} /> : <BiMenu size={20} />}
-            </IconButton>
-            {/* Toggle for right sidebar on small screens */}
-            <IconButton
-              variant="outline"
-              onClick={() => setRightSidebarOpen(!rightSidebarOpen)}
-              aria-label="Toggle actions panel"
-              hideFrom="lg"
-            >
-              {rightSidebarOpen ? <BiX size={20} /> : <BiMenu size={20} />}
-            </IconButton>
+            
+            <HStack gap={2}>
+              <Button onClick={handleSave} disabled={!isDirty}>
+                {t('common.save', { defaultValue: 'Save' })}
+              </Button>
+              <Button variant="outline" onClick={() => setImportDialogOpen(true)}>
+                {t('common.import', { defaultValue: 'Import' })}
+              </Button>
+              <Button variant="subtle" onClick={clearItems}>
+                {t('common.clear', { defaultValue: 'Clear' })}
+              </Button>
+            </HStack>
           </HStack>
 
-          {/* Validation Messages */}
-          {!isValid && (
-            <Box borderRadius="md" mt={2} p={2} bgColor="bg.error">
-              <Text color="fg.error" fontSize="xs">
-                {validation.errors[0]}
-              </Text>
-            </Box>
-          )}
+          {/* Mobile: Two Lines */}
+          <Stack gap={2} hideFrom="md">
+            {/* Line 1: Input + Save */}
+            <HStack gap={2} alignItems="center">
+              <Input
+                value={predictionName}
+                onChange={(e) => handleNameChange(e.target.value)}
+                placeholder={t('setlistPrediction.predictionNamePlaceholder', {
+                  defaultValue: 'Enter prediction name...'
+                })}
+                flex={1}
+              />
+              <Button onClick={handleSave} disabled={!isDirty} size="sm">
+                {t('common.save', { defaultValue: 'Save' })}
+              </Button>
+            </HStack>
+
+            {/* Line 2: Import + Clear */}
+            <HStack gap={2}>
+              <Button variant="outline" onClick={() => setImportDialogOpen(true)} size="sm" flex={1}>
+                {t('common.import', { defaultValue: 'Import' })}
+              </Button>
+              <Button variant="subtle" onClick={clearItems} size="sm" flex={1}>
+                {t('common.clear', { defaultValue: 'Clear' })}
+              </Button>
+            </HStack>
+          </Stack>
         </Box>
 
         {/* Main Content - Three Panel Layout */}
@@ -568,9 +588,31 @@ export function PredictionBuilder({
               onReorder={reorderItems}
               onRemove={removeItem}
               onUpdate={updateItem}
+              onMoveUp={moveItemUp}
+              onMoveDown={moveItemDown}
               onOpenImport={() => setImportDialogOpen(true)}
               dropIndicator={dropIndicator}
             />
+            {/* Mobile Add Button (FAB) */}
+            <Box
+              position="fixed"
+              bottom={6}
+              right={6}
+              zIndex={100}
+              hideFrom="md"
+            >
+              <IconButton
+                size="lg"
+                onClick={() => setAddItemDrawerOpen(true)}
+                shadow="lg"
+                borderRadius="full"
+                bgColor="accent.default"
+                color="accent.fg"
+                _hover={{ bgColor: 'accent.emphasized' }}
+              >
+                <BiPlus size={24} />
+              </IconButton>
+            </Box>
           </Box>
 
           {/* Right Panel: Context/Actions */}
@@ -662,6 +704,14 @@ export function PredictionBuilder({
 
       {/* Drag Overlay - provides visual feedback during drag */}
       <DragOverlay>{activeId ? <DragPreview activeData={activeData} /> : null}</DragOverlay>
+
+      <AddItemDrawer
+        isOpen={addItemDrawerOpen}
+        onClose={() => setAddItemDrawerOpen(false)}
+        onAddSong={handleAddSong}
+        onAddCustomSong={handleAddCustomSong}
+        onAddQuickItem={handleAddQuickItem}
+      />
     </DndContext>
   );
 }

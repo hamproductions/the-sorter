@@ -288,7 +288,6 @@ export function Page() {
                     {tour.performances.map((performance) => (
                       <Box
                         key={performance.id}
-                        asChild
                         borderRadius="md"
                         borderWidth="1px"
                         p={3}
