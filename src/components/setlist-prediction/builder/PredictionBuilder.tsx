@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useState, useCallback, useMemo } from 'react';
 import { MeasuringStrategy, closestCenter, DndContext, DragOverlay, useSensors, useSensor, PointerSensor, TouchSensor, KeyboardSensor, DragStartEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
-import { BiMenu, BiX, BiPlus, BiDotsVerticalRounded, BiSave, BiImport, BiTrash, BiStats } from 'react-icons/bi';
+import { BiPlus } from 'react-icons/bi';
 import { AddItemDrawer } from './AddItemDrawer';
 import { MdDragIndicator } from 'react-icons/md';
 import artistsData from '../../../../data/artists-info.json';
@@ -16,7 +16,8 @@ import { SongSearchPanel } from './SongSearchPanel';
 import { DraggableQuickAddItem } from './DraggableQuickAddItem';
 import { ImportDialog } from './ImportDialog';
 import { ExportShareTools } from './ExportShareTools';
-import { Menu } from '~/components/ui/menu';
+import { Drawer } from '~/components/ui/drawer';
+
 import { Box, Stack, HStack } from 'styled-system/jsx';
 import { Button } from '~/components/ui/styled/button';
 import { IconButton } from '~/components/ui/styled/icon-button';
@@ -482,8 +483,16 @@ export function PredictionBuilder({
 
           {/* Mobile: Two Lines */}
           <Stack gap={2} hideFrom="md">
-            {/* Line 1: Input + Save */}
+            {/* Line 1: Menu + Input + Save */}
             <HStack gap={2} alignItems="center">
+              <IconButton
+                variant="ghost"
+                size="sm"
+                onClick={() => setLeftSidebarOpen(true)}
+                aria-label="Open song search"
+              >
+                <BiPlus size={20} />
+              </IconButton>
               <Input
                 value={predictionName}
                 onChange={(e) => handleNameChange(e.target.value)}
@@ -511,56 +520,13 @@ export function PredictionBuilder({
 
         {/* Main Content - Three Panel Layout */}
         <HStack position="relative" flex={1} gap={0} alignItems="stretch" overflow="hidden">
-          {/* Backdrop for mobile sidebar */}
-          {(leftSidebarOpen || rightSidebarOpen) && (
-            <Box
-              onClick={() => {
-                setLeftSidebarOpen(false);
-                setRightSidebarOpen(false);
-              }}
-              hideFrom={{ base: leftSidebarOpen ? 'md' : 'lg', md: 'lg' }}
-              zIndex={9}
-              position="absolute"
-              inset={0}
-              opacity={0.5}
-              bgColor="black"
-            />
-          )}
-
-          {/* Left Panel: Song Search */}
+          {/* Left Panel: Song Search - Desktop */}
           <Box
-            display={{
-              base: leftSidebarOpen ? 'block' : 'none',
-              md: 'block'
-            }}
-            zIndex={{
-              base: 10,
-              md: 'auto'
-            }}
-            position={{
-              base: 'absolute',
-              md: 'relative'
-            }}
-            top={{
-              base: 0,
-              md: 'auto'
-            }}
-            left={{
-              base: 0,
-              md: 'auto'
-            }}
-            bottom={{
-              base: 0,
-              md: 'auto'
-            }}
+            hideBelow="md"
             borderRightWidth="1px"
             w="300px"
             p={4}
             bgColor="bg.default"
-            shadow={{
-              base: 'lg',
-              md: 'none'
-            }}
             overflow="auto"
           >
             <Stack gap={3}>
@@ -580,6 +546,40 @@ export function PredictionBuilder({
               </Stack>
             </Stack>
           </Box>
+
+          {/* Left Panel: Song Search - Mobile Drawer */}
+          <Drawer.Root 
+            open={leftSidebarOpen} 
+            onOpenChange={(details) => setLeftSidebarOpen(details.open)}
+          >
+            <Drawer.Backdrop hideFrom="md" />
+            <Drawer.Positioner hideFrom="md">
+              <Drawer.Content>
+                <Drawer.Header>
+                  <Drawer.Title>{t('setlistPrediction.songSearch', { defaultValue: 'Song Search' })}</Drawer.Title>
+                  <Drawer.CloseTrigger />
+                </Drawer.Header>
+                <Drawer.Body>
+                  <Stack gap={3}>
+                    <SongSearchPanel onAddSong={handleAddSong} onAddCustomSong={handleAddCustomSong} />
+
+                    {/* Quick Add Items */}
+                    <Stack gap={2}>
+                      <Text fontSize="sm" fontWeight="medium">
+                        {t('setlistPrediction.quickAdd', { defaultValue: 'Quick Add' })}
+                      </Text>
+                      <Text color="fg.muted" fontSize="xs">
+                        {t('setlistPrediction.quickAddHint', { defaultValue: 'Drag items into setlist' })}
+                      </Text>
+                      <DraggableQuickAddItem id="mc" title="MC①" type="mc" />
+                      <DraggableQuickAddItem id="encore" title="━━ ENCORE ━━" type="other" />
+                      <DraggableQuickAddItem id="intermission" title="━━ INTERMISSION ━━" type="other" />
+                    </Stack>
+                  </Stack>
+                </Drawer.Body>
+              </Drawer.Content>
+            </Drawer.Positioner>
+          </Drawer.Root>
 
           {/* Center Panel: Setlist Editor */}
           <Box flex={1} bgColor="bg.subtle" overflow="auto">
@@ -615,40 +615,13 @@ export function PredictionBuilder({
             </Box>
           </Box>
 
-          {/* Right Panel: Context/Actions */}
+          {/* Right Panel: Actions - Desktop */}
           <Box
-            display={{
-              base: rightSidebarOpen ? 'block' : 'none',
-              lg: 'block'
-            }}
-            zIndex={{
-              base: 10,
-              lg: 'auto'
-            }}
-            position={{
-              base: 'absolute',
-              lg: 'relative'
-            }}
-            top={{
-              base: 0,
-              lg: 'auto'
-            }}
-            right={{
-              base: 0,
-              lg: 'auto'
-            }}
-            bottom={{
-              base: 0,
-              lg: 'auto'
-            }}
+            hideBelow="lg"
             borderLeftWidth="1px"
             w="300px"
             p={4}
             bgColor="bg.default"
-            shadow={{
-              base: 'lg',
-              lg: 'none'
-            }}
             overflow="auto"
           >
             <Stack gap={4}>
@@ -691,6 +664,59 @@ export function PredictionBuilder({
               </Box>
             </Stack>
           </Box>
+
+          {/* Right Panel: Actions - Mobile Drawer */}
+          <Drawer.Root 
+            open={rightSidebarOpen} 
+            onOpenChange={(details) => setRightSidebarOpen(details.open)}
+          >
+            <Drawer.Backdrop hideFrom="lg" />
+            <Drawer.Positioner hideFrom="lg">
+              <Drawer.Content>
+                <Drawer.Header>
+                  <Drawer.Title>{t('setlistPrediction.actions', { defaultValue: 'Actions' })}</Drawer.Title>
+                  <Drawer.CloseTrigger />
+                </Drawer.Header>
+                <Drawer.Body>
+                  <Stack gap={4}>
+                    {/* Stats */}
+                    <Box borderRadius="md" borderWidth="1px" p={3} bgColor="bg.muted">
+                      <Stack gap={1}>
+                        <Text fontSize="sm" fontWeight="medium">
+                          {t('setlistPrediction.stats', { defaultValue: 'Stats' })}
+                        </Text>
+                        <Text fontSize="xs">
+                          {t('setlistPrediction.totalSongs', {
+                            count: prediction.setlist.totalSongs,
+                            defaultValue: `${prediction.setlist.totalSongs} songs`
+                          })}
+                        </Text>
+                        <Text fontSize="xs">
+                          {t('setlistPrediction.totalItems', {
+                            count: prediction.setlist.items.length,
+                            defaultValue: `${prediction.setlist.items.length} total items`
+                          })}
+                        </Text>
+                      </Stack>
+                    </Box>
+
+                    {/* Export/Share */}
+                    <ExportShareTools prediction={prediction} performance={performance} />
+
+                    {/* Help */}
+                    <Box borderRadius="md" borderWidth="1px" p={3} bgColor="bg.emphasized">
+                      <Text color="fg.muted" fontSize="xs">
+                        {t('setlistPrediction.builderHelp', {
+                          defaultValue:
+                            'Drag songs from the left panel to build your prediction. Reorder by dragging items in the center panel.'
+                        })}
+                      </Text>
+                    </Box>
+                  </Stack>
+                </Drawer.Body>
+              </Drawer.Content>
+            </Drawer.Positioner>
+          </Drawer.Root>
         </HStack>
 
         {/* Import Dialog */}

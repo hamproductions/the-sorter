@@ -103,21 +103,21 @@ export function Page() {
           position="sticky"
           top={0}
           borderBottomWidth="1px"
-          p={4}
+          p={{ base: 2, md: 4 }}
           bgColor="bg.default"
         >
           <HStack justifyContent="space-between" alignItems="center">
-            <Stack gap={1}>
-              <Text fontSize="lg" fontWeight="bold">
+            <Stack gap={{ base: 0, md: 1 }}>
+              <Text fontSize={{ base: 'sm', md: 'lg' }} fontWeight="bold">
                 {performance.name}
               </Text>
-              <Text color="fg.muted" fontSize="sm">
+              <Text color="fg.muted" fontSize={{ base: 'xs', md: 'sm' }} hideBelow="md">
                 {new Date(performance.date).toLocaleDateString()} • {performance.venue || 'TBA'}
               </Text>
             </Stack>
 
             <Button
-              size="sm"
+              size={{ base: 'xs', md: 'sm' }}
               variant="subtle"
               onClick={() => (window.location.href = '/setlist-prediction')}
             >

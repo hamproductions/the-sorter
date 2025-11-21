@@ -2,9 +2,9 @@ import { useTranslation } from 'react-i18next';
 import { Stack, Box, HStack } from 'styled-system/jsx';
 import { Button } from '~/components/ui/styled/button';
 import { Text } from '~/components/ui/styled/text';
-import { Dialog } from '~/components/ui/dialog';
+import { Drawer } from '~/components/ui/drawer';
 import { SongSearchPanel } from './SongSearchPanel';
-import { BiPlus } from 'react-icons/bi';
+import { BiPlus, BiX } from 'react-icons/bi';
 
 interface AddItemDrawerProps {
   isOpen: boolean;
@@ -24,21 +24,21 @@ export function AddItemDrawer({
   const { t } = useTranslation();
 
   return (
-    <Dialog.Root open={isOpen} onOpenChange={(details) => !details.open && onClose()}>
-      <Dialog.Backdrop />
-      <Dialog.Positioner>
-        <Dialog.Content>
-          <Stack gap={4} p={6}>
-            <HStack justifyContent="space-between" alignItems="center">
-              <Dialog.Title>{t('setlistPrediction.addItem', { defaultValue: 'Add Item' })}</Dialog.Title>
-              <Dialog.CloseTrigger asChild>
+    <Drawer.Root open={isOpen} onOpenChange={(details) => !details.open && onClose()}>
+      <Drawer.Backdrop />
+      <Drawer.Positioner>
+        <Drawer.Content>
+          <Stack gap={4} h="full">
+            <HStack justifyContent="space-between" alignItems="center" p={4} borderBottomWidth="1px">
+              <Drawer.Title>{t('setlistPrediction.addItem', { defaultValue: 'Add Item' })}</Drawer.Title>
+              <Drawer.CloseTrigger asChild>
                 <Button variant="ghost" size="sm">
-                  {t('common.close', { defaultValue: 'Close' })}
+                  <BiX size={20} />
                 </Button>
-              </Dialog.CloseTrigger>
+              </Drawer.CloseTrigger>
             </HStack>
 
-            <Stack gap={6}>
+            <Stack gap={6} p={4} flex={1} overflow="auto">
               {/* Quick Add Section */}
               <Stack gap={2}>
                 <Text fontSize="sm" fontWeight="medium">
@@ -83,7 +83,7 @@ export function AddItemDrawer({
                 <Text fontSize="sm" fontWeight="medium">
                   {t('setlistPrediction.searchSongs', { defaultValue: 'Search Songs' })}
                 </Text>
-                <Box flex={1} overflow="auto" minH="300px" maxH="400px">
+                <Box flex={1} overflow="auto">
                   <SongSearchPanel
                     onAddSong={(id, title) => {
                       onAddSong(id, title);
@@ -98,8 +98,8 @@ export function AddItemDrawer({
               </Stack>
             </Stack>
           </Stack>
-        </Dialog.Content>
-      </Dialog.Positioner>
-    </Dialog.Root>
+        </Drawer.Content>
+      </Drawer.Positioner>
+    </Drawer.Root>
   );
 }
