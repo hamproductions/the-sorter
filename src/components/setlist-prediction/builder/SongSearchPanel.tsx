@@ -234,7 +234,7 @@ export function SongSearchPanel({ onAddSong, onAddCustomSong }: SongSearchPanelP
               <>
                 {songMatches.length > 0 && (
                   <Box borderTopWidth="2px" borderBottomWidth="1px" p={2} bgColor="bg.muted">
-                    <Text fontSize="xs" fontWeight="semibold" color="fg.muted">
+                    <Text color="fg.muted" fontSize="xs" fontWeight="semibold">
                       {t('setlistPrediction.artistMatches', {
                         defaultValue: 'Songs by matching artists/groups'
                       })}

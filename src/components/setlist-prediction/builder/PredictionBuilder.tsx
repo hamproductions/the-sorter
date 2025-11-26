@@ -552,25 +552,31 @@ export function PredictionBuilder({
                   {t('setlistPrediction.quickAdd', { defaultValue: 'Quick Add' })}
                 </Text>
                 <Text color="fg.muted" fontSize="xs">
-                  {t('setlistPrediction.quickAddHint', { defaultValue: 'Drag into setlist or double-click to add to bottom' })}
+                  {t('setlistPrediction.quickAddHint', {
+                    defaultValue: 'Drag into setlist or double-click to add to bottom'
+                  })}
                 </Text>
                 <DraggableQuickAddItem
                   id="mc"
                   title="MC"
                   type="mc"
-                  onDoubleClick={() => addNonSongItem("MC", "mc", prediction.setlist.items.length)}
+                  onDoubleClick={() => addNonSongItem('MC', 'mc', prediction.setlist.items.length)}
                 />
                 <DraggableQuickAddItem
                   id="encore"
                   title="━━ ENCORE ━━"
                   type="other"
-                  onDoubleClick={() => addNonSongItem("━━ ENCORE ━━", "other", prediction.setlist.items.length)}
+                  onDoubleClick={() =>
+                    addNonSongItem('━━ ENCORE ━━', 'other', prediction.setlist.items.length)
+                  }
                 />
                 <DraggableQuickAddItem
                   id="intermission"
                   title="━━ INTERMISSION ━━"
                   type="other"
-                  onDoubleClick={() => addNonSongItem("━━ INTERMISSION ━━", "other", prediction.setlist.items.length)}
+                  onDoubleClick={() =>
+                    addNonSongItem('━━ INTERMISSION ━━', 'other', prediction.setlist.items.length)
+                  }
                 />
               </Stack>
             </Stack>
