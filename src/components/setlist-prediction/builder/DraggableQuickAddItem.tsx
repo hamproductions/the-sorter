@@ -45,6 +45,7 @@ export function DraggableQuickAddItem({
       shadow={isDragging ? 'lg' : 'none'}
       cursor={isDragging ? 'grabbing' : 'grab'}
       _hover={{ bgColor: 'bg.subtle' }}
+      onDoubleClick={onDoubleClick}
     >
       <HStack gap={2} alignItems="center">
         <Box>
