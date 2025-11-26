@@ -202,7 +202,7 @@ export function EditItemDialog({ open, onOpenChange, item, onSave }: EditItemDia
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder={t('setlistPrediction.searchSongs', {
-                      defaultValue: 'Search songs...'
+                      defaultValue: 'Search songs or artists...'
                     })}
                     mb={2}
                   />

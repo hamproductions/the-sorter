@@ -11,7 +11,8 @@ beforeAll(() => {
   });
 });
 beforeEach(async () => {
-  vi.spyOn(window.HTMLElement.prototype, 'focus').mockImplementation(() => {});
+  // Mock window focus method prevents the tests requiring user typing from working (since focus is a prerequisite for typing)
+  // vi.spyOn(window.HTMLElement.prototype, 'focus').mockImplementation(() => {});
   window.PointerEvent = MouseEvent;
   delete window.location;
   window.location = new URL('http://localhost/');
