@@ -1,9 +1,8 @@
 import '@testing-library/jest-dom/vitest';
 
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { SongSearchPanel } from '../SongSearchPanel';
+import { render, screen } from '~/__test__/utils';
 
 // Mock the useSongData hook
 vi.mock('~/hooks/useSongData', () => ({
@@ -19,6 +18,18 @@ vi.mock('~/hooks/useSongData', () => ({
       name: 'Aozora Jumping Heart',
       artists: ['33'], // Aqours
       seriesIds: [2]
+    },
+    {
+      id: '234',
+      name: 'Aqours Pirate Desire',
+      artists: ['33'], // Aqours
+      seriesIds: [2]
+    },
+    {
+      id: '123',
+      name: 'Heart ni Q',
+      artists: ['134'], // Cerise Bouquet
+      seriesIds: [6] // Hasu
     },
     {
       id: '3',
@@ -41,18 +52,6 @@ vi.mock('~/hooks/useSongData', () => ({
   ]
 }));
 
-// Mock the translation hook
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string, options?: { defaultValue?: string }) => options?.defaultValue || key
-  })
-}));
-
-// Mock the getSongColor utility
-vi.mock('~/utils/song', () => ({
-  getSongColor: () => '#ff6b6b'
-}));
-
 describe('SongSearchPanel', () => {
   const mockOnAddSong = vi.fn();
   const mockOnAddCustomSong = vi.fn();
@@ -61,147 +60,132 @@ describe('SongSearchPanel', () => {
     vi.clearAllMocks();
   });
 
-  it('renders the search input', () => {
-    render(<SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />);
+  it('renders the search bar with placeholder text', async () => {
+    await render(
+      <SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />
+    );
 
-    expect(screen.getByPlaceholderText('Search songs or artists...')).toBeInTheDocument();
+    const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
+    expect(searchInput).toBeInTheDocument();
   });
 
-  it('shows initial empty state message', () => {
-    render(<SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />);
+  it('shows initial empty search results', async () => {
+    await render(
+      <SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />
+    );
 
-    expect(screen.getByText('Start typing to search for songs or artists...')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Start typing to search for songs or artists...')
+    ).toBeInTheDocument();
   });
 
   describe('Song name search', () => {
     it('filters songs by name', async () => {
-      const user = userEvent.setup();
-      render(<SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />);
+      const [, user] = await render(
+        <SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />
+      );
 
-      const searchInput = screen.getByPlaceholderText('Search songs or artists...');
+      const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
       await user.type(searchInput, 'Snow');
 
-      await waitFor(() => {
-        expect(screen.getByText('Snow halation')).toBeInTheDocument();
-      });
-
-      expect(screen.queryByText('Aozora Jumping Heart')).not.toBeInTheDocument();
+      expect(await screen.findByText('Snow halation')).toBeInTheDocument();
+      expect(screen.queryByText('Aozora Jumping Heart')).toBeNull();
     });
 
     it('shows multiple song matches', async () => {
-      const user = userEvent.setup();
-      render(<SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />);
+      const [, user] = await render(
+        <SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />
+      );
 
-      const searchInput = screen.getByPlaceholderText('Search songs or artists...');
-      await user.type(searchInput, 'RING');
+      const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
+      await user.type(searchInput, 'Heart');
 
-      await waitFor(() => {
-        expect(screen.getByText('MOMENT RING')).toBeInTheDocument();
-      });
+      expect(await screen.findByText('Aozora Jumping Heart')).toBeInTheDocument();
+      expect(await screen.findByText('Heart ni Q')).toBeInTheDocument();
+      expect(await screen.findByText('Showing 2 results')).toBeInTheDocument();
     });
 
     it('is case insensitive', async () => {
-      const user = userEvent.setup();
-      render(<SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />);
+      const [, user] = await render(
+        <SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />
+      );
 
-      const searchInput = screen.getByPlaceholderText('Search songs or artists...');
+      const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
       await user.type(searchInput, 'snow');
 
-      await waitFor(() => {
-        expect(screen.getByText('Snow halation')).toBeInTheDocument();
-      });
+      expect(await screen.findByText('Snow halation')).toBeInTheDocument();
     });
   });
 
   describe('Artist/Group search', () => {
     it('finds songs by artist name', async () => {
-      const user = userEvent.setup();
-      render(<SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />);
+      const [, user] = await render(
+        <SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />
+      );
 
-      const searchInput = screen.getByPlaceholderText('Search songs or artists...');
-      await user.type(searchInput, 'Aqours');
+      const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
+      await user.type(searchInput, 'Liella');
 
-      await waitFor(() => {
-        expect(screen.getByText('Aozora Jumping Heart')).toBeInTheDocument();
-      });
+      expect(await screen.findByText('START!! True dreams')).toBeInTheDocument();
+      expect(screen.queryByText('Songs by matching artists/groups')).not.toBeInTheDocument();
     });
 
     it('shows artist matches section when both song and artist matches exist', async () => {
-      const user = userEvent.setup();
-      render(<SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />);
+      const [, user] = await render(
+        <SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />
+      );
 
-      const searchInput = screen.getByPlaceholderText('Search songs or artists...');
-      // Search for 'μ's' which should match both the artist name and songs
-      await user.type(searchInput, 'μ');
+      const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
+      await user.type(searchInput, 'Aqours');
 
-      await waitFor(() => {
-        // Should find songs by μ's
-        expect(screen.getByText('Snow halation')).toBeInTheDocument();
-        expect(screen.getByText('MOMENT RING')).toBeInTheDocument();
-      });
-    });
-
-    it('shows section header when both types of matches exist', async () => {
-      const user = userEvent.setup();
-      render(<SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />);
-
-      const searchInput = screen.getByPlaceholderText('Search songs or artists...');
-      // This is tricky - we need a query that matches both a song name AND finds artist matches
-      // For now, we'll test the logic exists
-      await user.type(searchInput, 'START');
-
-      await waitFor(() => {
-        expect(screen.getByText('START!! True dreams')).toBeInTheDocument();
-      });
+      expect(await screen.findByText('Aqours Pirate Desire')).toBeInTheDocument();
+      expect(screen.getByText('Songs by matching artists/groups')).toBeInTheDocument();
     });
   });
 
   describe('Deduplication', () => {
     it('does not show duplicate songs in both sections', async () => {
-      const user = userEvent.setup();
-      render(<SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />);
+      const [, user] = await render(
+        <SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />
+      );
 
-      const searchInput = screen.getByPlaceholderText('Search songs or artists...');
-      await user.type(searchInput, 'Snow');
+      const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
+      await user.type(searchInput, 'Aqours');
 
-      await waitFor(() => {
-        const snowHalationElements = screen.getAllByText('Snow halation');
-        // Should only appear once, not in both song matches and artist matches
-        expect(snowHalationElements).toHaveLength(1);
-      });
+      const aqoursPirateDesireElements = screen.getAllByText('Aqours Pirate Desire');
+      expect(aqoursPirateDesireElements).toHaveLength(1);
     });
   });
 
   describe('No results', () => {
     it('shows no results message when nothing matches', async () => {
-      const user = userEvent.setup();
-      render(<SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />);
+      const [, user] = await render(
+        <SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />
+      );
 
-      const searchInput = screen.getByPlaceholderText('Search songs or artists...');
+      const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
       await user.type(searchInput, 'NonexistentSong123');
 
-      await waitFor(() => {
-        expect(screen.getByText('No songs found')).toBeInTheDocument();
-      });
+      expect(screen.getByText('No songs found')).toBeInTheDocument();
     });
 
     it('shows add custom song button when no results', async () => {
-      const user = userEvent.setup();
-      render(<SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />);
+      const [, user] = await render(
+        <SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />
+      );
 
-      const searchInput = screen.getByPlaceholderText('Search songs or artists...');
+      const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
       await user.type(searchInput, 'CustomSong');
 
-      await waitFor(() => {
-        expect(screen.getByText('Add "CustomSong" as custom song')).toBeInTheDocument();
-      });
+      expect(screen.getByText('Add "CustomSong" as custom song')).toBeInTheDocument();
     });
 
     it('calls onAddCustomSong when add custom song button is clicked', async () => {
-      const user = userEvent.setup();
-      render(<SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />);
+      const [, user] = await render(
+        <SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />
+      );
 
-      const searchInput = screen.getByPlaceholderText('Search songs or artists...');
+      const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
       await user.type(searchInput, 'CustomSong');
 
       const addButton = await screen.findByText('Add "CustomSong" as custom song');
@@ -213,38 +197,24 @@ describe('SongSearchPanel', () => {
 
   describe('Result count', () => {
     it('shows correct result count', async () => {
-      const user = userEvent.setup();
-      render(<SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />);
+      const [, user] = await render(
+        <SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />
+      );
 
-      const searchInput = screen.getByPlaceholderText('Search songs or artists...');
+      const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
       await user.type(searchInput, 'Snow');
 
-      await waitFor(() => {
-        expect(screen.getByText('Showing 1 results')).toBeInTheDocument();
-      });
-    });
-
-    it('shows combined count for song and artist matches', async () => {
-      const user = userEvent.setup();
-      render(<SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />);
-
-      const searchInput = screen.getByPlaceholderText('Search songs or artists...');
-      await user.type(searchInput, 'μ');
-
-      await waitFor(() => {
-        // Should show count of both song matches and artist matches
-        const resultText = screen.getByText(/Showing \d+ results/);
-        expect(resultText).toBeInTheDocument();
-      });
+      expect(screen.getByText('Showing 1 results')).toBeInTheDocument();
     });
   });
 
   describe('Double-click interaction', () => {
     it('calls onAddSong when song item is double-clicked', async () => {
-      const user = userEvent.setup();
-      render(<SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />);
+      const [, user] = await render(
+        <SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />
+      );
 
-      const searchInput = screen.getByPlaceholderText('Search songs or artists...');
+      const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
       await user.type(searchInput, 'Snow');
 
       const songItem = await screen.findByText('Snow halation');
