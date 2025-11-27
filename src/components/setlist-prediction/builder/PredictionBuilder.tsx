@@ -311,6 +311,8 @@ export function PredictionBuilder({
     }
 
     // Skip if we're dragging over the drop zone itself (non-empty setlist)
+    // Otherwise we get weird behavior where the drop indicator shows up at the
+    // bottom if we happen to be between setlist items in the middle
     if (overId === 'setlist-drop-zone') return null;
 
     // Handle end position droppable (invisible element after setlist\)
@@ -560,10 +562,11 @@ export function PredictionBuilder({
     () => ({
       droppable: {
         strategy: MeasuringStrategy.WhileDragging
-      },
-      draggable: {
-        measure: (element: HTMLElement) => element.getBoundingClientRect()
       }
+      // ,
+      // draggable: {
+      //   measure: (element: HTMLElement) => element.getBoundingClientRect()
+      // }
     }),
     []
   );

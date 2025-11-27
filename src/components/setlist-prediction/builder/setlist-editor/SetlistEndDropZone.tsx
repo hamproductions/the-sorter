@@ -10,5 +10,5 @@ export function SetlistEndDropZone() {
     id: 'setlist-drop-zone-end'
   });
 
-  return <Box ref={setNodeRef} data-dropzone="end" w="full" h="4" mt={2} />;
+  return <Box ref={setNodeRef} data-dropzone="end" flex={1} w="full" />;
 }
