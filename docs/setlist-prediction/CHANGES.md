@@ -1,5 +1,35 @@
 # Documentation Updates
 
+## Recent Changes (November 2025)
+
+### SetlistEndDropZone Component ✅
+Implemented improved drag-and-drop for empty and end-of-list drops:
+
+**New Component**: `src/components/setlist-prediction/builder/setlist-editor/SetlistEndDropZone.tsx`
+- Invisible droppable zone that fills remaining vertical space below setlist items
+- Uses `useDroppable` hook from `@dnd-kit/core` for proper drop detection
+- Allows users to drag items to the end of setlist by dragging over empty space
+- Expands to fill full remaining height with `flex={1}`
+
+**Improvements to PredictionBuilder.tsx**:
+- Updated `dropIndicator` useMemo to detect `setlist-drop-zone-end` droppable
+- Returns `position: 'end'` when hovering over end droppable
+- Updated `handleDragEnd` to recognize both main zone and end zone as valid drop targets
+- Added `measuring` configuration with `MeasuringStrategy.WhileDragging`
+  - Ensures accurate measurements of droppable zones during drag
+  - Fixes issue where quick-add items (MC, Encore) showed preview at wrong position initially
+  - Uses `getBoundingClientRect()` for precise draggable element measurements
+
+**Updates to SetlistEditorPanel.tsx**:
+- Updated `SetlistEditorPanelProps` to include `end` position in drop indicator
+- Added rendering of drop indicator when hovering end zone
+- Integrated `SetlistEndDropZone` component after items list in non-empty state
+
+**Impact**:
+- Users can now easily drag items to the end of setlist without needing to find a specific position
+- Visual feedback clearly shows "↓ Drop here" when hovering over empty space
+- Works seamlessly with empty setlist state and non-empty state
+
 ## What Changed
 
 The original monolithic spec (`SETLIST_PREDICTION_SPEC.md`) has been reorganized into focused, digestible documents based on your feedback.

@@ -41,6 +41,7 @@ src/
 │       │   │
 │       │   ├── setlist-editor/
 │       │   │   ├── SetlistItem.tsx
+│       │   │   ├── SetlistEndDropZone.tsx
 │       │   │   ├── SectionHeader.tsx
 │       │   │   └── InsertItemMenu.tsx
 │       │   │
@@ -267,6 +268,64 @@ function SortableSetlistItem({ item }: { item: SetlistItem }) {
   );
 }
 ```
+
+### Drop Zones and Visual Feedback
+
+The setlist editor supports multiple drop zones with visual feedback:
+
+**Main Drop Zone** (`setlist-drop-zone`):
+- Parent container for setlist items registered with `useDroppable`
+- Detects drops from search results and quick-add items
+- Items are inserted at position of nearest item or at end
+- Renders empty state message when no items present
+
+**End Drop Zone** (`SetlistEndDropZone`):
+- Invisible droppable component that fills remaining vertical space below items
+- Allows users to drag items to the end of setlist easily
+- Uses `flex={1}` to expand and fill available height
+- Registered with `useDroppable` hook for dnd-kit integration
+- Returns position `'center'` when hovering, triggering drop indicator
+
+```typescript
+// SetlistEndDropZone.tsx - Invisible droppable for end-of-list drops
+export function SetlistEndDropZone() {
+  const { setNodeRef } = useDroppable({
+    id: 'setlist-drop-zone-end'
+  });
+
+  return <Box ref={setNodeRef} data-dropzone="end" flex={1} w="full" />;
+}
+```
+
+**Drop Indicator**:
+- Visual feedback showing where item will be placed
+- Shows "↓ Drop here" text with dashed border
+- Appears above first item, between items, or below last item (when hovering end zone)
+- Positioned dynamically based on current drag position
+- Helps users understand drag-and-drop interaction
+
+**Performance Optimization**:
+
+Measuring configuration ensures accurate drop detection across all zones:
+
+```typescript
+const measuring = useMemo(
+  () => ({
+    droppable: {
+      strategy: MeasuringStrategy.WhileDragging  // Continuously measure droppables while dragging
+    },
+    draggable: {
+      measure: (element: HTMLElement) => element.getBoundingClientRect()  // Precise element positioning
+    }
+  }),
+  []
+);
+```
+
+**Why this matters**: 
+- The `WhileDragging` strategy ensures the invisible `SetlistEndDropZone` bounds are recalculated continuously
+- This fixes issues where quick-add items (MC, Encore, Intermission) would show drag preview at wrong position initially
+- The `getBoundingClientRect()` measurement ensures draggable items get accurate positioning from the start of drag
 
 ## Data Flow
 

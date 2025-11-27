@@ -267,7 +267,7 @@ export function PredictionBuilder({
   const dropIndicator = useMemo(() => {
     if (!activeId || !overId || !activeData) return null;
 
-    // Handle empty setlist case
+    // Handle empty setlist case - show a "NUX" drop indicator in the center
     if (overId === 'setlist-drop-zone' && prediction.setlist.items.length === 0) {
       if (activeData.type === 'search-result') {
         const songs = Array.isArray(songData) ? songData : [];
