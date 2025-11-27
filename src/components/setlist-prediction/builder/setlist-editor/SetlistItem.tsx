@@ -36,7 +36,7 @@ export interface SetlistItemProps {
   isLast: boolean;
   showSectionDivider?: boolean;
   sectionName?: string;
-  dropIndicatorPosition?: 'top' | 'bottom' | null;
+  dropIndicatorPosition?: 'top' | 'bottom' | 'end' | null;
   draggedItem?: SetlistItemType;
   draggedSongDetails?: Song;
 }

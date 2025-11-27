@@ -208,13 +208,13 @@ vi.mock('~/hooks/useSongData', () => ({
 }));
 
 // Mock performance context/data
-const mockPerformance = {
+const mockPerformance: Performance = {
   id: 'perf-1',
   seriesIds: ['1'],
   name: 'Test Performance',
   date: '2024-01-01',
   venue: 'Test Venue'
-} as Performance;
+} as any;
 
 describe('PredictionBuilder - Drag and Drop', () => {
   const mockOnSave = vi.fn();
@@ -367,7 +367,7 @@ describe('PredictionBuilder - Drag and Drop', () => {
         />
       );
 
-      const nameInput = screen.getByDisplayValue('Test Prediction') as HTMLInputElement;
+      const nameInput = screen.getByDisplayValue('Test Prediction');
       await user.clear(nameInput);
       await user.type(nameInput, 'My New Prediction');
 
