@@ -209,12 +209,22 @@ vi.mock('~/hooks/useSongData', () => ({
 
 // Mock performance context/data
 const mockPerformance: Performance = {
-  id: 'perf-1',
-  seriesIds: ['1'],
-  name: 'Test Performance',
-  date: '2024-01-01',
-  venue: 'Test Venue'
-} as any;
+  id: '661',
+  name: 'ラブライブ！蓮ノ空女学院スクールアイドルクラブ 5th Live Tour ～4Pair Power Spread!!!!～ - スリーズブーケ presents Clover Stage (Day.1)',
+  nameJa: 'Day.1',
+  date: '2025-12-06',
+  venue: 'Kアリーナ横浜',
+  venueJa: 'Kアリーナ横浜',
+  seriesIds: ['6'],
+  artistIds: [],
+  source: 'llfans',
+  llfansId: '661',
+  status: 'upcoming',
+  description: 'スリーズブーケ presents Clover Stage',
+  tags: ['ライブ・ファンミ'],
+  createdAt: '2025-11-18T06:10:01.108Z',
+  updatedAt: '2025-11-18T06:10:01.108Z'
+};
 
 describe('PredictionBuilder - Drag and Drop', () => {
   const mockOnSave = vi.fn();
@@ -366,12 +376,11 @@ describe('PredictionBuilder - Drag and Drop', () => {
           onSave={mockOnSave}
         />
       );
-
-      const nameInput = screen.getByDisplayValue('Test Prediction');
+      const nameInput = screen.getByRole('textbox', { name: /prediction/i });
       await user.clear(nameInput);
       await user.type(nameInput, 'My New Prediction');
 
-      expect(nameInput.value).toBe('My New Prediction');
+      expect((nameInput as HTMLInputElement).value).toBe('My New Prediction');
     });
   });
 
