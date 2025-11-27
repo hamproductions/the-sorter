@@ -30,7 +30,7 @@ export interface SetlistItemProps {
   onUpdate: (updates: Partial<SetlistItemType>) => void;
   showSectionDivider?: boolean;
   sectionName?: string;
-  dropIndicatorPosition?: 'top' | 'bottom' | null;
+  dropIndicatorPosition?: 'top' | 'bottom' | 'end' | null;
   draggedItem?: SetlistItemType;
   draggedSongDetails?: Song;
 }
