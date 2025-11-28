@@ -54,12 +54,12 @@ const DraggableSongItem = memo(function DraggableSongItem({
     >
       <HStack gap={2} alignItems="flex-start">
         <Box
-          pt={1}
           ref={setActivatorNodeRef}
+          pt={1}
           {...attributes}
           {...listeners}
-          cursor={isDragging ? 'grabbing' : 'grab'}
           style={{ touchAction: 'none' }}
+          cursor={isDragging ? 'grabbing' : 'grab'}
         >
           <MdDragIndicator size={16} />
         </Box>

@@ -261,15 +261,15 @@ const SetlistItemComponent = memo(function SetlistItem({
         >
           <HStack gap={2} justifyContent="space-between" alignItems="flex-start">
             {/* Drag Handle */}
-            <HStack gap={2} flex={1} overflow="hidden">
+            <HStack flex={1} gap={2} overflow="hidden">
               <Box
-                p={2}
                 ref={setActivatorNodeRef}
+                p={2}
                 {...attributes}
                 {...listeners}
-                cursor={isDragging ? 'grabbing' : 'grab'}
                 style={{ touchAction: 'none' }}
                 color="fg.muted"
+                cursor={isDragging ? 'grabbing' : 'grab'}
                 _hover={{ color: 'fg.default' }}
               >
                 <MdDragIndicator size={20} />
@@ -281,9 +281,9 @@ const SetlistItemComponent = memo(function SetlistItem({
                   flexShrink={0}
                   minW="24px"
                   color={isSongItem(item) ? 'fg.default' : 'fg.muted'}
+                  textAlign="center"
                   fontSize="sm"
                   fontWeight="medium"
-                  textAlign="center"
                 >
                   {itemNumber}
                 </Text>
@@ -345,8 +345,8 @@ const SetlistItemComponent = memo(function SetlistItem({
                     onMoveUp();
                   }}
                   aria-label={t('common.moveUp', { defaultValue: 'Move up' })}
-                  h="24px"
                   minW="32px"
+                  h="24px"
                   _active={{ bg: 'bg.subtle' }}
                 >
                   <BiChevronUp size={20} />
@@ -360,8 +360,8 @@ const SetlistItemComponent = memo(function SetlistItem({
                     onMoveDown();
                   }}
                   aria-label={t('common.moveDown', { defaultValue: 'Move down' })}
-                  h="24px"
                   minW="32px"
+                  h="24px"
                   _active={{ bg: 'bg.subtle' }}
                 >
                   <BiChevronDown size={20} />

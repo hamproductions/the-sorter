@@ -111,7 +111,7 @@ export function Page() {
               <Text fontSize={{ base: 'sm', md: 'lg' }} fontWeight="bold">
                 {performance.name}
               </Text>
-              <Text color="fg.muted" fontSize={{ base: 'xs', md: 'sm' }} hideBelow="md">
+              <Text hideBelow="md" color="fg.muted" fontSize={{ base: 'xs', md: 'sm' }}>
                 {new Date(performance.date).toLocaleDateString()} • {performance.venue || 'TBA'}
               </Text>
             </Stack>

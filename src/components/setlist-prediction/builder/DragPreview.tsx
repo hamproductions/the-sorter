@@ -1,6 +1,6 @@
+import { MdDragIndicator } from 'react-icons/md';
 import { Box, HStack, Stack } from 'styled-system/jsx';
 import { Text } from '~/components/ui/styled/text';
-import { MdDragIndicator } from 'react-icons/md';
 
 interface DragPreviewProps {
   activeData: Record<string, unknown> | null;
@@ -9,32 +9,31 @@ interface DragPreviewProps {
 export function DragPreview({ activeData }: DragPreviewProps) {
   if (!activeData) return null;
 
-  const isSong = activeData.type === 'search-result' || activeData.type === 'setlist-item';
   const title = (activeData.songName as string) || (activeData.title as string) || 'Item';
   const subtitle = activeData.artist as string;
 
   return (
     <Box
+      borderColor="border.emphasized"
       borderRadius="md"
+      borderWidth="1px"
+      width="300px"
       p={2}
+      opacity={0.9}
       bgColor="bg.default"
       shadow="xl"
-      borderWidth="1px"
-      borderColor="border.emphasized"
-      opacity={0.9}
       cursor="grabbing"
-      width="300px"
     >
       <HStack gap={2} alignItems="flex-start">
         <Box pt={1} color="fg.muted">
           <MdDragIndicator size={20} />
         </Box>
-        <Stack gap={0.5} flex={1}>
-          <Text fontSize="sm" fontWeight="medium" lineClamp={1}>
+        <Stack flex={1} gap={0.5}>
+          <Text lineClamp={1} fontSize="sm" fontWeight="medium">
             {title}
           </Text>
           {subtitle && (
-            <Text fontSize="xs" color="fg.muted" lineClamp={1}>
+            <Text color="fg.muted" lineClamp={1} fontSize="xs">
               {subtitle}
             </Text>
           )}

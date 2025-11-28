@@ -5,12 +5,23 @@
 
 import { useTranslation } from 'react-i18next';
 import { useState, useCallback, useMemo } from 'react';
-import { MeasuringStrategy, closestCenter, DndContext, DragOverlay, useSensors, useSensor, PointerSensor, TouchSensor, KeyboardSensor, DragStartEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/core';
+import type { DragStartEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/core';
+import {
+  MeasuringStrategy,
+  closestCenter,
+  DndContext,
+  DragOverlay,
+  useSensors,
+  useSensor,
+  PointerSensor,
+  TouchSensor,
+  KeyboardSensor
+} from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 import { BiPlus } from 'react-icons/bi';
-import { AddItemDrawer } from './AddItemDrawer';
 import { MdDragIndicator } from 'react-icons/md';
 import artistsData from '../../../../data/artists-info.json';
+import { AddItemDrawer } from './AddItemDrawer';
 import { SetlistEditorPanel } from './SetlistEditorPanel';
 import { SongSearchPanel } from './SongSearchPanel';
 import { DraggableQuickAddItem } from './DraggableQuickAddItem';
@@ -199,8 +210,6 @@ export function PredictionBuilder({
   const {
     prediction,
     isDirty,
-    isValid,
-    validation,
     addSong: _addSong,
     addNonSongItem,
     removeItem,
@@ -449,16 +458,9 @@ export function PredictionBuilder({
     >
       <Stack gap={0} w="full" h="full">
         {/* Prediction Name Bar */}
-        <Box 
-          borderBottomWidth="1px" 
-          p={4} 
-          bgColor="bg.muted"
-          position="sticky"
-          top={0}
-          zIndex={20}
-        >
+        <Box zIndex={20} position="sticky" top={0} borderBottomWidth="1px" p={4} bgColor="bg.muted">
           {/* Desktop: Single Line */}
-          <HStack gap={2} alignItems="center" hideBelow="md">
+          <HStack hideBelow="md" gap={2} alignItems="center">
             <Input
               value={predictionName}
               onChange={(e) => handleNameChange(e.target.value)}
@@ -467,7 +469,7 @@ export function PredictionBuilder({
               })}
               flex={1}
             />
-            
+
             <HStack gap={2}>
               <Button onClick={handleSave} disabled={!isDirty}>
                 {t('common.save', { defaultValue: 'Save' })}
@@ -482,7 +484,7 @@ export function PredictionBuilder({
           </HStack>
 
           {/* Mobile: Two Lines */}
-          <Stack gap={2} hideFrom="md">
+          <Stack hideFrom="md" gap={2}>
             {/* Line 1: Menu + Input + Save */}
             <HStack gap={2} alignItems="center">
               <IconButton
@@ -508,7 +510,12 @@ export function PredictionBuilder({
 
             {/* Line 2: Import + Clear */}
             <HStack gap={2}>
-              <Button variant="outline" onClick={() => setImportDialogOpen(true)} size="sm" flex={1}>
+              <Button
+                variant="outline"
+                onClick={() => setImportDialogOpen(true)}
+                size="sm"
+                flex={1}
+              >
                 {t('common.import', { defaultValue: 'Import' })}
               </Button>
               <Button variant="subtle" onClick={clearItems} size="sm" flex={1}>
@@ -569,20 +576,25 @@ export function PredictionBuilder({
           </Box>
 
           {/* Left Panel: Song Search - Mobile Drawer */}
-          <Drawer.Root 
-            open={leftSidebarOpen} 
+          <Drawer.Root
+            open={leftSidebarOpen}
             onOpenChange={(details) => setLeftSidebarOpen(details.open)}
           >
             <Drawer.Backdrop hideFrom="md" />
             <Drawer.Positioner hideFrom="md">
               <Drawer.Content>
                 <Drawer.Header>
-                  <Drawer.Title>{t('setlistPrediction.songSearch', { defaultValue: 'Song Search' })}</Drawer.Title>
+                  <Drawer.Title>
+                    {t('setlistPrediction.songSearch', { defaultValue: 'Song Search' })}
+                  </Drawer.Title>
                   <Drawer.CloseTrigger />
                 </Drawer.Header>
                 <Drawer.Body>
                   <Stack gap={3}>
-                    <SongSearchPanel onAddSong={handleAddSong} onAddCustomSong={handleAddCustomSong} />
+                    <SongSearchPanel
+                      onAddSong={handleAddSong}
+                      onAddCustomSong={handleAddCustomSong}
+                    />
 
                     {/* Quick Add Items */}
                     <Stack gap={2}>
@@ -590,11 +602,17 @@ export function PredictionBuilder({
                         {t('setlistPrediction.quickAdd', { defaultValue: 'Quick Add' })}
                       </Text>
                       <Text color="fg.muted" fontSize="xs">
-                        {t('setlistPrediction.quickAddHint', { defaultValue: 'Drag items into setlist' })}
+                        {t('setlistPrediction.quickAddHint', {
+                          defaultValue: 'Drag items into setlist'
+                        })}
                       </Text>
                       <DraggableQuickAddItem id="mc" title="MC①" type="mc" />
                       <DraggableQuickAddItem id="encore" title="━━ ENCORE ━━" type="other" />
-                      <DraggableQuickAddItem id="intermission" title="━━ INTERMISSION ━━" type="other" />
+                      <DraggableQuickAddItem
+                        id="intermission"
+                        title="━━ INTERMISSION ━━"
+                        type="other"
+                      />
                     </Stack>
                   </Stack>
                 </Drawer.Body>
@@ -615,20 +633,14 @@ export function PredictionBuilder({
               dropIndicator={dropIndicator}
             />
             {/* Mobile Add Button (FAB) */}
-            <Box
-              position="fixed"
-              bottom={6}
-              right={6}
-              zIndex={100}
-              hideFrom="md"
-            >
+            <Box hideFrom="md" zIndex={100} position="fixed" right={6} bottom={6}>
               <IconButton
                 size="lg"
                 onClick={() => setAddItemDrawerOpen(true)}
-                shadow="lg"
                 borderRadius="full"
-                bgColor="accent.default"
                 color="accent.fg"
+                bgColor="accent.default"
+                shadow="lg"
                 _hover={{ bgColor: 'accent.emphasized' }}
               >
                 <BiPlus size={24} />
@@ -687,15 +699,17 @@ export function PredictionBuilder({
           </Box>
 
           {/* Right Panel: Actions - Mobile Drawer */}
-          <Drawer.Root 
-            open={rightSidebarOpen} 
+          <Drawer.Root
+            open={rightSidebarOpen}
             onOpenChange={(details) => setRightSidebarOpen(details.open)}
           >
             <Drawer.Backdrop hideFrom="lg" />
             <Drawer.Positioner hideFrom="lg">
               <Drawer.Content>
                 <Drawer.Header>
-                  <Drawer.Title>{t('setlistPrediction.actions', { defaultValue: 'Actions' })}</Drawer.Title>
+                  <Drawer.Title>
+                    {t('setlistPrediction.actions', { defaultValue: 'Actions' })}
+                  </Drawer.Title>
                   <Drawer.CloseTrigger />
                 </Drawer.Header>
                 <Drawer.Body>

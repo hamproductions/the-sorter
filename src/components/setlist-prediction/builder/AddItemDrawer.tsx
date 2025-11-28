@@ -1,10 +1,10 @@
 import { useTranslation } from 'react-i18next';
+import { BiPlus, BiX } from 'react-icons/bi';
+import { SongSearchPanel } from './SongSearchPanel';
 import { Stack, Box, HStack } from 'styled-system/jsx';
 import { Button } from '~/components/ui/styled/button';
 import { Text } from '~/components/ui/styled/text';
 import { Drawer } from '~/components/ui/drawer';
-import { SongSearchPanel } from './SongSearchPanel';
-import { BiPlus, BiX } from 'react-icons/bi';
 
 interface AddItemDrawerProps {
   isOpen: boolean;
@@ -29,8 +29,15 @@ export function AddItemDrawer({
       <Drawer.Positioner>
         <Drawer.Content>
           <Stack gap={4} h="full">
-            <HStack justifyContent="space-between" alignItems="center" p={4} borderBottomWidth="1px">
-              <Drawer.Title>{t('setlistPrediction.addItem', { defaultValue: 'Add Item' })}</Drawer.Title>
+            <HStack
+              justifyContent="space-between"
+              alignItems="center"
+              borderBottomWidth="1px"
+              p={4}
+            >
+              <Drawer.Title>
+                {t('setlistPrediction.addItem', { defaultValue: 'Add Item' })}
+              </Drawer.Title>
               <Drawer.CloseTrigger asChild>
                 <Button variant="ghost" size="sm">
                   <BiX size={20} />
@@ -38,7 +45,7 @@ export function AddItemDrawer({
               </Drawer.CloseTrigger>
             </HStack>
 
-            <Stack gap={6} p={4} flex={1} overflow="auto">
+            <Stack flex={1} gap={6} p={4} overflow="auto">
               {/* Quick Add Section */}
               <Stack gap={2}>
                 <Text fontSize="sm" fontWeight="medium">
@@ -79,7 +86,7 @@ export function AddItemDrawer({
               </Stack>
 
               {/* Song Search Section */}
-              <Stack gap={2} flex={1}>
+              <Stack flex={1} gap={2}>
                 <Text fontSize="sm" fontWeight="medium">
                   {t('setlistPrediction.searchSongs', { defaultValue: 'Search Songs' })}
                 </Text>
