@@ -12,13 +12,15 @@ export interface DraggableQuickAddItemProps {
   title: string;
   type: 'mc' | 'other';
   description?: string;
+  onDoubleClick?: () => void;
 }
 
 export function DraggableQuickAddItem({
   id,
   title,
   type,
-  description
+  description,
+  onDoubleClick
 }: DraggableQuickAddItemProps) {
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, isDragging } = useDraggable({
     id: `quick-add-${id}`,
@@ -32,6 +34,9 @@ export function DraggableQuickAddItem({
   return (
     <Box
       ref={setNodeRef}
+      {...attributes}
+      {...listeners}
+      onDoubleClick={onDoubleClick}
       borderRadius="md"
       borderWidth="1px"
       p={2}
@@ -45,8 +50,8 @@ export function DraggableQuickAddItem({
           ref={setActivatorNodeRef}
           {...attributes}
           {...listeners}
-          cursor={isDragging ? 'grabbing' : 'grab'}
           style={{ touchAction: 'none' }}
+          cursor={isDragging ? 'grabbing' : 'grab'}
         >
           <MdDragIndicator size={16} />
         </Box>

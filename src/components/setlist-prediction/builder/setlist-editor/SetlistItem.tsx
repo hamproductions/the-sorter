@@ -299,9 +299,16 @@ const SetlistItemComponent = memo(function SetlistItem({
                         : songDetails?.name || item.customSongName || `Song ${item.songId}`}
                     </Text>
                     {/* Show remarks if exists, otherwise show artist name */}
-                    {!item.isCustomSong && (item.remarks || artistName) && (
+                    {/* This logic mirrors that in the "SetlistView" component; ideally we'd have a way to unify this display logic since it should be more or less the exact same */}
+                    {!item.isCustomSong && artistName && !item.remarks && (
                       <Text color="fg.muted" fontSize="xs" lineHeight="1.3">
-                        {item.remarks || artistName}
+                        {artistName}
+                      </Text>
+                    )}
+                    {/* Remarks (shown instead of artist if present) */}
+                    {item.remarks && (
+                      <Text color="fg.muted" fontSize="xs" lineHeight="1.3" fontStyle="italic">
+                        {item.remarks}
                       </Text>
                     )}
                   </>
