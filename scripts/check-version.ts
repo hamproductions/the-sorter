@@ -14,8 +14,9 @@ const CONVENTIONAL_COMMIT_PATTERN =
 // Function to check if commit message follows conventional commit format
 function checkCommitMessage(): boolean {
   try {
-    // Get the commit message from the commit message file
-    const commitMsgFile = process.env.GIT_PARAMS || '.git/COMMIT_EDITMSG';
+    // Get the commit message file from command line argument (passed by commit-msg hook)
+    // Falls back to COMMIT_EDITMSG for manual testing
+    const commitMsgFile = process.argv[2] || '.git/COMMIT_EDITMSG';
     const commitMsg = fs.readFileSync(commitMsgFile, 'utf-8').trim();
 
     // Skip check for merge commits

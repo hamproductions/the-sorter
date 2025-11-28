@@ -27,7 +27,7 @@
     "release:minor": "release-it minor --ci",
     "release:major": "release-it major --ci",
     "update-version": "bun scripts/update-version-release-it.ts",
-    "install-hooks": "chmod +x .git/hooks/pre-commit && chmod +x scripts/check-version.ts",
+    "install-hooks": "chmod +x .git/hooks/commit-msg && chmod +x scripts/check-version.ts",
     "check-version": "bun scripts/check-version.ts"
   },
   "dependencies": {
@@ -95,6 +95,7 @@
     "vite": "^6.0.11",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.0.3",
+    "vitest-localstorage-mock": "^0.1.2",
     "vitest-preview": "^0.0.1",
     "webp-converter": "^2.3.3"
   }

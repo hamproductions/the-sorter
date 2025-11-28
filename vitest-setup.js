@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom/vitest';
+import 'vitest-localstorage-mock';
 import { cleanup, configure, screen } from '@testing-library/react';
 import { vi } from 'vitest';
 import './src/index.css';
@@ -11,8 +12,6 @@ beforeAll(() => {
   });
 });
 beforeEach(async () => {
-  // Mock window focus method prevents the tests requiring user typing from working (since focus is a prerequisite for typing)
-  // vi.spyOn(window.HTMLElement.prototype, 'focus').mockImplementation(() => {});
   window.PointerEvent = MouseEvent;
   delete window.location;
   window.location = new URL('http://localhost/');
@@ -20,21 +19,7 @@ beforeEach(async () => {
   // Clear localStorage safely
   try {
     window.localStorage.clear();
-  } catch (e) {
-    // If localStorage is not available, mock it
-    const localStorageMock = {
-      getItem: vi.fn(),
-      setItem: vi.fn(),
-      removeItem: vi.fn(),
-      clear: vi.fn(),
-      length: 0,
-      key: vi.fn()
-    };
-    Object.defineProperty(window, 'localStorage', {
-      value: localStorageMock,
-      writable: true
-    });
-  }
+  } catch (e) {}
 });
 
 afterEach(async () => {
