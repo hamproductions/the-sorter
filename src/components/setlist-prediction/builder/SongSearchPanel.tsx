@@ -94,37 +94,81 @@ export function SongSearchPanel({ onAddSong, onAddCustomSong }: SongSearchPanelP
   const songData = useSongData();
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Filter songs based on search query
-  const filteredSongs = useMemo(() => {
+  // Filter songs based on search query (both by song name and artist name)
+  const { songMatches, artistMatches } = useMemo(() => {
     if (!searchQuery.trim()) {
-      return [];
+      return { songMatches: [], artistMatches: [] };
     }
 
     const query = searchQuery.toLowerCase();
     const songs = Array.isArray(songData) ? songData : [];
-    return songs
+
+    // Step 1: Find songs that match by name
+    const directSongMatches = new Set<string>();
+    const songMatchResults = songs
       .filter((song) => {
-        const s = song;
-        const searchText = `${s.name}`.toLowerCase();
-        return searchText.includes(query);
+        const searchText = `${song.name}`.toLowerCase();
+        const matches = searchText.includes(query);
+        if (matches) {
+          directSongMatches.add(song.id);
+        }
+        return matches;
       })
-      .slice(0, 50) // Limit results to 50
+      .slice(0, 50)
       .map((song) => {
-        const s = song;
-        // Get artist name
-        const artistId = s.artists?.[0];
+        const artistId = song.artists?.[0];
         const artist = artistId ? artistsData.find((a) => a.id === artistId) : null;
 
         return {
-          id: s.id,
-          name: s.name,
+          id: song.id,
+          name: song.name,
           nameRomaji: undefined,
           series: undefined,
-          seriesIds: s.seriesIds,
+          seriesIds: song.seriesIds,
           artist: artist?.name,
-          color: getSongColor(s)
+          color: getSongColor(song)
         };
       });
+
+    // Step 2: Find artists that match by name
+    const matchingArtists = artistsData.filter((artist) => {
+      const artistName = artist.name.toLowerCase();
+      return artistName.includes(query);
+    });
+
+    // Step 3: Find all songs by matching artists (excluding songs already in direct matches)
+    const artistMatchResults = songs
+      .filter((song) => {
+        // Skip if already in direct song matches
+        if (directSongMatches.has(song.id)) {
+          return false;
+        }
+
+        // Check if song has any of the matching artists
+        return song.artists?.some((artistId) =>
+          matchingArtists.some((matchingArtist) => matchingArtist.id === artistId)
+        );
+      })
+      .slice(0, 50)
+      .map((song) => {
+        const artistId = song.artists?.[0];
+        const artist = artistId ? artistsData.find((a) => a.id === artistId) : null;
+
+        return {
+          id: song.id,
+          name: song.name,
+          nameRomaji: undefined,
+          series: undefined,
+          seriesIds: song.seriesIds,
+          artist: artist?.name,
+          color: getSongColor(song)
+        };
+      });
+
+    return {
+      songMatches: songMatchResults,
+      artistMatches: artistMatchResults
+    };
   }, [songData, searchQuery]);
 
   return (
@@ -137,7 +181,7 @@ export function SongSearchPanel({ onAddSong, onAddCustomSong }: SongSearchPanelP
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         placeholder={t('setlistPrediction.searchSongs', {
-          defaultValue: 'Search songs...'
+          defaultValue: 'Search songs or artists...'
         })}
       />
 
@@ -147,11 +191,11 @@ export function SongSearchPanel({ onAddSong, onAddCustomSong }: SongSearchPanelP
           <Box p={4}>
             <Text color="fg.muted" textAlign="center" fontSize="sm">
               {t('setlistPrediction.startTyping', {
-                defaultValue: 'Start typing to search for songs...'
+                defaultValue: 'Start typing to search for songs or artists...'
               })}
             </Text>
           </Box>
-        ) : filteredSongs.length === 0 ? (
+        ) : songMatches.length === 0 && artistMatches.length === 0 ? (
           <Box p={4}>
             <Stack gap={3} alignItems="center">
               <Text color="fg.muted" textAlign="center" fontSize="sm">
@@ -176,18 +220,41 @@ export function SongSearchPanel({ onAddSong, onAddCustomSong }: SongSearchPanelP
           </Box>
         ) : (
           <Stack gap={0}>
-            {filteredSongs.map((song) => (
-              <DraggableSongItem key={song.id} song={song} onAddSong={onAddSong} />
-            ))}
+            {/* Song Name Matches */}
+            {songMatches.length > 0 && (
+              <>
+                {songMatches.map((song) => (
+                  <DraggableSongItem key={song.id} song={song} onAddSong={onAddSong} />
+                ))}
+              </>
+            )}
+
+            {/* Artist/Group Matches */}
+            {artistMatches.length > 0 && (
+              <>
+                {songMatches.length > 0 && (
+                  <Box borderTopWidth="2px" borderBottomWidth="1px" p={2} bgColor="bg.muted">
+                    <Text color="fg.muted" fontSize="xs" fontWeight="semibold">
+                      {t('setlistPrediction.artistMatches', {
+                        defaultValue: 'Songs by matching artists/groups'
+                      })}
+                    </Text>
+                  </Box>
+                )}
+                {artistMatches.map((song) => (
+                  <DraggableSongItem key={song.id} song={song} onAddSong={onAddSong} />
+                ))}
+              </>
+            )}
           </Stack>
         )}
       </Box>
 
-      {filteredSongs.length > 0 && (
+      {(songMatches.length > 0 || artistMatches.length > 0) && (
         <Text color="fg.muted" textAlign="center" fontSize="xs">
           {t('setlistPrediction.showingResults', {
-            count: filteredSongs.length,
-            defaultValue: `Showing ${filteredSongs.length} results`
+            count: songMatches.length + artistMatches.length,
+            defaultValue: `Showing ${songMatches.length + artistMatches.length} results`
           })}
         </Text>
       )}
