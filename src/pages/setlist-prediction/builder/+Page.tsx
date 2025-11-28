@@ -3,8 +3,9 @@
  * Main page for creating and editing predictions
  */
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { join } from 'path-browserify';
 import { Stack, Box, HStack } from 'styled-system/jsx';
 import { Text } from '~/components/ui/styled/text';
 import { Button } from '~/components/ui/styled/button';
@@ -12,87 +13,142 @@ import { Metadata } from '~/components/layout/Metadata';
 import { usePerformance } from '~/hooks/setlist-prediction/usePerformanceData';
 import { usePredictionStorage } from '~/hooks/setlist-prediction/usePredictionStorage';
 import { PredictionBuilder } from '~/components/setlist-prediction/builder/PredictionBuilder';
-import type { SetlistPrediction } from '~/types/setlist-prediction';
+import { LoadPredictionDialog } from '~/components/setlist-prediction/builder/LoadPredictionDialog';
+import { NewPredictionDialog } from '~/components/setlist-prediction/builder/NewPredictionDialog';
+import { PerformancePickerDialog } from '~/components/setlist-prediction/builder/PerformancePickerDialog';
+import type { SetlistPrediction, CustomPerformance } from '~/types/setlist-prediction';
 
 export function Page() {
   const { t } = useTranslation();
+  const { savePrediction, getPrediction, deletePrediction } = usePredictionStorage();
 
-  // Get performance ID from URL query params
   const searchParams = new URLSearchParams(
     typeof window !== 'undefined' ? window.location.search : ''
   );
-  const performanceId = searchParams.get('performance');
+  const performanceIdParam = searchParams.get('performance');
+  const predictionIdParam = searchParams.get('prediction');
 
-  const performance = usePerformance(performanceId || '');
-  const { savePrediction } = usePredictionStorage();
+  const [currentPerformanceId, setCurrentPerformanceId] = useState<string | undefined>(
+    performanceIdParam || undefined
+  );
+  const [currentPrediction, setCurrentPrediction] = useState<SetlistPrediction | undefined>(
+    undefined
+  );
+  const [customPerformance, setCustomPerformance] = useState<CustomPerformance | undefined>(
+    undefined
+  );
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Auto-load the most recent prediction for this performance directly from localStorage
-  const [initialPrediction] = useState<SetlistPrediction | undefined>(() => {
-    if (!performanceId || typeof window === 'undefined') return undefined;
+  const [loadDialogOpen, setLoadDialogOpen] = useState(false);
+  const [newDialogOpen, setNewDialogOpen] = useState(false);
+  const [performancePickerOpen, setPerformancePickerOpen] = useState(false);
 
-    try {
-      const stored = localStorage.getItem('setlist-predictions-v1');
-      if (!stored) return undefined;
+  const performance = usePerformance(currentPerformanceId || '');
 
-      const allPredictions = JSON.parse(stored) as Record<string, SetlistPrediction>;
-      const forPerformance = Object.values(allPredictions).filter(
-        (p) => p.performanceId === performanceId
-      );
+  useEffect(() => {
+    if (isInitialized) return;
 
-      if (forPerformance.length > 0) {
-        return forPerformance.sort(
-          (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-        )[0];
+    if (predictionIdParam) {
+      const prediction = getPrediction(predictionIdParam);
+      if (prediction) {
+        setCurrentPrediction(prediction);
+        setCurrentPerformanceId(prediction.performanceId);
+        setIsInitialized(true);
+        return;
       }
-    } catch (e) {
-      console.error('Failed to load prediction:', e);
     }
 
-    return undefined;
-  });
+    if (performanceIdParam) {
+      try {
+        const stored = localStorage.getItem('setlist-predictions-v1');
+        if (stored) {
+          const allPredictions = JSON.parse(stored) as Record<string, SetlistPrediction>;
+          const forPerformance = Object.values(allPredictions).filter(
+            (p) => p.performanceId === performanceIdParam
+          );
 
-  if (!performanceId) {
-    return (
-      <>
-        <Metadata title="Setlist Prediction Builder" helmet />
-        <Stack alignItems="center" w="full" p={8}>
-          <Box borderRadius="lg" borderWidth="1px" p={8} textAlign="center" bgColor="bg.muted">
-            <Text mb={2} fontSize="lg" fontWeight="bold">
-              {t('setlistPrediction.noPerformanceSelected', {
-                defaultValue: 'No performance selected'
-              })}
-            </Text>
-            <Text mb={4} color="fg.muted" fontSize="sm">
-              {t('setlistPrediction.selectPerformanceHint', {
-                defaultValue: 'Please select a performance to create a prediction for'
-              })}
-            </Text>
-            <Button onClick={() => (window.location.href = '/setlist-prediction')}>
-              {t('setlistPrediction.backToList', {
-                defaultValue: 'Back to Performance List'
-              })}
-            </Button>
-          </Box>
-        </Stack>
-      </>
-    );
-  }
+          if (forPerformance.length > 0) {
+            const mostRecent = forPerformance.sort(
+              (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+            )[0];
+            setCurrentPrediction(mostRecent);
+          }
+        }
+      } catch (e) {
+        console.error('Failed to load prediction:', e);
+      }
+      setCurrentPerformanceId(performanceIdParam);
+      setIsInitialized(true);
+      return;
+    }
 
-  if (!performance) {
-    return (
-      <>
-        <Metadata title="Setlist Prediction Builder" helmet />
-        <Stack alignItems="center" w="full" p={8}>
-          <Text>{t('common.loading', { defaultValue: 'Loading...' })}</Text>
-        </Stack>
-      </>
-    );
-  }
+    // Try to restore last used prediction from localStorage
+    try {
+      const lastPredictionId = localStorage.getItem('setlist-builder-last-prediction');
+      if (lastPredictionId) {
+        const prediction = getPrediction(lastPredictionId);
+        if (prediction) {
+          setCurrentPrediction(prediction);
+          setCurrentPerformanceId(prediction.performanceId);
+          setIsInitialized(true);
+          return;
+        }
+      }
+    } catch (e) {
+      console.error('Failed to restore last prediction:', e);
+    }
+
+    setLoadDialogOpen(true);
+    setIsInitialized(true);
+  }, [performanceIdParam, predictionIdParam, getPrediction, isInitialized]);
+
+  const handleSelectPrediction = useCallback((prediction: SetlistPrediction) => {
+    setCurrentPrediction(prediction);
+    setCurrentPerformanceId(prediction.performanceId);
+    setCustomPerformance(prediction.customPerformance);
+    localStorage.setItem('setlist-builder-last-prediction', prediction.id);
+  }, []);
+
+  const handleCreateNew = useCallback(
+    (options: { performanceId?: string; customPerformance?: CustomPerformance }) => {
+      setCurrentPrediction(undefined);
+      setCurrentPerformanceId(options.performanceId);
+      setCustomPerformance(options.customPerformance);
+      localStorage.removeItem('setlist-builder-last-prediction');
+    },
+    []
+  );
+
+  const handleChangePerformance = useCallback(
+    (performanceId: string | undefined, newCustomPerformance?: CustomPerformance) => {
+      setCurrentPerformanceId(performanceId);
+      setCustomPerformance(performanceId ? undefined : newCustomPerformance);
+    },
+    []
+  );
+
+  const handleDeletePrediction = useCallback(
+    (predictionId: string) => {
+      deletePrediction(predictionId);
+      if (currentPrediction?.id === predictionId) {
+        setCurrentPrediction(undefined);
+        setCurrentPerformanceId(undefined);
+        setCustomPerformance(undefined);
+      }
+    },
+    [deletePrediction, currentPrediction]
+  );
+
+  const showEmptyState = !currentPerformanceId && !currentPrediction && !customPerformance;
 
   return (
     <>
       <Metadata
-        title={`${t('setlistPrediction.builder', { defaultValue: 'Builder' })} - ${performance.name}`}
+        title={
+          performance
+            ? `${t('setlistPrediction.builder', { defaultValue: 'Builder' })} - ${performance.name}`
+            : t('setlistPrediction.builder', { defaultValue: 'Setlist Builder' })
+        }
         helmet
       />
 
@@ -107,35 +163,165 @@ export function Page() {
           bgColor="bg.default"
         >
           <HStack justifyContent="space-between" alignItems="center">
-            <Stack gap={{ base: 0, md: 1 }}>
-              <Text fontSize={{ base: 'sm', md: 'lg' }} fontWeight="bold">
-                {performance.name}
-              </Text>
-              <Text hideBelow="md" color="fg.muted" fontSize={{ base: 'xs', md: 'sm' }}>
-                {new Date(performance.date).toLocaleDateString()} • {performance.venue || 'TBA'}
-              </Text>
+            {/* Left: Performance info + Change button */}
+            <Stack flex={1} gap={{ base: 0, md: 1 }} minW={0}>
+              {performance ? (
+                <>
+                  <HStack gap={2} alignItems="center">
+                    <Text
+                      textOverflow="ellipsis"
+                      fontSize={{ base: 'sm', md: 'lg' }}
+                      fontWeight="bold"
+                      overflow="hidden"
+                      whiteSpace="nowrap"
+                    >
+                      {performance.name}
+                    </Text>
+                    <Button
+                      size="xs"
+                      variant="ghost"
+                      onClick={() => setPerformancePickerOpen(true)}
+                    >
+                      {t('setlistPrediction.changePerformance', { defaultValue: 'Change' })}
+                    </Button>
+                  </HStack>
+                  <Text hideBelow="md" color="fg.muted" fontSize={{ base: 'xs', md: 'sm' }}>
+                    {new Date(performance.date).toLocaleDateString()} • {performance.venue || 'TBA'}
+                  </Text>
+                </>
+              ) : customPerformance || currentPrediction?.customPerformance ? (
+                <>
+                  <HStack gap={2} alignItems="center">
+                    <Text
+                      textOverflow="ellipsis"
+                      fontSize={{ base: 'sm', md: 'lg' }}
+                      fontWeight="bold"
+                      overflow="hidden"
+                      whiteSpace="nowrap"
+                    >
+                      {(customPerformance || currentPrediction?.customPerformance)?.name}
+                    </Text>
+                    <Text color="fg.muted" fontSize="xs">
+                      ({t('setlistPrediction.custom', { defaultValue: 'Custom' })})
+                    </Text>
+                    <Button size="xs" variant="ghost" onClick={() => setPerformancePickerOpen(true)}>
+                      {t('setlistPrediction.changePerformance', { defaultValue: 'Change' })}
+                    </Button>
+                  </HStack>
+                  {((customPerformance || currentPrediction?.customPerformance)?.venue ||
+                    (customPerformance || currentPrediction?.customPerformance)?.date) && (
+                    <Text hideBelow="md" color="fg.muted" fontSize={{ base: 'xs', md: 'sm' }}>
+                      {(customPerformance || currentPrediction?.customPerformance)?.date &&
+                        new Date(
+                          (customPerformance || currentPrediction?.customPerformance)!.date!
+                        ).toLocaleDateString()}
+                      {(customPerformance || currentPrediction?.customPerformance)?.venue &&
+                        (customPerformance || currentPrediction?.customPerformance)?.date &&
+                        ' • '}
+                      {(customPerformance || currentPrediction?.customPerformance)?.venue}
+                    </Text>
+                  )}
+                </>
+              ) : (
+                <Text color="fg.muted" fontSize={{ base: 'sm', md: 'lg' }}>
+                  {t('setlistPrediction.noPredictionSelected', {
+                    defaultValue: 'No prediction selected'
+                  })}
+                </Text>
+              )}
             </Stack>
 
-            <Button
-              size={{ base: 'xs', md: 'sm' }}
-              variant="subtle"
-              onClick={() => (window.location.href = '/setlist-prediction')}
-            >
-              {t('common.back', { defaultValue: 'Back' })}
-            </Button>
+            {/* Right: New / Load / Back */}
+            <HStack gap={2} flexShrink={0}>
+              <Button
+                size={{ base: 'xs', md: 'sm' }}
+                variant="outline"
+                onClick={() => setNewDialogOpen(true)}
+              >
+                {t('common.new', { defaultValue: 'New' })}
+              </Button>
+              <Button
+                size={{ base: 'xs', md: 'sm' }}
+                variant="outline"
+                onClick={() => setLoadDialogOpen(true)}
+              >
+                {t('common.load', { defaultValue: 'Load' })}
+              </Button>
+              <Button
+                size={{ base: 'xs', md: 'sm' }}
+                variant="subtle"
+                onClick={() =>
+                  (window.location.href = join(import.meta.env.BASE_URL, '/setlist-prediction'))
+                }
+              >
+                {t('common.back', { defaultValue: 'Back' })}
+              </Button>
+            </HStack>
           </HStack>
         </Box>
 
-        {/* Builder Component */}
+        {/* Builder Component or Empty State */}
         <Box flex={1} overflow="hidden">
-          <PredictionBuilder
-            performanceId={performanceId}
-            initialPrediction={initialPrediction ?? undefined}
-            performance={performance}
-            onSave={savePrediction}
-          />
+          {showEmptyState ? (
+            <Stack justifyContent="center" alignItems="center" h="full" p={8}>
+              <Box borderRadius="lg" borderWidth="1px" p={8} textAlign="center" bgColor="bg.muted">
+                <Text mb={2} fontSize="lg" fontWeight="bold">
+                  {t('setlistPrediction.welcomeBuilder', {
+                    defaultValue: 'Welcome to Setlist Builder'
+                  })}
+                </Text>
+                <Text mb={4} color="fg.muted" fontSize="sm">
+                  {t('setlistPrediction.getStartedHint', {
+                    defaultValue: 'Load a saved prediction or create a new one to get started.'
+                  })}
+                </Text>
+                <HStack gap={2} justifyContent="center">
+                  <Button variant="outline" onClick={() => setLoadDialogOpen(true)}>
+                    {t('common.load', { defaultValue: 'Load' })}
+                  </Button>
+                  <Button onClick={() => setNewDialogOpen(true)}>
+                    {t('common.new', { defaultValue: 'New' })}
+                  </Button>
+                </HStack>
+              </Box>
+            </Stack>
+          ) : (
+            <PredictionBuilder
+              performanceId={currentPerformanceId}
+              customPerformance={customPerformance}
+              initialPrediction={currentPrediction}
+              performance={performance || undefined}
+              onSave={(prediction) => {
+                savePrediction(prediction);
+                localStorage.setItem('setlist-builder-last-prediction', prediction.id);
+              }}
+            />
+          )}
         </Box>
       </Stack>
+
+      {/* Load Prediction Dialog */}
+      <LoadPredictionDialog
+        open={loadDialogOpen}
+        onOpenChange={setLoadDialogOpen}
+        onSelectPrediction={handleSelectPrediction}
+        onDeletePrediction={handleDeletePrediction}
+      />
+
+      {/* New Prediction Dialog */}
+      <NewPredictionDialog
+        open={newDialogOpen}
+        onOpenChange={setNewDialogOpen}
+        onCreateNew={handleCreateNew}
+      />
+
+      {/* Performance Picker Dialog (for changing/assigning performance) */}
+      <PerformancePickerDialog
+        open={performancePickerOpen}
+        onOpenChange={setPerformancePickerOpen}
+        onSelectPerformance={handleChangePerformance}
+        currentPerformanceId={currentPerformanceId}
+      />
     </>
   );
 }

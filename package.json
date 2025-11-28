@@ -53,7 +53,8 @@
     "react-icons": "^5.4.0",
     "vike": "^0.4.218",
     "vike-react": "^0.5.11",
-    "vite-plugin-cjs-interop": "^2.1.6"
+    "vite-plugin-cjs-interop": "^2.1.6",
+    "wanakana": "^5.3.1"
   },
   "devDependencies": {
     "@builder.io/partytown": "^0.10.3",
@@ -70,6 +71,7 @@
     "@types/path-browserify": "^1.0.3",
     "@types/react": "^19.0.7",
     "@types/react-dom": "^19.0.3",
+    "@types/wanakana": "^5.3.0",
     "@typescript-eslint/eslint-plugin": "^8.21.0",
     "@typescript-eslint/parser": "^8.21.0",
     "@vitejs/plugin-react-swc": "^3.7.2",
@@ -81,6 +83,7 @@
     "eslint-import-resolver-typescript": "^3.7.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-oxlint": "^0.16.0",
     "eslint-plugin-prettier": "^5.2.3",
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-react-compiler": "^19.0.0-beta-decd7b8-20250118",
@@ -90,6 +93,8 @@
     "file-type": "^20.0.0",
     "i18next-browser-languagedetector": "^8.0.2",
     "jsdom": "^26.0.0",
+    "oxlint": "^0.16.6",
+    "postcss-prune-var": "^1.1.2",
     "prettier": "^3.4.2",
     "release-it": "^18.1.2",
     "typescript": "^5.7.3",
@@ -99,9 +104,6 @@
     "vitest": "^3.0.3",
     "vitest-localstorage-mock": "^0.1.2",
     "vitest-preview": "^0.0.1",
-    "webp-converter": "^2.3.3",
-    "oxlint": "^0.16.6",
-    "eslint-plugin-oxlint": "^0.16.0",
-    "postcss-prune-var": "^1.1.2"
+    "webp-converter": "^2.3.3"
   }
 }

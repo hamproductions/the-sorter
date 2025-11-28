@@ -25,7 +25,9 @@ export function usePredictionStorage() {
 
   const savePrediction = useCallback((prediction: SetlistPrediction) => {
     PredictionStorage.save(prediction);
-    SaveSlotStorage.addPrediction(prediction.performanceId, prediction.id);
+    if (prediction.performanceId) {
+      SaveSlotStorage.addPrediction(prediction.performanceId, prediction.id);
+    }
 
     setPredictions((prev) => ({
       ...prev,

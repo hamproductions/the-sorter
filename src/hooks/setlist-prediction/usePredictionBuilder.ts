@@ -7,7 +7,8 @@ import type {
   SetlistPrediction,
   SetlistItem,
   SongSetlistItem,
-  NonSongSetlistItem
+  NonSongSetlistItem,
+  CustomPerformance
 } from '~/types/setlist-prediction';
 import {
   generatePredictionId,
@@ -17,15 +18,19 @@ import {
 import { validatePrediction } from '~/utils/setlist-prediction/validation';
 
 export interface UsePredictionBuilderOptions {
-  performanceId: string;
+  performanceId?: string;
+  customPerformance?: CustomPerformance;
   initialPrediction?: SetlistPrediction;
+  initialName?: string;
   autosave?: boolean;
   onSave?: (prediction: SetlistPrediction) => void;
 }
 
 export function usePredictionBuilder({
   performanceId,
+  customPerformance,
   initialPrediction,
+  initialName,
   autosave = true,
   onSave
 }: UsePredictionBuilderOptions) {
@@ -34,13 +39,14 @@ export function usePredictionBuilder({
       return initialPrediction;
     }
 
-    // Create new prediction
+    const idBase = performanceId || 'custom';
     return {
-      id: generatePredictionId(performanceId),
+      id: generatePredictionId(idBase),
       performanceId,
-      name: 'New Prediction',
+      customPerformance,
+      name: initialName || 'New Prediction',
       setlist: {
-        id: generateSetlistId(performanceId),
+        id: generateSetlistId(idBase),
         performanceId,
         items: [],
         sections: [],
@@ -282,10 +288,32 @@ export function usePredictionBuilder({
   // ==================== Prediction Metadata ====================
 
   const updateMetadata = useCallback(
-    (updates: Partial<Pick<SetlistPrediction, 'name' | 'description' | 'isFavorite'>>) => {
+    (
+      updates: Partial<
+        Pick<SetlistPrediction, 'name' | 'description' | 'isFavorite' | 'customPerformance'>
+      >
+    ) => {
       setPrediction((prev) => ({
         ...prev,
         ...updates,
+        updatedAt: new Date().toISOString()
+      }));
+
+      setIsDirty(true);
+    },
+    []
+  );
+
+  const setPerformanceId = useCallback(
+    (newPerformanceId: string | undefined, newCustomPerformance?: CustomPerformance) => {
+      setPrediction((prev) => ({
+        ...prev,
+        performanceId: newPerformanceId,
+        customPerformance: newPerformanceId ? undefined : newCustomPerformance,
+        setlist: {
+          ...prev.setlist,
+          performanceId: newPerformanceId
+        },
         updatedAt: new Date().toISOString()
       }));
 
@@ -332,6 +360,7 @@ export function usePredictionBuilder({
 
     // Metadata
     updateMetadata,
+    setPerformanceId,
 
     // Save/reset
     save,

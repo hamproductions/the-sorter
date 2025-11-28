@@ -15,6 +15,7 @@ import {
   Description as DialogDescription,
   CloseTrigger as DialogCloseTrigger
 } from '~/components/ui/styled/dialog';
+import { css } from 'styled-system/css';
 import { Box, Stack, HStack } from 'styled-system/jsx';
 import { Button } from '~/components/ui/styled/button';
 import { Input } from '~/components/ui/styled/input';
@@ -227,11 +228,13 @@ export function EditItemDialog({ open, onOpenChange, item, onSave }: EditItemDia
                         <Stack gap={0}>
                           {filteredSongs.map((song) => (
                             <Box
+                              className={css({ '&[data-selected=true]': { bgColor: 'bg.subtle' } })}
                               key={song.id}
+                              data-selected={selectedSongId === song.id}
                               onClick={() => setSelectedSongId(song.id)}
                               borderBottomWidth="1px"
                               p={2}
-                              bgColor={selectedSongId === song.id ? 'bg.subtle' : 'bg.default'}
+                              bgColor="bg.default"
                               cursor="pointer"
                               _hover={{ bgColor: 'bg.subtle' }}
                             >
@@ -245,7 +248,11 @@ export function EditItemDialog({ open, onOpenChange, item, onSave }: EditItemDia
                                   </Text>
                                 )}
                                 {song.artist && (
-                                  <Text style={{ color: song.color }} fontSize="xs">
+                                  <Text
+                                    style={{ '--song-color': song.color } as React.CSSProperties}
+                                    color="var(--song-color)"
+                                    fontSize="xs"
+                                  >
                                     {song.artist}
                                   </Text>
                                 )}

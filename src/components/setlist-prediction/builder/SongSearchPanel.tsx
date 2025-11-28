@@ -4,10 +4,12 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { useState, useMemo, memo } from 'react';
+import { useState, useMemo, memo, useEffect } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { MdDragIndicator } from 'react-icons/md';
+import { toHiragana, toRomaji } from 'wanakana';
 import artistsData from '../../../../data/artists-info.json';
+import { css } from 'styled-system/css';
 import { Box, Stack, HStack } from 'styled-system/jsx';
 import { Input } from '~/components/ui/styled/input';
 import { Button } from '~/components/ui/styled/button';
@@ -42,24 +44,28 @@ const DraggableSongItem = memo(function DraggableSongItem({
 
   return (
     <Box
+      className={css({ '&[data-is-dragging=true]': { opacity: 0.5, shadow: 'lg' } })}
       ref={setNodeRef}
+      data-is-dragging={isDragging}
       onDoubleClick={() => onAddSong(song.id, song.name)}
       borderBottomWidth="1px"
       borderRadius="md"
       p={2}
-      opacity={isDragging ? 0.5 : 1}
+      opacity={1}
       bgColor="bg.default"
-      shadow={isDragging ? 'lg' : 'none'}
+      shadow="none"
       _hover={{ bgColor: 'bg.subtle' }}
     >
       <HStack gap={2} alignItems="flex-start">
         <Box
           ref={setActivatorNodeRef}
+          data-is-dragging={isDragging}
           pt={1}
           {...attributes}
           {...listeners}
+          className={css({ '&[data-is-dragging=true]': { cursor: 'grabbing' } })}
           style={{ touchAction: 'none' }}
-          cursor={isDragging ? 'grabbing' : 'grab'}
+          cursor="grab"
         >
           <MdDragIndicator size={16} />
         </Box>
@@ -73,12 +79,21 @@ const DraggableSongItem = memo(function DraggableSongItem({
             </Text>
           )}
           {song.artist && (
-            <Text style={{ color: song.color }} fontSize="xs" fontWeight="medium">
+            <Text
+              style={{ '--song-color': song.color } as React.CSSProperties}
+              color="var(--song-color)"
+              fontSize="xs"
+              fontWeight="medium"
+            >
               {song.artist}
             </Text>
           )}
           {song.series && (
-            <Text style={{ color: song.color }} fontSize="xs">
+            <Text
+              style={{ '--song-color': song.color } as React.CSSProperties}
+              color="var(--song-color)"
+              fontSize="xs"
+            >
               {song.series}
             </Text>
           )}
@@ -97,22 +112,35 @@ export function SongSearchPanel({ onAddSong, onAddCustomSong }: SongSearchPanelP
   const { t } = useTranslation();
   const songData = useSongData();
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQuery(searchQuery), 150);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   // Filter songs based on search query (both by song name and artist name)
   const { songMatches, artistMatches } = useMemo(() => {
-    if (!searchQuery.trim()) {
+    if (!debouncedQuery.trim()) {
       return { songMatches: [], artistMatches: [] };
     }
 
-    const query = searchQuery.toLowerCase();
+    const query = debouncedQuery.toLowerCase();
+    const queryHiragana = toHiragana(query, { passRomaji: false });
+    const queryRomaji = toRomaji(queryHiragana);
     const songs = Array.isArray(songData) ? songData : [];
 
     // Step 1: Find songs that match by name
     const directSongMatches = new Set<string>();
     const songMatchResults = songs
       .filter((song) => {
-        const searchText = `${song.name}`.toLowerCase();
-        const matches = searchText.includes(query);
+        const phoneticName = song.phoneticName ?? '';
+        const phoneticRomaji = toRomaji(phoneticName);
+        const searchText = `${song.name} ${phoneticName}`.toLowerCase();
+        const matches =
+          searchText.includes(query) ||
+          phoneticName.includes(queryHiragana) ||
+          phoneticRomaji.includes(queryRomaji);
         if (matches) {
           directSongMatches.add(song.id);
         }
@@ -173,7 +201,7 @@ export function SongSearchPanel({ onAddSong, onAddCustomSong }: SongSearchPanelP
       songMatches: songMatchResults,
       artistMatches: artistMatchResults
     };
-  }, [songData, searchQuery]);
+  }, [songData, debouncedQuery]);
 
   return (
     <Stack gap={3}>

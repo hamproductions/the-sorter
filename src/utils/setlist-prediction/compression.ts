@@ -9,6 +9,7 @@ import type {
   ShareData,
   ShareItem,
   ShareSection,
+  ShareCustomPerformance,
   SetlistItem,
   SongSetlistItem,
   NonSongSetlistItem
@@ -17,11 +18,22 @@ import { isSongItem } from '~/types/setlist-prediction';
 
 // ==================== Compression ====================
 
+function compressCustomPerformance(
+  customPerformance: SetlistPrediction['customPerformance']
+): ShareCustomPerformance | undefined {
+  if (!customPerformance) return undefined;
+  return {
+    n: customPerformance.name,
+    v: customPerformance.venue,
+    d: customPerformance.date
+  };
+}
+
 export function compressPrediction(prediction: SetlistPrediction): string {
-  // Minimize data for sharing
   const minified: ShareData = {
-    v: 1, // version
+    v: 1,
     p: prediction.performanceId,
+    cp: compressCustomPerformance(prediction.customPerformance),
     n: prediction.name,
     i: prediction.setlist.items.map((item): ShareItem => {
       if (isSongItem(item)) {
@@ -58,7 +70,7 @@ export function compressPrediction(prediction: SetlistPrediction): string {
 export function generateShareUrl(prediction: SetlistPrediction, origin?: string): string {
   const compressed = compressPrediction(prediction);
   const baseUrl = origin || (typeof window !== 'undefined' ? window.location.origin : '');
-  return `${baseUrl}/setlist-prediction/view/${compressed}`;
+  return `${baseUrl}/setlist-prediction/view?data=${compressed}`;
 }
 
 // ==================== Decompression ====================
@@ -121,6 +133,13 @@ export function decompressPrediction(compressed: string): SetlistPrediction {
     return {
       id: predictionId,
       performanceId: data.p,
+      customPerformance: data.cp
+        ? {
+            name: data.cp.n,
+            venue: data.cp.v,
+            date: data.cp.d
+          }
+        : undefined,
       name: data.n,
       setlist: {
         id: setlistId,
@@ -139,14 +158,13 @@ export function decompressPrediction(compressed: string): SetlistPrediction {
 }
 
 export function parseShareUrl(shareUrl: string): SetlistPrediction {
-  // Extract compressed data from URL
-  const match = shareUrl.match(/\/setlist-prediction\/view\/(.+?)(?:\?|#|$)/);
+  const url = new URL(shareUrl);
+  const compressed = url.searchParams.get('data');
 
-  if (!match) {
+  if (!compressed) {
     throw new Error('Invalid share URL format');
   }
 
-  const compressed = match[1];
   return decompressPrediction(compressed);
 }
 
@@ -160,6 +178,7 @@ export function estimateShareUrlSize(prediction: SetlistPrediction): {
   const minified: ShareData = {
     v: 1,
     p: prediction.performanceId,
+    cp: compressCustomPerformance(prediction.customPerformance),
     n: prediction.name,
     i: prediction.setlist.items.map((item): ShareItem => {
       if (isSongItem(item)) {

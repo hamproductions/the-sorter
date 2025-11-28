@@ -29,6 +29,7 @@ import { ImportDialog } from './ImportDialog';
 import { ExportShareTools } from './ExportShareTools';
 import { Drawer } from '~/components/ui/drawer';
 
+import { css } from 'styled-system/css';
 import { Box, Stack, HStack } from 'styled-system/jsx';
 import { Button } from '~/components/ui/styled/button';
 import { IconButton } from '~/components/ui/styled/icon-button';
@@ -37,7 +38,8 @@ import { Text } from '~/components/ui/styled/text';
 import type {
   SetlistPrediction,
   Performance,
-  SetlistItem as SetlistItemType
+  SetlistItem as SetlistItemType,
+  CustomPerformance
 } from '~/types/setlist-prediction';
 import { usePredictionBuilder } from '~/hooks/setlist-prediction/usePredictionBuilder';
 import { useSongData } from '~/hooks/useSongData';
@@ -45,10 +47,12 @@ import { getSongColor } from '~/utils/song';
 import type { Song } from '~/types';
 
 export interface PredictionBuilderProps {
-  performanceId: string;
+  performanceId?: string;
+  customPerformance?: CustomPerformance;
   initialPrediction?: SetlistPrediction;
   performance?: Performance;
   onSave?: (prediction: SetlistPrediction) => void;
+  onChangePerformance?: (performanceId: string | undefined) => void;
 }
 
 /**
@@ -77,8 +81,11 @@ function DragPreview({ activeData }: { activeData: Record<string, unknown> | nul
 
     return (
       <Box
-        borderLeft={songColor ? '4px solid' : undefined}
-        borderColor={songColor || undefined}
+        className={css({
+          '&[data-has-color=true]': { borderLeft: '4px solid', borderColor: 'var(--song-color)' }
+        })}
+        style={{ '--song-color': songColor } as React.CSSProperties}
+        data-has-color={Boolean(songColor)}
         borderRadius="md"
         minW="250px"
         py={2}
@@ -97,7 +104,7 @@ function DragPreview({ activeData }: { activeData: Record<string, unknown> | nul
               {songName}
             </Text>
             {artist?.name && (
-              <Text style={{ color: songColor }} fontSize="xs" fontWeight="medium">
+              <Text color="var(--song-color)" fontSize="xs" fontWeight="medium">
                 {artist.name}
               </Text>
             )}
@@ -119,8 +126,11 @@ function DragPreview({ activeData }: { activeData: Record<string, unknown> | nul
 
     return (
       <Box
-        borderLeft={item.type === 'song' && songColor ? '4px solid' : undefined}
-        borderColor={item.type === 'song' && songColor ? songColor : undefined}
+        className={css({
+          '&[data-has-color=true]': { borderLeft: '4px solid', borderColor: 'var(--song-color)' }
+        })}
+        style={{ '--song-color': songColor } as React.CSSProperties}
+        data-has-color={Boolean(item.type === 'song' && songColor)}
         borderRadius="md"
         minW="250px"
         py={2}
@@ -200,6 +210,7 @@ function DragPreview({ activeData }: { activeData: Record<string, unknown> | nul
 
 export function PredictionBuilder({
   performanceId,
+  customPerformance,
   initialPrediction,
   performance,
   onSave
@@ -217,13 +228,24 @@ export function PredictionBuilder({
     reorderItems,
     clearItems,
     updateMetadata,
+    setPerformanceId,
     save
   } = usePredictionBuilder({
     performanceId,
+    customPerformance,
     initialPrediction,
     autosave: true,
     onSave
   });
+
+  // Sync performanceId and customPerformance from props when they change externally
+  const [prevPerformanceId, setPrevPerformanceId] = useState(performanceId);
+  const [prevCustomPerformance, setPrevCustomPerformance] = useState(customPerformance);
+  if (performanceId !== prevPerformanceId || customPerformance !== prevCustomPerformance) {
+    setPrevPerformanceId(performanceId);
+    setPrevCustomPerformance(customPerformance);
+    setPerformanceId(performanceId, customPerformance);
+  }
 
   const [predictionName, setPredictionName] = useState(prediction.name);
   const [importDialogOpen, setImportDialogOpen] = useState(false);

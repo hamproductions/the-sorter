@@ -70,7 +70,7 @@ export type SetlistItem = SongSetlistItem | NonSongSetlistItem;
 
 export interface PerformanceSetlist {
   id: string;
-  performanceId: string;
+  performanceId?: string; // Optional for custom predictions
   items: SetlistItem[];
 
   sections: {
@@ -91,12 +91,21 @@ export interface PerformanceSetlist {
   sourceUrl?: string;
 }
 
+// ==================== Custom Performance ====================
+
+export interface CustomPerformance {
+  name: string;
+  venue?: string;
+  date?: string; // ISO 8601
+}
+
 // ==================== Prediction ====================
 
 export interface SetlistPrediction {
   id: string;
   userId?: string; // Phase 2
-  performanceId: string;
+  performanceId?: string; // Optional for custom predictions
+  customPerformance?: CustomPerformance; // For custom predictions (when performanceId is undefined)
   setlist: PerformanceSetlist;
 
   // Metadata
@@ -291,9 +300,16 @@ export interface UserSettings {
 
 // ==================== Share Data Format ====================
 
+export interface ShareCustomPerformance {
+  n: string; // name
+  v?: string; // venue
+  d?: string; // date
+}
+
 export interface ShareData {
   v: number; // version
-  p: string; // performanceId
+  p?: string; // performanceId (optional for custom predictions)
+  cp?: ShareCustomPerformance; // customPerformance (for custom predictions)
   n: string; // prediction name
   i: ShareItem[]; // items
   sec: ShareSection[]; // sections

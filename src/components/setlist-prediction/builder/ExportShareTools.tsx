@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { domToPng } from 'modern-screenshot';
 import { Box, Stack } from 'styled-system/jsx';
 import { Button } from '~/components/ui/styled/button';
+import { Input } from '~/components/ui/styled/input';
 import { Text } from '~/components/ui/styled/text';
 import type { SetlistPrediction, Performance } from '~/types/setlist-prediction';
 import {
@@ -29,6 +30,7 @@ export function ExportShareTools({ prediction, performance }: ExportShareToolsPr
   const { toast } = useToaster();
   const [isSharing, setIsSharing] = useState(false);
   const [isExportingImage, setIsExportingImage] = useState(false);
+  const [authorName, setAuthorName] = useState('');
   const setlistExportRef = useRef<HTMLDivElement>(null);
 
   const handleShareUrl = async () => {
@@ -76,7 +78,7 @@ export function ExportShareTools({ prediction, performance }: ExportShareToolsPr
 
   const handleCopyText = async () => {
     try {
-      await copyTextToClipboard(prediction, performance);
+      await copyTextToClipboard(prediction, performance, authorName);
 
       toast({
         title: t('toast.text_copied', { defaultValue: 'Text copied to clipboard' }),
@@ -193,6 +195,21 @@ export function ExportShareTools({ prediction, performance }: ExportShareToolsPr
         {t('setlistPrediction.exportShare', { defaultValue: 'Export & Share' })}
       </Text>
 
+      {/* Author Name Input */}
+      <Box borderRadius="md" borderWidth="1px" p={3}>
+        <Text mb={2} fontSize="xs" fontWeight="medium">
+          {t('setlistPrediction.authorName', { defaultValue: 'Your Name (Optional)' })}
+        </Text>
+        <Input
+          value={authorName}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAuthorName(e.target.value)}
+          placeholder={t('setlistPrediction.authorNamePlaceholder', {
+            defaultValue: 'Enter your name...'
+          })}
+          size="sm"
+        />
+      </Box>
+
       {/* Share URL */}
       <Button size="sm" onClick={() => void handleShareUrl()} disabled={isSharing}>
         {t('setlistPrediction.shareUrl', { defaultValue: 'Share URL' })}
@@ -229,8 +246,9 @@ export function ExportShareTools({ prediction, performance }: ExportShareToolsPr
       <Box position="absolute" top="-9999px" left="-9999px">
         <Box ref={setlistExportRef} w="800px" p={8} bgColor="bg.default">
           <SetlistView
-            setlist={prediction.setlist}
+            prediction={prediction}
             performance={performance}
+            authorName={authorName}
             showHeader={true}
             compact={false}
           />

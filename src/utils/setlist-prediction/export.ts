@@ -26,7 +26,11 @@ export function downloadJSON(prediction: SetlistPrediction, filename?: string): 
 
 // ==================== Text Export ====================
 
-export function exportAsText(prediction: SetlistPrediction, performance?: Performance): string {
+export function exportAsText(
+  prediction: SetlistPrediction,
+  performance?: Performance,
+  authorName?: string
+): string {
   const lines: string[] = [];
 
   // Header
@@ -43,10 +47,22 @@ export function exportAsText(prediction: SetlistPrediction, performance?: Perfor
       lines.push(`Venue: ${performance.venue}`);
     }
     lines.push('');
+  } else if (prediction.customPerformance) {
+    lines.push(`Performance: ${prediction.customPerformance.name}`);
+    if (prediction.customPerformance.date) {
+      lines.push(`Date: ${prediction.customPerformance.date}`);
+    }
+    if (prediction.customPerformance.venue) {
+      lines.push(`Venue: ${prediction.customPerformance.venue}`);
+    }
+    lines.push('');
   }
 
   // Prediction info
   lines.push(`Prediction: ${prediction.name}`);
+  if (authorName) {
+    lines.push(`Predicted by: ${authorName}`);
+  }
   if (prediction.description) {
     lines.push(`Description: ${prediction.description}`);
   }
@@ -95,9 +111,10 @@ export function exportAsText(prediction: SetlistPrediction, performance?: Perfor
 
 export function copyTextToClipboard(
   prediction: SetlistPrediction,
-  performance?: Performance
+  performance?: Performance,
+  authorName?: string
 ): Promise<void> {
-  const text = exportAsText(prediction, performance);
+  const text = exportAsText(prediction, performance, authorName);
 
   if (navigator.clipboard && navigator.clipboard.writeText) {
     return navigator.clipboard.writeText(text);

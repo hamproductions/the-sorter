@@ -7,15 +7,18 @@ import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
 import { BiLinkExternal } from 'react-icons/bi';
 import artistsData from '../../../data/artists-info.json';
+import { css } from 'styled-system/css';
 import { Box, Stack, HStack } from 'styled-system/jsx';
 import { Text } from '~/components/ui/styled/text';
-import type { PerformanceSetlist, SetlistItem, Performance } from '~/types/setlist-prediction';
+import { Link } from '~/components/ui/link';
+import type { SetlistItem, Performance, SetlistPrediction } from '~/types/setlist-prediction';
 import { useSongData } from '~/hooks/useSongData';
 import { getSongColor } from '~/utils/song';
 
 export interface SetlistViewProps {
-  setlist: PerformanceSetlist;
+  prediction: SetlistPrediction;
   performance?: Performance;
+  authorName?: string;
   showHeader?: boolean;
   compact?: boolean;
 }
@@ -32,13 +35,15 @@ const isSongItem = (item: SetlistItem): item is SetlistItem & { type: 'song' } =
 };
 
 export function SetlistView({
-  setlist,
+  prediction,
   performance,
+  authorName,
   showHeader = true,
   compact = false
 }: SetlistViewProps) {
   const { t } = useTranslation();
   const songData = useSongData();
+  const setlist = prediction.setlist;
   const items = setlist.items;
 
   // Find encore divider index
@@ -51,17 +56,43 @@ export function SetlistView({
   }, [items]);
 
   return (
-    <Stack gap={compact ? 3 : 4}>
+    <Stack className={css({ '&[data-compact=true]': { gap: 3 } })} data-compact={compact} gap={4}>
       {/* Header with performance info */}
-      {showHeader && performance && (
-        <Box borderBottomWidth="1px" pb={compact ? 2 : 3}>
-          <Text mb={1} fontSize={compact ? 'lg' : 'xl'} fontWeight="bold">
-            {performance.name}
+      {showHeader && (
+        <Box
+          className={css({ '&[data-compact=true]': { pb: 2 } })}
+          data-compact={compact}
+          borderBottomWidth="1px"
+          pb={3}
+        >
+          <Text
+            className={css({ '&[data-compact=true]': { fontSize: 'lg' } })}
+            data-compact={compact}
+            mb={1}
+            fontSize="xl"
+            fontWeight="bold"
+          >
+            {performance?.name ||
+              prediction.customPerformance?.name ||
+              prediction.name ||
+              'Setlist Prediction'}
           </Text>
+          {authorName && (
+            <Text mb={1} color="fg.muted" fontSize="sm">
+              by {authorName}
+            </Text>
+          )}
           <HStack gap={3} color="fg.muted" fontSize="sm">
-            {performance.date && <Text>{new Date(performance.date).toLocaleDateString()}</Text>}
-            {performance.venue && <Text>• {performance.venue}</Text>}
-            <Text>• {setlist.totalSongs} songs</Text>
+            {(() => {
+              const date = performance?.date || prediction.customPerformance?.date;
+              return date ? <Text>{new Date(date).toLocaleDateString()}</Text> : null;
+            })()}
+            {(performance?.venue || prediction.customPerformance?.venue) && (
+              <Text>• {performance?.venue || prediction.customPerformance?.venue}</Text>
+            )}
+            <Text>
+              {performance || prediction.customPerformance ? '•' : ''} {setlist.totalSongs} songs
+            </Text>
           </HStack>
         </Box>
       )}
@@ -127,22 +158,45 @@ export function SetlistView({
 
           return (
             <Box
+              className={css({
+                '&[data-compact=true]': { py: 2, px: 3 },
+                '&[data-row-odd=true]': { bgColor: 'bg.subtle' },
+                '&[data-is-divider=true]': { bgColor: 'bg.emphasized' },
+                '&[data-has-color=true]': {
+                  borderLeft: '4px solid',
+                  borderLeftColor: 'var(--song-color)'
+                }
+              })}
               key={item.id || index}
-              style={isSongItem(item) && songColor ? { borderLeftColor: songColor } : undefined}
-              borderLeft={isSongItem(item) && songColor ? '4px solid' : undefined}
+              style={{ '--song-color': songColor } as React.CSSProperties}
+              data-has-color={Boolean(isSongItem(item) && songColor)}
+              data-is-divider={isDivider}
+              data-row-odd={index % 2 !== 0}
+              data-compact={compact}
               borderBottomWidth="1px"
-              py={compact ? 2 : 3}
-              px={compact ? 3 : 4}
-              bgColor={isDivider ? 'bg.emphasized' : index % 2 === 0 ? 'bg.default' : 'bg.subtle'}
+              py={3}
+              px={4}
+              bgColor="bg.default"
             >
-              <HStack gap={compact ? 2 : 3} alignItems="flex-start">
+              <HStack
+                className={css({ '&[data-compact=true]': { gap: 2 } })}
+                data-compact={compact}
+                gap={3}
+                alignItems="flex-start"
+              >
                 {/* Item Number */}
                 {itemNumber && (
                   <Text
+                    className={css({
+                      '&[data-compact=true]': { minW: '40px', fontSize: 'xs' },
+                      '&[data-is-song=true]': { color: 'fg.default' }
+                    })}
+                    data-compact={compact}
+                    data-is-song={isSongItem(item)}
                     flexShrink={0}
-                    minW={compact ? '40px' : '45px'}
-                    color={isSongItem(item) ? 'fg.default' : 'fg.muted'}
-                    fontSize={compact ? 'xs' : 'sm'}
+                    minW="45px"
+                    color="fg.muted"
+                    fontSize="sm"
                     fontWeight="medium"
                   >
                     {itemNumber}
@@ -153,20 +207,33 @@ export function SetlistView({
                 <Stack flex={1} gap={0.5}>
                   {isSongItem(item) ? (
                     <>
-                      <HStack gap={1} alignItems="center">
-                        <Text fontSize={compact ? 'sm' : 'md'} fontWeight="medium" lineHeight="1.4">
+                      <HStack gap={2} alignItems="center">
+                        <Text
+                          className={css({ '&[data-compact=true]': { fontSize: 'sm' } })}
+                          data-compact={compact}
+                          fontSize="md"
+                          fontWeight="medium"
+                          lineHeight="1.4"
+                        >
                           {songName}
                         </Text>
-                        {/* llfans link - only for non-custom songs */}
                         {!item.isCustomSong && (
-                          <a
-                            href={`https://ll-fans.jp/songs/${item.songId}`}
+                          <Link
+                            href={`https://ll-fans.jp/data/song/${item.songId}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            style={{ display: 'flex', alignItems: 'center' }}
+                            onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                            display="inline-flex"
+                            alignItems="center"
+                            borderRadius="sm"
+                            py={0.5}
+                            px={1.5}
+                            color="fg.muted"
+                            bgColor="bg.subtle"
+                            _hover={{ color: 'fg.default', bgColor: 'bg.emphasized' }}
                           >
-                            <BiLinkExternal size={12} style={{ color: 'var(--colors-fg-muted)' }} />
-                          </a>
+                            <BiLinkExternal size={10} />
+                          </Link>
                         )}
                       </HStack>
                       {/* Artist name */}
@@ -185,10 +252,20 @@ export function SetlistView({
                   ) : (
                     <>
                       <Text
-                        w={isDivider ? 'full' : 'auto'}
-                        textAlign={isDivider ? 'center' : 'left'}
-                        fontSize={compact ? 'sm' : 'md'}
-                        fontWeight={isDivider ? 'bold' : 'medium'}
+                        className={css({
+                          '&[data-compact=true]': { fontSize: 'sm' },
+                          '&[data-is-divider=true]': {
+                            w: 'full',
+                            textAlign: 'center',
+                            fontWeight: 'bold'
+                          }
+                        })}
+                        data-compact={compact}
+                        data-is-divider={isDivider}
+                        w="auto"
+                        textAlign="left"
+                        fontSize="md"
+                        fontWeight="medium"
                         lineHeight="1.4"
                       >
                         {title}

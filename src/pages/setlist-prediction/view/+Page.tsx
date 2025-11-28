@@ -1,11 +1,5 @@
-/**
- * View Shared Prediction Page
- * Display a prediction shared via compressed URL
- */
-
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { usePageContext } from 'vike-react/usePageContext';
 import { Stack, Box, HStack } from 'styled-system/jsx';
 import { Text } from '~/components/ui/styled/text';
 import { Button } from '~/components/ui/styled/button';
@@ -14,14 +8,13 @@ import { decompressPrediction } from '~/utils/setlist-prediction/compression';
 import { usePerformance } from '~/hooks/setlist-prediction/usePerformanceData';
 import { usePredictionStorage } from '~/hooks/setlist-prediction/usePredictionStorage';
 import { SetlistView } from '~/components/setlist-prediction/SetlistView';
+import { useToaster } from '~/context/ToasterContext';
 import type { SetlistPrediction } from '~/types/setlist-prediction';
 
 export function Page() {
   const { t } = useTranslation();
-  const pageContext = usePageContext();
   const { savePrediction } = usePredictionStorage();
-
-  const shareId = (pageContext.routeParams as { shareId: string }).shareId;
+  const { toast } = useToaster();
 
   const [prediction, setPrediction] = useState<SetlistPrediction | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -29,10 +22,20 @@ export function Page() {
   const performance = usePerformance(prediction?.performanceId ?? '');
 
   useEffect(() => {
-    if (!shareId) return;
+    const params = new URLSearchParams(window.location.search);
+    const data = params.get('data');
+
+    if (!data) {
+      setError(
+        t('setlistPrediction.noShareData', {
+          defaultValue: 'No share data provided'
+        })
+      );
+      return;
+    }
 
     try {
-      const decompressed = decompressPrediction(shareId);
+      const decompressed = decompressPrediction(data);
       setPrediction(decompressed);
     } catch (err) {
       console.error('Failed to decompress prediction:', err);
@@ -42,16 +45,19 @@ export function Page() {
         })
       );
     }
-  }, [shareId, t]);
+  }, [t]);
 
   const handleSave = () => {
     if (prediction) {
       savePrediction(prediction);
-      alert(
-        t('setlistPrediction.predictionSaved', {
-          defaultValue: 'Prediction saved to your collection!'
+      toast({
+        title: t('setlistPrediction.predictionSaved', {
+          defaultValue: 'Prediction saved!'
+        }),
+        description: t('setlistPrediction.viewInBuilder', {
+          defaultValue: 'View it in the prediction builder'
         })
-      );
+      });
     }
   };
 
@@ -98,7 +104,6 @@ export function Page() {
       />
 
       <Stack gap={4} alignItems="center" w="full" p={4}>
-        {/* Header */}
         <Box w="full" maxW="4xl">
           <Stack gap={2}>
             <HStack justifyContent="space-between" alignItems="center">
@@ -106,11 +111,18 @@ export function Page() {
                 <Text fontSize="2xl" fontWeight="bold">
                   {prediction.name}
                 </Text>
-                {performance && (
+                {performance ? (
                   <Text color="fg.muted" fontSize="md">
                     {performance.name} • {new Date(performance.date).toLocaleDateString()}
                   </Text>
-                )}
+                ) : prediction.customPerformance ? (
+                  <Text color="fg.muted" fontSize="md">
+                    {prediction.customPerformance.name}
+                    {prediction.customPerformance.date &&
+                      ` • ${new Date(prediction.customPerformance.date).toLocaleDateString()}`}
+                    {prediction.customPerformance.venue && ` • ${prediction.customPerformance.venue}`}
+                  </Text>
+                ) : null}
               </Stack>
 
               <Button onClick={handleSave}>
@@ -128,21 +140,19 @@ export function Page() {
           </Stack>
         </Box>
 
-        {/* Setlist Display */}
         <Box borderRadius="lg" borderWidth="1px" w="full" maxW="4xl" p={6} bgColor="bg.default">
           <Text mb={4} fontSize="lg" fontWeight="bold">
             {t('setlistPrediction.predictedSetlist', { defaultValue: 'Predicted Setlist' })}
           </Text>
 
           <SetlistView
-            setlist={prediction.setlist}
+            prediction={prediction}
             performance={performance || undefined}
             showHeader={false}
             compact={false}
           />
         </Box>
 
-        {/* Footer */}
         <Box borderRadius="md" w="full" maxW="4xl" p={4} textAlign="center" bgColor="bg.muted">
           <Text color="fg.muted" fontSize="xs">
             {t('setlistPrediction.sharedVia', {

@@ -128,17 +128,28 @@ export function Page() {
       />
 
       <Stack gap={4} alignItems="center" w="full" p={4}>
-        <Stack gap={2} alignItems="center">
-          <Text textAlign="center" fontSize="3xl" fontWeight="bold">
-            {t('setlistPrediction.title', { defaultValue: 'Setlist Prediction' })}
-          </Text>
-          <Text color="fg.muted" textAlign="center" fontSize="md">
-            {t('setlistPrediction.description', {
-              defaultValue:
-                'Fantasy football for Love Live! setlists - Predict performances and compete with friends!'
-            })}
-          </Text>
-        </Stack>
+        {/* Header with My Predictions button */}
+        <HStack justifyContent="space-between" alignItems="flex-start" w="full" maxW="4xl">
+          <Stack flex={1} gap={1}>
+            <Text fontSize="3xl" fontWeight="bold">
+              {t('setlistPrediction.title', { defaultValue: 'Setlist Prediction' })}
+            </Text>
+            <Text color="fg.muted" fontSize="md">
+              {t('setlistPrediction.description', {
+                defaultValue:
+                  'Fantasy football for Love Live! setlists - Predict performances and compete with friends!'
+              })}
+            </Text>
+          </Stack>
+          <Button
+            onClick={() =>
+              (window.location.href = join(import.meta.env.BASE_URL, '/setlist-prediction/builder'))
+            }
+            flexShrink={0}
+          >
+            {t('setlistPrediction.myPredictions', { defaultValue: 'My Predictions' })}
+          </Button>
+        </HStack>
 
         {/* Filters Section */}
         <Stack

@@ -11,8 +11,10 @@ import { useTranslation } from 'react-i18next';
 import { useMemo, useState, memo } from 'react';
 import artistsData from '../../../../../data/artists-info.json';
 import { EditItemDialog } from '../EditItemDialog';
+import { css } from 'styled-system/css';
 import { Box, HStack, Stack } from 'styled-system/jsx';
 import { Text } from '~/components/ui/styled/text';
+import { Link } from '~/components/ui/link';
 import { IconButton } from '~/components/ui/styled/icon-button';
 import type { SetlistItem as SetlistItemType } from '~/types/setlist-prediction';
 import { isSongItem } from '~/types/setlist-prediction';
@@ -161,10 +163,20 @@ const SetlistItemComponent = memo(function SetlistItem({
     if (!draggedItem) return null;
 
     return (
-      <Box mt={position === 'bottom' ? 1 : 0} mb={position === 'top' ? 1 : 0} opacity={0.6}>
+      <Box
+        className={css({
+          '&[data-position=bottom]': { mt: 1 },
+          '&[data-position=top]': { mb: 1 }
+        })}
+        data-position={position}
+        opacity={0.6}
+      >
         <Box
-          borderLeft={isSongItem(draggedItem) && draggedItemColor ? '4px solid' : undefined}
-          borderColor={isSongItem(draggedItem) && draggedItemColor ? draggedItemColor : undefined}
+          className={css({
+            '&[data-has-color=true]': { borderLeft: '4px solid', borderColor: 'var(--drag-color)' }
+          })}
+          style={{ '--drag-color': draggedItemColor } as React.CSSProperties}
+          data-has-color={Boolean(isSongItem(draggedItem) && draggedItemColor)}
           borderRadius="md"
           borderWidth="2px"
           py={2}
@@ -241,22 +253,24 @@ const SetlistItemComponent = memo(function SetlistItem({
       {dropIndicatorPosition === 'top' && renderDropPreview('top')}
 
       <Box
+        className={css({ '&[data-is-dragging=true]': { opacity: 0.5 } })}
         ref={setNodeRef}
         data-item-id={item.id}
-        style={{
-          ...style,
-          ...(songColor ? { ['--songColor' as 'color']: songColor } : {}),
-          opacity: isDragging ? 0.5 : 1
-        }}
+        data-is-dragging={isDragging}
+        style={{ ...style, '--song-color': songColor } as React.CSSProperties}
         position="relative"
       >
         <Box
-          borderLeft={isSongItem(item) && songColor ? '4px solid' : undefined}
-          borderColor={isSongItem(item) && songColor ? 'var(--songColor)' : undefined}
+          className={css({
+            '&[data-is-divider=true]': { py: 3, bgColor: 'bg.emphasized' },
+            '&[data-has-color=true]': { borderLeft: '4px solid', borderColor: 'var(--song-color)' }
+          })}
+          data-is-divider={isDivider}
+          data-has-color={Boolean(isSongItem(item) && songColor)}
           borderRadius="md"
-          py={isDivider ? 3 : 2}
+          py={2}
           px={3}
-          bgColor={isDivider ? 'bg.emphasized' : 'bg.default'}
+          bgColor="bg.default"
           _hover={{ bgColor: 'bg.muted' }}
         >
           <HStack gap={2} justifyContent="space-between" alignItems="flex-start">
@@ -264,12 +278,14 @@ const SetlistItemComponent = memo(function SetlistItem({
             <HStack flex={1} gap={2} overflow="hidden">
               <Box
                 ref={setActivatorNodeRef}
+                data-is-dragging={isDragging}
                 p={2}
                 {...attributes}
                 {...listeners}
+                className={css({ '&[data-is-dragging=true]': { cursor: 'grabbing' } })}
                 style={{ touchAction: 'none' }}
                 color="fg.muted"
-                cursor={isDragging ? 'grabbing' : 'grab'}
+                cursor="grab"
                 _hover={{ color: 'fg.default' }}
               >
                 <MdDragIndicator size={20} />
@@ -293,23 +309,29 @@ const SetlistItemComponent = memo(function SetlistItem({
               <Stack flex={1} gap={0.5}>
                 {isSongItem(item) ? (
                   <>
-                    <HStack gap={1} alignItems="center">
+                    <HStack gap={2} alignItems="center">
                       <Text fontSize="sm" fontWeight="medium" lineHeight="1.4">
                         {item.isCustomSong
                           ? item.customSongName
                           : songDetails?.name || item.customSongName || `Song ${item.songId}`}
                       </Text>
-                      {/* llfans link - only for non-custom songs */}
                       {!item.isCustomSong && (
-                        <a
-                          href={`https://ll-fans.jp/songs/${item.songId}`}
+                        <Link
+                          href={`https://ll-fans.jp/data/song/${item.songId}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          style={{ display: 'flex', alignItems: 'center' }}
+                          onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                          display="inline-flex"
+                          alignItems="center"
+                          borderRadius="sm"
+                          py={0.5}
+                          px={1.5}
+                          color="fg.muted"
+                          bgColor="bg.subtle"
+                          _hover={{ color: 'fg.default', bgColor: 'bg.emphasized' }}
                         >
-                          <BiLinkExternal size={12} style={{ color: 'var(--colors-fg-muted)' }} />
-                        </a>
+                          <BiLinkExternal size={10} />
+                        </Link>
                       )}
                     </HStack>
                     {/* Show remarks if exists, otherwise show artist name */}

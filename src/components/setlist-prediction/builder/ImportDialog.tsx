@@ -5,6 +5,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { useState, useRef, useMemo } from 'react';
+import { css } from 'styled-system/css';
 import { Box, Stack, Grid } from 'styled-system/jsx';
 import { Button } from '~/components/ui/styled/button';
 import { Text } from '~/components/ui/styled/text';
@@ -32,7 +33,7 @@ export interface ImportDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onImport: (prediction: SetlistPrediction) => void;
-  performanceId: string;
+  performanceId?: string;
 }
 
 export function ImportDialog({ open, onOpenChange, onImport, performanceId }: ImportDialogProps) {
@@ -411,13 +412,14 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
                       >
                         {sameTourPerformances.map((perf) => (
                           <Box
+                            className={css({
+                              '&[data-selected=true]': { bgColor: 'bg.emphasized' }
+                            })}
                             key={perf.id}
+                            data-selected={selectedPerformanceId === perf.id}
                             onClick={() => setSelectedPerformanceId(perf.id)}
                             borderBottomWidth="1px"
                             p={2}
-                            bgColor={
-                              selectedPerformanceId === perf.id ? 'bg.emphasized' : undefined
-                            }
                             cursor="pointer"
                             _hover={{ bgColor: 'bg.subtle' }}
                           >
@@ -459,7 +461,14 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
                           overflow="auto"
                         >
                           <SetlistView
-                            setlist={selectedPerf.actualSetlist}
+                            prediction={{
+                              id: 'temp',
+                              performanceId: selectedPerf.id,
+                              name: selectedPerf.name,
+                              setlist: selectedPerf.actualSetlist,
+                              createdAt: selectedPerf.createdAt,
+                              updatedAt: selectedPerf.updatedAt
+                            }}
                             performance={selectedPerf}
                             showHeader={false}
                             compact={true}
