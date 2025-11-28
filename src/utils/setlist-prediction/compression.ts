@@ -28,7 +28,9 @@ export function compressPrediction(prediction: SetlistPrediction): string {
         return {
           t: item.type,
           s: item.songId,
-          r: item.remarks
+          r: item.remarks,
+          cs: item.isCustomSong || undefined, // only include if true
+          cn: item.customSongName || undefined // only include if present
         };
       } else {
         return {
@@ -93,7 +95,9 @@ export function decompressPrediction(compressed: string): SetlistPrediction {
         return {
           ...baseItem,
           type: 'song',
-          songId: item.s
+          songId: item.s,
+          isCustomSong: item.cs || false,
+          customSongName: item.cn
         } as SongSetlistItem;
       } else {
         // Non-song item
@@ -162,7 +166,9 @@ export function estimateShareUrlSize(prediction: SetlistPrediction): {
         return {
           t: item.type,
           s: item.songId,
-          r: item.remarks
+          r: item.remarks,
+          cs: item.isCustomSong || undefined,
+          cn: item.customSongName || undefined
         };
       } else {
         return {

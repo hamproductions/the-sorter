@@ -5,8 +5,12 @@ import pink from '@park-ui/panda-preset/colors/pink';
 import mauve from '@park-ui/panda-preset/colors/mauve';
 
 const config = defineConfig({
-  // Whether to use css reset
   preflight: true,
+
+  hash: {
+    className: true,
+    cssVar: true
+  },
 
   presets: [
     '@pandacss/preset-base',

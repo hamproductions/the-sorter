@@ -50,7 +50,7 @@ class ErrorBoundaryInner extends React.Component<
   }
 
   render() {
-    if (!!this.state.error) {
+    if (this.state.error) {
       return (
         <Center w="100vw" minH="100vh" px="4">
           <Stack alignItems="center">

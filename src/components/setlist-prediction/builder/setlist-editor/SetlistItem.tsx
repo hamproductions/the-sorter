@@ -5,7 +5,7 @@
 
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { BiTrash, BiPencil, BiChevronUp, BiChevronDown } from 'react-icons/bi';
+import { BiTrash, BiPencil, BiChevronUp, BiChevronDown, BiLinkExternal } from 'react-icons/bi';
 import { MdDragIndicator } from 'react-icons/md';
 import { useTranslation } from 'react-i18next';
 import { useMemo, useState, memo } from 'react';
@@ -293,11 +293,25 @@ const SetlistItemComponent = memo(function SetlistItem({
               <Stack flex={1} gap={0.5}>
                 {isSongItem(item) ? (
                   <>
-                    <Text fontSize="sm" fontWeight="medium" lineHeight="1.4">
-                      {item.isCustomSong
-                        ? item.customSongName
-                        : songDetails?.name || item.customSongName || `Song ${item.songId}`}
-                    </Text>
+                    <HStack gap={1} alignItems="center">
+                      <Text fontSize="sm" fontWeight="medium" lineHeight="1.4">
+                        {item.isCustomSong
+                          ? item.customSongName
+                          : songDetails?.name || item.customSongName || `Song ${item.songId}`}
+                      </Text>
+                      {/* llfans link - only for non-custom songs */}
+                      {!item.isCustomSong && (
+                        <a
+                          href={`https://ll-fans.jp/songs/${item.songId}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          style={{ display: 'flex', alignItems: 'center' }}
+                        >
+                          <BiLinkExternal size={12} style={{ color: 'var(--colors-fg-muted)' }} />
+                        </a>
+                      )}
+                    </HStack>
                     {/* Show remarks if exists, otherwise show artist name */}
                     {/* This logic mirrors that in the "SetlistView" component; ideally we'd have a way to unify this display logic since it should be more or less the exact same */}
                     {!item.isCustomSong && artistName && !item.remarks && (

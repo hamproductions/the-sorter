@@ -69,14 +69,14 @@ export function importFromFile(file: File): Promise<ImportResult> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
-    reader.onload = (event) => {
+    reader.addEventListener('load', (event) => {
       const json = event.target?.result as string;
       resolve(importFromJSON(json));
-    };
+    });
 
-    reader.onerror = () => {
+    reader.addEventListener('error', () => {
       reject(new Error('Failed to read file'));
-    };
+    });
 
     reader.readAsText(file);
   });
@@ -115,7 +115,7 @@ export function parseActualSetlist(text: string): ActualSetlistData {
       if (content.startsWith('[') && content.endsWith(']')) {
         items.push({
           type: inferItemType(content),
-          title: content.replace(/[\[\]]/g, '')
+          title: content.replace(/[[\]]/g, '')
         });
       } else {
         items.push({
@@ -130,7 +130,7 @@ export function parseActualSetlist(text: string): ActualSetlistData {
     if (trimmed.startsWith('[') || /^MC|VTR|幕間|Encore/i.test(trimmed)) {
       items.push({
         type: inferItemType(trimmed),
-        title: trimmed.replace(/[\[\]]/g, '')
+        title: trimmed.replace(/[[\]]/g, '')
       });
       continue;
     }

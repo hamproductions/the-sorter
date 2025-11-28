@@ -19,7 +19,7 @@ interface MergeState<I> {
 
 export const initSort = <I>(arr: I[]): SortState<I> => {
   return mergeSort({
-    arr: [...arr.map((a) => [a])],
+    arr: arr.map((a) => [a]),
     currentSize: 1,
     leftStart: 0,
     status: arr.length === 1 ? 'end' : 'waiting'

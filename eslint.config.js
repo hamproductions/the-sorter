@@ -5,6 +5,7 @@ import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
 import tseslint from 'typescript-eslint';
 import react from 'eslint-plugin-react';
 import unusedImports from 'eslint-plugin-unused-imports';
+import oxlint from 'eslint-plugin-oxlint';
 import globals from 'globals';
 
 const compat = new FlatCompat({
@@ -151,6 +152,12 @@ const config = tseslint.config(
     rules: {}
   },
   {
+    files: ['**/*.spec.tsx', '**/*.spec.ts', '**/__test__/**/*.tsx', '**/__test__/**/*.ts'],
+    rules: {
+      'no-await-in-loop': 'off'
+    }
+  },
+  {
     plugins: {
       'unused-imports': unusedImports
     },
@@ -167,7 +174,8 @@ const config = tseslint.config(
         }
       ]
     }
-  }
+  },
+  ...oxlint.configs['flat/recommended']
 );
 
 export default config;

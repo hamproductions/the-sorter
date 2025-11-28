@@ -46,7 +46,8 @@ export function SongCard({
                 frameBorder="0"
                 allow="autoplay; encrypted-media"
                 height="240"
-                title={song.name}
+                title={`${song.name} music video`}
+                sandbox="allow-scripts allow-presentation"
               />
             )}
           </Center>

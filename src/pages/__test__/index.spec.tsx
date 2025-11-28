@@ -101,7 +101,7 @@ describe('Home Page', () => {
       await selectPreset(container, user);
       await user.click(await findByText('Start', {}, {}));
 
-      while (!!queryByText('Keyboard Shortcuts')) {
+      while (queryByText('Keyboard Shortcuts')) {
         await selectCurrentItem(container, user);
       }
       expect(await findByText('Sort Results')).toBeInTheDocument();
@@ -114,7 +114,7 @@ describe('Home Page', () => {
       const { findByText, findAllByText, queryByText } = container;
       await selectPreset(container, user);
       await user.click(await findByText('Start', {}, {}));
-      while (!!queryByText('Keyboard Shortcuts')) {
+      while (queryByText('Keyboard Shortcuts')) {
         await user.click(await findByText('Tie'));
       }
       expect(await findByText('Sort Results')).toBeInTheDocument();
@@ -200,7 +200,7 @@ describe('Home Page', () => {
         await selectPreset(container, user);
         await user.click(await findByText('Start', {}, {}));
 
-        while (!!queryByText('Keyboard Shortcuts')) {
+        while (queryByText('Keyboard Shortcuts')) {
           await selectCurrentItem(container, user);
         }
         expect(await findByText('Sort Results')).toBeInTheDocument();

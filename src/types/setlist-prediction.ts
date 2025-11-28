@@ -304,6 +304,8 @@ export interface ShareItem {
   s?: string; // songId (if song)
   c?: string; // custom name (if not song)
   r?: string; // remarks
+  cs?: boolean; // isCustomSong (for custom songs)
+  cn?: string; // customSongName (for custom songs)
 }
 
 export interface ShareSection {

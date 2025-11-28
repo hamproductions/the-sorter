@@ -78,7 +78,7 @@ function DragPreview({ activeData }: { activeData: Record<string, unknown> | nul
     return (
       <Box
         borderLeft={songColor ? '4px solid' : undefined}
-        borderColor={songColor ? songColor : undefined}
+        borderColor={songColor || undefined}
         borderRadius="md"
         minW="250px"
         py={2}

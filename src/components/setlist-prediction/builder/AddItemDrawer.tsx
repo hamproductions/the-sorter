@@ -56,7 +56,7 @@ export function AddItemDrawer({
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                      onAddQuickItem('MC①', 'mc');
+                      onAddQuickItem('MC', 'mc');
                       onClose();
                     }}
                   >

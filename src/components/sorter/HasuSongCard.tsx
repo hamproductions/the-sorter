@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/media-has-caption */
 import { useTranslation } from 'react-i18next';
 import { Text } from '../ui/text';
 import type { StackProps } from 'styled-system/jsx';

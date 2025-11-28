@@ -5,6 +5,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
+import { BiLinkExternal } from 'react-icons/bi';
 import artistsData from '../../../data/artists-info.json';
 import { Box, Stack, HStack } from 'styled-system/jsx';
 import { Text } from '~/components/ui/styled/text';
@@ -152,9 +153,22 @@ export function SetlistView({
                 <Stack flex={1} gap={0.5}>
                   {isSongItem(item) ? (
                     <>
-                      <Text fontSize={compact ? 'sm' : 'md'} fontWeight="medium" lineHeight="1.4">
-                        {songName}
-                      </Text>
+                      <HStack gap={1} alignItems="center">
+                        <Text fontSize={compact ? 'sm' : 'md'} fontWeight="medium" lineHeight="1.4">
+                          {songName}
+                        </Text>
+                        {/* llfans link - only for non-custom songs */}
+                        {!item.isCustomSong && (
+                          <a
+                            href={`https://ll-fans.jp/songs/${item.songId}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ display: 'flex', alignItems: 'center' }}
+                          >
+                            <BiLinkExternal size={12} style={{ color: 'var(--colors-fg-muted)' }} />
+                          </a>
+                        )}
+                      </HStack>
                       {/* Artist name */}
                       {!item.isCustomSong && artistName && !item.remarks && (
                         <Text color="fg.muted" fontSize="xs" lineHeight="1.3">

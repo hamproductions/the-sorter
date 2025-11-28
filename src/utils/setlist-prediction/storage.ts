@@ -6,9 +6,10 @@ import type {
   SetlistPrediction,
   SaveSlotManager,
   UserSettings,
-  Performance
+  Performance,
+  LocalStorageSchema
 } from '~/types/setlist-prediction';
-import { STORAGE_KEYS, type LocalStorageSchema } from '~/types/setlist-prediction';
+import { STORAGE_KEYS } from '~/types/setlist-prediction';
 
 // ==================== Generic Storage Helpers ====================
 

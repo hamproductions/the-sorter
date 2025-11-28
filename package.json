@@ -10,8 +10,10 @@
     "type-check": "tsc",
     "check": "bun lint && bun type-check",
     "ci:check": "bun lint --format json --output-file lint_report.json && bun type-check",
-    "lint": "eslint src",
-    "lint:fix": "eslint src --fix",
+    "lint": "oxlint src && eslint src",
+    "lint:oxlint": "oxlint src",
+    "lint:eslint": "eslint src",
+    "lint:fix": "oxlint src --fix && eslint src --fix",
     "fix": "bun lint:fix",
     "preview": "vite preview",
     "prepare": "panda codegen",
@@ -97,6 +99,9 @@
     "vitest": "^3.0.3",
     "vitest-localstorage-mock": "^0.1.2",
     "vitest-preview": "^0.0.1",
-    "webp-converter": "^2.3.3"
+    "webp-converter": "^2.3.3",
+    "oxlint": "^0.16.6",
+    "eslint-plugin-oxlint": "^0.16.0",
+    "postcss-prune-var": "^1.1.2"
   }
 }

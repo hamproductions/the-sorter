@@ -53,11 +53,11 @@ export function SongResultsView({
             .reduce((p, c) => p + (Array.isArray(c) ? c.length : 1), 1);
           if (Array.isArray(ids)) {
             return ids
-              .map((id) => ({
-                rank: startRank,
-                ...(songsData.find((s) => s.id === `${id}`) ?? {})
-              }))
-              .filter((d) => 'id' in d);
+              .map((id) => {
+                const song = songsData.find((s) => s.id === `${id}`);
+                return song ? { rank: startRank, ...song } : null;
+              })
+              .filter((d): d is WithRank<Song> => d !== null);
           } else {
             const chara = songsData.find((i) => i.id === ids);
             if (!chara) return [];

@@ -5,6 +5,7 @@ import { ColorModeProvider } from '~/context/ColorModeContext';
 import { ToasterProvider } from '~/context/ToasterContext';
 
 import '../i18n';
+
 import '../index.css';
 import { SentryProvider } from '~/components/utils/SentryContext';
 

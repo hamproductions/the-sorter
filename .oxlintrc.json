@@ -1,0 +1,30 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error",
+    "perf": "error"
+  },
+  "settings": {
+    "jsx-a11y": {
+      "polymorphicPropName": "as",
+      "components": {
+        "Button": "button",
+        "IconButton": "button",
+        "Input": "input",
+        "Text": "p"
+      }
+    }
+  },
+  "plugins": ["typescript", "react", "import", "jsx-a11y", "unicorn", "promise"],
+  "rules": {
+    "react/react-in-jsx-scope": "off",
+    "react/no-array-index-key": "off",
+    "@typescript-eslint/no-extraneous-class": "off",
+    "import/no-unassigned-import": "off",
+    "import/no-named-as-default": "off",
+    "import/no-named-as-default-member": "off",
+    "jsx-a11y/media-has-caption": "off",
+    "no-await-in-loop": "off"
+  }
+}

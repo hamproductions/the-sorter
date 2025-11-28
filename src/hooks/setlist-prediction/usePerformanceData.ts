@@ -1,19 +1,30 @@
-/**
- * Hook for loading and filtering performance data
- */
-
-import { useMemo, useState } from 'react';
-import performancesData from '../../../data/performance-info.json';
+import { useEffect, useMemo, useState } from 'react';
 import type { Performance, PerformanceFilters } from '~/types/setlist-prediction';
 
-export function usePerformanceData() {
-  const allPerformances = performancesData as Performance[];
+let cachedPerformances: Performance[] | null = null;
 
-  return {
-    performances: allPerformances,
-    loading: false,
-    error: null
-  };
+async function loadPerformanceData(): Promise<Performance[]> {
+  if (cachedPerformances) return cachedPerformances;
+  const data = await import('../../../data/performance-info.json');
+  cachedPerformances = data.default as Performance[];
+  return cachedPerformances;
+}
+
+export function usePerformanceData() {
+  const [performances, setPerformances] = useState<Performance[]>(cachedPerformances ?? []);
+  const [loading, setLoading] = useState(!cachedPerformances);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (cachedPerformances) return;
+
+    loadPerformanceData()
+      .then(setPerformances)
+      .catch(setError)
+      .finally(() => setLoading(false));
+  }, []);
+
+  return { performances, loading, error };
 }
 
 export function useFilteredPerformances(filters: PerformanceFilters) {

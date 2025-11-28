@@ -22,10 +22,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) =>
           <ButtonSpinner />
           <styled.span opacity={0}>{children}</styled.span>
         </>
-      ) : loadingText ? (
-        loadingText
       ) : (
-        children
+        loadingText || children
       )}
     </StyledButton>
   );

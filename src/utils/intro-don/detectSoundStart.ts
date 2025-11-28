@@ -35,12 +35,11 @@ export async function detectSoundStart(
       return null;
     }
   } catch (err) {
-    if (err instanceof Error) {
-      throw new Error('Failed to analyze audio: ' + err.message);
-    }
-  } finally {
     if (audioContext && audioContext.state !== 'closed') {
       await audioContext.close();
+    }
+    if (err instanceof Error) {
+      throw new Error('Failed to analyze audio: ' + err.message);
     }
     return null;
   }
