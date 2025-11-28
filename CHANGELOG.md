@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.1](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.7.1...v1.8.1) (2025-11-28)
+
+
+### Bug Fixes
+
+* lint and such ([9b17edb](https://github.com/Tanyawat-Arsaga/the-sorter/commit/9b17edb2466bb9e513ef5b56ecb5aada49c5d60e))
+* linting and such ([3b678ad](https://github.com/Tanyawat-Arsaga/the-sorter/commit/3b678adff5aacfac339fb2f8fdb13f3203c31ed3))
+* song update ([46b67b6](https://github.com/Tanyawat-Arsaga/the-sorter/commit/46b67b65e10034ecacc185e62fc5dc06a50a4955))
+* use proper navigation with BASE_URL prefix for builder link ([9d3b122](https://github.com/Tanyawat-Arsaga/the-sorter/commit/9d3b122c99a8d8ef7ddc6bb60c95ad7a530f365e))
+
+
+### Features
+
+* Add mobile item drawer, drag preview, and item reordering functionality with responsive header. ([13fc9f6](https://github.com/Tanyawat-Arsaga/the-sorter/commit/13fc9f6bc35a1100fe444a48c5aeef6d33129e73))
+* setlist prediction :fire: :fire: :fire: ([#7](https://github.com/Tanyawat-Arsaga/the-sorter/issues/7)) ([e6ca0ea](https://github.com/Tanyawat-Arsaga/the-sorter/commit/e6ca0ea402e1c4e6b91e8dd43f001605aff116be))
+* update ([64b8ff7](https://github.com/Tanyawat-Arsaga/the-sorter/commit/64b8ff70d99eb334cc0d02ad7f50fa6f00c4582f))
+
 # [1.8.0](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.7.1...v1.8.0) (2025-11-18)
 
 
