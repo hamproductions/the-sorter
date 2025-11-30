@@ -11,6 +11,7 @@ import { Text } from '~/components/ui/styled/text';
 import { Button } from '~/components/ui/styled/button';
 import type { SetlistItem } from '~/types/setlist-prediction';
 import type { Song } from '~/types';
+import { SetlistEndDropZone } from './setlist-editor/SetlistEndDropZone';
 
 export interface SetlistEditorPanelProps {
   items: SetlistItem[];
@@ -170,6 +171,7 @@ export function SetlistEditorPanel({
             })}
           </>
         )}
+      <SetlistEndDropZone />
       </Stack>
     </SortableContext>
   );
