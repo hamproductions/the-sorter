@@ -152,6 +152,7 @@ describe('SongSearchPanel', () => {
       const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
       await user.type(searchInput, 'Aqours');
 
+      await screen.findByText('Aqours Pirate Desire');
       const aqoursPirateDesireElements = screen.getAllByText('Aqours Pirate Desire');
       expect(aqoursPirateDesireElements).toHaveLength(1);
     });
@@ -204,7 +205,7 @@ describe('SongSearchPanel', () => {
       const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
       await user.type(searchInput, 'Snow');
 
-      expect(screen.getByText('Showing 1 results')).toBeInTheDocument();
+      expect(await screen.findByText('Showing 1 results')).toBeInTheDocument();
     });
   });
 

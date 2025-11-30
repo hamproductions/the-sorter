@@ -162,7 +162,8 @@ export function NewPredictionDialog({ open, onOpenChange, onCreateNew }: NewPred
                 <Stack gap={3}>
                   <Box>
                     <Text mb={2} fontSize="sm" fontWeight="medium">
-                      {t('setlistPrediction.performanceName', { defaultValue: 'Performance Name' })} *
+                      {t('setlistPrediction.performanceName', { defaultValue: 'Performance Name' })}{' '}
+                      *
                     </Text>
                     <Input
                       value={customName}

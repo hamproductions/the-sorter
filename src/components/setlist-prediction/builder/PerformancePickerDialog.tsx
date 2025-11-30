@@ -20,7 +20,10 @@ import type { CustomPerformance } from '~/types/setlist-prediction';
 export interface PerformancePickerDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSelectPerformance: (performanceId: string | undefined, customPerformance?: CustomPerformance) => void;
+  onSelectPerformance: (
+    performanceId: string | undefined,
+    customPerformance?: CustomPerformance
+  ) => void;
   currentPerformanceId?: string;
 }
 

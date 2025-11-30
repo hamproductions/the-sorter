@@ -120,7 +120,8 @@ export function Page() {
                     {prediction.customPerformance.name}
                     {prediction.customPerformance.date &&
                       ` • ${new Date(prediction.customPerformance.date).toLocaleDateString()}`}
-                    {prediction.customPerformance.venue && ` • ${prediction.customPerformance.venue}`}
+                    {prediction.customPerformance.venue &&
+                      ` • ${prediction.customPerformance.venue}`}
                   </Text>
                 ) : null}
               </Stack>

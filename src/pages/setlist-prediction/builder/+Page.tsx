@@ -204,7 +204,11 @@ export function Page() {
                     <Text color="fg.muted" fontSize="xs">
                       ({t('setlistPrediction.custom', { defaultValue: 'Custom' })})
                     </Text>
-                    <Button size="xs" variant="ghost" onClick={() => setPerformancePickerOpen(true)}>
+                    <Button
+                      size="xs"
+                      variant="ghost"
+                      onClick={() => setPerformancePickerOpen(true)}
+                    >
                       {t('setlistPrediction.changePerformance', { defaultValue: 'Change' })}
                     </Button>
                   </HStack>
@@ -213,7 +217,7 @@ export function Page() {
                     <Text hideBelow="md" color="fg.muted" fontSize={{ base: 'xs', md: 'sm' }}>
                       {(customPerformance || currentPrediction?.customPerformance)?.date &&
                         new Date(
-                          (customPerformance || currentPrediction?.customPerformance)!.date!
+                          (customPerformance ?? currentPrediction?.customPerformance)?.date ?? ''
                         ).toLocaleDateString()}
                       {(customPerformance || currentPrediction?.customPerformance)?.venue &&
                         (customPerformance || currentPrediction?.customPerformance)?.date &&
