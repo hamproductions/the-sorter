@@ -6,12 +6,13 @@ import { useTranslation } from 'react-i18next';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { SetlistItem as SetlistItemComponent } from './setlist-editor/SetlistItem';
+import { SetlistEndDropZone } from './setlist-editor/SetlistEndDropZone';
+import { DropPreview } from './setlist-editor/DropPreview';
 import { Box, Stack, HStack } from 'styled-system/jsx';
 import { Text } from '~/components/ui/styled/text';
 import { Button } from '~/components/ui/styled/button';
 import type { SetlistItem } from '~/types/setlist-prediction';
 import type { Song } from '~/types';
-import { SetlistEndDropZone } from './setlist-editor/SetlistEndDropZone';
 
 export interface SetlistEditorPanelProps {
   items: SetlistItem[];
@@ -58,28 +59,44 @@ export function SetlistEditorPanel({
       >
         {items.length === 0 ? (
           <Stack
+            gap={4}
             justifyContent="center"
             alignItems="center"
             h="full"
             transition="background-color 0.2s"
           >
-            <Box borderRadius="lg" borderWidth="2px" p={8} textAlign="center" borderStyle="dashed">
-              <Text mb={2} fontSize="lg" fontWeight="medium">
-                {t('setlistPrediction.emptySetlist', {
-                  defaultValue: 'Your setlist is empty'
-                })}
-              </Text>
-              <Text mb={4} color="fg.muted" fontSize="sm">
-                {t('setlistPrediction.emptySetlistHint', {
-                  defaultValue: 'Search for songs on the left to add them here'
-                })}
-              </Text>
-              {onOpenImport && (
-                <Button onClick={onOpenImport}>
-                  {t('common.import', { defaultValue: 'Import' })}
-                </Button>
-              )}
-            </Box>
+            {/* if we are in an empty setlist, replace the null state with a drop preview */}
+            {dropIndicator?.draggedItem ? (
+              <DropPreview
+                draggedItem={dropIndicator.draggedItem}
+                songDetails={dropIndicator.songDetails}
+                showDropHereText={true}
+              />
+            ) : (
+              <Box
+                borderRadius="lg"
+                borderWidth="2px"
+                p={8}
+                textAlign="center"
+                borderStyle="dashed"
+              >
+                <Text mb={2} fontSize="lg" fontWeight="medium">
+                  {t('setlistPrediction.emptySetlist', {
+                    defaultValue: 'Your setlist is empty'
+                  })}
+                </Text>
+                <Text mb={4} color="fg.muted" fontSize="sm">
+                  {t('setlistPrediction.emptySetlistHint', {
+                    defaultValue: 'Search for songs on the left to add them here'
+                  })}
+                </Text>
+                {onOpenImport && (
+                  <Button onClick={onOpenImport}>
+                    {t('common.import', { defaultValue: 'Import' })}
+                  </Button>
+                )}
+              </Box>
+            )}
           </Stack>
         ) : (
           <>
@@ -171,7 +188,7 @@ export function SetlistEditorPanel({
             })}
           </>
         )}
-      <SetlistEndDropZone />
+        <SetlistEndDropZone />
       </Stack>
     </SortableContext>
   );
