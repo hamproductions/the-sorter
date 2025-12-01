@@ -127,7 +127,7 @@ function usePredictionBuilder(performanceId: string) {
   }, [isDirty, prediction]);
 
   const addSong = useCallback((songId: string, position?: number) => {
-    setPrediction(prev => {
+    setPrediction((prev) => {
       // ... mutation logic
     });
     setIsDirty(true);
@@ -137,7 +137,7 @@ function usePredictionBuilder(performanceId: string) {
     prediction,
     addSong,
     removeSong,
-    reorderItems,
+    reorderItems
     // ... more actions
   };
 }
@@ -151,7 +151,7 @@ const KEYS = {
   PREDICTIONS: 'setlist-predictions-v1',
   ACTIVE: 'active-prediction-id',
   SLOTS: 'setlist-save-slots-v1',
-  CACHE: 'performance-cache-v1',
+  CACHE: 'performance-cache-v1'
 } as const;
 
 // Storage wrapper
@@ -274,12 +274,14 @@ function SortableSetlistItem({ item }: { item: SetlistItem }) {
 The setlist editor supports multiple drop zones with visual feedback:
 
 **Main Drop Zone** (`setlist-drop-zone`):
+
 - Parent container for setlist items registered with `useDroppable`
 - Detects drops from search results and quick-add items
 - Items are inserted at position of nearest item or at end
 - Renders empty state message when no items present
 
 **End Drop Zone** (`SetlistEndDropZone`):
+
 - Invisible droppable component that fills remaining vertical space below items
 - Allows users to drag items to the end of setlist easily
 - Uses `flex={1}` to expand and fill available height
@@ -297,12 +299,109 @@ export function SetlistEndDropZone() {
 }
 ```
 
-**Drop Indicator**:
-- Visual feedback showing where item will be placed
-- Shows "↓ Drop here" text with dashed border
-- Appears above first item, between items, or below last item (when hovering end zone)
-- Positioned dynamically based on current drag position
-- Helps users understand drag-and-drop interaction
+**Drop Indicator System**:
+
+The drop indicator provides visual feedback showing where dragged items will be placed. It's implemented through a shared `DropPreview` component and rendered conditionally based on drag state.
+
+_When Drop Indicators are Rendered_:
+
+1. **Empty Setlist** (hovering over `setlist-drop-zone` with `items.length === 0`):
+
+   - Shows centered drop preview with "Drop here to add to setlist" text
+   - Rendered in `SetlistEditorPanel` when `dropIndicator?.draggedItem` exists and no items in list
+   - Helps first-time users understand they can start dragging items
+
+2. **Between Items** (hovering over existing setlist items):
+
+   - Shows drop preview with dashed border above or below hovered item
+   - Position determined by drag position relative to item center
+   - Rendered in `SetlistItem` component when `dropIndicatorPosition === 'top' || 'bottom'`
+   - Includes song color accent (left border) and artist name for songs
+
+3. **End of List** (hovering over `SetlistEndDropZone` or general `setlist-drop-zone`):
+   - Shows drop preview below the last setlist item
+   - Appears when dragging over the invisible drop zone below last item
+   - Rendered on the **last SetlistItem** component with `position: 'bottom'`
+   - The `SetlistEndDropZone` itself remains invisible - it only detects the drop zone
+   - Same styling as between-items preview
+
+_Drop Indicator Components_:
+
+```typescript
+// Shared DropPreview component (src/components/setlist-prediction/builder/setlist-editor/DropPreview.tsx)
+interface DropPreviewProps {
+  draggedItem: SetlistItem; // Item being dragged
+  songDetails?: Song; // Song metadata (for database songs)
+  position?: 'top' | 'bottom'; // Placement relative to target
+  showDropHereText?: boolean; // Show "Drop here" helper text
+}
+
+export function DropPreview({
+  draggedItem,
+  songDetails,
+  position,
+  showDropHereText = false
+}: DropPreviewProps) {
+  // Renders:
+  // - Dashed border box with 60% opacity
+  // - Drag handle icon
+  // - Song name or custom title
+  // - Artist name (for songs)
+  // - Colored left border (for songs, using series color)
+  // - Optional "Drop here to add to setlist" text below
+}
+```
+
+_Drop Indicator Logic Flow_:
+
+```typescript
+// In PredictionBuilder.tsx
+const dropIndicator = useMemo(() => {
+  if (!activeId || !overId || !activeData) return null;
+
+  // Case 1: Empty setlist - show centered preview
+  if (overId === 'setlist-drop-zone' && items.length === 0) {
+    return {
+      position: 'bottom',
+      draggedItem: createTempItem(activeData),
+      songDetails: getSongDetails(activeData)
+    };
+  }
+
+  // Case 2: End of list - show preview on last item
+  if ((overId === 'setlist-drop-zone-end' || overId === 'setlist-drop-zone') && items.length > 0) {
+    const lastItemId = items[items.length - 1].id;
+    return {
+      itemId: lastItemId,
+      position: 'bottom',
+      draggedItem: createTempItem(activeData),
+      songDetails: getSongDetails(activeData)
+    };
+  }
+
+  // Case 3: Between items - show preview above/below hovered item
+  if (overId in itemsById) {
+    const position = calculateDropPosition(activeId, overId, items);
+    return {
+      itemId: overId,
+      position,
+      draggedItem: createTempItem(activeData),
+      songDetails: getSongDetails(activeData)
+    };
+  }
+
+  return null;
+}, [activeId, overId, activeData, items]);
+```
+
+_Styling Details_:
+
+- 60% opacity to indicate preview state
+- Dashed border (2px) to differentiate from actual items
+- Colored left border (4px solid) for songs, matching series color
+- Drag handle icon (MdDragIndicator) for consistency
+- Top/bottom margins (mt={1}/mb={1}) for spacing when between items
+- "Drop here to add to setlist" text with muted color for empty state
 
 **Performance Optimization**:
 
@@ -312,17 +411,18 @@ Measuring configuration ensures accurate drop detection across all zones:
 const measuring = useMemo(
   () => ({
     droppable: {
-      strategy: MeasuringStrategy.WhileDragging  // Continuously measure droppables while dragging
+      strategy: MeasuringStrategy.WhileDragging // Continuously measure droppables while dragging
     },
     draggable: {
-      measure: (element: HTMLElement) => element.getBoundingClientRect()  // Precise element positioning
+      measure: (element: HTMLElement) => element.getBoundingClientRect() // Precise element positioning
     }
   }),
   []
 );
 ```
 
-**Why this matters**: 
+**Why this matters**:
+
 - The `WhileDragging` strategy ensures the invisible `SetlistEndDropZone` bounds are recalculated continuously
 - This fixes issues where quick-add items (MC, Encore, Intermission) would show drag preview at wrong position initially
 - The `getBoundingClientRect()` measurement ensures draggable items get accurate positioning from the start of drag
@@ -389,7 +489,7 @@ function calculateScore(
 
   // 2. Score each match
   let totalScore = 0;
-  const itemScores = matches.map(match => {
+  const itemScores = matches.map((match) => {
     let points = 0;
     const posDiff = Math.abs(match.predPos - match.actualPos);
 
@@ -420,17 +520,16 @@ function calculateScore(
     totalScore,
     maxPossibleScore: maxScore,
     accuracy,
-    breakdown: { /* ... */ },
+    breakdown: {
+      /* ... */
+    },
     itemScores,
     calculatedAt: new Date().toISOString()
   };
 }
 
 // Match songs between prediction and actual
-function matchSongs(
-  predItems: SetlistItem[],
-  actualItems: SetlistItem[]
-): Match[] {
+function matchSongs(predItems: SetlistItem[], actualItems: SetlistItem[]): Match[] {
   const matches: Match[] = [];
   const usedActual = new Set<string>();
 
@@ -439,9 +538,7 @@ function matchSongs(
     if (predItem.type !== 'song') continue;
 
     const actualItem = actualItems.find(
-      a => a.type === 'song' &&
-           a.songId === predItem.songId &&
-           !usedActual.has(a.id)
+      (a) => a.type === 'song' && a.songId === predItem.songId && !usedActual.has(a.id)
     );
 
     if (actualItem) {
@@ -469,19 +566,19 @@ function matchSongs(
 function generateShareUrl(prediction: SetlistPrediction): string {
   // 1. Minimize data
   const minified = {
-    v: 1,                           // version
+    v: 1, // version
     p: prediction.performanceId,
     n: prediction.name,
-    i: prediction.setlist.items.map(item => ({
+    i: prediction.setlist.items.map((item) => ({
       t: item.type,
       s: item.type === 'song' ? item.songId : undefined,
       c: item.type !== 'song' ? item.title : undefined,
-      r: item.remarks,
+      r: item.remarks
     })),
-    sec: prediction.setlist.sections.map(s => ({
+    sec: prediction.setlist.sections.map((s) => ({
       n: s.name,
       s: s.startIndex,
-      e: s.endIndex,
+      e: s.endIndex
     }))
   };
 
@@ -516,12 +613,12 @@ function parseShareUrl(compressed: string): SetlistPrediction {
         position: idx,
         songId: item.s,
         title: item.c,
-        remarks: item.r,
+        remarks: item.r
       })),
       sections: data.sec.map((s: any) => ({
         name: s.n,
         startIndex: s.s,
-        endIndex: s.e,
+        endIndex: s.e
       })),
       totalSongs: data.i.filter((i: any) => i.t === 'song').length
     },
