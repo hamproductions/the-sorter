@@ -240,8 +240,57 @@ export function PredictionBuilder({
   const dropIndicator = useMemo(() => {
     if (!activeId || !overId || !activeData) return null;
 
-    // Skip if we're dragging over the drop zone itself
-    if (overId === 'setlist-drop-zone') return null;
+    // Handle end position droppable (invisible elements after setlist)
+    // Need both setlist-drop-zone and setlist-drop-zone-end since
+    // setlist-drop-zone only seems to cover the area far below the last item
+    // but setlist-drop-zone-end fills in the gap between the last item and the setlist-drop-zone
+    if (overId === 'setlist-drop-zone-end' || overId === 'setlist-drop-zone') {
+      // set overid to be the last item's id
+      const overId = prediction.setlist.items[prediction.setlist.items.length - 1]?.id;
+      if (activeData.type === 'search-result') {
+        const songs = Array.isArray(songData) ? songData : [];
+        const songId = activeData.songId as string;
+        const songDetails = songs.find((song: Song) => String(song.id) === String(songId));
+
+        const tempItem: SetlistItemType = {
+          id: `temp-${songId}`,
+          type: 'song' as const,
+          songId: String(songId),
+          isCustomSong: false,
+          position: 0
+        };
+
+        // render at bottom of last item
+        return {
+          itemId: overId,
+          position: 'bottom' as const,
+          draggedItem: tempItem,
+          songDetails
+        };
+      }
+
+      if (activeData.type === 'quick-add-item') {
+        const title = activeData.title as string;
+        const itemType = activeData.itemType as 'mc' | 'other';
+
+        const tempItem: SetlistItemType = {
+          id: `temp-quick-add`,
+          type: itemType,
+          title: title,
+          position: 0
+        };
+
+        // render at bottom of last item
+        return {
+          itemId: overId,
+          position: 'bottom' as const,
+          draggedItem: tempItem,
+          songDetails: undefined
+        };
+      }
+
+      return null;
+    }
 
     const overData = prediction.setlist.items.find((item) => item.id === overId);
     if (!overData) return null;
@@ -327,8 +376,8 @@ export function PredictionBuilder({
         const currentItems = prediction.setlist.items;
         let insertPosition = currentItems.length;
 
-        // Find insert position if dropping over an item
-        if (over.id !== 'setlist-drop-zone') {
+        // Find insert position if dropping over an item (not the zone itself or end droppable)
+        if (over.id !== 'setlist-drop-zone' && over.id !== 'setlist-drop-zone-end') {
           const overIndex = currentItems.findIndex((item) => item.id === over.id);
           if (overIndex !== -1) {
             insertPosition = overIndex;
@@ -346,8 +395,8 @@ export function PredictionBuilder({
         const currentItems = prediction.setlist.items;
         let insertPosition = currentItems.length;
 
-        // Find insert position if dropping over an item
-        if (over.id !== 'setlist-drop-zone') {
+        // Find insert position if dropping over an item (not the zone itself or end droppable)
+        if (over.id !== 'setlist-drop-zone' && over.id !== 'setlist-drop-zone-end') {
           const overIndex = currentItems.findIndex((item) => item.id === over.id);
           if (overIndex !== -1) {
             insertPosition = overIndex;
@@ -424,6 +473,9 @@ export function PredictionBuilder({
     () => ({
       droppable: {
         strategy: MeasuringStrategy.WhileDragging
+      },
+      draggable: {
+        measure: (element: HTMLElement) => element.getBoundingClientRect()
       }
     }),
     []
