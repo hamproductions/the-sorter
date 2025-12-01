@@ -1,4 +1,3 @@
-/* eslint-disable @pandacss/no-dynamic-styling */
 /**
  * Setlist Editor Panel - Drag-and-drop setlist editing
  */
