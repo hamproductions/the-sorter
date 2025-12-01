@@ -62,7 +62,7 @@ export function SetlistEditorPanel({
             h="full"
             transition="background-color 0.2s"
           >
-            {/* if we are in an empty setlist, replace the null state with a drop preview */}
+            {/* if user drags a setlist item onto the empty setlist, replace the setlist null state with a drop preview */}
             {dropIndicator?.draggedItem ? (
               <DropPreview
                 draggedItem={dropIndicator.draggedItem}
