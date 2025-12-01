@@ -9,6 +9,9 @@ import { join } from 'path-browserify';
 import { Stack, Box, HStack } from 'styled-system/jsx';
 import { Text } from '~/components/ui/styled/text';
 import { Button } from '~/components/ui/styled/button';
+import { IconButton } from '~/components/ui/styled/icon-button';
+import { Menu } from '~/components/ui/menu';
+import { BiDotsVerticalRounded } from 'react-icons/bi';
 import { Metadata } from '~/components/layout/Metadata';
 import { usePerformance } from '~/hooks/setlist-prediction/usePerformanceData';
 import { usePredictionStorage } from '~/hooks/setlist-prediction/usePredictionStorage';
@@ -181,6 +184,7 @@ export function Page() {
                       size="xs"
                       variant="ghost"
                       onClick={() => setPerformancePickerOpen(true)}
+                      hideBelow="md"
                     >
                       {t('setlistPrediction.changePerformance', { defaultValue: 'Change' })}
                     </Button>
@@ -208,6 +212,7 @@ export function Page() {
                       size="xs"
                       variant="ghost"
                       onClick={() => setPerformancePickerOpen(true)}
+                      hideBelow="md"
                     >
                       {t('setlistPrediction.changePerformance', { defaultValue: 'Change' })}
                     </Button>
@@ -235,8 +240,8 @@ export function Page() {
               )}
             </Stack>
 
-            {/* Right: New / Load / Back */}
-            <HStack gap={2} flexShrink={0}>
+            {/* Right: New / Load / Back (Desktop) */}
+            <HStack gap={2} flexShrink={0} hideBelow="md">
               <Button
                 size={{ base: 'xs', md: 'sm' }}
                 variant="outline"
@@ -261,6 +266,38 @@ export function Page() {
                 {t('common.back', { defaultValue: 'Back' })}
               </Button>
             </HStack>
+
+            {/* Right: Menu (Mobile) */}
+            <Box hideFrom="md">
+              <Menu.Root positioning={{ placement: 'bottom-end' }}>
+                <Menu.Trigger asChild>
+                  <IconButton variant="ghost" size="sm">
+                    <BiDotsVerticalRounded size={20} />
+                  </IconButton>
+                </Menu.Trigger>
+                <Menu.Positioner>
+                  <Menu.Content>
+                    <Menu.Item value="change" onClick={() => setPerformancePickerOpen(true)}>
+                      {t('setlistPrediction.changePerformance', { defaultValue: 'Change Performance' })}
+                    </Menu.Item>
+                    <Menu.Item value="new" onClick={() => setNewDialogOpen(true)}>
+                      {t('common.new', { defaultValue: 'New' })}
+                    </Menu.Item>
+                    <Menu.Item value="load" onClick={() => setLoadDialogOpen(true)}>
+                      {t('common.load', { defaultValue: 'Load' })}
+                    </Menu.Item>
+                    <Menu.Item
+                      value="back"
+                      onClick={() =>
+                        (window.location.href = join(import.meta.env.BASE_URL, '/setlist-prediction'))
+                      }
+                    >
+                      {t('common.back', { defaultValue: 'Back' })}
+                    </Menu.Item>
+                  </Menu.Content>
+                </Menu.Positioner>
+              </Menu.Root>
+            </Box>
           </HStack>
         </Box>
 

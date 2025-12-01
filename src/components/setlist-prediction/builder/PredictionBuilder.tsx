@@ -18,7 +18,7 @@ import {
   KeyboardSensor
 } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
-import { BiPlus } from 'react-icons/bi';
+import { BiPlus, BiSave, BiDotsVerticalRounded } from 'react-icons/bi';
 import { MdDragIndicator } from 'react-icons/md';
 import artistsData from '../../../../data/artists-info.json';
 import { AddItemDrawer } from './AddItemDrawer';
@@ -28,6 +28,7 @@ import { DraggableQuickAddItem } from './DraggableQuickAddItem';
 import { ImportDialog } from './ImportDialog';
 import { ExportShareTools } from './ExportShareTools';
 import { Drawer } from '~/components/ui/drawer';
+import { Menu } from '~/components/ui/menu';
 
 import { css } from 'styled-system/css';
 import { Box, Stack, HStack } from 'styled-system/jsx';
@@ -505,46 +506,52 @@ export function PredictionBuilder({
             </HStack>
           </HStack>
 
-          {/* Mobile: Two Lines */}
-          <Stack hideFrom="md" gap={2}>
-            {/* Line 1: Menu + Input + Save */}
-            <HStack gap={2} alignItems="center">
-              <IconButton
-                variant="ghost"
-                size="sm"
-                onClick={() => setLeftSidebarOpen(true)}
-                aria-label="Open song search"
-              >
-                <BiPlus size={20} />
-              </IconButton>
-              <Input
-                value={predictionName}
-                onChange={(e) => handleNameChange(e.target.value)}
-                placeholder={t('setlistPrediction.predictionNamePlaceholder', {
-                  defaultValue: 'Enter prediction name...'
-                })}
-                flex={1}
-              />
-              <Button onClick={handleSave} disabled={!isDirty} size="sm">
-                {t('common.save', { defaultValue: 'Save' })}
-              </Button>
-            </HStack>
-
-            {/* Line 2: Import + Clear */}
-            <HStack gap={2}>
-              <Button
-                variant="outline"
-                onClick={() => setImportDialogOpen(true)}
-                size="sm"
-                flex={1}
-              >
-                {t('common.import', { defaultValue: 'Import' })}
-              </Button>
-              <Button variant="subtle" onClick={clearItems} size="sm" flex={1}>
-                {t('common.clear', { defaultValue: 'Clear' })}
-              </Button>
-            </HStack>
-          </Stack>
+          {/* Mobile: Single Line with Menu */}
+          <HStack hideFrom="md" gap={2} alignItems="center">
+            <IconButton
+              variant="ghost"
+              size="sm"
+              onClick={() => setLeftSidebarOpen(true)}
+              aria-label={t('setlistPrediction.songSearch', { defaultValue: 'Song Search' })}
+            >
+              <BiPlus size={20} />
+            </IconButton>
+            <Input
+              value={predictionName}
+              onChange={(e) => handleNameChange(e.target.value)}
+              placeholder={t('setlistPrediction.predictionNamePlaceholder', {
+                defaultValue: 'Enter prediction name...'
+              })}
+              flex={1}
+              size="sm"
+            />
+            <IconButton
+              onClick={handleSave}
+              disabled={!isDirty}
+              size="sm"
+              aria-label={t('common.save', { defaultValue: 'Save' })}
+            >
+              <BiSave size={18} />
+            </IconButton>
+            
+            <Menu.Root positioning={{ placement: 'bottom-end' }}>
+              <Menu.Trigger asChild>
+                <IconButton variant="ghost" size="sm">
+                  <BiDotsVerticalRounded size={20} />
+                </IconButton>
+              </Menu.Trigger>
+              <Menu.Positioner>
+                <Menu.Content>
+                  <Menu.Item value="import" onClick={() => setImportDialogOpen(true)}>
+                    {t('common.import', { defaultValue: 'Import' })}
+                  </Menu.Item>
+                  <Menu.Item value="clear" onClick={clearItems} color="fg.error">
+                    {t('common.clear', { defaultValue: 'Clear' })}
+                  </Menu.Item>
+                </Menu.Content>
+              </Menu.Positioner>
+            </Menu.Root>
+          </HStack>
         </Box>
 
         {/* Main Content - Three Panel Layout */}

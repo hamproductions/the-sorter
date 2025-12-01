@@ -106,9 +106,16 @@ const DraggableSongItem = memo(function DraggableSongItem({
 export interface SongSearchPanelProps {
   onAddSong: (songId: string, songTitle: string) => void;
   onAddCustomSong?: (customName: string) => void;
+  maxH?: string | number;
+  hideTitle?: boolean;
 }
 
-export function SongSearchPanel({ onAddSong, onAddCustomSong }: SongSearchPanelProps) {
+export function SongSearchPanel({
+  onAddSong,
+  onAddCustomSong,
+  maxH = '400px',
+  hideTitle = false
+}: SongSearchPanelProps) {
   const { t } = useTranslation();
   const songData = useSongData();
   const [searchQuery, setSearchQuery] = useState('');
@@ -204,10 +211,12 @@ export function SongSearchPanel({ onAddSong, onAddCustomSong }: SongSearchPanelP
   }, [songData, debouncedQuery]);
 
   return (
-    <Stack gap={3}>
-      <Text fontSize="lg" fontWeight="bold">
-        {t('setlistPrediction.songSearch', { defaultValue: 'Song Search' })}
-      </Text>
+    <Stack gap={3} h="full">
+      {!hideTitle && (
+        <Text fontSize="lg" fontWeight="bold">
+          {t('setlistPrediction.songSearch', { defaultValue: 'Song Search' })}
+        </Text>
+      )}
 
       <Input
         value={searchQuery}
@@ -218,7 +227,7 @@ export function SongSearchPanel({ onAddSong, onAddCustomSong }: SongSearchPanelP
       />
 
       {/* Search Results */}
-      <Box borderRadius="md" borderWidth="1px" maxH="400px" overflow="auto">
+      <Box borderRadius="md" borderWidth="1px" maxH={maxH} overflow="auto">
         {searchQuery.trim() === '' ? (
           <Box p={4}>
             <Text color="fg.muted" textAlign="center" fontSize="sm">
