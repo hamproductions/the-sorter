@@ -267,49 +267,6 @@ export function PredictionBuilder({
   const dropIndicator = useMemo(() => {
     if (!activeId || !overId || !activeData) return null;
 
-    // Handle empty setlist case - show a "NUX" drop indicator in the center
-    if (overId === 'setlist-drop-zone' && prediction.setlist.items.length === 0) {
-      if (activeData.type === 'search-result') {
-        const songs = Array.isArray(songData) ? songData : [];
-        const songId = activeData.songId as string;
-        const songDetails = songs.find((song: Song) => String(song.id) === String(songId));
-
-        const tempItem: SetlistItemType = {
-          id: `temp-${songId}`,
-          type: 'song' as const,
-          songId: String(songId),
-          isCustomSong: false,
-          position: 0
-        };
-
-        return {
-          position: 'bottom' as const,
-          draggedItem: tempItem,
-          songDetails
-        };
-      }
-
-      if (activeData.type === 'quick-add-item') {
-        const title = activeData.title as string;
-        const itemType = activeData.itemType as 'mc' | 'other';
-
-        const tempItem: SetlistItemType = {
-          id: `temp-quick-add`,
-          type: itemType,
-          title: title,
-          position: 0
-        };
-
-        return {
-          position: 'bottom' as const,
-          draggedItem: tempItem,
-          songDetails: undefined
-        };
-      }
-
-      return null;
-    }
-
     // Handle end position droppable (invisible elements after setlist)
     // Need both setlist-drop-zone and setlist-drop-zone-end since
     // setlist-drop-zone only seems to cover the area far below the last item
@@ -561,11 +518,10 @@ export function PredictionBuilder({
     () => ({
       droppable: {
         strategy: MeasuringStrategy.WhileDragging
+      },
+      draggable: {
+        measure: (element: HTMLElement) => element.getBoundingClientRect()
       }
-      // ,
-      // draggable: {
-      //   measure: (element: HTMLElement) => element.getBoundingClientRect()
-      // }
     }),
     []
   );
