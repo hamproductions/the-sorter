@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { useMemo, useState, memo } from 'react';
 import artistsData from '../../../../../data/artists-info.json';
 import { EditItemDialog } from '../EditItemDialog';
+import { DropPreview } from './DropPreview';
 import { Box, HStack, Stack } from 'styled-system/jsx';
 import { Text } from '~/components/ui/styled/text';
 import { IconButton } from '~/components/ui/styled/icon-button';
@@ -134,79 +135,6 @@ const SetlistItemComponent = memo(function SetlistItem({
     !isSongItem(item) &&
     (item.title.includes('━━') || item.title.includes('---') || item.title.includes('==='));
 
-  // Get dragged item details for preview
-  const draggedItemColor = useMemo(() => {
-    if (!draggedSongDetails) return undefined;
-    return getSongColor(draggedSongDetails);
-  }, [draggedSongDetails]);
-
-  const draggedArtistName = useMemo(() => {
-    if (!draggedSongDetails || !draggedSongDetails.artists) return undefined;
-    const firstArtistId = draggedSongDetails.artists[0];
-    if (!firstArtistId) return undefined;
-    const artist = artistsData.find((a) => a.id === String(firstArtistId));
-    return artist?.name;
-  }, [draggedSongDetails]);
-
-  // Render drop preview for cross-list dragging only
-  const renderDropPreview = (position: 'top' | 'bottom') => {
-    if (!draggedItem) return null;
-
-    return (
-      <Box mt={position === 'bottom' ? 1 : 0} mb={position === 'top' ? 1 : 0} opacity={0.6}>
-        <Box
-          borderLeft={isSongItem(draggedItem) && draggedItemColor ? '4px solid' : undefined}
-          borderColor={isSongItem(draggedItem) && draggedItemColor ? draggedItemColor : undefined}
-          borderRadius="md"
-          borderWidth="2px"
-          py={2}
-          px={3}
-          bgColor="bg.muted"
-          borderStyle="dashed"
-        >
-          <HStack gap={2} justifyContent="space-between" alignItems="flex-start">
-            <HStack flex={1} gap={2} alignItems="flex-start">
-              <Box display="flex" alignItems="center">
-                <MdDragIndicator size={16} style={{ marginTop: '2px', flexShrink: 0 }} />
-              </Box>
-
-              {/* Preview Content */}
-              <Stack flex={1} gap={0.5}>
-                {isSongItem(draggedItem) ? (
-                  <>
-                    <Text fontSize="sm" fontWeight="medium" lineHeight="1.4">
-                      {draggedItem.isCustomSong
-                        ? draggedItem.customSongName
-                        : draggedSongDetails?.name ||
-                          draggedItem.customSongName ||
-                          `Song ${draggedItem.songId}`}
-                    </Text>
-                    {!draggedItem.isCustomSong && (draggedItem.remarks || draggedArtistName) && (
-                      <Text color="fg.muted" fontSize="xs" lineHeight="1.3">
-                        {draggedItem.remarks || draggedArtistName}
-                      </Text>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <Text fontSize="sm" fontWeight="medium" lineHeight="1.4">
-                      {draggedItem.title}
-                    </Text>
-                    {draggedItem.remarks && (
-                      <Text color="fg.muted" fontSize="xs" lineHeight="1.3">
-                        {draggedItem.remarks}
-                      </Text>
-                    )}
-                  </>
-                )}
-              </Stack>
-            </HStack>
-          </HStack>
-        </Box>
-      </Box>
-    );
-  };
-
   return (
     <>
       {/* Section Divider */}
@@ -230,7 +158,9 @@ const SetlistItemComponent = memo(function SetlistItem({
       )}
 
       {/* Drop Preview - Top */}
-      {dropIndicatorPosition === 'top' && renderDropPreview('top')}
+      {dropIndicatorPosition === 'top' && draggedItem && (
+        <DropPreview draggedItem={draggedItem} songDetails={draggedSongDetails} position="top" />
+      )}
 
       <Box
         ref={setNodeRef}
@@ -354,7 +284,9 @@ const SetlistItemComponent = memo(function SetlistItem({
       </Box>
 
       {/* Drop Preview - Bottom */}
-      {dropIndicatorPosition === 'bottom' && renderDropPreview('bottom')}
+      {dropIndicatorPosition === 'bottom' && draggedItem && (
+        <DropPreview draggedItem={draggedItem} songDetails={draggedSongDetails} position="bottom" />
+      )}
 
       {/* Edit Dialog */}
       <EditItemDialog

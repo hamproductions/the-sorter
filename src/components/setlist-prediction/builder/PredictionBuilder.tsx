@@ -283,18 +283,17 @@ export function PredictionBuilder({
       return null;
     }
 
-    // Skip if we're dragging over the drop zone itself (non-empty setlist)
-    if (overId === 'setlist-drop-zone') return null;
-
-    // Handle end position droppable (invisible element after setlist\)
-    if (overId === 'setlist-drop-zone-end') {
+    // Handle end position droppable (invisible elements after setlist)
+    // Need both setlist-drop-zone and setlist-drop-zone-end since
+    // setlist-drop-zone only seems to cover the area far below the last item
+    // but setlist-drop-zone-end fills in the gap between the last item and the setlist-drop-zone
+    if (overId === 'setlist-drop-zone-end' || overId === 'setlist-drop-zone') {
+      // set overid to be the last item's id
       const overId = prediction.setlist.items[prediction.setlist.items.length - 1]?.id;
       if (activeData.type === 'search-result') {
         const songs = Array.isArray(songData) ? songData : [];
         const songId = activeData.songId as string;
         const songDetails = songs.find((song: Song) => String(song.id) === String(songId));
-
-        // set overid to be the last item's id
 
         const tempItem: SetlistItemType = {
           id: `temp-${songId}`,
@@ -304,6 +303,7 @@ export function PredictionBuilder({
           position: 0
         };
 
+        // render at bottom of last item
         return {
           itemId: overId,
           position: 'bottom' as const,
@@ -323,6 +323,7 @@ export function PredictionBuilder({
           position: 0
         };
 
+        // render at bottom of last item
         return {
           itemId: overId,
           position: 'bottom' as const,
