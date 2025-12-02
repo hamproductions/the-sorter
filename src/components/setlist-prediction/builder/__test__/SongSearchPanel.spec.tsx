@@ -4,48 +4,85 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { SongSearchPanel } from '../SongSearchPanel';
 import { render, screen } from '~/__test__/utils';
 
+// Mock the artists data with englishName fields
+vi.mock('../../../../data/artists-info.json', () => ({
+  default: [
+    { id: '1', name: "μ's", characters: ['1', '2'], seriesIds: [1] },
+    { id: '33', name: 'Aqours', characters: ['14', '15'], seriesIds: [2] },
+    {
+      id: '60',
+      name: '虹ヶ咲学園スクールアイドル同好会',
+      englishName: 'Nijigasaki High School Idol Club',
+      characters: ['25'],
+      seriesIds: [3]
+    },
+    { id: '91', name: 'Liella!', englishName: 'Liella!', characters: ['53'], seriesIds: [4] },
+    {
+      id: '133',
+      name: '蓮ノ空女学院スクールアイドルクラブ',
+      englishName: 'Hasu no Sora Jogakuin School Idol Club',
+      characters: ['78'],
+      seriesIds: [6]
+    },
+    {
+      id: '134',
+      name: 'スリーズブーケ',
+      englishName: 'Cerise Bouquet',
+      characters: ['78', '80'],
+      seriesIds: [6]
+    }
+  ]
+}));
+
 // Mock the useSongData hook
 vi.mock('~/hooks/useSongData', () => ({
   useSongData: () => [
     {
       id: '1',
       name: 'Snow halation',
+      phoneticName: 'すのーはれーしょん',
       artists: ['1'], // μ's
       seriesIds: [1]
     },
     {
       id: '2',
       name: 'Aozora Jumping Heart',
+      phoneticName: 'あおぞらじゃんぴんぐはーと',
       artists: ['33'], // Aqours
       seriesIds: [2]
     },
     {
       id: '234',
       name: 'Aqours Pirate Desire',
+      phoneticName: 'あくあぱいれーとでざいあ',
       artists: ['33'], // Aqours
       seriesIds: [2]
     },
     {
       id: '123',
       name: 'Heart ni Q',
+      phoneticName: 'はーとにきゅー',
       artists: ['134'], // Cerise Bouquet
       seriesIds: [6] // Hasu
     },
     {
       id: '3',
       name: 'MOMENT RING',
+      phoneticName: 'もーめんとりんぐ',
       artists: ['1'], // μ's
       seriesIds: [1]
     },
     {
       id: '4',
       name: 'SELF CONTROL!!',
+      phoneticName: 'せるふこんとろーる',
       artists: ['60'], // Nijigaku
       seriesIds: [3]
     },
     {
       id: '5',
       name: 'START!! True dreams',
+      phoneticName: 'すたーととぅるーどりーむず',
       artists: ['91'], // Liella!
       seriesIds: [4]
     }
@@ -222,6 +259,77 @@ describe('SongSearchPanel', () => {
       await user.dblClick(songItem);
 
       expect(mockOnAddSong).toHaveBeenCalledWith('1', 'Snow halation');
+    });
+  });
+
+  describe('Romaji search with spaces', () => {
+    it('finds songs when searching romaji with spaces', async () => {
+      const [, user] = await render(
+        <SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />
+      );
+
+      const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
+      await user.type(searchInput, 'Snow Halation');
+
+      expect(await screen.findByText('Snow halation')).toBeInTheDocument();
+    });
+
+    it('is case insensitive for romaji searches', async () => {
+      const [, user] = await render(
+        <SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />
+      );
+
+      const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
+      await user.type(searchInput, 'SNOWHALATION');
+
+      expect(await screen.findByText('Snow halation')).toBeInTheDocument();
+    });
+
+    it('finds songs with romaji containing spaces (e.g. Senpen Banka)', async () => {
+      const [, user] = await render(
+        <SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />
+      );
+
+      const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
+      // Mock expects phoneticName conversion; testing the normalization logic
+      await user.type(searchInput, 'aozora jumping');
+
+      expect(await screen.findByText('Aozora Jumping Heart')).toBeInTheDocument();
+    });
+  });
+
+  describe('English artist name search', () => {
+    it('finds songs by English group name', async () => {
+      const [, user] = await render(
+        <SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />
+      );
+
+      const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
+      await user.type(searchInput, 'Cerise Bouquet');
+
+      expect(await screen.findByText('Heart ni Q')).toBeInTheDocument();
+    });
+
+    it('finds songs by partial English group name', async () => {
+      const [, user] = await render(
+        <SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />
+      );
+
+      const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
+      await user.type(searchInput, 'Cerise');
+
+      expect(await screen.findByText('Heart ni Q')).toBeInTheDocument();
+    });
+
+    it('searches by "Hasu no Sora" for Hasu songs', async () => {
+      const [, user] = await render(
+        <SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />
+      );
+
+      const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
+      await user.type(searchInput, 'Hasu no Sora');
+
+      expect(await screen.findByText('Heart ni Q')).toBeInTheDocument();
     });
   });
 });
