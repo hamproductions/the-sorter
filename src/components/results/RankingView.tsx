@@ -24,6 +24,7 @@ export function RankingView({
             <GridItem
               onClick={onSelectCharacter && (() => onSelectCharacter(c))}
               key={id}
+              data-testid={`character-item-${id}`}
               cursor="pointer"
             >
               <RankingViewTopItem locale={locale} character={c} isSeiyuu={isSeiyuu} />
@@ -38,6 +39,7 @@ export function RankingView({
             <GridItem
               onClick={onSelectCharacter && (() => onSelectCharacter(c))}
               key={id}
+              data-testid={`character-item-${id}`}
               cursor="pointer"
             >
               <RankingViewListItem locale={locale} character={c} isSeiyuu={isSeiyuu} />

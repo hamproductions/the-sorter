@@ -76,7 +76,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
             {/* Mobile Navigation Toggle */}
             <Box hideFrom="md">
-              <Button variant="ghost" size="sm" onClick={() => setIsDrawerOpen(true)}>
+              <Button variant="ghost" size="sm" onClick={() => setIsDrawerOpen(true)} aria-label="Open Menu">
                 <BiMenu size={24} />
               </Button>
             </Box>

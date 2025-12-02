@@ -7,24 +7,37 @@ import { ColorModeProvider } from '~/context/ColorModeContext';
 import { ToasterProvider } from '~/context/ToasterContext';
 import { Layout } from '~/pages/+Layout';
 
-import '../../i18n';
+import i18n from '../../i18n';
+
+import { Suspense } from 'react';
 
 function AllTheProviders({ children }: { children: React.ReactNode }) {
   return (
     <HelmetProvider>
       <ColorModeProvider>
         <ToasterProvider>
-          <Layout>{children}</Layout>
+          <Suspense fallback={<div>Loading...</div>}>
+            <Layout>{children}</Layout>
+          </Suspense>
         </ToasterProvider>
       </ColorModeProvider>
     </HelmetProvider>
   );
 }
 
-const customRender = async (ui: React.ReactNode, options?: RenderOptions) => {
-  const res = render(ui, { wrapper: AllTheProviders, ...options });
+interface CustomRenderOptions extends RenderOptions {
+  skipLanguageCheck?: boolean;
+}
+
+const customRender = async (ui: React.ReactNode, options?: CustomRenderOptions) => {
+  const { skipLanguageCheck, ...renderOptions } = options || {};
+  const res = render(ui, { wrapper: AllTheProviders, ...renderOptions });
   const user = userEvent.setup({ document: res.container.ownerDocument });
-  await user.click(await res.findByText('English'));
+
+  if (!skipLanguageCheck) {
+    await i18n.changeLanguage('en');
+  }
+
   return [res, user] as const;
 };
 

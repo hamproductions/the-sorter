@@ -252,6 +252,7 @@ export function ResultsView({
               <Wrap justifyContent="flex-end" w="full">
                 <Button
                   variant="subtle"
+                  data-testid="share-results-button"
                   onClick={() =>
                     onShareResults?.({
                       title,

@@ -20,18 +20,90 @@ describe('Layout', () => {
     });
 
     it('Change language to Japanese', async () => {
-      const [{ findByText }] = await render(<></>);
-      await user.click(await findByText('日本語'));
-      expect(await findByText('ソースコードをチェックしてみてね')).toBeInTheDocument();
+      const [{ queryAllByText, getByText, queryByLabelText, getAllByText }] = await render(<></>);
+      
+      let langBtns = queryAllByText('日本語');
+      let clicked = false;
+      
+      for (const btn of langBtns) {
+        try {
+           if (!btn.checkVisibility || btn.checkVisibility()) {
+              await user.click(btn);
+              clicked = true;
+              break;
+           }
+        } catch (e) {}
+      }
+      
+      if (!clicked) {
+         const menuBtn = queryByLabelText('Open Menu');
+         if (menuBtn) {
+            await user.click(menuBtn);
+            langBtns = getAllByText('日本語');
+            for (const btn of langBtns) {
+                try {
+                    await user.click(btn);
+                    clicked = true;
+                    break;
+                } catch (e) {}
+            }
+         }
+      }
+      
+      expect(await getByText('ソースコードをチェックしてみてね')).toBeInTheDocument();
     });
   });
 
   describe('Color Mode Switch', () => {
     it('Dark Mode', async () => {
-      const [{ findByLabelText, container }] = await render(<></>);
-      await user.click(await findByLabelText('Toggle Color Mode'));
+      const [{ queryAllByLabelText, queryByLabelText, getAllByLabelText, container }] = await render(<></>);
+      
+      let toggleBtns = queryAllByLabelText('Toggle Color Mode');
+      let clicked = false;
+      
+      // Try clicking any visible button
+      for (const btn of toggleBtns) {
+        try {
+          // Check visibility if possible
+          if (!btn.checkVisibility || btn.checkVisibility()) {
+             await user.click(btn);
+             clicked = true;
+             break;
+          }
+        } catch (e) {
+          // Ignore
+        }
+      }
+
+      // If not clicked, try opening menu
+      if (!clicked) {
+         const menuBtn = queryByLabelText('Open Menu');
+         if (menuBtn) {
+            await user.click(menuBtn);
+            // Find buttons again as new one might be revealed/rendered
+            toggleBtns = getAllByLabelText('Toggle Color Mode');
+            for (const btn of toggleBtns) {
+                try {
+                    await user.click(btn);
+                    clicked = true;
+                    break;
+                } catch (e) {}
+            }
+         }
+      }
+      
       expect(container.parentElement?.parentElement).toHaveClass('dark');
-      await user.click(await findByLabelText('Toggle Color Mode'));
+      
+      // Toggle back
+      toggleBtns = getAllByLabelText('Toggle Color Mode');
+      clicked = false;
+      for (const btn of toggleBtns) {
+        try {
+           await user.click(btn);
+           clicked = true;
+           break;
+        } catch (e) {}
+      }
       expect(container.parentElement?.parentElement).not.toHaveClass('dark');
     });
   });
