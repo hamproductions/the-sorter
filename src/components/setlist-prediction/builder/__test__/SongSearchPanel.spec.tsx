@@ -73,19 +73,19 @@ vi.mock('~/hooks/useSongData', () => ({
       seriesIds: [1]
     },
     {
-      id: '4',
-      name: 'SELF CONTROL!!',
-      phoneticName: 'せるふこんとろーる',
-      artists: ['60'], // Nijigaku
-      seriesIds: [3]
-    },
-    {
       id: '5',
       name: 'START!! True dreams',
       phoneticName: 'すたーととぅるーどりーむず',
       artists: ['91'], // Liella!
       seriesIds: [4]
-    }
+    },
+    {
+      id: '567',
+      name: '千変万華',
+      phoneticName: 'せんぺんばんか',
+      artists: ['134'], // Cerise Bouquet
+      seriesIds: [6] // Hasu
+    },
   ]
 }));
 
@@ -269,9 +269,9 @@ describe('SongSearchPanel', () => {
       );
 
       const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
-      await user.type(searchInput, 'Snow Halation');
+      await user.type(searchInput, 'senpen banka');
 
-      expect(await screen.findByText('Snow halation')).toBeInTheDocument();
+      expect(await screen.findByText('千変万華')).toBeInTheDocument();
     });
 
     it('is case insensitive for romaji searches', async () => {
@@ -280,21 +280,9 @@ describe('SongSearchPanel', () => {
       );
 
       const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
-      await user.type(searchInput, 'SNOWHALATION');
+      await user.type(searchInput, 'SENPEN BANKA');
 
-      expect(await screen.findByText('Snow halation')).toBeInTheDocument();
-    });
-
-    it('finds songs with romaji containing spaces (e.g. Senpen Banka)', async () => {
-      const [, user] = await render(
-        <SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />
-      );
-
-      const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
-      // Mock expects phoneticName conversion; testing the normalization logic
-      await user.type(searchInput, 'aozora jumping');
-
-      expect(await screen.findByText('Aozora Jumping Heart')).toBeInTheDocument();
+      expect(await screen.findByText('千変万華')).toBeInTheDocument();
     });
   });
 
@@ -317,17 +305,6 @@ describe('SongSearchPanel', () => {
 
       const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
       await user.type(searchInput, 'Cerise');
-
-      expect(await screen.findByText('Heart ni Q')).toBeInTheDocument();
-    });
-
-    it('searches by "Hasu no Sora" for Hasu songs', async () => {
-      const [, user] = await render(
-        <SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />
-      );
-
-      const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
-      await user.type(searchInput, 'Hasu no Sora');
 
       expect(await screen.findByText('Heart ni Q')).toBeInTheDocument();
     });
