@@ -45,9 +45,9 @@ export function AddItemDrawer({
               </Drawer.CloseTrigger>
             </HStack>
 
-            <Stack flex={1} gap={6} p={4} overflow="auto">
+            <Stack flex={1} gap={6} p={4} overflow="hidden">
               {/* Quick Add Section */}
-              <Stack gap={2}>
+              <Stack gap={2} flexShrink={0}>
                 <Text fontSize="sm" fontWeight="medium">
                   {t('setlistPrediction.quickAdd', { defaultValue: 'Quick Add' })}
                 </Text>
@@ -86,12 +86,11 @@ export function AddItemDrawer({
               </Stack>
 
               {/* Song Search Section */}
-              <Stack flex={1} gap={2}>
-                <Text fontSize="sm" fontWeight="medium">
-                  {t('setlistPrediction.searchSongs', { defaultValue: 'Search Songs' })}
-                </Text>
-                <Box flex={1} overflow="auto">
+              <Stack flex={1} gap={2} minH={0}>
+                <Box flex={1} overflow="hidden">
                   <SongSearchPanel
+                    hideTitle
+                    maxH="100%"
                     onAddSong={(id, title) => {
                       onAddSong(id, title);
                       onClose();
