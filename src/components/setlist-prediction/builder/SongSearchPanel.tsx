@@ -144,11 +144,11 @@ export function SongSearchPanel({
         const phoneticName = song.phoneticName ?? '';
         const phoneticRomaji = toRomaji(phoneticName);
         const searchText = `${song.name} ${phoneticName}`.toLowerCase();
-        
+
         // Normalize romaji by removing spaces for better matching
         const normalizedPhoneticRomaji = phoneticRomaji.replace(/\s+/g, '');
         const normalizedQueryRomaji = queryRomaji.replace(/\s+/g, '');
-        
+
         const matches =
           searchText.includes(query) ||
           phoneticName.includes(queryHiragana) ||

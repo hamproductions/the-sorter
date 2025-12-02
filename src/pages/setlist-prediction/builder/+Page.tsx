@@ -6,12 +6,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { join } from 'path-browserify';
+import { BiDotsVerticalRounded } from 'react-icons/bi';
 import { Stack, Box, HStack } from 'styled-system/jsx';
 import { Text } from '~/components/ui/styled/text';
 import { Button } from '~/components/ui/styled/button';
 import { IconButton } from '~/components/ui/styled/icon-button';
 import { Menu } from '~/components/ui/menu';
-import { BiDotsVerticalRounded } from 'react-icons/bi';
 import { Metadata } from '~/components/layout/Metadata';
 import { usePerformance } from '~/hooks/setlist-prediction/usePerformanceData';
 import { usePredictionStorage } from '~/hooks/setlist-prediction/usePredictionStorage';
@@ -241,7 +241,7 @@ export function Page() {
             </Stack>
 
             {/* Right: New / Load / Back (Desktop) */}
-            <HStack gap={2} flexShrink={0} hideBelow="md">
+            <HStack hideBelow="md" gap={2} flexShrink={0}>
               <Button
                 size={{ base: 'xs', md: 'sm' }}
                 variant="outline"
@@ -278,7 +278,9 @@ export function Page() {
                 <Menu.Positioner>
                   <Menu.Content>
                     <Menu.Item value="change" onClick={() => setPerformancePickerOpen(true)}>
-                      {t('setlistPrediction.changePerformance', { defaultValue: 'Change Performance' })}
+                      {t('setlistPrediction.changePerformance', {
+                        defaultValue: 'Change Performance'
+                      })}
                     </Menu.Item>
                     <Menu.Item value="new" onClick={() => setNewDialogOpen(true)}>
                       {t('common.new', { defaultValue: 'New' })}
@@ -289,7 +291,10 @@ export function Page() {
                     <Menu.Item
                       value="back"
                       onClick={() =>
-                        (window.location.href = join(import.meta.env.BASE_URL, '/setlist-prediction'))
+                        (window.location.href = join(
+                          import.meta.env.BASE_URL,
+                          '/setlist-prediction'
+                        ))
                       }
                     >
                       {t('common.back', { defaultValue: 'Back' })}

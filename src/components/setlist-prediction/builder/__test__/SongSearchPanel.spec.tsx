@@ -85,7 +85,7 @@ vi.mock('~/hooks/useSongData', () => ({
       phoneticName: 'せんぺんばんか',
       artists: ['134'], // Cerise Bouquet
       seriesIds: [6] // Hasu
-    },
+    }
   ]
 }));
 
