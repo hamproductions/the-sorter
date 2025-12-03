@@ -1,8 +1,8 @@
 import '@testing-library/jest-dom/vitest';
 
 import { describe, expect, it, vi } from 'vitest';
-import { render } from '../../__test__/utils';
 import { fireEvent } from '@testing-library/react';
+import { render } from '../../__test__/utils';
 import { Page } from '../setlist-prediction/+Page';
 
 // Mock the hook using vi.mock with alias
@@ -40,7 +40,11 @@ describe('Setlist Prediction Page', () => {
     const [{ findAllByText, findByText }] = await render(<Page />);
     const titles = await findAllByText('Setlist Prediction');
     expect(titles.length).toBeGreaterThan(0);
-    expect(await findByText('Fantasy football for Love Live! setlists - Predict performances and compete with friends!')).toBeInTheDocument();
+    expect(
+      await findByText(
+        'Fantasy football for Love Live! setlists - Predict performances and compete with friends!'
+      )
+    ).toBeInTheDocument();
   });
 
   it('Displays performances', async () => {
@@ -54,12 +58,10 @@ describe('Setlist Prediction Page', () => {
     const searchInput = await findByPlaceholderText('Search performances, venues...');
     fireEvent.change(searchInput, { target: { value: 'Test' } });
     expect(searchInput).toHaveValue('Test');
-    
+
     // Since we mocked the hook to return static data, the list won't actually filter in this test unless we make the mock dynamic or test the hook separately.
     // But we can verify the interaction works without crashing.
   });
-
-
 
   it('Hide completed toggle', async () => {
     const [{ findByText }] = await render(<Page />);

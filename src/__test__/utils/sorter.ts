@@ -1,7 +1,6 @@
 import type { UserEvent } from '@testing-library/user-event';
 import type { RenderResult } from './index';
 
-
 export const pickLeft = async (user: UserEvent) => {
   await user.keyboard('[ArrowLeft]');
 };
@@ -30,13 +29,21 @@ export const resolveSort = async (
     } else if (strategy === 'right') {
       await pickRight(user);
     } else {
-      Math.random() > 0.5 ? await pickLeft(user) : await pickRight(user);
+      if (Math.random() > 0.5) {
+        await pickLeft(user);
+      } else {
+        await pickRight(user);
+      }
     }
     // Small delay might be needed if animations are involved, but usually not in tests
   }
 };
 
-export const selectPreset = async (container: RenderResult, user: UserEvent, presetName: string) => {
+export const selectPreset = async (
+  container: RenderResult,
+  user: UserEvent,
+  presetName: string
+) => {
   const { findByText } = container;
   await user.click(await findByText(presetName, {}, { timeout: 2000 }));
 };

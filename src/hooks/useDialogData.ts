@@ -13,8 +13,7 @@ export const useDialogData = <T>() => {
       }, 200);
     } else {
       _setDisplayData(_data);
-
-      setTimeout(() => _setOpen(true), 50);
+      _setOpen(true);
     }
   }, [_data]);
 

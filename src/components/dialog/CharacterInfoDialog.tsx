@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaXmark } from 'react-icons/fa6';
 import { groupBy } from 'lodash-es';
@@ -20,6 +21,8 @@ export function CharacterInfoDialog(
 ) {
   const { character, isSeiyuu, ...rest } = props;
   const { t, i18n } = useTranslation();
+  const [isSeiyuuImageError, setSeiyuuImageError] = useState(false);
+  const [isCharacterImageError, setCharacterImageError] = useState(false);
 
   const {
     id,
@@ -140,28 +143,34 @@ export function CharacterInfoDialog(
                       alignItems="stretch"
                       maxH={{ base: '240px', md: '480px' }}
                     >
-                      <styled.img
-                        src={getPicUrl(id, isSeiyuu ? 'seiyuu' : 'character')}
-                        alt={isSeiyuu ? castName : fullName}
-                        display="block"
-                        flex={1}
-                        objectFit="contain"
-                        minW={0}
-                        maxW="full"
-                        minH={0}
-                        maxH="full"
-                      />
-                      <styled.img
-                        src={getPicUrl(id, isSeiyuu ? 'character' : 'seiyuu')}
-                        alt={isSeiyuu ? fullName : castName}
-                        display="block"
-                        flex={1}
-                        objectFit="contain"
-                        minW={0}
-                        maxW="full"
-                        minH={0}
-                        maxH="full"
-                      />
+                      {!isSeiyuuImageError && (
+                        <styled.img
+                          src={getPicUrl(id, isSeiyuu ? 'seiyuu' : 'character')}
+                          alt={isSeiyuu ? castName : fullName}
+                          onError={() => setSeiyuuImageError(true)}
+                          display="block"
+                          flex={1}
+                          objectFit="contain"
+                          minW={0}
+                          maxW="full"
+                          minH={0}
+                          maxH="full"
+                        />
+                      )}
+                      {!isCharacterImageError && (
+                        <styled.img
+                          src={getPicUrl(id, isSeiyuu ? 'character' : 'seiyuu')}
+                          alt={isSeiyuu ? fullName : castName}
+                          onError={() => setCharacterImageError(true)}
+                          display="block"
+                          flex={1}
+                          objectFit="contain"
+                          minW={0}
+                          maxW="full"
+                          minH={0}
+                          maxH="full"
+                        />
+                      )}
                     </HStack>
                   )}
                 </HStack>

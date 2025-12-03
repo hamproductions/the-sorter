@@ -3,13 +3,11 @@ import { render } from '@testing-library/react';
 
 import userEvent from '@testing-library/user-event';
 import { HelmetProvider } from 'react-helmet-async';
+import { Suspense } from 'react';
+import i18n from '../../i18n';
 import { ColorModeProvider } from '~/context/ColorModeContext';
 import { ToasterProvider } from '~/context/ToasterContext';
 import { Layout } from '~/pages/+Layout';
-
-import i18n from '../../i18n';
-
-import { Suspense } from 'react';
 
 function AllTheProviders({ children }: { children: React.ReactNode }) {
   return (

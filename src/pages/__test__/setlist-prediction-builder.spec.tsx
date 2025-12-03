@@ -67,7 +67,7 @@ describe('Setlist Prediction Builder Page', () => {
     window.history.pushState({}, 'Test Page', url);
 
     const [{ findAllByText }] = await render(<Page />, { skipLanguageCheck: true });
-    
+
     // Check for text that should appear when a performance is selected
     const titles = await findAllByText('Test Performance');
     expect(titles.length).toBeGreaterThan(0);

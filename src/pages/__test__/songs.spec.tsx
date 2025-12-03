@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest';
-import { render } from '../../__test__/utils';
 import { fireEvent } from '@testing-library/react';
+import { render } from '../../__test__/utils';
 import { Page } from '../songs/+Page';
 
 // Mock the hook
@@ -8,7 +8,7 @@ vi.mock('~/hooks/useSongsSortData', () => ({
   useSongsSortData: () => ({
     state: {
       status: 'sorting',
-      arr: [], // Mock array if needed
+      arr: [] // Mock array if needed
       // Add other state properties needed by resolveSort or Page
     },
     listToSort: [
@@ -51,28 +51,28 @@ describe('Songs Page', () => {
   it('Sort Flow', async () => {
     const [container] = await render(<Page />);
     const { findByText } = container;
-    
+
     // Since we mocked state to be sorting, we skip filter selection and start button.
     // We go straight to resolving sort.
-    
+
     // Check if sorting started (Sorter UI present)
     expect(await findByText('Keyboard Shortcuts')).toBeInTheDocument();
-    
+
     // Find and click a choice (e.g., Left)
     // The component renders SongCard for choices.
     // We can look for the song names we mocked: 'Song 1', 'Song 2'
     const song1 = await findByText('Song 1');
     fireEvent.click(song1);
-    
+
     // Verify that the 'left' function from the mock was called
     // We need to access the mock to check this.
     // Since we mocked it with vi.mock, we can't easily access the *same* spy instance unless we export it or use a variable.
     // But we can verify that the UI didn't crash.
-    
+
     // Alternatively, we can verify that 'undo' works if we click it.
     const undoBtn = await findByText('Undo');
     fireEvent.click(undoBtn);
-    
+
     // Since state doesn't update, we remain in sorting.
     expect(await findByText('Keyboard Shortcuts')).toBeInTheDocument();
   }, 10000);

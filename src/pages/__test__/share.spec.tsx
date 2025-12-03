@@ -15,14 +15,14 @@ describe('Shared Page', () => {
     const searchParams = new URLSearchParams();
     searchParams.set('units', '134,135,136'); // Example unit IDs
     searchParams.set('seiyuu', 'true');
-    
+
     // Use pushState to change the URL
     const url = `/?${searchParams.toString()}`;
     window.history.pushState({}, 'Test Page', url);
 
     const [{ findByText }] = await render(<Page />);
     expect(await findByText('LoveLive! Sorter')).toBeInTheDocument();
-    
+
     // Cleanup
     window.history.pushState({}, 'Test Page', '/');
   });
@@ -30,13 +30,13 @@ describe('Shared Page', () => {
   it('Renders shared results', async () => {
     const searchParams = new URLSearchParams();
     searchParams.set('data', 'invalid-data');
-    
+
     const url = `/?${searchParams.toString()}`;
     window.history.pushState({}, 'Test Page', url);
 
     const [{ findByText }] = await render(<Page />);
     expect(await findByText('LoveLive! Sorter')).toBeInTheDocument();
-    
+
     // Cleanup
     window.history.pushState({}, 'Test Page', '/');
   });

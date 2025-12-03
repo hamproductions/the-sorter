@@ -4,7 +4,7 @@ import { within } from '@testing-library/react';
 import type { UserEvent } from '@testing-library/user-event';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import type { RenderResult } from '../../__test__/utils';
-import { render, waitForElementToBeRemoved } from '../../__test__/utils';
+import { render, waitFor, waitForElementToBeRemoved } from '../../__test__/utils';
 import { Page } from '../index/+Page';
 
 beforeAll(async () => {
@@ -27,13 +27,13 @@ const selectCurrentItem = async (
     sortOrder.findIndex((name) => divs[1].textContent?.includes(name))
       ? 1
       : 0;
-  
+
   if (index === 0) {
-      // Click left (first item)
-      await user.click(divs[0]);
+    // Click left (first item)
+    await user.click(divs[0]);
   } else {
-      // Click right (second item)
-      await user.click(divs[1]);
+    // Click right (second item)
+    await user.click(divs[1]);
   }
   return divs;
 };
@@ -242,19 +242,19 @@ describe('Home Page', () => {
         expect(before[2].textContent).toMatch(/Hina Sakurai/i);
 
         await user.click(await findByText('Edit Results (Experimental)'));
-        
+
         // Focus on the first item to enable keyboard sorting
         // The first 3 items are likely from the main view, we need the ones in the modal.
         // The modal is the last thing opened, so the items should be at the end?
         // Or we can scope it.
         const dialog = await findByRole('dialog');
         const dialogItems = await within(dialog).findAllByText(/(Nirei|Hanamiya|Sakurai)/i);
-        
+
         // Assuming the text is inside the sortable item or the item itself is focusable
         // We might need to find the button/handle.
         // Let's try to focus the element containing the text.
         dialogItems[0].focus();
-        
+
         await user.keyboard('[Space][ArrowDown]');
         await user.keyboard('[Space]');
 
@@ -266,7 +266,7 @@ describe('Home Page', () => {
         // Let's verify that we have at least 3 items and the first 3 (which should be the main view) are correct.
         expect(after.length).toBeGreaterThanOrEqual(3);
         // The order should be changed based on the drag and drop simulation
-        // Since we didn't actually drag (we just pressed space and arrow down), 
+        // Since we didn't actually drag (we just pressed space and arrow down),
         // it simulates moving the item.
         // Original: Nirei, Hanamiya, Sakurai
         // Move Nirei down: Hanamiya, Nirei, Sakurai
@@ -281,7 +281,7 @@ describe('Home Page', () => {
       const { findByText, queryByText, findByTestId } = container;
       await selectPreset(container, user, 'Cerise Bouquet');
       await user.click(await findByText('Start', {}, {}));
-      
+
       while (queryByText('Keyboard Shortcuts')) {
         await selectCurrentItem(container, user);
       }
@@ -290,7 +290,9 @@ describe('Home Page', () => {
       mockCopy.mockClear();
       // Use exact text to avoid clicking the wrong share button
       await user.click(await findByTestId('share-results-button'));
-      expect(mockCopy).toHaveBeenCalled();
+      await waitFor(() => {
+        expect(mockCopy).toHaveBeenCalled();
+      });
       const url = mockCopy.mock.calls[0][0];
       expect(url).toContain('/share');
       expect(url).toContain('data=');
@@ -301,7 +303,7 @@ describe('Home Page', () => {
       const { findByText, queryByText, findByRole } = container;
       await selectPreset(container, user, 'Cerise Bouquet');
       await user.click(await findByText('Start', {}, {}));
-      
+
       while (queryByText('Keyboard Shortcuts')) {
         await selectCurrentItem(container, user);
       }
@@ -311,17 +313,19 @@ describe('Home Page', () => {
       if (items.length > 0) {
         const item = items[0];
         await user.click(item);
-        
-        // Expect dialog to open. 
+
+        // Expect dialog to open.
         const dialog = await findByRole('dialog');
         expect(dialog).toBeInTheDocument();
         // Wait for the character content to render
-        // We expect the name to be present. Since we don't know exactly which one, 
+        // We expect the name to be present. Since we don't know exactly which one,
         // we can check if the dialog content is not empty or contains the name we clicked.
         // Extract name part from "1. Nozomi Nirei" -> "Nozomi Nirei"
         // But the text content might be "1.Nozomi Nirei".
         // Let's just check for "Profile" which is static.
-        expect(await within(dialog).findByText('Profile', {}, { timeout: 3000 })).toBeInTheDocument();
+        expect(
+          await within(dialog).findByText('Profile', {}, { timeout: 3000 })
+        ).toBeInTheDocument();
       }
     });
 
@@ -330,7 +334,7 @@ describe('Home Page', () => {
       const { findByText, queryByText } = container;
       await selectPreset(container, user, 'Cerise Bouquet');
       await user.click(await findByText('Start', {}, {}));
-      
+
       while (queryByText('Keyboard Shortcuts')) {
         await selectCurrentItem(container, user);
       }
@@ -338,7 +342,7 @@ describe('Home Page', () => {
       await user.click(await findByText('Choose new settings'));
       // Should show confirmation dialog
       expect(await findByText('Confirmation')).toBeVisible();
-      
+
       await user.click(await findByText('Proceed'));
       // Should reset to initial state (filter selection)
       expect(await findByText('Cerise Bouquet Sorter')).toBeVisible();
