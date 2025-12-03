@@ -90,7 +90,6 @@ export function AddItemDrawer({
                 <Box flex={1} overflow="hidden">
                   <SongSearchPanel
                     hideTitle
-                    maxH="100%"
                     onAddSong={(id, title) => {
                       onAddSong(id, title);
                       onClose();
@@ -99,6 +98,7 @@ export function AddItemDrawer({
                       onAddCustomSong(name);
                       onClose();
                     }}
+                    maxH="100%"
                   />
                 </Box>
               </Stack>

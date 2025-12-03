@@ -21,48 +21,50 @@ export function Layout({ children }: { children: React.ReactNode }) {
     setCurrentPath(window.location.pathname);
   }, [children]);
 
-  const NavLinks = () => (
-    <>
-      <Link
-        href={join(import.meta.env.BASE_URL, '/')}
-        data-active={currentPath === join(import.meta.env.BASE_URL, '/') ? true : undefined}
-        _active={{ fontWeight: 'bold' }}
-        onClick={() => setIsDrawerOpen(false)}
-      >
-        {t(`navigation.characters`)}
-      </Link>
-      <Link
-        href={join(import.meta.env.BASE_URL, '/songs')}
-        data-active={currentPath === join(import.meta.env.BASE_URL, '/songs') ? true : undefined}
-        _active={{ fontWeight: 'bold' }}
-        onClick={() => setIsDrawerOpen(false)}
-      >
-        {t(`navigation.songs`)}
-      </Link>
-      <Link
-        href={join(import.meta.env.BASE_URL, '/hasu-music')}
-        data-active={
-          currentPath === join(import.meta.env.BASE_URL, '/hasu-music') ? true : undefined
-        }
-        _active={{ fontWeight: 'bold' }}
-        onClick={() => setIsDrawerOpen(false)}
-      >
-        {t(`navigation.hasu-music`)}
-      </Link>
-      <Link
-        href={join(import.meta.env.BASE_URL, '/setlist-prediction')}
-        data-active={
-          currentPath.startsWith(join(import.meta.env.BASE_URL, '/setlist-prediction'))
-            ? true
-            : undefined
-        }
-        _active={{ fontWeight: 'bold' }}
-        onClick={() => setIsDrawerOpen(false)}
-      >
-        {t(`navigation.setlist-prediction`)}
-      </Link>
-    </>
-  );
+  function NavLinks() {
+    return (
+      <>
+        <Link
+          href={join(import.meta.env.BASE_URL, '/')}
+          data-active={currentPath === join(import.meta.env.BASE_URL, '/') ? true : undefined}
+          onClick={() => setIsDrawerOpen(false)}
+          _active={{ fontWeight: 'bold' }}
+        >
+          {t(`navigation.characters`)}
+        </Link>
+        <Link
+          href={join(import.meta.env.BASE_URL, '/songs')}
+          data-active={currentPath === join(import.meta.env.BASE_URL, '/songs') ? true : undefined}
+          onClick={() => setIsDrawerOpen(false)}
+          _active={{ fontWeight: 'bold' }}
+        >
+          {t(`navigation.songs`)}
+        </Link>
+        <Link
+          href={join(import.meta.env.BASE_URL, '/hasu-music')}
+          data-active={
+            currentPath === join(import.meta.env.BASE_URL, '/hasu-music') ? true : undefined
+          }
+          onClick={() => setIsDrawerOpen(false)}
+          _active={{ fontWeight: 'bold' }}
+        >
+          {t(`navigation.hasu-music`)}
+        </Link>
+        <Link
+          href={join(import.meta.env.BASE_URL, '/setlist-prediction')}
+          data-active={
+            currentPath.startsWith(join(import.meta.env.BASE_URL, '/setlist-prediction'))
+              ? true
+              : undefined
+          }
+          onClick={() => setIsDrawerOpen(false)}
+          _active={{ fontWeight: 'bold' }}
+        >
+          {t(`navigation.setlist-prediction`)}
+        </Link>
+      </>
+    );
+  }
 
   return (
     <Stack position="relative" w="full" minH="100vh" bgColor="bg.default">
@@ -81,7 +83,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               </Button>
             </Box>
 
-            <HStack justifySelf="flex-end" hideBelow="md">
+            <HStack hideBelow="md" justifySelf="flex-end">
               <LanguageToggle />
               <ColorModeToggle />
             </HStack>
@@ -90,7 +92,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </Stack>
       </Container>
       <Footer />
-      
+
       {/* Mobile Navigation Drawer */}
       <Drawer.Root open={isDrawerOpen} onOpenChange={(e) => setIsDrawerOpen(e.open)}>
         <Drawer.Backdrop />
@@ -112,7 +114,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               </Stack>
             </Drawer.Body>
             <Drawer.Footer>
-              <HStack w="full" justifyContent="space-between">
+              <HStack justifyContent="space-between" w="full">
                 <LanguageToggle />
                 <ColorModeToggle />
               </HStack>

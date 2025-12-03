@@ -522,8 +522,8 @@ export function PredictionBuilder({
               placeholder={t('setlistPrediction.predictionNamePlaceholder', {
                 defaultValue: 'Enter prediction name...'
               })}
-              flex={1}
               size="sm"
+              flex={1}
             />
             <IconButton
               onClick={handleSave}
@@ -533,7 +533,7 @@ export function PredictionBuilder({
             >
               <BiSave size={18} />
             </IconButton>
-            
+
             <Menu.Root positioning={{ placement: 'bottom-end' }}>
               <Menu.Trigger asChild>
                 <IconButton variant="ghost" size="sm">
