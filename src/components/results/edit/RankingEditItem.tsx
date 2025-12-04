@@ -1,3 +1,3 @@
-export const RankingEditItem = () => {
-  return;
-};
+export function RankingEditItem() {
+  return null;
+}

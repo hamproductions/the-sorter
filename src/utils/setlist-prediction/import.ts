@@ -70,8 +70,81 @@ export function importFromFile(file: File): Promise<ImportResult> {
     const reader = new FileReader();
 
     reader.addEventListener('load', (event) => {
-      const json = event.target?.result as string;
-      resolve(importFromJSON(json));
+      const content = event.target?.result as string;
+
+      if (file.type === 'application/json' || file.name.endsWith('.json')) {
+        resolve(importFromJSON(content));
+        return;
+      }
+
+      if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
+        resolve(importFromCSV(content));
+        return;
+      }
+
+      // Default to text parsing
+      try {
+        const { items } = parseActualSetlist(content);
+
+        if (items.length === 0) {
+          resolve({
+            success: false,
+            errors: ['No items found in text file']
+          });
+          return;
+        }
+
+        // Convert ActualSetlistData items to SetlistItem[]
+        const setlistItems: SetlistItem[] = items.map((item, index) => {
+          const base = {
+            id: generateItemId(),
+            position: index,
+            remarks: item.remarks
+          };
+
+          if (item.type === 'song') {
+            return {
+              ...base,
+              type: 'song',
+              songId: '',
+              isCustomSong: true,
+              customSongName: item.title || ''
+            };
+          }
+
+          return {
+            ...base,
+            type: item.type as 'mc' | 'other',
+            title: item.title || ''
+          };
+        });
+
+        const prediction: SetlistPrediction = {
+          id: generateId(),
+          performanceId: 'imported',
+          name: file.name.replace(/\.[^/.]+$/, ''),
+          setlist: {
+            id: generateSetlistId('imported'),
+            performanceId: 'imported',
+            items: setlistItems,
+            sections: [],
+            totalSongs: setlistItems.filter((i) => i.type === 'song').length
+          },
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+
+        resolve({
+          success: true,
+          prediction,
+          errors: []
+        });
+      } catch (error) {
+        resolve({
+          success: false,
+          errors: [`Failed to parse file: ${(error as Error).message}`]
+        });
+      }
     });
 
     reader.addEventListener('error', () => {

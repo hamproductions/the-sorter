@@ -1,7 +1,7 @@
 /// <reference types="vitest" />
 import react from '@vitejs/plugin-react';
-import { configDefaults } from 'vitest/config';
-import { defineConfig } from 'vite';
+import { configDefaults, defineConfig } from 'vitest/config';
+// import { defineConfig } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
@@ -38,7 +38,11 @@ export default defineConfig({
         'styled-system/*',
         '*/__test__/*',
         '*/components/ui/styled/*',
-        '*/theme/*'
+        '*/theme/*',
+        'dist/**',
+        'public/**',
+        '**/*.js',
+        '**/*.mjs'
       ]
     },
     outputFile: {

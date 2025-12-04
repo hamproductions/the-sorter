@@ -213,6 +213,12 @@ export class PerformanceCacheStorage {
     this.save(performances);
   }
 
+  static remove(id: string): void {
+    const performances = this.get();
+    const filtered = performances.filter((p) => p.id !== id);
+    this.save(filtered);
+  }
+
   static clear(): void {
     setItem(this.KEY, []);
   }

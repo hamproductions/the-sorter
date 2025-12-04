@@ -6,15 +6,17 @@ export const useDialogData = <T>() => {
   const [isOpen, _setOpen] = useState<boolean>();
 
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
     if (_data === undefined) {
       _setOpen(false);
-      setTimeout(() => {
+      timeoutId = setTimeout(() => {
         _setDisplayData(undefined);
       }, 200);
     } else {
       _setDisplayData(_data);
       _setOpen(true);
     }
+    return () => clearTimeout(timeoutId);
   }, [_data]);
 
   return {
