@@ -256,7 +256,22 @@
     "dateNewest": "Date (newest)",
     "nameAZ": "Name (A-Z)",
     "nameZA": "Name (Z-A)",
-    "selectPerformance": "Select performance:"
+    "selectPerformance": "Select performance:",
+    "noPredictionSelected": "No prediction selected",
+    "welcomeBuilder": "Welcome to Setlist Builder",
+    "getStartedHint": "Load a saved prediction or create a new one to get started.",
+    "loadPrediction": "Load Prediction",
+    "loadPredictionDescription": "Select a saved prediction to load into the builder.",
+    "newPredictionDescription": "Create a new prediction for a performance or a custom setlist.",
+    "forPerformance": "For Performance",
+    "customPrediction": "Custom",
+    "changePerformance": "Change Performance",
+    "changePerformanceDescription": "Select a performance to assign to this prediction.",
+    "customPerformance": "Custom Performance",
+    "performanceName": "Performance name *",
+    "venue": "Venue (optional)",
+    "date": "Date",
+    "orSelectBelow": "— or select from list below —"
   },
   "common": {
     "error": "Error",
@@ -268,6 +283,11 @@
     "clear": "Clear",
     "close": "Close",
     "cancel": "Cancel",
-    "unsavedChanges": "Unsaved changes"
+    "unsavedChanges": "Unsaved changes",
+    "new": "New",
+    "load": "Load",
+    "create": "Create",
+    "set": "Set Custom",
+    "confirm": "Confirm"
   }
 }

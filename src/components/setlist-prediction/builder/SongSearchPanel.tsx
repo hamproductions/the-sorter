@@ -144,10 +144,15 @@ export function SongSearchPanel({
         const phoneticName = song.phoneticName ?? '';
         const phoneticRomaji = toRomaji(phoneticName);
         const searchText = `${song.name} ${phoneticName}`.toLowerCase();
+
+        // Normalize romaji by removing spaces for better matching
+        const normalizedPhoneticRomaji = phoneticRomaji.replace(/\s+/g, '');
+        const normalizedQueryRomaji = queryRomaji.replace(/\s+/g, '');
+
         const matches =
           searchText.includes(query) ||
           phoneticName.includes(queryHiragana) ||
-          phoneticRomaji.includes(queryRomaji);
+          normalizedPhoneticRomaji.includes(normalizedQueryRomaji);
         if (matches) {
           directSongMatches.add(song.id);
         }
@@ -169,10 +174,11 @@ export function SongSearchPanel({
         };
       });
 
-    // Step 2: Find artists that match by name
+    // Step 2: Find artists that match by name (Japanese or English)
     const matchingArtists = artistsData.filter((artist) => {
       const artistName = artist.name.toLowerCase();
-      return artistName.includes(query);
+      const artistEnglishName = artist.englishName?.toLowerCase() ?? '';
+      return artistName.includes(query) || artistEnglishName.includes(query);
     });
 
     // Step 3: Find all songs by matching artists (excluding songs already in direct matches)
