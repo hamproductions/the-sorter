@@ -783,6 +783,7 @@ src/
 │       │   │
 │       │   ├── setlist-editor/
 │       │   │   ├── SetlistItem.tsx
+│       │   │   ├── SetlistEndDropZone.tsx
 │       │   │   ├── SectionHeader.tsx
 │       │   │   ├── InsertItemMenu.tsx
 │       │   │   └── BulkActionsMenu.tsx
@@ -999,6 +1000,76 @@ function SetlistDropZone({ onDrop, position }) {
   );
 }
 ```
+
+### SetlistEndDropZone - End of List Drop Support
+
+To allow users to easily drag items to the end of a setlist, an invisible droppable zone is positioned below all items:
+
+```typescript
+// SetlistEndDropZone.tsx - Invisible droppable for end-of-list drops
+export function SetlistEndDropZone() {
+  const { setNodeRef } = useDroppable({
+    id: 'setlist-drop-zone-end'
+  });
+
+  // Fills remaining vertical space with flex={1}
+  return <Box ref={setNodeRef} data-dropzone="end" flex={1} w="full" />;
+}
+```
+
+**Integration in SetlistEditorPanel**:
+```typescript
+// Only rendered for non-empty setlist (in the <> fragment)
+{items.map((item, index) => (
+  <SetlistItemComponent key={item.id} item={item} />
+))}
+{/* Invisible droppable element fills remaining space below items */}
+<SetlistEndDropZone />
+
+{/* Visual indicator shown when hovering end zone */}
+{dropIndicator?.position === 'end' && dropIndicator.draggedItem && (
+  <Box mt={2}>
+    <Box borderStyle="dashed" py={2} px={3}>
+      <Text>↓ Drop here</Text>
+    </Box>
+  </Box>
+)}
+```
+
+**Drop Indicator Calculation**:
+The `PredictionBuilder` component detects hovering over end zone:
+
+```typescript
+// In dropIndicator useMemo
+if (overId === 'setlist-drop-zone-end') {
+  // Return drop indicator with position: 'end'
+  return {
+    position: 'end' as const,
+    draggedItem: tempItem,
+    songDetails: songDetails
+  };
+}
+```
+
+**Performance Optimization**:
+```typescript
+const measuring = useMemo(
+  () => ({
+    droppable: {
+      strategy: MeasuringStrategy.WhileDragging  // Continuously measure zones
+    },
+    draggable: {
+      measure: (element: HTMLElement) => element.getBoundingClientRect()  // Precise positioning
+    }
+  }),
+  []
+);
+```
+
+This fixes issues where:
+- Quick-add items (MC, Encore) showed drag preview at wrong position initially
+- Invisible drop zone wasn't detected during drag
+- Drop feedback appeared with delay
 
 ---
 

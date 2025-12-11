@@ -1,6 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { PredictionBuilder } from '../PredictionBuilder';
 import { render, screen, fireEvent } from '~/__test__/utils';
+import type { Performance } from '~/types/setlist-prediction.ts';
 
 // Mock dependencies
 vi.mock('@dnd-kit/core', async () => {
