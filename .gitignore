@@ -36,3 +36,5 @@ coverage*
 
 # release-it
 .release-it.json.cache
+
+.env
