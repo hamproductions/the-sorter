@@ -3,6 +3,7 @@
  */
 
 import { useDraggable } from '@dnd-kit/core';
+
 import { MdDragIndicator } from 'react-icons/md';
 import { css } from 'styled-system/css';
 import { Box, HStack, Stack } from 'styled-system/jsx';
@@ -10,6 +11,7 @@ import { Text } from '~/components/ui/styled/text';
 
 export interface DraggableQuickAddItemProps {
   id: string;
+  idSuffix?: string;
   title: string;
   type: 'mc' | 'other';
   description?: string;
@@ -18,13 +20,14 @@ export interface DraggableQuickAddItemProps {
 
 export function DraggableQuickAddItem({
   id,
+  idSuffix,
   title,
   type,
   description,
   onDoubleClick
 }: DraggableQuickAddItemProps) {
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, isDragging } = useDraggable({
-    id: `quick-add-${id}`,
+    id: `quick-add-${id}${idSuffix ? `-${idSuffix}` : ''}`,
     data: {
       type: 'quick-add-item',
       itemType: type,
@@ -36,8 +39,6 @@ export function DraggableQuickAddItem({
     <Box
       ref={setNodeRef}
       data-is-dragging={isDragging}
-      {...attributes}
-      {...listeners}
       className={css({ '&[data-is-dragging=true]': { opacity: 0.5, shadow: 'lg' } })}
       onDoubleClick={onDoubleClick}
       borderRadius="md"
