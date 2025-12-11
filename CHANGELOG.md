@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [1.9.0](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.8.1...v1.9.0) (2025-12-11)
+
+
+### Bug Fixes
+
+* gitignore, lint ([934c371](https://github.com/Tanyawat-Arsaga/the-sorter/commit/934c3716804b77dba8353e9e1a147b3b71a2b7e6))
+* lint stuff ([8051426](https://github.com/Tanyawat-Arsaga/the-sorter/commit/80514265d48c2a1632ebbf6ebe3132a0db1c23c1))
+* **mobile:** improve layout and navigation on small devices ([d31fa6c](https://github.com/Tanyawat-Arsaga/the-sorter/commit/d31fa6c82719088cd52ff332b8d151755b7e69fc))
+* some setlist changes, change linter apply lint etc ([0a0202c](https://github.com/Tanyawat-Arsaga/the-sorter/commit/0a0202cb1bada66577c02bf489d76ab4ce2614ad))
+* test errors ([ec9d1f0](https://github.com/Tanyawat-Arsaga/the-sorter/commit/ec9d1f041dd0efc302e9950ca7f881e83554b8f3))
+
+
+### Features
+
+* add prediction management dialogs and refactor view routing ([f11c820](https://github.com/Tanyawat-Arsaga/the-sorter/commit/f11c8202e0a247e4a96d0806dc3cfa534c7a716d))
+* data update ([111b0e9](https://github.com/Tanyawat-Arsaga/the-sorter/commit/111b0e9adbbfb7521e85028a086ea421850cffad))
+* more test pog ???? ([4806e4b](https://github.com/Tanyawat-Arsaga/the-sorter/commit/4806e4bbf928cf6ed34594edf1ea365147c33a2e))
+* more tests pog? ([b676352](https://github.com/Tanyawat-Arsaga/the-sorter/commit/b676352a64f587e3f0faf7a8e1d2e82cac0a947f))
+
 ## [1.8.1](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.7.1...v1.8.1) (2025-11-28)
 
 
