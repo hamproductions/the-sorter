@@ -37,9 +37,9 @@ export function DraggableQuickAddItem({
 
   return (
     <Box
+      className={css({ '&[data-is-dragging=true]': { opacity: 0.5, shadow: 'lg' } })}
       ref={setNodeRef}
       data-is-dragging={isDragging}
-      className={css({ '&[data-is-dragging=true]': { opacity: 0.5, shadow: 'lg' } })}
       onDoubleClick={onDoubleClick}
       borderRadius="md"
       borderWidth="1px"
