@@ -99,17 +99,28 @@ const DraggableSongItem = memo(function DraggableSongItem({
           )}
         </Stack>
 
-        {/* TODO: There's some weird behavior where if you _double click_ the arrow button, will result in 3 total additions to the setlist. */}
-        {/* This is because the double click is still counted on the main DraggableSongItem "body". */}
-        {/* One option is to disable the arrow button after you click it once */}
-        {/* Another optinon is to look into a way of getting DraggableSongItem to ignore clicks on the arrow */}
-        <Box
-          style={{ touchAction: 'none' }}
-          onClick={() => onAddSong(song.id, song.name)} // clicking this arrow will add the song to the setlist
-          cursor="grab"
+        <button
+          type="button"
+          style={{
+            touchAction: 'none',
+            cursor: 'pointer',
+            border: 'none',
+            background: 'none',
+            padding: 0,
+            display: 'flex',
+            alignItems: 'center'
+          }}
+          onClick={(e) => {
+            e.stopPropagation(); // Prevent event from bubbling to parent DraggableSongItem
+            onAddSong(song.id, song.name);
+          }}
+          onDoubleClick={(e) => {
+            e.stopPropagation(); // Prevent double-click from bubbling to parent
+          }}
+          aria-label={`Add ${song.name} to setlist`}
         >
           <MdArrowForward size={16} />
-        </Box>
+        </button>
       </HStack>
     </Box>
   );

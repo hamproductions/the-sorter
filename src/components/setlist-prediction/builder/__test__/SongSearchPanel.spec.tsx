@@ -324,6 +324,78 @@ describe('SongSearchPanel', () => {
       expect(await screen.findByText('Aozora Jumping Heart')).toBeInTheDocument();
 
       // Now click the right arrow button
+      const arrowButton = await screen.findByRole('button', {
+        name: 'Add Aozora Jumping Heart to setlist'
+      });
+      await user.click(arrowButton);
 
+      expect(mockOnAddSong).toHaveBeenCalledWith('2', 'Aozora Jumping Heart');
+      expect(mockOnAddSong).toHaveBeenCalledTimes(1);
     });
+
+    it('adds different songs when clicking different arrows', async () => {
+      const [, user] = await render(
+        <SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />
+      );
+
+      const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
+      await user.type(searchInput, 'Heart');
+
+      // Wait for multiple results
+      expect(await screen.findByText('Aozora Jumping Heart')).toBeInTheDocument();
+      expect(await screen.findByText('Heart ni Q')).toBeInTheDocument();
+
+      // Click the arrow for "Heart ni Q"
+      const arrowButton = await screen.findByRole('button', {
+        name: 'Add Heart ni Q to setlist'
+      });
+      await user.click(arrowButton);
+
+      expect(mockOnAddSong).toHaveBeenCalledWith('123', 'Heart ni Q');
+      expect(mockOnAddSong).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not trigger double-click handler when clicking arrow once', async () => {
+      const [, user] = await render(
+        <SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />
+      );
+
+      const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
+      await user.type(searchInput, 'Snow');
+
+      expect(await screen.findByText('Snow halation')).toBeInTheDocument();
+
+      // Click the arrow button once
+      const arrowButton = await screen.findByRole('button', {
+        name: 'Add Snow halation to setlist'
+      });
+      await user.click(arrowButton);
+
+      // Should only be called once (not multiple times from double-click)
+      expect(mockOnAddSong).toHaveBeenCalledWith('1', 'Snow halation');
+      expect(mockOnAddSong).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not trigger parent double-click when double-clicking arrow button', async () => {
+      const [, user] = await render(
+        <SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />
+      );
+
+      const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
+      await user.type(searchInput, 'Snow');
+
+      expect(await screen.findByText('Snow halation')).toBeInTheDocument();
+
+      // Double-click the arrow button
+      const arrowButton = await screen.findByRole('button', {
+        name: 'Add Snow halation to setlist'
+      });
+      await user.dblClick(arrowButton);
+
+      // Should only be called twice (once for each click), not 3 times
+      // (the parent's double-click handler should not be triggered)
+      expect(mockOnAddSong).toHaveBeenCalledWith('1', 'Snow halation');
+      expect(mockOnAddSong).toHaveBeenCalledTimes(2);
+    });
+  });
 });
