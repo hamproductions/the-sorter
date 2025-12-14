@@ -309,4 +309,21 @@ describe('SongSearchPanel', () => {
       expect(await screen.findByText('Heart ni Q')).toBeInTheDocument();
     });
   });
+
+  // Tests for single clicking on arrow button to add
+  describe('Click arrow to add song search results', () => {
+    it('adds songs when clicking once on the arrow', async () => {
+      const [, user] = await render(
+        <SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />
+      );
+
+      // Standard flow to search for a song
+      const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
+      await user.type(searchInput, 'Aozora Jumping Heart');
+
+      expect(await screen.findByText('Aozora Jumping Heart')).toBeInTheDocument();
+
+      // Now click the right arrow button
+
+    });
 });
