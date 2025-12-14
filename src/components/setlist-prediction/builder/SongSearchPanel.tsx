@@ -6,7 +6,7 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useMemo, memo, useEffect } from 'react';
 import { useDraggable } from '@dnd-kit/core';
-import { MdDragIndicator } from 'react-icons/md';
+import { MdArrowForward, MdDragIndicator } from 'react-icons/md';
 import { toHiragana, toRomaji } from 'wanakana';
 import artistsData from '../../../../data/artists-info.json';
 import { css } from 'styled-system/css';
@@ -98,6 +98,18 @@ const DraggableSongItem = memo(function DraggableSongItem({
             </Text>
           )}
         </Stack>
+
+        {/* TODO: There's some weird behavior where if you _double click_ the arrow button, will result in 3 total additions to the setlist. */}
+        {/* This is because the double click is still counted on the main DraggableSongItem "body". */}
+        {/* One option is to disable the arrow button after you click it once */}
+        {/* Another optinon is to look into a way of getting DraggableSongItem to ignore clicks on the arrow */}
+        <Box
+          style={{ touchAction: 'none' }}
+          onClick={() => onAddSong(song.id, song.name)} // clicking this arrow will add the song to the setlist
+          cursor="grab"
+        >
+          <MdArrowForward size={16} />
+        </Box>
       </HStack>
     </Box>
   );
