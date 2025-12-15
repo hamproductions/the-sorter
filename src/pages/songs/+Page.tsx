@@ -1,6 +1,7 @@
 import { Suspense, lazy, useEffect, useState } from 'react';
 import { preload } from 'react-dom';
 import { useTranslation } from 'react-i18next';
+import { FaShare } from 'react-icons/fa6';
 import { Button } from '../../components/ui/styled/button';
 import { Kbd } from '../../components/ui/styled/kbd';
 import { Progress } from '../../components/ui/progress';
@@ -17,6 +18,8 @@ import { useSongsSortData } from '~/hooks/useSongsSortData';
 import { SongResultsView } from '~/components/results/songs/SongResultsView';
 import { useSongData } from '~/hooks/useSongData';
 import { useArtistsData } from '~/hooks/useArtistsData';
+import { isValidSongFilter } from '~/utils/song-filter';
+import { addSongPresetParams } from '~/utils/share';
 
 const ConfirmMidSortDialog = lazy(() =>
   import('../../components/dialog/ConfirmDialog').then((m) => ({
@@ -39,7 +42,7 @@ const SongFilters = lazy(() =>
 export function Page() {
   const songs = useSongData();
   const artists = useArtistsData();
-  const { toast: _toast } = useToaster();
+  const { toast } = useToaster();
   const { t, i18n: _i18n } = useTranslation();
   const {
     noTieMode,
@@ -82,6 +85,16 @@ export function Page() {
   const title = t('title', {
     titlePrefix: t('songs')
   });
+
+  const shareUrl = async () => {
+    if (!songFilters || !isValidSongFilter(songFilters)) return;
+    const params = addSongPresetParams(new URLSearchParams(), songFilters);
+    const url = `${location.origin}${location.pathname}?${params.toString()}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast?.(t('toast.url_copied'));
+    } catch {}
+  };
 
   // Preload Assets
   useEffect(() => {
@@ -152,6 +165,9 @@ export function Page() {
           {t('settings.song_sort_count', { count: listCount })}
         </Text>
         <Wrap justifyContent="center">
+          <Button onClick={() => void shareUrl()} variant="subtle">
+            <FaShare /> {t('settings.share')}
+          </Button>
           <Button variant="solid" onClick={() => handleStart()}>
             {!isSorting ? t('sort.start') : t('sort.start_over')}
           </Button>

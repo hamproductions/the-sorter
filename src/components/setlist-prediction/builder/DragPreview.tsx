@@ -14,6 +14,7 @@ export function DragPreview({ activeData }: DragPreviewProps) {
 
   return (
     <Box
+      cursor="grabbing"
       borderColor="border.emphasized"
       borderRadius="md"
       borderWidth="1px"
@@ -22,7 +23,6 @@ export function DragPreview({ activeData }: DragPreviewProps) {
       opacity={0.9}
       bgColor="bg.default"
       shadow="xl"
-      cursor="grabbing"
     >
       <HStack gap={2} alignItems="flex-start">
         <Box pt={1} color="fg.muted">

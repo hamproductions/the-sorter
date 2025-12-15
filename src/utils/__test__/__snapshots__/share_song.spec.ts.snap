@@ -1,0 +1,3 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Share Utils > addSongPresetParams function > Create create parameters for preset 1`] = `"series=series1&series=series2&artists=artist1&types=group"`;
