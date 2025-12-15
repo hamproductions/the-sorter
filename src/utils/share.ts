@@ -1,4 +1,5 @@
 import type { FilterType } from '~/components/sorter/CharacterFilters';
+import type { SongFilterType } from '~/components/sorter/SongFilters';
 
 export const serializeData = async (data: Record<string, unknown>) => {
   const compress = (await import('lz-string')).compressToEncodedURIComponent;
@@ -18,6 +19,16 @@ export const addPresetParams = (
   }
   if (isSeiyuu) {
     params.append('seiyuu', isSeiyuu.toString());
+  }
+  return params;
+};
+
+export const addSongPresetParams = (params: URLSearchParams, filters: SongFilterType) => {
+  for (const key of ['series', 'artists', 'types'] as const) {
+    const list = filters?.[key];
+    if (list && list?.length > 0) {
+      list.forEach((item) => params.append(key, item));
+    }
   }
   return params;
 };

@@ -21,13 +21,13 @@ export function HasuSongGridView({
             <GridItem
               key={id}
               onClick={onSelect && (() => onSelect(c))}
+              cursor="pointer"
               rounded="l1"
               h="full"
               bgColor="bg.canvas"
               shadow={{ base: 'sm', _hover: 'md' }}
-              transition="shadow"
-              cursor="pointer"
               overflow="hidden"
+              transition="shadow"
             >
               <HasuSongGridViewItem song={c} locale={i18n.language} />
             </GridItem>

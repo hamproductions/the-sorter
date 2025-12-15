@@ -1,4 +1,4 @@
-import { useEffect, type Dispatch, type SetStateAction } from 'react';
+import { useEffect, type Dispatch, type SetStateAction, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
@@ -68,19 +68,42 @@ export function SongFilters({
     });
   };
 
-  const initFilters = () => {
+  const initFilters = useCallback(() => {
+    const params = new URLSearchParams(location.search);
+    const urlSeries = params.getAll('series');
+    const urlArtists = params.getAll('artists');
+    const urlTypes = params.getAll('types');
+
+    if (urlSeries.length > 0 || urlArtists.length > 0 || urlTypes.length > 0) {
+      setFilters({
+        series: urlSeries.filter((s) => FILTER_VALUES.series.includes(s)),
+        artists: urlArtists.filter((s) => FILTER_VALUES.artists.includes(s)),
+        types: urlTypes.filter((s) =>
+          FILTER_VALUES.types.includes(s as 'group' | 'solo' | 'unit')
+        ) as ('group' | 'solo' | 'unit')[]
+      });
+      return;
+    }
+
     setFilters({
       series: [],
       artists: [],
       types: []
     });
-  };
+  }, [setFilters]);
 
   useEffect(() => {
-    if (filters === undefined || !isValidSongFilter(filters)) {
+    const params = new URLSearchParams(location.search);
+    if (
+      params.has('series') ||
+      params.has('artists') ||
+      params.has('types') ||
+      filters === undefined ||
+      !isValidSongFilter(filters)
+    ) {
       initFilters();
     }
-  }, [filters]);
+  }, []);
 
   return (
     <Stack border="1px solid" borderColor="border.default" rounded="l1" p="4">
