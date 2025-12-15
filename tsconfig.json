@@ -5,7 +5,6 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
-    "baseUrl": "./src",
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -20,7 +19,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "paths": { "~/*": ["./*"], "styled-system/*": ["../styled-system/*"] }
+    "paths": { "~/*": ["./src/*"], "styled-system/*": ["./styled-system/*"] }
   },
   "include": ["src", "styled-system", "scripts"],
   "exclude": ["scripts/internal"],
