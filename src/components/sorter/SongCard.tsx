@@ -45,9 +45,11 @@ export function SongCard({
                 height="240"
                 src={`https://www.youtube-nocookie.com/embed/${song.musicVideo.videoId}/?start=${song.musicVideo.videoOffset}`}
                 title="YouTube video player"
+                //@ts-expect-error wtf
                 frameborder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 referrerpolicy="strict-origin-when-cross-origin"
+                sandbox="allow-scripts allow-presentation"
                 allowfullscreen
               ></iframe>
             )}
