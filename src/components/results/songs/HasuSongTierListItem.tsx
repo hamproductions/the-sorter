@@ -50,6 +50,7 @@ function _TierListItem({
               position="absolute"
               top="0"
               left="0"
+              transform="translate(-50%, -50%)"
               justifyContent="center"
               alignItems="center"
               rounded="full"
@@ -60,7 +61,6 @@ function _TierListItem({
               fontSize="sm"
               fontWeight="bold"
               bgColor="var(--color)"
-              transform="translate(-50%, -50%)"
             >
               {rank}
             </Box>

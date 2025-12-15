@@ -97,12 +97,12 @@ export function TierList({
                     <GridItem
                       key={id}
                       onClick={onSelectCharacter && (() => onSelectCharacter(c))}
+                      cursor="pointer"
                       rounded="l1"
                       bgColor="bg.canvas"
                       shadow={{ base: 'md', _hover: 'lg' }}
-                      transition="shadow"
-                      cursor="pointer"
                       overflow="hidden"
+                      transition="shadow"
                     >
                       <TierListItem
                         character={c}

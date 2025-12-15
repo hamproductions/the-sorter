@@ -76,12 +76,12 @@ export function SaveSlotManager({
               <Box
                 key={prediction.id}
                 onClick={() => handleSelect(prediction.id)}
+                cursor="pointer"
                 borderRadius="md"
                 borderWidth="1px"
                 p={3}
                 // eslint-disable-next-line @pandacss/no-dynamic-styling
                 bgColor={isActive ? 'bg.emphasized' : 'bg.default'}
-                cursor="pointer"
                 _hover={{ bgColor: 'bg.muted' }}
               >
                 <HStack justifyContent="space-between" alignItems="center">

@@ -378,7 +378,7 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
 
             {/* Input Area */}
             {importType === 'performance' ? (
-              <Grid flex={1} gap={4} columns={2} overflow="hidden">
+              <Grid flex={1} gap={4} overflow="hidden" columns={2}>
                 {/* Left column: Performance selection */}
                 <Stack display="flex" gap={3} flexDirection="column" overflow="hidden">
                   {/* Search Input */}
@@ -418,9 +418,9 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
                             key={perf.id}
                             data-selected={selectedPerformanceId === perf.id}
                             onClick={() => setSelectedPerformanceId(perf.id)}
+                            cursor="pointer"
                             borderBottomWidth="1px"
                             p={2}
-                            cursor="pointer"
                             _hover={{ bgColor: 'bg.subtle' }}
                           >
                             <Stack gap={0.5}>
