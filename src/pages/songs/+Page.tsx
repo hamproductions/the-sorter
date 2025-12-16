@@ -73,12 +73,12 @@ export function Page() {
   const currentLeft = leftItem && listToSort.find((l) => l.id === leftItem[0]);
   const artistLeft =
     currentLeft?.artists
-      .map((i) => artists.find((a) => a.id === i))
+      .map((i) => artists.find((a) => a.id === i.id))
       .filter((i) => i !== undefined) ?? [];
   const currentRight = rightItem && listToSort.find((l) => l.id === rightItem[0]);
   const artistRight =
     currentRight?.artists
-      .map((i) => artists.find((a) => a.id === i))
+      .map((i) => artists.find((a) => a.id === i.id))
       .filter((i) => i !== undefined) ?? [];
 
   // const titlePrefix = getFilterTitle(filters, data, i18n.language) ?? t('defaultTitlePrefix');
@@ -92,7 +92,7 @@ export function Page() {
     const url = `${location.origin}${location.pathname}?${params.toString()}`;
     try {
       await navigator.clipboard.writeText(url);
-      toast?.(t('toast.url_copied'));
+      toast?.({ description: t('toast.url_copied') });
     } catch {}
   };
 
@@ -104,7 +104,7 @@ export function Page() {
       const song = listToSort.find((l) => l.id === item);
       const url =
         song &&
-        `https://www.youtube.com/embed/${song.musicVideo?.videoId}?start=${song.musicVideo?.videoOffset}`;
+        `https://www.youtube-nocookie.com/embed/${song.musicVideo?.videoId}/?start=${song.musicVideo?.videoOffset}&html5=1`;
       if (url) preload(url, { as: 'document' });
     }
   }, [state]);

@@ -36,9 +36,9 @@ export function DropPreview({
   // Get artist name
   const artistName = useMemo(() => {
     if (!songDetails?.artists) return undefined;
-    const firstArtistId = songDetails.artists[0];
-    if (!firstArtistId) return undefined;
-    const artist = artistsData.find((a) => a.id === String(firstArtistId));
+    const firstArtist = songDetails.artists[0];
+    if (!firstArtist) return undefined;
+    const artist = artistsData.find((a) => a.id === firstArtist.id);
     return artist?.name;
   }, [songDetails]);
 

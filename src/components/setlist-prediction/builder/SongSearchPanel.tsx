@@ -9,6 +9,7 @@ import { useDraggable } from '@dnd-kit/core';
 import { MdArrowForward, MdDragIndicator } from 'react-icons/md';
 import { toHiragana, toRomaji } from 'wanakana';
 import artistsData from '../../../../data/artists-info.json';
+import { getArtistName } from '~/utils/names';
 import { css } from 'styled-system/css';
 import { Box, Stack, HStack } from 'styled-system/jsx';
 import { Input } from '~/components/ui/styled/input';
@@ -139,7 +140,8 @@ export function SongSearchPanel({
   maxH = '400px',
   hideTitle = false
 }: SongSearchPanelProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
   const songData = useSongData();
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -183,8 +185,8 @@ export function SongSearchPanel({
       })
       .slice(0, 50)
       .map((song) => {
-        const artistId = song.artists?.[0];
-        const artist = artistId ? artistsData.find((a) => a.id === artistId) : null;
+        const artistRef = song.artists?.[0];
+        const artist = artistRef ? artistsData.find((a) => a.id === artistRef.id) : null;
 
         return {
           id: song.id,
@@ -192,7 +194,7 @@ export function SongSearchPanel({
           nameRomaji: undefined,
           series: undefined,
           seriesIds: song.seriesIds,
-          artist: artist?.name,
+          artist: artist ? getArtistName(artist.name, lang) : undefined,
           color: getSongColor(song)
         };
       });
@@ -213,14 +215,14 @@ export function SongSearchPanel({
         }
 
         // Check if song has any of the matching artists
-        return song.artists?.some((artistId) =>
-          matchingArtists.some((matchingArtist) => matchingArtist.id === artistId)
+        return song.artists?.some((artistRef) =>
+          matchingArtists.some((matchingArtist) => matchingArtist.id === artistRef.id)
         );
       })
       .slice(0, 50)
       .map((song) => {
-        const artistId = song.artists?.[0];
-        const artist = artistId ? artistsData.find((a) => a.id === artistId) : null;
+        const artistRef = song.artists?.[0];
+        const artist = artistRef ? artistsData.find((a) => a.id === artistRef.id) : null;
 
         return {
           id: song.id,
@@ -228,7 +230,7 @@ export function SongSearchPanel({
           nameRomaji: undefined,
           series: undefined,
           seriesIds: song.seriesIds,
-          artist: artist?.name,
+          artist: artist ? getArtistName(artist.name, lang) : undefined,
           color: getSongColor(song)
         };
       });
@@ -237,7 +239,7 @@ export function SongSearchPanel({
       songMatches: songMatchResults,
       artistMatches: artistMatchResults
     };
-  }, [songData, debouncedQuery]);
+  }, [songData, debouncedQuery, lang]);
 
   return (
     <Stack gap={3} h="full">

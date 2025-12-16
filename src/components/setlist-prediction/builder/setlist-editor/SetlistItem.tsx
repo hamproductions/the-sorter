@@ -110,12 +110,12 @@ const SetlistItemComponent = memo(function SetlistItem({
   const artistName = useMemo(() => {
     if (!isSongItem(item) || !songDetails || !songDetails.artists) return undefined;
 
-    // Get the first artist ID from the song's artists array
-    const firstArtistId = songDetails.artists[0];
-    if (!firstArtistId) return undefined;
+    // Get the first artist from the song's artists array
+    const firstArtist = songDetails.artists[0];
+    if (!firstArtist) return undefined;
 
     // Look up the artist name
-    const artist = artistsData.find((a) => a.id === String(firstArtistId));
+    const artist = artistsData.find((a) => a.id === firstArtist.id);
     return artist?.name;
   }, [item, songDetails]);
 

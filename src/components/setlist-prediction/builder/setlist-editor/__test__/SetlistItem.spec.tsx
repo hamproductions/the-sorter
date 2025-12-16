@@ -32,7 +32,7 @@ vi.mock('../../EditItemDialog', () => ({
 }));
 
 vi.mock('~/hooks/useSongData', () => ({
-  useSongData: () => [{ id: 'song-1', name: 'Test Song', artists: ['artist-1'] }]
+  useSongData: () => [{ id: 'song-1', name: 'Test Song', artists: [{ id: 'artist-1' }] }]
 }));
 
 vi.mock('../../../../../../data/artists-info.json', () => ({

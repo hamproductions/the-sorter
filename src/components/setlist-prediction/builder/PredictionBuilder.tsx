@@ -81,8 +81,8 @@ function DragPreview({ activeData }: { activeData: Record<string, unknown> | nul
     const songColor = songDetails ? getSongColor(songDetails) : undefined;
 
     // Get artist name
-    const artistId = songDetails?.artists?.[0];
-    const artist = artistId ? artistsData.find((a) => a.id === artistId) : null;
+    const artistRef = songDetails?.artists?.[0];
+    const artist = artistRef ? artistsData.find((a) => a.id === artistRef.id) : null;
 
     return (
       <Box
@@ -126,8 +126,8 @@ function DragPreview({ activeData }: { activeData: Record<string, unknown> | nul
     const songColor = songDetails ? getSongColor(songDetails) : undefined;
 
     // Get artist name
-    const artistId = songDetails?.artists?.[0];
-    const artist = artistId ? artistsData.find((a) => a.id === artistId) : null;
+    const artistRef = songDetails?.artists?.[0];
+    const artist = artistRef ? artistsData.find((a) => a.id === artistRef.id) : null;
 
     return (
       <Box

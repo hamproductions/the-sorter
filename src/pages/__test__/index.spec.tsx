@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom/vitest';
 
-import { within } from '@testing-library/react';
+import { waitFor as rtlWaitFor, within } from '@testing-library/react';
 import type { UserEvent } from '@testing-library/user-event';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import type { RenderResult } from '../../__test__/utils';
@@ -105,8 +105,20 @@ describe('Home Page', () => {
       await selectPreset(container, user, 'Cerise Bouquet');
       await user.click(await findByText('Start', {}, {}));
 
-      while (queryByText('Keyboard Shortcuts')) {
-        await selectCurrentItem(container, user);
+      await rtlWaitFor(() => {
+        expect(queryByText('Tie')).toBeInTheDocument();
+      });
+
+      for (let i = 0; i < 10; i++) {
+        if (queryByText('Sort Results')) break;
+        await user.keyboard('[ArrowLeft]');
+        await rtlWaitFor(
+          () => {
+            const resultsOrTie = queryByText('Sort Results') || queryByText('Tie');
+            expect(resultsOrTie).toBeInTheDocument();
+          },
+          { timeout: 1000 }
+        );
       }
       expect(await findByText('Sort Results')).toBeInTheDocument();
       expect(await findAllByText(/(Nirei|Hanamiya|Sakurai)/i)).toHaveLength(3);
@@ -118,8 +130,22 @@ describe('Home Page', () => {
       const { findByText, findAllByText, queryByText } = container;
       await selectPreset(container, user, 'Cerise Bouquet');
       await user.click(await findByText('Start', {}, {}));
-      while (queryByText('Keyboard Shortcuts')) {
-        await user.click(await findByText('Tie'));
+
+      await rtlWaitFor(() => {
+        expect(queryByText('Tie')).toBeInTheDocument();
+      });
+
+      for (let i = 0; i < 10; i++) {
+        const tieButton = queryByText('Tie');
+        if (!tieButton) break;
+        await user.click(tieButton);
+        await rtlWaitFor(
+          () => {
+            const resultsOrTie = queryByText('Sort Results') || queryByText('Tie');
+            expect(resultsOrTie).toBeInTheDocument();
+          },
+          { timeout: 1000 }
+        );
       }
       expect(await findByText('Sort Results')).toBeInTheDocument();
       expect(await findAllByText(/(Nirei|Hanamiya|Sakurai)/i)).toHaveLength(3);

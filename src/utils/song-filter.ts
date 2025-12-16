@@ -1,4 +1,3 @@
-import { uniq } from 'lodash-es';
 import artistInfo from '../../data/artists-info.json';
 import type { SongFilterType } from '~/components/sorter/SongFilters';
 import type { Song } from '~/types/songs';
@@ -25,9 +24,9 @@ export const matchSongFilter = (item: Song, filter: SongFilterType) => {
   if (!isValidSongFilter(filter)) return true;
   let isValid = true;
   if (artists && artists.length > 0) {
-    isValid = isValid && artists.some((a) => uniq(item.artists).includes(a));
+    isValid = isValid && artists.some((a) => item.artists.some((art) => art.id === a));
   }
-  const artistData = uniq(item.artists).map((i) => artistInfo.find((a) => a.id === i));
+  const artistData = item.artists.map((i) => artistInfo.find((a) => a.id === i.id));
   if (types && types.length > 0) {
     isValid =
       isValid &&

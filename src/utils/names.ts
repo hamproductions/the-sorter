@@ -1,3 +1,4 @@
+import artists from '../../data/artists-info.json';
 import schools from '../../data/school.json';
 import series from '../../data/series.json';
 import units from '../../data/units.json';
@@ -15,4 +16,9 @@ export const getUnitName = (unit: string, locale: Locale | undefined) => {
   const tmp = units.find((u) => u.name === unit);
   if (locale === 'en' && tmp?.englishName) return tmp.englishName;
   return unit;
+};
+export const getArtistName = (artist: string, locale: Locale | undefined) => {
+  const found = artists.find((a) => a.name === artist);
+  if (locale === 'en' && found?.englishName) return found.englishName;
+  return artist;
 };

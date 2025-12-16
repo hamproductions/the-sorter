@@ -70,7 +70,7 @@ export function SongResultsView({
 
   const makeScreenshot = async () => {
     setShowRenderingCanvas(true);
-    toast?.(t('toast.generating_screenshot'));
+    toast?.({ description: t('toast.generating_screenshot') });
     const domToBlob = await import('modern-screenshot').then((module) => module.domToBlob);
     const resultsBox = document.getElementById('results');
     setTimestamp(new Date());
@@ -98,7 +98,7 @@ export function SongResultsView({
       await navigator.clipboard.write([
         new ClipboardItem({ 'image/png': shareImage }, { presentationStyle: 'attachment' })
       ]);
-      toast?.(t('toast.screenshot_copied'));
+      toast?.({ description: t('toast.screenshot_copied') });
     }
   };
 
@@ -108,13 +108,13 @@ export function SongResultsView({
         ?.flatMap((item, idx) =>
           item.map((i) => {
             const s = songsData.find((s) => s.id === `${i}`);
-            const artist = uniq(s?.artists).map((id) => artists.find((a) => a.id === id));
+            const artist = s?.artists.map((art) => artists.find((a) => a.id === art.id));
             return `${idx + 1}. ${s?.name} - ${artist?.[0]?.name ?? 'unknown'}`;
           })
         )
         .join('\n') ?? ''
     );
-    toast?.(t('toast.text_copied'));
+    toast?.({ description: t('toast.text_copied') });
   };
 
   const exportJSON = async () => {
@@ -123,19 +123,19 @@ export function SongResultsView({
         order?.flatMap((item, idx) =>
           item.map((i) => {
             const s = songsData.find((s) => s.id === `${i}`);
-            const artist = uniq(s?.artists).map((id) => artists.find((a) => a.id === id));
+            const artist = s?.artists.map((art) => artists.find((a) => a.id === art.id));
             const series = uniq(s?.seriesIds).map((id) => seriesData.find((a) => a.id === `${id}`));
             return {
               rank: idx + 1,
               title: s?.name,
               series: series.map((a) => a?.name)?.join(', '),
-              unit: artist.map((a) => a?.name)?.join(', ')
+              unit: artist?.map((a) => a?.name)?.join(', ')
             };
           })
         )
       )
     );
-    toast?.(t('toast.text_copied'));
+    toast?.({ description: t('toast.text_copied') });
   };
 
   const download = async () => {

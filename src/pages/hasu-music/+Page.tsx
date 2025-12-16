@@ -1,6 +1,7 @@
 import { Suspense, lazy, useEffect, useState } from 'react';
 import { preload } from 'react-dom';
 import { useTranslation } from 'react-i18next';
+import { FaShare } from 'react-icons/fa6';
 import { Progress } from '../../components/ui/progress';
 import { Button } from '../../components/ui/styled/button';
 import { Kbd } from '../../components/ui/styled/kbd';
@@ -17,6 +18,8 @@ import { useHasuSongsSortData } from '~/hooks/useHasuSongsSortData';
 import { getPicUrl } from '~/utils/assets';
 import { getNextItems } from '~/utils/preloading';
 import { HasuSongCard } from '~/components/sorter/HasuSongCard';
+import { isValidSongFilter } from '~/utils/hasu-song-filter';
+import { addHasuSongPresetParams } from '~/utils/share';
 
 const ConfirmMidSortDialog = lazy(() =>
   import('../../components/dialog/ConfirmDialog').then((m) => ({
@@ -38,7 +41,7 @@ const HasuSongFilters = lazy(() =>
 
 export function Page() {
   const songs = useHasuSongData();
-  const { toast: _toast } = useToaster();
+  const { toast } = useToaster();
   const { t, i18n: _i18n } = useTranslation();
   const {
     noTieMode,
@@ -73,6 +76,16 @@ export function Page() {
   const title = t('title', {
     titlePrefix: t('hasu-songs')
   });
+
+  const shareUrl = async () => {
+    if (!songFilters || !isValidSongFilter(songFilters)) return;
+    const params = addHasuSongPresetParams(new URLSearchParams(), songFilters);
+    const url = `${location.origin}${location.pathname}?${params.toString()}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast?.({ description: t('toast.url_copied') });
+    } catch {}
+  };
 
   // Preload Assets
   useEffect(() => {
@@ -140,6 +153,9 @@ export function Page() {
           {t('settings.song_sort_count', { count: listCount })}
         </Text>
         <Wrap justifyContent="center">
+          <Button onClick={() => void shareUrl()} variant="subtle">
+            <FaShare /> {t('settings.share')}
+          </Button>
           <Button variant="solid" onClick={() => handleStart()}>
             {!isSorting ? t('sort.start') : t('sort.start_over')}
           </Button>
