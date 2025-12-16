@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "bun scripts/add-english-names.ts && tsc && vite build",
-    "ci:build": "bun scripts/add-english-names.ts && NODE_ENV=production vite build",
+    "build": "tsc && vite build",
+    "ci:build": "NODE_ENV=production vite build",
     "type-check": "tsc",
     "check": "bun lint && bun type-check",
     "ci:check": "bun lint --format json --output-file lint_report.json && bun type-check",
@@ -40,8 +40,6 @@
     "@pandacss/dev": "^0.51.1",
     "@park-ui/panda-preset": "^0.43.1",
     "@sentry/react": "^8.54.0",
-    "baseline-browser-mapping": "^2.9.6",
-    "caniuse-lite": "^1.0.30001760",
     "file-saver": "^2.0.5",
     "i18next": "^24.2.1",
     "lodash-es": "^4.17.21",
@@ -104,7 +102,7 @@
     "typescript-eslint": "^8.21.0",
     "vite": "^6.0.11",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^4.0.15",
+    "vitest": "^4.0.14",
     "vitest-localstorage-mock": "^0.1.2",
     "vitest-preview": "^0.0.1",
     "webp-converter": "^2.3.3"

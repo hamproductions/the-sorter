@@ -30,29 +30,6 @@ vi.mock('../../../../data/artists-info.json', () => ({
       englishName: 'Cerise Bouquet',
       characters: ['78', '80'],
       seriesIds: [6]
-    },
-    // Individual characters for ad-hoc unit testing
-    {
-      id: '100',
-      name: '鬼塚冬毬',
-      englishName: 'Wein Margarete',
-      characters: ['66'],
-      seriesIds: [4]
-    },
-    {
-      id: '101',
-      name: '星空凛',
-      englishName: 'Onitsuka Tomari',
-      characters: ['95'],
-      seriesIds: [4]
-    },
-    // Ad-hoc duo unit
-    {
-      id: '197',
-      name: 'ウィーン・マルガレーテ、鬼塚冬毬',
-      englishName: 'Wien Margarete, Tomari Onitsuka',
-      characters: ['66', '95'],
-      seriesIds: [4]
     }
   ]
 }));
@@ -337,49 +314,6 @@ describe('SongSearchPanel', () => {
       await user.type(searchInput, 'Cerise');
 
       expect(await screen.findByText('Heart ni Q')).toBeInTheDocument();
-    });
-  });
-
-  describe('Character name search for ad-hoc units', () => {
-    it('finds songs from ad-hoc units when searching by English character name', async () => {
-      const [, user] = await render(
-        <SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />
-      );
-
-      const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
-      await user.type(searchInput, 'Tomari Onitsuka');
-
-      // Should find the ad-hoc duo song
-      expect(await screen.findByText('11th moon')).toBeInTheDocument();
-    });
-
-    it('finds songs from ad-hoc units when searching by Japanese character name', async () => {
-      const [, user] = await render(
-        <SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />
-      );
-
-      const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
-      await user.type(searchInput, '鬼塚冬毬');
-
-      // Should find the ad-hoc duo song
-      expect(await screen.findByText('11th moon')).toBeInTheDocument();
-    });
-
-    it('finds songs from ad-hoc units for both members of a duo', async () => {
-      const [, user] = await render(
-        <SongSearchPanel onAddSong={mockOnAddSong} onAddCustomSong={mockOnAddCustomSong} />
-      );
-
-      const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
-
-      // Search for first member
-      await user.type(searchInput, 'Tomari Onitsuka');
-      expect(await screen.findByText('11th moon')).toBeInTheDocument();
-
-      // Clear and search for second member
-      await user.clear(searchInput);
-      await user.type(searchInput, 'Wein Margarete');
-      expect(await screen.findByText('11th moon')).toBeInTheDocument();
     });
   });
 });
