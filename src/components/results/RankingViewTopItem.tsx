@@ -35,7 +35,6 @@ export function RankingViewTopItem({
             position="absolute"
             top="0"
             left="0"
-            transform="translate(-50%, -50%)"
             justifyContent="center"
             alignItems="center"
             rounded="full"
@@ -46,6 +45,7 @@ export function RankingViewTopItem({
             fontSize="lg"
             fontWeight="bold"
             bgColor="var(--color)"
+            transform="translate(-50%, -50%)"
           >
             {rank}
           </Box>
@@ -61,7 +61,6 @@ export function RankingViewTopItem({
             position="absolute"
             right="0"
             bottom="0"
-            transform="translate(25%, 25%)"
             border="1px solid"
             borderColor="var(--color)"
             rounded="full"
@@ -69,6 +68,7 @@ export function RankingViewTopItem({
             h="10"
             p="0.5"
             bgColor="bg.canvas"
+            transform="translate(25%, 25%)"
           />
         </Center>
         <SchoolBadge locale={locale} character={character} hideBelow="sm" />

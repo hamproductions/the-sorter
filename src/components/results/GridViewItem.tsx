@@ -41,7 +41,6 @@ export function GridViewItem({
             position="absolute"
             top="0"
             left="0"
-            transform="translate(-50%, -50%)"
             justifyContent="center"
             alignItems="center"
             rounded="full"
@@ -52,6 +51,7 @@ export function GridViewItem({
             fontSize="lg"
             fontWeight="bold"
             bgColor="var(--color)"
+            transform="translate(-50%, -50%)"
           >
             {rank}
           </Box>
@@ -67,7 +67,6 @@ export function GridViewItem({
             position="absolute"
             right="0"
             bottom="0"
-            transform="translate(25%, 25%)"
             border="1px solid"
             borderColor="var(--color)"
             rounded="full"
@@ -75,6 +74,7 @@ export function GridViewItem({
             h="8"
             p="0.5"
             bgColor="bg.canvas"
+            transform="translate(25%, 25%)"
           />
         </Center>
         <Wrap gap="0.5" justifyContent="center" alignItems="center" w="full">

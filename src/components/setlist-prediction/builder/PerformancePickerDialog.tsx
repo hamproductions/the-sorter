@@ -181,10 +181,10 @@ export function PerformancePickerDialog({
                     key={perf.id}
                     data-selected={selectedPerformanceId === perf.id}
                     onClick={() => setSelectedPerformanceId(perf.id)}
-                    cursor="pointer"
                     borderRadius="md"
                     borderWidth="1px"
                     p={3}
+                    cursor="pointer"
                     _hover={{ bgColor: 'bg.subtle' }}
                   >
                     <Stack gap={0.5}>

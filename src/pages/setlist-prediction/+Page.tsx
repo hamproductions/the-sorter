@@ -299,11 +299,11 @@ export function Page() {
                     {tour.performances.map((performance) => (
                       <Box
                         key={performance.id}
-                        cursor="pointer"
                         borderRadius="md"
                         borderWidth="1px"
                         p={3}
                         bgColor="bg.subtle"
+                        cursor="pointer"
                         _hover={{ bgColor: 'bg.muted', borderColor: 'border.emphasized' }}
                       >
                         <a

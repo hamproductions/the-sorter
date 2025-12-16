@@ -42,17 +42,13 @@ export function SongCard({
           <Center w="full" h="full">
             {song.musicVideo && (
               <iframe
+                src={`https://www.youtube.com/embed/${song.musicVideo.videoId}?start=${song.musicVideo.videoOffset}`}
+                frameBorder="0"
+                allow="autoplay; encrypted-media"
                 height="240"
-                src={`https://www.youtube-nocookie.com/embed/${song.musicVideo.videoId}/?start=${song.musicVideo.videoOffset}&html5=1`}
-                title="YouTube video player"
-                //@ts-expect-error wtf
-                frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                referrerpolicy="strict-origin-when-cross-origin"
-                // oxlint-disable-next-line iframe-missing-sandbox shut up linter
-                sandbox="allow-scripts allow-same-origin"
-                allowfullscreen
-              ></iframe>
+                title={`${song.name} music video`}
+                sandbox="allow-scripts allow-presentation"
+              />
             )}
           </Center>
         </Center>

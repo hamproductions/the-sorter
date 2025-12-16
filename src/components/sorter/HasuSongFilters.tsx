@@ -1,4 +1,4 @@
-import { useEffect, type Dispatch, type SetStateAction } from 'react';
+import { useEffect, type Dispatch, type SetStateAction, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
@@ -52,19 +52,42 @@ export function HasuSongFilters({
     });
   };
 
-  const initFilters = () => {
+  const initFilters = useCallback(() => {
+    const params = new URLSearchParams(location.search);
+    const urlGenerations = params.getAll('generations');
+    const urlUnits = params.getAll('units');
+    const urlTypes = params.getAll('types');
+
+    if (urlGenerations.length > 0 || urlUnits.length > 0 || urlTypes.length > 0) {
+      setFilters({
+        generations: urlGenerations.filter((s) => DATA.generations.includes(s as '103' | '104')),
+        units: urlUnits.filter((s) => DATA.units.includes(s)),
+        types: urlTypes.filter((s) =>
+          DATA.types.includes(s as 'original' | 'covers' | '104ver' | '105ver' | 'nver')
+        ) as ('original' | 'covers' | '104ver' | '105ver' | 'nver')[]
+      });
+      return;
+    }
+
     setFilters({
       generations: [],
       units: [],
       types: []
     });
-  };
+  }, [setFilters]);
 
   useEffect(() => {
-    if (filters === undefined || !isValidSongFilter(filters)) {
+    const params = new URLSearchParams(location.search);
+    if (
+      params.has('generations') ||
+      params.has('units') ||
+      params.has('types') ||
+      filters === undefined ||
+      !isValidSongFilter(filters)
+    ) {
       initFilters();
     }
-  }, [filters]);
+  }, []);
 
   return (
     <Stack border="1px solid" borderColor="border.default" rounded="l1" p="4">
