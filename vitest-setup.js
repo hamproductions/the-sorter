@@ -28,5 +28,6 @@ afterEach(async () => {
     // screen.debug();
   });
 
+  vi.restoreAllMocks();
   await cleanup(); // clear testing data after each test run
 });

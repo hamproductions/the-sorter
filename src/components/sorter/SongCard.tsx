@@ -1,18 +1,53 @@
 import { useTranslation } from 'react-i18next';
+import { toRomaji } from 'wanakana';
 import { Text } from '../ui/text';
 import type { StackProps } from 'styled-system/jsx';
 import { Center, Stack } from 'styled-system/jsx';
 import type { Artist, Song } from '~/types/songs';
 import { getSongColor } from '~/utils/song';
+import { getArtistName } from '~/utils/names';
+import { useArtistsData } from '~/hooks/useArtistsData';
+
+function formatArtistsWithVariants(
+  songArtists: Song['artists'],
+  artistsData: Artist[],
+  lang: string
+): string {
+  const grouped = new Map<string, { artist: Artist; variants: (string | null)[] }>();
+
+  for (const sa of songArtists) {
+    const artist = artistsData.find((a) => a.id === sa.id);
+    if (!artist) continue;
+
+    const existing = grouped.get(sa.id);
+    if (existing) {
+      existing.variants.push(sa.variant);
+    } else {
+      grouped.set(sa.id, { artist, variants: [sa.variant] });
+    }
+  }
+
+  return Array.from(grouped.values())
+    .map(({ artist, variants }) => {
+      const name = getArtistName(artist.name, lang);
+      const nonNullVariants = variants.filter((v): v is string => v !== null);
+      if (nonNullVariants.length > 0) {
+        return `${name} (${nonNullVariants.join('/')})`;
+      }
+      return name;
+    })
+    .join(', ');
+}
 
 export function SongCard({
   song,
-  artists,
+  artists: _artists,
   ...rest
-}: { song?: Song; artists: Artist[] } & StackProps) {
-  const { i18n: _i18n } = useTranslation();
+}: { song?: Song; artists?: Artist[] } & StackProps) {
+  const { i18n } = useTranslation();
+  const artistsData = useArtistsData();
 
-  // const lang = i18n.language;
+  const lang = i18n.language;
 
   if (!song) return null;
 
@@ -57,10 +92,17 @@ export function SongCard({
           </Center>
         </Center>
       </Stack>
-      <Text layerStyle="textStroke" color="var(--color)" fontSize="2xl" fontWeight="bold">
-        {song.name}
-      </Text>
-      <Text fontSize="sm">{artists?.map((a) => a.name).join(', ')}</Text>
+      <Stack gap={0} alignItems="center">
+        <Text layerStyle="textStroke" color="var(--color)" fontSize="2xl" fontWeight="bold">
+          {song.name}
+        </Text>
+        {lang === 'en' && song.phoneticName && (
+          <Text color="fg.muted" fontSize="xs">
+            {toRomaji(song.phoneticName)}
+          </Text>
+        )}
+        <Text fontSize="sm">{formatArtistsWithVariants(song.artists, artistsData, lang)}</Text>
+      </Stack>
     </Stack>
   );
 }

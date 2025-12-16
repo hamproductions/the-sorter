@@ -73,12 +73,12 @@ export function Page() {
   const currentLeft = leftItem && listToSort.find((l) => l.id === leftItem[0]);
   const artistLeft =
     currentLeft?.artists
-      .map((i) => artists.find((a) => a.id === i))
+      .map((i) => artists.find((a) => a.id === i.id))
       .filter((i) => i !== undefined) ?? [];
   const currentRight = rightItem && listToSort.find((l) => l.id === rightItem[0]);
   const artistRight =
     currentRight?.artists
-      .map((i) => artists.find((a) => a.id === i))
+      .map((i) => artists.find((a) => a.id === i.id))
       .filter((i) => i !== undefined) ?? [];
 
   // const titlePrefix = getFilterTitle(filters, data, i18n.language) ?? t('defaultTitlePrefix');
