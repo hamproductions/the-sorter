@@ -70,7 +70,7 @@ export function SongResultsView({
 
   const makeScreenshot = async () => {
     setShowRenderingCanvas(true);
-    toast?.(t('toast.generating_screenshot'));
+    toast?.({ description: t('toast.generating_screenshot') });
     const domToBlob = await import('modern-screenshot').then((module) => module.domToBlob);
     const resultsBox = document.getElementById('results');
     setTimestamp(new Date());
@@ -98,7 +98,7 @@ export function SongResultsView({
       await navigator.clipboard.write([
         new ClipboardItem({ 'image/png': shareImage }, { presentationStyle: 'attachment' })
       ]);
-      toast?.(t('toast.screenshot_copied'));
+      toast?.({ description: t('toast.screenshot_copied') });
     }
   };
 
@@ -114,7 +114,7 @@ export function SongResultsView({
         )
         .join('\n') ?? ''
     );
-    toast?.(t('toast.text_copied'));
+    toast?.({ description: t('toast.text_copied') });
   };
 
   const exportJSON = async () => {
@@ -135,7 +135,7 @@ export function SongResultsView({
         )
       )
     );
-    toast?.(t('toast.text_copied'));
+    toast?.({ description: t('toast.text_copied') });
   };
 
   const download = async () => {

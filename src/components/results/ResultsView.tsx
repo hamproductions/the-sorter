@@ -93,7 +93,7 @@ export function ResultsView({
 
   const makeScreenshot = async () => {
     setShowRenderingCanvas(true);
-    toast?.(t('toast.generating_screenshot'));
+    toast?.({ description: t('toast.generating_screenshot') });
     const domToBlob = await import('modern-screenshot').then((module) => module.domToBlob);
     const resultsBox = document.getElementById('results');
     setTimestamp(new Date());
@@ -121,7 +121,7 @@ export function ResultsView({
       await navigator.clipboard.write([
         new ClipboardItem({ 'image/png': shareImage }, { presentationStyle: 'attachment' })
       ]);
-      toast?.(t('toast.screenshot_copied'));
+      toast?.({ description: t('toast.screenshot_copied') });
     }
   };
 
@@ -162,7 +162,7 @@ export function ResultsView({
 
   const copyText = async () => {
     await navigator.clipboard.writeText(getShareText());
-    toast?.(t('toast.text_copied'));
+    toast?.({ description: t('toast.text_copied') });
   };
 
   const {

@@ -92,7 +92,7 @@ export function Page() {
     const url = `${location.origin}${location.pathname}?${params.toString()}`;
     try {
       await navigator.clipboard.writeText(url);
-      toast?.(t('toast.url_copied'));
+      toast?.({ description: t('toast.url_copied') });
     } catch {}
   };
 
