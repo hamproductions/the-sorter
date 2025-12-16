@@ -6,6 +6,7 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useMemo } from 'react';
 import artistsData from '../../../../data/artists-info.json';
+import { getArtistName } from '~/utils/names';
 import {
   Root as DialogRoot,
   Backdrop as DialogBackdrop,
@@ -34,7 +35,8 @@ export interface EditItemDialogProps {
 }
 
 export function EditItemDialog({ open, onOpenChange, item, onSave }: EditItemDialogProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
   const songData = useSongData();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -66,18 +68,18 @@ export function EditItemDialog({ open, onOpenChange, item, onSave }: EditItemDia
       .slice(0, 20) // Limit results
       .map((song) => {
         const s = song;
-        const artistId = s.artists?.[0];
-        const artist = artistId ? artistsData.find((a) => a.id === artistId) : null;
+        const artistRef = s.artists?.[0];
+        const artist = artistRef ? artistsData.find((a) => a.id === artistRef.id) : null;
 
         return {
           id: s.id,
           name: s.name,
           nameRomaji: undefined,
-          artist: artist?.name,
+          artist: artist ? getArtistName(artist.name, lang) : undefined,
           color: getSongColor(s)
         };
       });
-  }, [songData, searchQuery]);
+  }, [songData, searchQuery, lang]);
 
   const handleSave = () => {
     const updates: Partial<SetlistItem> = {
@@ -232,10 +234,10 @@ export function EditItemDialog({ open, onOpenChange, item, onSave }: EditItemDia
                               key={song.id}
                               data-selected={selectedSongId === song.id}
                               onClick={() => setSelectedSongId(song.id)}
+                              cursor="pointer"
                               borderBottomWidth="1px"
                               p={2}
                               bgColor="bg.default"
-                              cursor="pointer"
                               _hover={{ bgColor: 'bg.subtle' }}
                             >
                               <Stack gap={0.5}>

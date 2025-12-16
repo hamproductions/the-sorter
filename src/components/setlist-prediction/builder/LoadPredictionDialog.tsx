@@ -44,10 +44,10 @@ function PredictionItem({
       })}
       data-selected={isSelected}
       onClick={onClick}
+      cursor="pointer"
       borderRadius="md"
       borderWidth="1px"
       p={3}
-      cursor="pointer"
       _hover={{ bgColor: 'bg.subtle' }}
     >
       <HStack justifyContent="space-between" alignItems="start">

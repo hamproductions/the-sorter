@@ -22,12 +22,12 @@ export function GridView({
             <GridItem
               key={id}
               onClick={onSelectCharacter && (() => onSelectCharacter(c))}
+              cursor="pointer"
               rounded="l1"
               bgColor="bg.canvas"
               shadow={{ base: 'sm', _hover: 'md' }}
-              transition="shadow"
-              cursor="pointer"
               overflow="hidden"
+              transition="shadow"
             >
               <GridViewItem character={c} isSeiyuu={isSeiyuu} locale={i18n.language} />
             </GridItem>

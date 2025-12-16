@@ -81,8 +81,8 @@ function DragPreview({ activeData }: { activeData: Record<string, unknown> | nul
     const songColor = songDetails ? getSongColor(songDetails) : undefined;
 
     // Get artist name
-    const artistId = songDetails?.artists?.[0];
-    const artist = artistId ? artistsData.find((a) => a.id === artistId) : null;
+    const artistRef = songDetails?.artists?.[0];
+    const artist = artistRef ? artistsData.find((a) => a.id === artistRef.id) : null;
 
     return (
       <Box
@@ -91,6 +91,7 @@ function DragPreview({ activeData }: { activeData: Record<string, unknown> | nul
         })}
         style={{ '--song-color': songColor } as React.CSSProperties}
         data-has-color={Boolean(songColor)}
+        cursor="grabbing"
         borderRadius="md"
         minW="250px"
         py={2}
@@ -98,7 +99,6 @@ function DragPreview({ activeData }: { activeData: Record<string, unknown> | nul
         opacity={0.95}
         bgColor="bg.default"
         shadow="lg"
-        cursor="grabbing"
       >
         <HStack gap={2} alignItems="flex-start">
           <Box pt={1}>
@@ -126,8 +126,8 @@ function DragPreview({ activeData }: { activeData: Record<string, unknown> | nul
     const songColor = songDetails ? getSongColor(songDetails) : undefined;
 
     // Get artist name
-    const artistId = songDetails?.artists?.[0];
-    const artist = artistId ? artistsData.find((a) => a.id === artistId) : null;
+    const artistRef = songDetails?.artists?.[0];
+    const artist = artistRef ? artistsData.find((a) => a.id === artistRef.id) : null;
 
     return (
       <Box
@@ -136,6 +136,7 @@ function DragPreview({ activeData }: { activeData: Record<string, unknown> | nul
         })}
         style={{ '--song-color': songColor } as React.CSSProperties}
         data-has-color={Boolean(item.type === 'song' && songColor)}
+        cursor="grabbing"
         borderRadius="md"
         minW="250px"
         py={2}
@@ -143,7 +144,6 @@ function DragPreview({ activeData }: { activeData: Record<string, unknown> | nul
         opacity={0.95}
         bgColor="bg.default"
         shadow="lg"
-        cursor="grabbing"
       >
         <HStack gap={2} alignItems="flex-start">
           <Box pt={1}>
@@ -187,6 +187,7 @@ function DragPreview({ activeData }: { activeData: Record<string, unknown> | nul
 
     return (
       <Box
+        cursor="grabbing"
         borderRadius="md"
         minW="250px"
         py={2}
@@ -194,7 +195,6 @@ function DragPreview({ activeData }: { activeData: Record<string, unknown> | nul
         opacity={0.95}
         bgColor="bg.default"
         shadow="lg"
-        cursor="grabbing"
       >
         <HStack gap={2} alignItems="flex-start">
           <Box pt={1}>

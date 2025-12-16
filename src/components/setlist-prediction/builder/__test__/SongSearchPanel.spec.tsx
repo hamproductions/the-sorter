@@ -41,50 +41,57 @@ vi.mock('~/hooks/useSongData', () => ({
       id: '1',
       name: 'Snow halation',
       phoneticName: 'すのーはれーしょん',
-      artists: ['1'], // μ's
+      artists: [{ id: '1' }], // μ's
       seriesIds: [1]
     },
     {
       id: '2',
       name: 'Aozora Jumping Heart',
       phoneticName: 'あおぞらじゃんぴんぐはーと',
-      artists: ['33'], // Aqours
+      artists: [{ id: '33' }], // Aqours
       seriesIds: [2]
     },
     {
       id: '234',
       name: 'Aqours Pirate Desire',
       phoneticName: 'あくあぱいれーとでざいあ',
-      artists: ['33'], // Aqours
+      artists: [{ id: '33' }], // Aqours
       seriesIds: [2]
     },
     {
       id: '123',
       name: 'Heart ni Q',
       phoneticName: 'はーとにきゅー',
-      artists: ['134'], // Cerise Bouquet
+      artists: [{ id: '134' }], // Cerise Bouquet
       seriesIds: [6] // Hasu
     },
     {
       id: '3',
       name: 'MOMENT RING',
       phoneticName: 'もーめんとりんぐ',
-      artists: ['1'], // μ's
+      artists: [{ id: '1' }], // μ's
       seriesIds: [1]
     },
     {
       id: '5',
       name: 'START!! True dreams',
       phoneticName: 'すたーととぅるーどりーむず',
-      artists: ['91'], // Liella!
+      artists: [{ id: '91' }], // Liella!
       seriesIds: [4]
     },
     {
       id: '567',
       name: '千変万華',
       phoneticName: 'せんぺんばんか',
-      artists: ['134'], // Cerise Bouquet
+      artists: [{ id: '134' }], // Cerise Bouquet
       seriesIds: [6] // Hasu
+    },
+    {
+      id: '999',
+      name: '11th moon',
+      phoneticName: 'いれぶんすむーん',
+      artists: [{ id: '197' }], // Tomari + Margarete
+      seriesIds: [1]
     }
   ]
 }));

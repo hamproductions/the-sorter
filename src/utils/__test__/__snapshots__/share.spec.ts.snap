@@ -1,5 +1,3 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`Share Utils > serializeData function > Serialize Data with lz compression algorithm 1`] = `"N4IgJghgLhIFwgBYHsDmBTEBfIA"`;
-
-exports[`Share Utils serializeData function Serialize Data with lz compression algorithm 1`] = `"N4IgJghgLhIFwgBYHsDmBTEBfIA"`;

@@ -150,7 +150,7 @@ export function SetlistView({
 
               // Get artist name
               if (songDetails?.artists && songDetails.artists[0]) {
-                const artist = artistsData.find((a) => a.id === String(songDetails.artists[0]));
+                const artist = artistsData.find((a) => a.id === songDetails.artists[0].id);
                 artistName = artist?.name;
               }
             }

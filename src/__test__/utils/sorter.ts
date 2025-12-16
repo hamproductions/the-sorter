@@ -1,4 +1,6 @@
 import type { UserEvent } from '@testing-library/user-event';
+import { waitFor } from '@testing-library/react';
+import { expect } from 'vitest';
 import type { RenderResult } from './index';
 
 export const pickLeft = async (user: UserEvent) => {
@@ -22,20 +24,30 @@ export const resolveSort = async (
   user: UserEvent,
   strategy: 'left' | 'right' | 'random' = 'left'
 ) => {
-  const { queryByText } = container;
-  while (queryByText('Keyboard Shortcuts')) {
-    if (strategy === 'left') {
-      await pickLeft(user);
-    } else if (strategy === 'right') {
-      await pickRight(user);
-    } else {
-      if (Math.random() > 0.5) {
+  const { findByText, queryByText } = container;
+
+  await waitFor(() => {
+    expect(queryByText('Keyboard Shortcuts')).toBeInTheDocument();
+  });
+
+  let sorting = true;
+  while (sorting) {
+    try {
+      await findByText('Keyboard Shortcuts', {}, { timeout: 200 });
+      if (strategy === 'left') {
         await pickLeft(user);
-      } else {
+      } else if (strategy === 'right') {
         await pickRight(user);
+      } else {
+        if (Math.random() > 0.5) {
+          await pickLeft(user);
+        } else {
+          await pickRight(user);
+        }
       }
+    } catch {
+      sorting = false;
     }
-    // Small delay might be needed if animations are involved, but usually not in tests
   }
 };
 

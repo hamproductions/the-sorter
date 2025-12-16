@@ -63,6 +63,7 @@ export function CharacterCard({
             position="absolute"
             right="0"
             bottom="0"
+            transform="translate(25%, 25%)"
             border="1px solid"
             borderColor="var(--color)"
             rounded="full"
@@ -70,7 +71,6 @@ export function CharacterCard({
             h={{ base: 8, md: 10 }}
             p="0.5"
             bgColor="bg.canvas"
-            transform="translate(25%, 25%)"
           />
         </Center>
       </Stack>

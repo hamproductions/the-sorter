@@ -108,7 +108,7 @@ export function SongResultsView({
         ?.flatMap((item, idx) =>
           item.map((i) => {
             const s = songsData.find((s) => s.id === `${i}`);
-            const artist = uniq(s?.artists).map((id) => artists.find((a) => a.id === id));
+            const artist = s?.artists.map((art) => artists.find((a) => a.id === art.id));
             return `${idx + 1}. ${s?.name} - ${artist?.[0]?.name ?? 'unknown'}`;
           })
         )
@@ -123,13 +123,13 @@ export function SongResultsView({
         order?.flatMap((item, idx) =>
           item.map((i) => {
             const s = songsData.find((s) => s.id === `${i}`);
-            const artist = uniq(s?.artists).map((id) => artists.find((a) => a.id === id));
+            const artist = s?.artists.map((art) => artists.find((a) => a.id === art.id));
             const series = uniq(s?.seriesIds).map((id) => seriesData.find((a) => a.id === `${id}`));
             return {
               rank: idx + 1,
               title: s?.name,
               series: series.map((a) => a?.name)?.join(', '),
-              unit: artist.map((a) => a?.name)?.join(', ')
+              unit: artist?.map((a) => a?.name)?.join(', ')
             };
           })
         )

@@ -1,7 +1,7 @@
 {
   "name": "the-sorter",
   "private": true,
-  "version": "1.9.0",
+  "version": "1.11.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -75,7 +75,8 @@
     "@typescript-eslint/eslint-plugin": "^8.21.0",
     "@typescript-eslint/parser": "^8.21.0",
     "@vitejs/plugin-react-swc": "^3.7.2",
-    "@vitest/coverage-v8": "^3.0.3",
+    "@vitest/browser-playwright": "^4.0.15",
+    "@vitest/coverage-v8": "^4.0.15",
     "@vitest/ui": "^3.0.3",
     "babel-plugin-react-compiler": "^19.0.0-beta-decd7b8-20250118",
     "eslint": "^9.18.0",
