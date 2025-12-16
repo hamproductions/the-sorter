@@ -31,7 +31,8 @@
     "no_tie_mode": "No DD Allowed Mode (Hard)",
     "generation": {
       "103": "103th",
-      "104": "104th"
+      "104": "104th",
+      "105": "105th"
     },
     "generations": "Generation",
     "artists": "Artist",
@@ -40,6 +41,7 @@
       "original": "Original",
       "covers": "Covers",
       "104ver": "104th ver.",
+      "105ver": "105th ver.",
       "nver": "N members ver.",
       "group": "Group Songs",
       "unit": "Unit Songs",
