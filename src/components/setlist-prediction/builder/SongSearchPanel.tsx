@@ -6,7 +6,7 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useMemo, memo, useEffect } from 'react';
 import { useDraggable } from '@dnd-kit/core';
-import { MdDragIndicator } from 'react-icons/md';
+import { MdArrowForward, MdDragIndicator } from 'react-icons/md';
 import { toHiragana, toRomaji } from 'wanakana';
 import artistsData from '../../../../data/artists-info.json';
 import { getArtistName } from '~/utils/names';
@@ -99,6 +99,29 @@ const DraggableSongItem = memo(function DraggableSongItem({
             </Text>
           )}
         </Stack>
+
+        <button
+          type="button"
+          style={{
+            touchAction: 'none',
+            cursor: 'pointer',
+            border: 'none',
+            background: 'none',
+            padding: 0,
+            display: 'flex',
+            alignItems: 'center'
+          }}
+          onClick={(e) => {
+            e.stopPropagation(); // Prevent event from bubbling to parent DraggableSongItem
+            onAddSong(song.id, song.name);
+          }}
+          onDoubleClick={(e) => {
+            e.stopPropagation(); // Prevent double-click from bubbling to parent
+          }}
+          aria-label={`Add ${song.name} to setlist`}
+        >
+          <MdArrowForward size={16} />
+        </button>
       </HStack>
     </Box>
   );
