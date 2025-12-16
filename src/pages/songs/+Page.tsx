@@ -104,7 +104,7 @@ export function Page() {
       const song = listToSort.find((l) => l.id === item);
       const url =
         song &&
-        `https://www.youtube.com/embed/${song.musicVideo?.videoId}?start=${song.musicVideo?.videoOffset}`;
+        `https://www.youtube-nocookie.com/embed/${song.musicVideo?.videoId}/?start=${song.musicVideo?.videoOffset}&html5=1`;
       if (url) preload(url, { as: 'document' });
     }
   }, [state]);
