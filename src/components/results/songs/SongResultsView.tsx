@@ -37,12 +37,18 @@ export function SongResultsView({
   const { toast } = useToaster();
   const [title, setTitle] = useState<string>('My LoveLive! Song Ranking');
   const [description, setDescription] = useState<string>();
-  const [currentTab, setCurrentTab] = useLocalStorage<'table'>('songs-result-tab', 'table');
+  const [currentTab, setCurrentTab] = useLocalStorage<'table'>('songs-result-tab-v2', 'table');
   const [timestamp, setTimestamp] = useState(new Date());
   const [showRenderingCanvas, setShowRenderingCanvas] = useState(false);
   const { t, i18n: _i18n } = useTranslation();
 
   const tabs = [{ id: 'table', label: t('results.table') }];
+
+  useEffect(() => {
+    if (!tabs.find((t) => t.id === currentTab)) {
+      setCurrentTab('table');
+    }
+  }, [currentTab]);
 
   const songs = useMemo(() => {
     return (

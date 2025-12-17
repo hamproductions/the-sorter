@@ -84,6 +84,12 @@ export function ResultsView({
     { id: 'tier', label: t('results.tier') }
   ];
 
+  useEffect(() => {
+    if (!tabs.find((t) => t.id === currentTab)) {
+      setCurrentTab('default');
+    }
+  }, [currentTab]);
+
   const displayOrder = savedDisplayOrder?.length === order?.length ? savedDisplayOrder : order;
 
   const characters = useMemo(() => {
