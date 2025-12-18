@@ -7,11 +7,17 @@ import { SongFilters, type SongFilterType } from '../SongFilters';
 
 // Mock DualListSelector to simplify testing
 vi.mock('../DualListSelector', () => ({
-  DualListSelector: (props: any) => (
+  DualListSelector: (props: {
+    title: string;
+    selectedIds: string[];
+    onSelectionChange: (ids: string[]) => void;
+  }) => (
     <div data-testid={`dual-list-${props.title}`}>
       <h3>{props.title}</h3>
       <span>Selected Count: {props.selectedIds.length}</span>
-      <button onClick={() => props.onSelectionChange([...props.selectedIds, 999])}>Add Mock Item</button>
+      <button onClick={() => props.onSelectionChange([...props.selectedIds, '999'])}>
+        Add Mock Item
+      </button>
     </div>
   )
 }));
@@ -75,7 +81,7 @@ describe('SongFilters Component', () => {
     // Assuming Series are rendered as Checkboxes with names from mock data
     // Note: Use a real serie name from your data since we are importing it.
     // 'μ's' is id 1.
-    const checkbox = screen.getByLabelText("μ's"); 
+    const checkbox = screen.getByLabelText("μ's");
     await user.click(checkbox);
 
     expect(setFilters).toHaveBeenCalled();

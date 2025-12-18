@@ -23,7 +23,6 @@ describe('matchSongFilter', () => {
     characters: [6]
   } as unknown as Song;
 
-
   // Helper to create basic filter
   const createFilter = (overrides?: Partial<SongFilterType>): SongFilterType => ({
     characters: [],

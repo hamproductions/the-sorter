@@ -69,12 +69,12 @@ export function SongFilters({
   };
 
   const clearSection = (key: keyof SongFilterType) => () => {
-     setFilters((f) => {
-        return {
-          ...f,
-          [key]: []
-        } as SongFilterType;
-      });
+    setFilters((f) => {
+      return {
+        ...f,
+        [key]: []
+      } as SongFilterType;
+    });
   };
 
   const deselectAll = () => {
@@ -200,43 +200,48 @@ export function SongFilters({
   const categories = useMemo(() => series.map((s) => ({ id: s.name, label: s.name })), []);
 
   // Helper for Adaptive Header
-  const renderHeader = (title: string, count: number, sectionKey: keyof SongFilterType, isModal = false) => {
+  const renderHeader = (
+    title: string,
+    count: number,
+    sectionKey: keyof SongFilterType,
+    isModal = false
+  ) => {
     const hasSelection = count > 0;
-    
+
     // For Series/Types (isModal=false): Button is "Select All" (if empty) or "Clear" (if selected)
     // For Modals (isModal=true): Button is "Clear" (only if selected)
-    
+
     let button = null;
 
     if (!isModal) {
       // Toggle logic for Series/Types
       button = (
         <Button size="sm" onClick={selectAll(sectionKey)}>
-           {hasSelection ? t('settings.deselect_all') : t('settings.select_all')}
+          {hasSelection ? t('settings.deselect_all') : t('settings.select_all')}
         </Button>
       );
     } else {
       // Clear button for Modals (Always render to reserve space, but hide if no selection)
       button = (
-        <Button 
-          size="xs" 
-          variant="outline" 
+        <Button
+          size="xs"
+          variant="outline"
           onClick={clearSection(sectionKey)}
           disabled={!hasSelection}
           style={{ visibility: hasSelection ? 'visible' : 'hidden' }}
         >
-           {t('settings.deselect_all')}
+          {t('settings.deselect_all')}
         </Button>
       );
     }
 
     return (
-       <HStack justifyContent="space-between" alignItems="center" h="8">
-          <Text fontWeight="bold">
-            {title} {hasSelection && `(${count})`}
-          </Text>
-          {button}
-       </HStack>
+      <HStack justifyContent="space-between" alignItems="center" h="8">
+        <Text fontWeight="bold">
+          {title} {hasSelection && `(${count})`}
+        </Text>
+        {button}
+      </HStack>
     );
   };
 
@@ -276,8 +281,8 @@ export function SongFilters({
 
       {/* Artists & Characters Modals */}
       <HStack gap="8" alignItems="flex-start" flexWrap="wrap">
-         {/* Artists */}
-         <Stack flex="1" gap="4" minW="300px">
+        {/* Artists */}
+        <Stack flex="1" gap="4" minW="300px">
           {renderHeader(t('settings.artists'), artistsCount, 'artists', true)}
 
           <DualListSelector
@@ -368,30 +373,30 @@ export function SongFilters({
       {/* Discographies */}
       <Stack>
         {renderHeader(t('settings.discographies'), discographiesCount, 'discographies', true)}
-         <DualListSelector
-            title={t('settings.discographies')}
-            triggerLabel={t('settings.discographies')}
-            items={discographyItems}
-            selectedIds={filters?.discographies ?? []}
-            onSelectionChange={(ids) => {
-              if (!filters) return;
-              setFilters({ ...filters, discographies: ids.map(Number) });
-            }}
-            categories={categories}
-          />
-          {filters?.discographies && filters.discographies.length > 0 && (
-            <HStack gap="2" pt="2" flexWrap="wrap">
-              {filters.discographies.map((discId) => {
-                const disc = discographyItems.find((d) => Number(d.id) === discId);
-                if (!disc) return null;
-                return (
-                  <Badge key={discId} variant="subtle" size="sm">
-                    {disc.name}
-                  </Badge>
-                );
-              })}
-            </HStack>
-          )}
+        <DualListSelector
+          title={t('settings.discographies')}
+          triggerLabel={t('settings.discographies')}
+          items={discographyItems}
+          selectedIds={filters?.discographies ?? []}
+          onSelectionChange={(ids) => {
+            if (!filters) return;
+            setFilters({ ...filters, discographies: ids.map(Number) });
+          }}
+          categories={categories}
+        />
+        {filters?.discographies && filters.discographies.length > 0 && (
+          <HStack gap="2" pt="2" flexWrap="wrap">
+            {filters.discographies.map((discId) => {
+              const disc = discographyItems.find((d) => Number(d.id) === discId);
+              if (!disc) return null;
+              return (
+                <Badge key={discId} variant="subtle" size="sm">
+                  {disc.name}
+                </Badge>
+              );
+            })}
+          </HStack>
+        )}
       </Stack>
 
       <HStack justifyContent="center">

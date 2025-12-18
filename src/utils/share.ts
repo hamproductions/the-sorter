@@ -42,6 +42,6 @@ export const addSongPresetParams = (params: URLSearchParams, filters: SongFilter
     }
   }
   // Removed logic params appending as they are no longer part of SongFilterType
-  
+
   return params;
 };

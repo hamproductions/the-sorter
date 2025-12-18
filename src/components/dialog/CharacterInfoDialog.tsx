@@ -96,7 +96,6 @@ export function CharacterInfoDialog(
                       )}
                       <Stack gap={1}>
                         <Text fontWeight="bold">{t('dialog.character_info.units')}:</Text>
-                        {/* @ts-expect-error TODO */}
                         <Stack as="ul" gap={1} pl={4} listStyleType="disc">
                           {units &&
                             Object.values(

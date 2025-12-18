@@ -4,7 +4,11 @@ description: 'Sets up Node.js and runs install'
 runs:
   using: composite
   steps:
+    - uses: jdx/mise-action@v2
     - uses: oven-sh/setup-bun@v1
     - name: Install dependencies
       shell: bash
-      run: bun install
+      run: bun install --frozen-lockfile
+    - name: Codegen
+      shell: bash
+      run: bun panda codegen

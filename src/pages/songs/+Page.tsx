@@ -2,6 +2,7 @@ import { Suspense, lazy, useEffect, useState } from 'react';
 import { preload } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { FaShare } from 'react-icons/fa6';
+import { isEqual } from 'lodash-es';
 import { Button } from '../../components/ui/styled/button';
 import { Kbd } from '../../components/ui/styled/kbd';
 import { Progress } from '../../components/ui/progress';
@@ -20,7 +21,6 @@ import { useSongData } from '~/hooks/useSongData';
 import { useArtistsData } from '~/hooks/useArtistsData';
 import { isValidSongFilter } from '~/utils/song-filter';
 import { addSongPresetParams } from '~/utils/share';
-import { isEqual } from 'lodash-es';
 
 const ConfirmMidSortDialog = lazy(() =>
   import('../../components/dialog/ConfirmDialog').then((m) => ({
@@ -98,7 +98,7 @@ export function Page() {
           characters: params.getAll('characters').map(Number),
           discographies: params.getAll('discographies').map(Number)
         };
-        
+
         // Only show dialog if the filters are actually different
         if (!isEqual(newFilters, songFilters)) {
           setShowConfirmDialog({

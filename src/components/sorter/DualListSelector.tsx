@@ -105,7 +105,7 @@ export function DualListSelector({
               {/* LEFT: Available */}
               <Stack flex="1" gap="4" h="full" overflow="hidden">
                 <Stack gap="2">
-                  <Text fontWeight="bold" fontSize="sm" color="fg.subtle">
+                  <Text color="fg.subtle" fontSize="sm" fontWeight="bold">
                     {t('common.available')}
                   </Text>
                   <Input
@@ -139,11 +139,11 @@ export function DualListSelector({
 
                 <Box
                   flex="1"
+                  borderColor="border.subtle"
                   borderRadius="md"
                   borderWidth="1px"
-                  borderColor="border.subtle"
-                  bg="bg.subtle"
                   p="2"
+                  bg="bg.subtle"
                   overflowY="auto"
                 >
                   {availableItems.length === 0 ? (
@@ -187,9 +187,9 @@ export function DualListSelector({
                   aria-label="Remove All"
                   onClick={removeAll}
                   variant="ghost"
-                  colorPalette="red"
                   size="sm"
                   title="Remove All"
+                  colorPalette="red"
                 >
                   <LuChevronsLeft />
                 </IconButton>
@@ -198,7 +198,7 @@ export function DualListSelector({
               {/* RIGHT: Selected */}
               <Stack flex="1" gap="4" h="full" overflow="hidden">
                 <HStack justify="space-between" alignItems="center">
-                  <Text fontWeight="bold" fontSize="sm" color="fg.subtle">
+                  <Text color="fg.subtle" fontSize="sm" fontWeight="bold">
                     {t('common.selected')}
                   </Text>
                   <Badge variant="solid" size="sm">
