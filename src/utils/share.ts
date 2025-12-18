@@ -35,7 +35,7 @@ export const addHasuSongPresetParams = (params: URLSearchParams, filters: HasuSo
 };
 
 export const addSongPresetParams = (params: URLSearchParams, filters: SongFilterType) => {
-  for (const key of ['series', 'artists', 'types', 'characters'] as const) {
+  for (const key of ['series', 'artists', 'types', 'characters', 'discographies'] as const) {
     const list = filters?.[key];
     if (list && list?.length > 0) {
       list.forEach((item) => params.append(key, String(item)));

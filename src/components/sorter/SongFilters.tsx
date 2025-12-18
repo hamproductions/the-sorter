@@ -215,17 +215,23 @@ export function SongFilters({
            {hasSelection ? t('settings.deselect_all') : t('settings.select_all')}
         </Button>
       );
-    } else if (hasSelection) {
-      // Clear button for Modals
+    } else {
+      // Clear button for Modals (Always render to reserve space, but hide if no selection)
       button = (
-        <Button size="xs" variant="outline" onClick={clearSection(sectionKey)}>
+        <Button 
+          size="xs" 
+          variant="outline" 
+          onClick={clearSection(sectionKey)}
+          disabled={!hasSelection}
+          style={{ visibility: hasSelection ? 'visible' : 'hidden' }}
+        >
            {t('settings.deselect_all')}
         </Button>
       );
     }
 
     return (
-       <HStack justifyContent="space-between" alignItems="center">
+       <HStack justifyContent="space-between" alignItems="center" h="8">
           <Text fontWeight="bold">
             {title} {hasSelection && `(${count})`}
           </Text>
