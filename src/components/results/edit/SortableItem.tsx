@@ -30,8 +30,8 @@ export function SortableItem(props: {
       }}
       ref={setNodeRef}
       data-active={isDragging === true ? 'true' : undefined}
-      opacity={{ _active: 0.4 }}
       cursor="pointer"
+      opacity={{ _active: 0.4 }}
       {...attributes}
       {...listeners}
     >

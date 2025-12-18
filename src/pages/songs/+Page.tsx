@@ -33,6 +33,12 @@ const ConfirmEndedDialog = lazy(() =>
   }))
 );
 
+const ConfirmNewSessionDialog = lazy(() =>
+  import('../../components/dialog/ConfirmDialog').then((m) => ({
+    default: m.ConfirmNewSessionDialog
+  }))
+);
+
 const SongFilters = lazy(() =>
   import('../../components/sorter/SongFilters').then((m) => ({
     default: m.SongFilters
@@ -63,9 +69,23 @@ export function Page() {
     isEnded
   } = useSongsSortData();
   const [showConfirmDialog, setShowConfirmDialog] = useState<{
-    type: 'mid-sort' | 'ended';
+    type: 'mid-sort' | 'ended' | 'new-session';
     action: 'reset' | 'clear';
   }>();
+
+  useEffect(() => {
+    if (state && state.status !== 'end') {
+      const params = new URLSearchParams(location.search);
+      const hasFilterParams =
+        params.has('series') || params.has('artists') || params.has('types');
+      if (hasFilterParams) {
+        setShowConfirmDialog({
+          type: 'new-session',
+          action: 'reset'
+        });
+      }
+    }
+  }, []);
 
   const { left: leftItem, right: rightItem } =
     (state && getCurrentItem(state)) || ({} as { left: string[]; right: string[] });
@@ -286,6 +306,33 @@ export function Page() {
           }}
           onOpenChange={({ open }) => {
             if (!open) {
+              setShowConfirmDialog(undefined);
+            }
+          }}
+        />
+        <ConfirmNewSessionDialog
+          open={showConfirmDialog?.type === 'new-session'}
+          lazyMount
+          unmountOnExit
+          onConfirm={() => {
+            // User chose to accept the new link (reset current session and use new params)
+            clear();
+            // We need to parse URL params and set them as filters
+            const params = new URLSearchParams(location.search);
+            const newFilters = {
+              series: params.getAll('series'),
+              artists: params.getAll('artists'),
+              types: params.getAll('types')
+            };
+            setSongFilters(newFilters);
+            setShowConfirmDialog(undefined);
+          }}
+          onOpenChange={({ open }) => {
+            if (!open) {
+              // User dismissed/cancelled (keep current session, remove URL params)
+              const url = new URL(window.location.href);
+              url.search = '';
+              window.history.replaceState({}, '', url.toString());
               setShowConfirmDialog(undefined);
             }
           }}

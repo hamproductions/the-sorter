@@ -418,9 +418,9 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
                             key={perf.id}
                             data-selected={selectedPerformanceId === perf.id}
                             onClick={() => setSelectedPerformanceId(perf.id)}
+                            cursor="pointer"
                             borderBottomWidth="1px"
                             p={2}
-                            cursor="pointer"
                             _hover={{ bgColor: 'bg.subtle' }}
                           >
                             <Stack gap={0.5}>

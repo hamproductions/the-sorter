@@ -97,13 +97,13 @@ export function HasuSongTierList({
                     <GridItem
                       key={id}
                       onClick={onSelect && (() => onSelect(c))}
+                      cursor="pointer"
                       rounded="l1"
                       h="full"
                       bgColor="bg.canvas"
                       shadow={{ base: 'md', _hover: 'lg' }}
                       overflow="hidden"
                       transition="shadow"
-                      cursor="pointer"
                     >
                       <HasuSongTierListItem
                         song={c}
