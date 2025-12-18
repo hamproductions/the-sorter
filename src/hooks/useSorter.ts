@@ -1,5 +1,5 @@
 import shuffle from 'lodash-es/shuffle';
-import { useEffect } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import cloneDeep from 'lodash-es/cloneDeep';
 import type { SortState } from '../utils/sort';
 import { step, initSort } from '../utils/sort';
@@ -30,29 +30,41 @@ export const useSorter = <T>(items: T[], statePrefix?: string) => {
     setHistory(history);
   };
 
-  const handleStep = (value: 'left' | 'right' | 'tie') => () => {
-    if (state) {
-      setHistory([...(history ?? []), cloneDeep(state)]);
-      const nextStep = step(value, state);
-      setState(nextStep);
-    }
-  };
+  const stateRef = useRef(state);
+  const historyRef = useRef(history);
 
-  const reset = () => {
+  // Update refs synchronously during render to avoid useEffect timing issues
+  stateRef.current = state;
+  historyRef.current = history;
+
+  const handleStep = useCallback(
+    (value: 'left' | 'right' | 'tie') => () => {
+      const currentState = stateRef.current;
+      if (currentState) {
+        setHistory([...(historyRef.current ?? []), cloneDeep(currentState)]);
+        const nextStep = step(value, currentState);
+        setState(nextStep);
+      }
+    },
+    [setHistory, setState]
+  );
+
+  const reset = useCallback(() => {
     setState(initSort(shuffle(items)));
     // setState(initSort(items));
     setHistory([]);
     localStorage.removeItem('results-display-order');
-  };
+  }, [items, setState, setHistory]);
 
-  const handleUndo = () => {
-    if (!history || history?.length === 0) return;
-    const state = history.at(-1);
-    if (state) {
-      setState(state);
-      setHistory(history.slice(0, -1));
+  const handleUndo = useCallback(() => {
+    const currentHistory = historyRef.current;
+    if (!currentHistory || currentHistory?.length === 0) return;
+    const previousState = currentHistory.at(-1);
+    if (previousState) {
+      setState(previousState);
+      setHistory(currentHistory.slice(0, -1));
     }
-  };
+  }, [setState, setHistory]);
 
   const getProgress = () => {
     const sizeCount = Math.ceil(Math.log2(items.length));

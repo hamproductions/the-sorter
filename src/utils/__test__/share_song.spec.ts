@@ -8,7 +8,9 @@ describe('Share Utils', () => {
       const filters = {
         series: ['series1', 'series2'],
         artists: ['artist1'],
-        types: ['group'] as ('group' | 'solo' | 'unit')[]
+        types: ['group'] as ('group' | 'solo' | 'unit')[],
+        characters: [],
+        discographies: []
       };
 
       const result = addSongPresetParams(params, filters);
@@ -24,7 +26,9 @@ describe('Share Utils', () => {
       const filters = {
         series: [],
         artists: [],
-        types: [] as ('group' | 'solo' | 'unit')[]
+        types: [] as ('group' | 'solo' | 'unit')[],
+        characters: [],
+        discographies: []
       };
 
       const result = addSongPresetParams(params, filters);
@@ -36,7 +40,9 @@ describe('Share Utils', () => {
       const filters = {
         series: ['series1'],
         artists: [],
-        types: [] as ('group' | 'solo' | 'unit')[]
+        types: [] as ('group' | 'solo' | 'unit')[],
+        characters: [],
+        discographies: []
       };
 
       const result = addSongPresetParams(params, filters);

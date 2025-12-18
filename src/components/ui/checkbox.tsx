@@ -7,7 +7,7 @@ export const Checkbox = forwardRef<HTMLLabelElement, CheckboxProps>((props, ref)
   const { children, ...rootProps } = props;
 
   return (
-    <StyledCheckbox.Root ref={ref} {...rootProps}>
+    <StyledCheckbox.Root ref={ref} cursor="pointer" userSelect="none" {...rootProps}>
       <StyledCheckbox.Control>
         <StyledCheckbox.Indicator>
           <CheckIcon />

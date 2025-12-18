@@ -39,6 +39,12 @@ const SongFilters = lazy(() =>
   }))
 );
 
+const SortingPreviewDialog = lazy(() =>
+  import('../../components/sorter/SortingPreviewDialog').then((m) => ({
+    default: m.SortingPreviewDialog
+  }))
+);
+
 export function Page() {
   const songs = useSongData();
   const artists = useArtistsData();
@@ -63,7 +69,7 @@ export function Page() {
     isEnded
   } = useSongsSortData();
   const [showConfirmDialog, setShowConfirmDialog] = useState<{
-    type: 'mid-sort' | 'ended';
+    type: 'mid-sort' | 'ended' | 'preview';
     action: 'reset' | 'clear';
   }>();
 
@@ -161,9 +167,19 @@ export function Page() {
             </Wrap>
           </>
         )}
-        <Text fontSize="sm" fontWeight="bold">
-          {t('settings.song_sort_count', { count: listCount })}
-        </Text>
+        <Wrap justifyContent="center" alignItems="center">
+          <Text fontSize="sm" fontWeight="bold">
+            {t('settings.song_sort_count', { count: listCount })}
+          </Text>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={listCount === 0}
+            onClick={() => setShowConfirmDialog({ type: 'preview', action: 'reset' })}
+          >
+            {t('sort.preview')}
+          </Button>
+        </Wrap>
         <Wrap justifyContent="center">
           <Button onClick={() => void shareUrl()} variant="subtle">
             <FaShare /> {t('settings.share')}
@@ -284,6 +300,17 @@ export function Page() {
             }
             setShowConfirmDialog(undefined);
           }}
+          onOpenChange={({ open }) => {
+            if (!open) {
+              setShowConfirmDialog(undefined);
+            }
+          }}
+        />
+        <SortingPreviewDialog
+          open={showConfirmDialog?.type === 'preview'}
+          lazyMount
+          unmountOnExit
+          items={listToSort}
           onOpenChange={({ open }) => {
             if (!open) {
               setShowConfirmDialog(undefined);

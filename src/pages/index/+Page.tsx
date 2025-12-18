@@ -51,6 +51,12 @@ const CharacterFilters = lazy(() =>
   }))
 );
 
+const SortingPreviewDialog = lazy(() =>
+  import('../../components/sorter/SortingPreviewDialog').then((m) => ({
+    default: m.SortingPreviewDialog
+  }))
+);
+
 export function Page() {
   const data = useData();
   const { toast } = useToaster();
@@ -76,7 +82,7 @@ export function Page() {
     clear
   } = useSortData();
   const [showConfirmDialog, setShowConfirmDialog] = useState<{
-    type: 'mid-sort' | 'ended';
+    type: 'mid-sort' | 'ended' | 'preview';
     action: 'reset' | 'clear';
   }>();
   const {
@@ -202,6 +208,14 @@ export function Page() {
         <Text fontSize="sm" fontWeight="bold">
           {t('settings.sort_count', { count: listCount })}
         </Text>
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={listCount === 0}
+          onClick={() => setShowConfirmDialog({ type: 'preview', action: 'reset' })}
+        >
+          {t('sort.preview')}
+        </Button>
         <Wrap justifyContent="center">
           <Button onClick={() => void shareUrl()} variant="subtle">
             <FaShare /> {t('settings.share')}
@@ -361,6 +375,18 @@ export function Page() {
           onOpenChange={(e) => {
             if (!e.open) {
               return setShowCharacterInfo(undefined);
+            }
+          }}
+        />
+        <SortingPreviewDialog
+          open={showConfirmDialog?.type === 'preview'}
+          lazyMount
+          unmountOnExit
+          items={listToSort}
+          getItemName={(item) => (item as Character).fullName || ''}
+          onOpenChange={({ open }) => {
+            if (!open) {
+              setShowConfirmDialog(undefined);
             }
           }}
         />

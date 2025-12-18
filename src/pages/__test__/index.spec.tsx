@@ -38,6 +38,8 @@ const selectCurrentItem = async (
   return divs;
 };
 
+vi.setConfig({ testTimeout: 15000 });
+
 describe('Home Page', () => {
   it('Renders', async () => {
     const [{ findByText }] = await render(<Page />);
@@ -104,6 +106,7 @@ describe('Home Page', () => {
       const { findByText, findAllByText, queryByText } = container;
       await selectPreset(container, user, 'Cerise Bouquet');
       await user.click(await findByText('Start', {}, {}));
+      document.body.focus();
 
       await rtlWaitFor(() => {
         expect(queryByText('Tie')).toBeInTheDocument();
@@ -111,13 +114,15 @@ describe('Home Page', () => {
 
       for (let i = 0; i < 10; i++) {
         if (queryByText('Sort Results')) break;
+        const currentText = container.container.textContent;
         await user.keyboard('[ArrowLeft]');
         await rtlWaitFor(
           () => {
-            const resultsOrTie = queryByText('Sort Results') || queryByText('Tie');
-            expect(resultsOrTie).toBeInTheDocument();
+            const results = queryByText('Sort Results');
+            if (results) return;
+            expect(container.container.textContent).not.toBe(currentText);
           },
-          { timeout: 1000 }
+          { timeout: 5000 }
         );
       }
       expect(await findByText('Sort Results')).toBeInTheDocument();

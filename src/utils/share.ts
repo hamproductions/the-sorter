@@ -35,11 +35,13 @@ export const addHasuSongPresetParams = (params: URLSearchParams, filters: HasuSo
 };
 
 export const addSongPresetParams = (params: URLSearchParams, filters: SongFilterType) => {
-  for (const key of ['series', 'artists', 'types'] as const) {
+  for (const key of ['series', 'artists', 'types', 'characters'] as const) {
     const list = filters?.[key];
     if (list && list?.length > 0) {
-      list.forEach((item) => params.append(key, item));
+      list.forEach((item) => params.append(key, String(item)));
     }
   }
+  // Removed logic params appending as they are no longer part of SongFilterType
+  
   return params;
 };
