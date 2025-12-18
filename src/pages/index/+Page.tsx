@@ -39,6 +39,12 @@ const ConfirmEndedDialog = lazy(() =>
   }))
 );
 
+const ConfirmNewSessionDialog = lazy(() =>
+  import('../../components/dialog/ConfirmDialog').then((m) => ({
+    default: m.ConfirmNewSessionDialog
+  }))
+);
+
 const CharacterInfoDialog = lazy(() =>
   import('../../components/dialog/CharacterInfoDialog').then((m) => ({
     default: m.CharacterInfoDialog
@@ -76,7 +82,7 @@ export function Page() {
     clear
   } = useSortData();
   const [showConfirmDialog, setShowConfirmDialog] = useState<{
-    type: 'mid-sort' | 'ended';
+    type: 'mid-sort' | 'ended' | 'new-session';
     action: 'reset' | 'clear';
   }>();
   const {
@@ -122,6 +128,18 @@ export function Page() {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const urlSeiyuu = params.get('seiyuu');
+
+    if (state && state.status !== 'end') {
+      const hasFilterParams =
+        params.has('series') || params.has('school') || params.has('units') || params.has('seiyuu');
+      if (hasFilterParams) {
+        setShowConfirmDialog({
+          type: 'new-session',
+          action: 'reset'
+        });
+        return;
+      }
+    }
 
     if (urlSeiyuu !== null) {
       setSeiyuu(urlSeiyuu === 'true');
@@ -350,6 +368,37 @@ export function Page() {
           }}
           onOpenChange={({ open }) => {
             if (!open) {
+              setShowConfirmDialog(undefined);
+            }
+          }}
+        />
+        <ConfirmNewSessionDialog
+          open={showConfirmDialog?.type === 'new-session'}
+          lazyMount
+          unmountOnExit
+          onConfirm={() => {
+            // User chose to accept the new link (reset current session and use new params)
+            clear();
+            // We need to parse URL params and set them as filters
+            const params = new URLSearchParams(location.search);
+            const newFilters = {
+              series: params.getAll('series'),
+              school: params.getAll('school'),
+              units: params.getAll('units')
+            };
+            const urlSeiyuu = params.get('seiyuu');
+            if (urlSeiyuu !== null) {
+              setSeiyuu(urlSeiyuu === 'true');
+            }
+            setFilters(newFilters);
+            setShowConfirmDialog(undefined);
+          }}
+          onOpenChange={({ open }) => {
+            if (!open) {
+              // User dismissed/cancelled (keep current session, remove URL params)
+              const url = new URL(window.location.href);
+              url.search = '';
+              window.history.replaceState({}, '', url.toString());
               setShowConfirmDialog(undefined);
             }
           }}

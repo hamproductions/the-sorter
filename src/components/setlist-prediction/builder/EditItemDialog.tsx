@@ -234,10 +234,10 @@ export function EditItemDialog({ open, onOpenChange, item, onSave }: EditItemDia
                               key={song.id}
                               data-selected={selectedSongId === song.id}
                               onClick={() => setSelectedSongId(song.id)}
-                              cursor="pointer"
                               borderBottomWidth="1px"
                               p={2}
                               bgColor="bg.default"
+                              cursor="pointer"
                               _hover={{ bgColor: 'bg.subtle' }}
                             >
                               <Stack gap={0.5}>

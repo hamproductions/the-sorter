@@ -127,6 +127,10 @@
       "title": "Sorting in progress",
       "description": "Your current sorting data will be lost, are you sure ?"
     },
+    "new_session_confirm": {
+      "title": "New Session?",
+      "description": "You have an active sorting session. Do you want to discard your progress and start a new session with the settings from the link?"
+    },
     "proceed": "Proceed",
     "cancel": "Cancel",
     "close": "Close",

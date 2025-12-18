@@ -204,8 +204,8 @@ const SetlistItemComponent = memo(function SetlistItem({
                 {...listeners}
                 className={css({ '&[data-is-dragging=true]': { cursor: 'grabbing' } })}
                 style={{ touchAction: 'none' }}
-                cursor="grab"
                 color="fg.muted"
+                cursor="grab"
                 _hover={{ color: 'fg.default' }}
               >
                 <MdDragIndicator size={20} />
