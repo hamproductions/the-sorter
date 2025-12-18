@@ -137,8 +137,14 @@
       "title": "確認",
       "description": "ランキング結果のデータが消されます, よろしいですか?"
     },
+    "new_session_confirm": {
+      "title": "ランキング中です",
+      "description": "URLの設定とは異なるランキング作成が進行中です。現在の進捗を破棄して、最初からやり直しますか？"
+    },
     "proceed": "続行",
     "cancel": "キャンセル",
+    "start_new_session": "新しいセッションを開始",
+    "continue_sorting": "ランキングを続ける",
     "close": "閉じる",
     "character_info": {
       "profile": "プロフィール",

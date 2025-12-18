@@ -5,7 +5,11 @@ import { Button } from '~/components/ui/button';
 import { Dialog } from '~/components/ui/dialog';
 import { IconButton } from '~/components/ui/icon-button';
 
-const createConfirmDialog = (key: 'mid_sort_confirm' | 'ended_confirm') => {
+const createConfirmDialog = (
+  key: 'mid_sort_confirm' | 'ended_confirm' | 'new_session_confirm',
+  confirmLabelKey = 'dialog.proceed',
+  cancelLabelKey = 'dialog.cancel'
+) => {
   return function ConfirmDialog(props: Dialog.RootProps & { onConfirm: () => void }) {
     const { onConfirm, ...rest } = props;
     const { t } = useTranslation();
@@ -22,11 +26,11 @@ const createConfirmDialog = (key: 'mid_sort_confirm' | 'ended_confirm') => {
               <Stack gap="3" direction="row" width="full">
                 <Dialog.CloseTrigger asChild>
                   <Button variant="outline" flex={1}>
-                    {t('dialog.cancel')}
+                    {t(cancelLabelKey)}
                   </Button>
                 </Dialog.CloseTrigger>
                 <Button onClick={onConfirm} flex={1}>
-                  {t('dialog.proceed')}
+                  {t(confirmLabelKey)}
                 </Button>
               </Stack>
             </Stack>
@@ -44,3 +48,8 @@ const createConfirmDialog = (key: 'mid_sort_confirm' | 'ended_confirm') => {
 
 export const ConfirmMidSortDialog = createConfirmDialog('mid_sort_confirm');
 export const ConfirmEndedDialog = createConfirmDialog('ended_confirm');
+export const ConfirmNewSessionDialog = createConfirmDialog(
+  'new_session_confirm',
+  'dialog.start_new_session',
+  'dialog.continue_sorting'
+);

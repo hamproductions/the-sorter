@@ -135,8 +135,14 @@
       "title": "Sorting in progress",
       "description": "Your current sorting data will be lost, are you sure ?"
     },
+    "new_session_confirm": {
+      "title": "Sorting in progress",
+      "description": "You are currently in the middle of something different from your URL, do you want to stop and start over?"
+    },
     "proceed": "Proceed",
     "cancel": "Cancel",
+    "start_new_session": "Start New Session",
+    "continue_sorting": "Continue Sorting",
     "close": "Close",
     "character_info": {
       "profile": "Profile",

@@ -20,6 +20,7 @@ import { useSongData } from '~/hooks/useSongData';
 import { useArtistsData } from '~/hooks/useArtistsData';
 import { isValidSongFilter } from '~/utils/song-filter';
 import { addSongPresetParams } from '~/utils/share';
+import { isEqual } from 'lodash-es';
 
 const ConfirmMidSortDialog = lazy(() =>
   import('../../components/dialog/ConfirmDialog').then((m) => ({
@@ -30,6 +31,12 @@ const ConfirmMidSortDialog = lazy(() =>
 const ConfirmEndedDialog = lazy(() =>
   import('../../components/dialog/ConfirmDialog').then((m) => ({
     default: m.ConfirmEndedDialog
+  }))
+);
+
+const ConfirmNewSessionDialog = lazy(() =>
+  import('../../components/dialog/ConfirmDialog').then((m) => ({
+    default: m.ConfirmNewSessionDialog
   }))
 );
 
@@ -69,9 +76,39 @@ export function Page() {
     isEnded
   } = useSongsSortData();
   const [showConfirmDialog, setShowConfirmDialog] = useState<{
-    type: 'mid-sort' | 'ended' | 'preview';
+    type: 'mid-sort' | 'ended' | 'preview' | 'new-session';
     action: 'reset' | 'clear';
   }>();
+
+  useEffect(() => {
+    if (state && state.status !== 'end') {
+      const params = new URLSearchParams(location.search);
+      const hasFilterParams =
+        params.has('series') ||
+        params.has('artists') ||
+        params.has('types') ||
+        params.has('characters') ||
+        params.has('discographies');
+
+      if (hasFilterParams) {
+        const newFilters = {
+          series: params.getAll('series'),
+          artists: params.getAll('artists'),
+          types: params.getAll('types') as ('group' | 'solo' | 'unit')[],
+          characters: params.getAll('characters').map(Number),
+          discographies: params.getAll('discographies').map(Number)
+        };
+        
+        // Only show dialog if the filters are actually different
+        if (!isEqual(newFilters, songFilters)) {
+          setShowConfirmDialog({
+            type: 'new-session',
+            action: 'reset'
+          });
+        }
+      }
+    }
+  }, []);
 
   const { left: leftItem, right: rightItem } =
     (state && getCurrentItem(state)) || ({} as { left: string[]; right: string[] });
@@ -302,6 +339,35 @@ export function Page() {
           }}
           onOpenChange={({ open }) => {
             if (!open) {
+              setShowConfirmDialog(undefined);
+            }
+          }}
+        />
+        <ConfirmNewSessionDialog
+          open={showConfirmDialog?.type === 'new-session'}
+          lazyMount
+          unmountOnExit
+          onConfirm={() => {
+            // User chose to accept the new link (reset current session and use new params)
+            clear();
+            // We need to parse URL params and set them as filters
+            const params = new URLSearchParams(location.search);
+            const newFilters = {
+              series: params.getAll('series'),
+              artists: params.getAll('artists'),
+              types: params.getAll('types') as ('group' | 'solo' | 'unit')[],
+              characters: params.getAll('characters').map(Number),
+              discographies: params.getAll('discographies').map(Number)
+            };
+            setSongFilters(newFilters);
+            setShowConfirmDialog(undefined);
+          }}
+          onOpenChange={({ open }) => {
+            if (!open) {
+              // User dismissed/cancelled (keep current session, remove URL params)
+              const url = new URL(window.location.href);
+              url.search = '';
+              window.history.replaceState({}, '', url.toString());
               setShowConfirmDialog(undefined);
             }
           }}

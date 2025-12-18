@@ -21,7 +21,7 @@ export class LocalStorage<T = unknown> {
   }
 
   set value(value: NullOrUndefinedAble<T>) {
-    if (value !== null) {
+    if (value !== null && value !== undefined) {
       const val: string = JSON.stringify(value);
       localStorage.setItem(this.key, val);
     } else {
