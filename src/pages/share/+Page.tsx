@@ -65,19 +65,12 @@ export function Page() {
     titlePrefix
   });
 
-  const getShareUrl = () => {
-    if (import.meta.env.SSR) return '/';
-    const params = new URLSearchParams(location.search);
-    params.delete('data');
-    return `${location.origin}${import.meta.env.PUBLIC_ENV__BASE_URL ?? '/'}?${params.toString()}`;
-  };
-
   return (
     <>
       <Metadata title={title} helmet />
       <Container zIndex="1" flex={1} w="full" py={4} px={4}>
         <Stack alignItems="center" w="full">
-          <Text textAlign="center" fontSize="3xl" fontWeight="bold">
+          <Text fontSize="3xl" fontWeight="bold" textAlign="center">
             {title}
           </Text>
           <Text textAlign="center">{t('description')}</Text>

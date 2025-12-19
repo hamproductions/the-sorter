@@ -44,8 +44,8 @@ export function DraggableQuickAddItem({
       borderRadius="md"
       borderWidth="1px"
       p={2}
-      opacity={1}
       bgColor="bg.default"
+      opacity={1}
       shadow="none"
       _hover={{ bgColor: 'bg.subtle' }}
     >

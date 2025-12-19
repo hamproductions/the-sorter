@@ -33,7 +33,7 @@ void i18n
     }
   });
 
-// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+// eslint-disable-next-line
 export type Locale = 'en' | 'ja' | string;
 
 export default i18n;

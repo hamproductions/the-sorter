@@ -25,7 +25,7 @@ export function ColorModeProvider({ children }: { children: ReactNode }) {
     } else {
       setColorMode('light');
     }
-  }, [colorMode]);
+  }, [colorMode, setColorMode]);
 
   return (
     <>

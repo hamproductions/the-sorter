@@ -20,8 +20,8 @@ export function DragPreview({ activeData }: DragPreviewProps) {
       borderWidth="1px"
       width="300px"
       p={2}
-      opacity={0.9}
       bgColor="bg.default"
+      opacity={0.9}
       shadow="xl"
     >
       <HStack gap={2} alignItems="flex-start">
@@ -29,11 +29,11 @@ export function DragPreview({ activeData }: DragPreviewProps) {
           <MdDragIndicator size={20} />
         </Box>
         <Stack flex={1} gap={0.5}>
-          <Text lineClamp={1} fontSize="sm" fontWeight="medium">
+          <Text fontSize="sm" fontWeight="medium" lineClamp={1}>
             {title}
           </Text>
           {subtitle && (
-            <Text color="fg.muted" lineClamp={1} fontSize="xs">
+            <Text color="fg.muted" fontSize="xs" lineClamp={1}>
               {subtitle}
             </Text>
           )}

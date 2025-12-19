@@ -75,7 +75,7 @@ export function FilterSectionModal({
       <Dialog.Backdrop />
       <Dialog.Positioner>
         <Dialog.Content display="flex" flexDirection="column" maxW="2xl" h="80vh">
-          <Stack gap="4" borderBottom="1px solid" borderColor="border.default" p="4">
+          <Stack gap="4" borderColor="border.default" borderBottom="1px solid" p="4">
             <HStack justifyContent="space-between" alignItems="center">
               <Dialog.Title>{title}</Dialog.Title>
               <Dialog.CloseTrigger asChild>
@@ -136,7 +136,7 @@ export function FilterSectionModal({
             )}
           </Stack>
 
-          <Stack borderTop="1px solid" borderColor="border.default" p="4">
+          <Stack borderColor="border.default" borderTop="1px solid" p="4">
             <Button onClick={() => setIsOpen(false)}>{t('common.confirm')}</Button>
           </Stack>
         </Dialog.Content>

@@ -9,7 +9,7 @@ vi.mock('~/hooks/setlist-prediction/useSaveSlots');
 vi.mock('~/hooks/setlist-prediction/usePredictionStorage');
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line
     t: (key: string, options?: any) => options?.defaultValue || key
   })
 }));
@@ -25,12 +25,12 @@ describe('SaveSlotManager', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line
     (useSaveSlotsHook.useSaveSlots as any).mockReturnValue({
       getSlotForPerformance: mockGetSlotForPerformance
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line
     (usePredictionStorageHook.usePredictionStorage as any).mockReturnValue({
       getPredictionsForPerformance: mockGetPredictionsForPerformance,
       deletePrediction: mockDeletePrediction,

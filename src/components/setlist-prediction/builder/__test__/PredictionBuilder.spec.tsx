@@ -7,9 +7,9 @@ vi.mock('@dnd-kit/core', async () => {
   const actual = await vi.importActual('@dnd-kit/core');
   return {
     ...actual,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line
     DndContext: ({ children }: any) => <div>{children}</div>,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line
     DragOverlay: ({ children }: any) => <div>{children}</div>,
     useSensors: () => {},
     useSensor: () => {},
@@ -20,7 +20,7 @@ vi.mock('@dnd-kit/core', async () => {
 });
 
 vi.mock('../SongSearchPanel', () => ({
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line
   SongSearchPanel: ({ onAddSong }: any) => (
     <div data-testid="song-search-panel">
       <button onClick={() => onAddSong('1', 'Test Song')}>Add Test Song</button>
@@ -29,10 +29,10 @@ vi.mock('../SongSearchPanel', () => ({
 }));
 
 vi.mock('../SetlistEditorPanel', () => ({
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line
   SetlistEditorPanel: ({ items, onRemove }: any) => (
     <div data-testid="setlist-editor-panel">
-      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+      {/* eslint-disable-next-line */}
       {items.map((item: any) => (
         <div key={item.id} data-testid={`item-${item.id}`}>
           {item.type === 'song' ? item.songId : item.title}
@@ -48,7 +48,7 @@ vi.mock('../ExportShareTools', () => ({
 }));
 
 vi.mock('../ImportDialog', () => ({
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line
   ImportDialog: ({ open, onImport }: any) =>
     open ? (
       <div data-testid="import-dialog">
@@ -67,7 +67,7 @@ vi.mock('../ImportDialog', () => ({
 }));
 
 vi.mock('~/hooks/setlist-prediction/usePredictionBuilder', () => ({
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line
   usePredictionBuilder: ({ initialPrediction, onSave }: any) => {
     const prediction = initialPrediction || {
       name: '',

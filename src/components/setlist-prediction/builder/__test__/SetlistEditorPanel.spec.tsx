@@ -9,7 +9,7 @@ vi.mock('@dnd-kit/core', () => ({
 }));
 
 vi.mock('@dnd-kit/sortable', () => ({
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line
   SortableContext: ({ children }: any) => <div>{children}</div>,
   verticalListSortingStrategy: {},
   useSortable: () => ({
@@ -23,7 +23,7 @@ vi.mock('@dnd-kit/sortable', () => ({
 }));
 
 vi.mock('../setlist-editor/SetlistItem', () => ({
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line
   SetlistItem: ({ item, onRemove, onMoveUp, onMoveDown }: any) => (
     <div data-testid={`item-${item.id}`}>
       <span>{item.type === 'song' ? `Song ${item.songId}` : item.title}</span>

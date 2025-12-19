@@ -55,7 +55,7 @@ export function DropPreview({
     >
       <Box
         className={css({
-          '&[data-has-color=true]': { borderLeft: '4px solid', borderColor: 'var(--song-color)' }
+          '&[data-has-color=true]': { borderColor: 'var(--song-color)', borderLeft: '4px solid' }
         })}
         style={{ '--song-color': songColor } as React.CSSProperties}
         data-has-color={Boolean(isSongItem(draggedItem) && songColor)}
@@ -113,7 +113,7 @@ export function DropPreview({
         </HStack>
       </Box>
       {showDropHereText && (
-        <Text mt={2} color="fg.muted" textAlign="center" fontSize="sm">
+        <Text mt={2} color="fg.muted" fontSize="sm" textAlign="center">
           Drop here to add to setlist
         </Text>
       )}

@@ -28,8 +28,8 @@ export function GridViewItem({
         ['--seriesColor' as 'borderLeftColor']: seriesColor ?? colorCode
       }}
       justifyContent="flex-end"
-      borderTop="8px solid"
       borderColor="var(--seriesColor)"
+      borderTop="8px solid"
       h="full"
       p="2"
       pt="6"
@@ -83,15 +83,15 @@ export function GridViewItem({
               <Text
                 layerStyle="textStroke"
                 color="var(--color)"
-                textAlign="center"
                 fontSize="lg"
                 fontWeight="bold"
+                textAlign="center"
               >
                 {isSeiyuu ? getCastName(casts[0], locale) : fullName}
               </Text>
             </Stack>
             {isSeiyuu ? (
-              <Text textAlign="center" fontSize="xs">
+              <Text fontSize="xs" textAlign="center">
                 {fullName}
               </Text>
             ) : (

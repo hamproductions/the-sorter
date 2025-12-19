@@ -61,7 +61,7 @@ export const useLocalStorage = function <T>(
 
   useEffect(() => {
     setNewData(storage.current.value ?? initial);
-  }, []);
+  }, [initial, setNewData]);
 
   useEffect(() => {
     window.addEventListener('storage', updateValue(key));

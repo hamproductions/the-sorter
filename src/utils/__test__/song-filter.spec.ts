@@ -12,6 +12,16 @@ vi.mock('../../../data/artists-info.json', () => ({
   ]
 }));
 
+// Helper to create basic filter
+const createFilter = (overrides?: Partial<SongFilterType>): SongFilterType => ({
+  characters: [],
+  series: [],
+  artists: [],
+  types: [],
+  discographies: [],
+  ...overrides
+});
+
 describe('matchSongFilter', () => {
   // Mock Data
   const songHonoka = {
@@ -22,16 +32,6 @@ describe('matchSongFilter', () => {
     discographyIds: [100], // Mock Discography ID
     characters: [6]
   } as unknown as Song;
-
-  // Helper to create basic filter
-  const createFilter = (overrides?: Partial<SongFilterType>): SongFilterType => ({
-    characters: [],
-    series: [],
-    artists: [],
-    types: [],
-    discographies: [],
-    ...overrides
-  });
 
   test('No Filter', () => {
     expect(matchSongFilter(songHonoka, createFilter())).toBe(true);

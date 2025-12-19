@@ -48,16 +48,19 @@ export function HasuSongResultsView({
   const [showRenderingCanvas, setShowRenderingCanvas] = useState(false);
   const { t, i18n: _i18n } = useTranslation();
 
-  const tabs = [
-    { id: 'grid', label: t('results.grid') },
-    { id: 'tier', label: t('results.tier') }
-  ];
+  const tabs = useMemo(
+    () => [
+      { id: 'grid', label: t('results.grid') },
+      { id: 'tier', label: t('results.tier') }
+    ],
+    [t]
+  );
 
   useEffect(() => {
     if (!tabs.find((t) => t.id === currentTab)) {
       setCurrentTab('grid');
     }
-  }, [currentTab]);
+  }, [currentTab, setCurrentTab, tabs]);
 
   const songs = useMemo(() => {
     return (
@@ -198,7 +201,7 @@ export function HasuSongResultsView({
             type
           })
     );
-  }, [titlePrefix, currentTab]);
+  }, [titlePrefix, currentTab, t]);
   return (
     <>
       <Stack alignItems="center" w="full" textAlign="center">

@@ -84,7 +84,7 @@ export function Page() {
         });
       }
     }
-  }, []);
+  }, [state]);
 
   const { left: leftItem, right: rightItem } =
     (state && getCurrentItem(state)) || ({} as { left: string[]; right: string[] });
@@ -145,7 +145,7 @@ export function Page() {
     <>
       <Metadata title={title} helmet />
       <Stack alignItems="center" w="full">
-        <Text textAlign="center" fontSize="3xl" fontWeight="bold">
+        <Text fontSize="3xl" fontWeight="bold" textAlign="center">
           {title}
         </Text>
         <Text textAlign="center">{t('description')}</Text>

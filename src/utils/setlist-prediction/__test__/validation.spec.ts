@@ -33,7 +33,6 @@ describe('validation utilities', () => {
     });
 
     it('detects missing setlist', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const invalid = { ...validPrediction, setlist: undefined as any };
       const result = validatePrediction(invalid);
       expect(result.valid).toBe(false);
@@ -44,7 +43,6 @@ describe('validation utilities', () => {
         ...validPrediction,
         setlist: {
           ...validPrediction.setlist,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           items: [{ id: 'item-1', type: 'invalid' } as any]
         }
       };
@@ -73,21 +71,18 @@ describe('validation utilities', () => {
     });
 
     it('detects missing id', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const item = { type: 'song', songId: 'song-1', position: 0 } as any;
       const result = validateSetlistItem(item);
       expect(result.valid).toBe(false);
     });
 
     it('detects missing songId for song items', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const item = { id: 'item-1', type: 'song', position: 0 } as any;
       const result = validateSetlistItem(item);
       expect(result.valid).toBe(false);
     });
 
     it('detects missing title for non-song items', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const item = { id: 'item-1', type: 'mc', position: 0 } as any;
       const result = validateSetlistItem(item);
       expect(result.valid).toBe(false);

@@ -59,7 +59,7 @@ export function validateSetlist(setlist: PerformanceSetlist): ValidationResult {
   }
 
   // Check item positions are sequential
-  const positions = setlist.items.map((i) => i.position).sort((a, b) => a - b);
+  const positions = setlist.items.map((i) => i.position).toSorted((a, b) => a - b);
   const hasGaps = positions.some((p, i) => i > 0 && p !== positions[i - 1] + 1);
   const startsAtZero = positions[0] === 0;
 

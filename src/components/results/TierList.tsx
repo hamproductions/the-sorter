@@ -78,7 +78,7 @@ export function TierList({
                 py="4"
                 px="2"
               >
-                <Text w="full" textAlign="center" fontSize="xl" fontWeight="bold" whiteSpace="wrap">
+                <Text w="full" fontSize="xl" fontWeight="bold" textAlign="center" whiteSpace="wrap">
                   {label}
                 </Text>
               </Stack>

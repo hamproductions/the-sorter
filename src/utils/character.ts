@@ -60,6 +60,7 @@ export const getFullName = (character: Character, locale: Locale) => {
 };
 
 export const getCastName = (cast: Character['casts'][number], locale: Locale) => {
-  if (locale === 'en' && cast.englishName) return cast.englishName.split(' ').reverse().join(' ');
+  if (locale === 'en' && cast.englishName)
+    return cast.englishName.split(' ').toReversed().join(' ');
   return cast.seiyuu;
 };

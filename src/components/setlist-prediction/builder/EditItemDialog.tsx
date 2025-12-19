@@ -220,7 +220,7 @@ export function EditItemDialog({ open, onOpenChange, item, onSave }: EditItemDia
                     >
                       {filteredSongs.length === 0 ? (
                         <Box p={3}>
-                          <Text color="fg.muted" textAlign="center" fontSize="sm">
+                          <Text color="fg.muted" fontSize="sm" textAlign="center">
                             {t('setlistPrediction.noSongsFound', {
                               defaultValue: 'No songs found'
                             })}

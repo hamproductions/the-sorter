@@ -7,7 +7,6 @@ export const getAssetUrl = (path: string) => {
 };
 export const getPicUrl = (
   id: string,
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   type: 'seiyuu' | 'icons' | 'character' | 'thumbnail' | string = 'character'
 ) => {
   const prefix = (() => {

@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from 'react';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/button';
 import { Group } from '../ui/styled/checkbox';
@@ -55,7 +55,7 @@ export function CharacterFilters({
     });
   };
 
-  const initFilters = () => {
+  const initFilters = useCallback(() => {
     const params = new URLSearchParams(location.search);
     const urlSeries = params.getAll('series');
     const urlSchool = params.getAll('school');
@@ -66,7 +66,7 @@ export function CharacterFilters({
       school: urlSchool.filter((s) => DATA.school.includes(s)),
       units: urlUnits.filter((unitId) => units?.some((s) => s.id === unitId))
     });
-  };
+  }, [setFilters]);
 
   useEffect(() => {
     if (filters === undefined) {

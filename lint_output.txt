@@ -1,0 +1,3 @@
+$ oxlint src && eslint src --concurrency=auto --format json --output-file lint_report.json || (cat lint_report.json && exit 1)
+Found 0 warnings and 0 errors.
+Finished in 279ms on 267 files using 4 threads.

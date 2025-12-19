@@ -87,7 +87,7 @@ export const useSongsSortData = () => {
     return () => {
       document.removeEventListener('keydown', handleKeystroke);
     };
-  }, [left, right, handleTie, undo]);
+  }, [left, right, handleTie, undo, state?.status]);
 
   return {
     noTieMode: noTieMode ?? false,
