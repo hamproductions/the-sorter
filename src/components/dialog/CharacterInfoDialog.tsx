@@ -50,8 +50,8 @@ export function CharacterInfoDialog(
             ['--seriesColor' as 'borderLeftColor']: seriesColor ?? colorCode ?? 'unset'
           }}
           justifyContent="flex-end"
-          borderTop="8px solid"
           borderColor="var(--color)"
+          borderTop="8px solid"
           w="full"
           maxW="breakpoint-lg"
           h="full"

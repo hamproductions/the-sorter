@@ -19,6 +19,7 @@ import { getPicUrl } from '~/utils/assets';
 import { getNextItems } from '~/utils/preloading';
 import { HasuSongCard } from '~/components/sorter/HasuSongCard';
 import { isValidSongFilter } from '~/utils/hasu-song-filter';
+import type { HasuSongFilterType } from '~/components/sorter/HasuSongFilters';
 import { addHasuSongPresetParams } from '~/utils/share';
 
 const ConfirmMidSortDialog = lazy(() =>
@@ -84,7 +85,7 @@ export function Page() {
         });
       }
     }
-  }, []);
+  }, [state]);
 
   const { left: leftItem, right: rightItem } =
     (state && getCurrentItem(state)) || ({} as { left: string[]; right: string[] });
@@ -145,7 +146,7 @@ export function Page() {
     <>
       <Metadata title={title} helmet />
       <Stack alignItems="center" w="full">
-        <Text textAlign="center" fontSize="3xl" fontWeight="bold">
+        <Text fontSize="3xl" fontWeight="bold" textAlign="center">
           {title}
         </Text>
         <Text textAlign="center">{t('description')}</Text>
@@ -300,7 +301,7 @@ export function Page() {
             const newFilters = {
               generations: params.getAll('generations'),
               units: params.getAll('units'),
-              types: params.getAll('types')
+              types: params.getAll('types') as HasuSongFilterType['types']
             };
             setSongFilters(newFilters);
             setShowConfirmDialog(undefined);

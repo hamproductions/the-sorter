@@ -26,8 +26,8 @@ export function HasuSongGridViewItem({
         ['--seriesColor' as 'borderLeftColor']: getHasuSongColor(song)
       }}
       justifyContent="flex-end"
-      borderTop="8px solid"
       borderColor="var(--seriesColor)"
+      borderTop="8px solid"
       h="full"
       p="2"
       pt="6"
@@ -66,14 +66,14 @@ export function HasuSongGridViewItem({
               <Text
                 layerStyle="textStroke"
                 color="var(--color)"
-                textAlign="center"
                 fontSize="lg"
                 fontWeight="bold"
+                textAlign="center"
               >
                 {title}
               </Text>
             </Stack>
-            <Text textAlign="center" fontSize="xs">
+            <Text fontSize="xs" textAlign="center">
               {unit}
             </Text>
           </Stack>

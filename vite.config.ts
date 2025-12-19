@@ -40,7 +40,7 @@ export default defineConfig({
         plugins: [['babel-plugin-react-compiler', ReactCompilerConfig]]
       }
     }) as PluginOption,
-    vike({ prerender: true })
+    ...(process.env.NODE_ENV !== 'test-preview' ? [vike()] : [])
   ],
   base: process.env.PUBLIC_ENV__BASE_URL,
   resolve: {

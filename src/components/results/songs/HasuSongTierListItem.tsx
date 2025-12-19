@@ -36,8 +36,8 @@ function _TierListItem({
         ['--padding-top' as 'paddingTop']: token(`spacing.${showRank ? '4' : '2'}`)
       }}
       justifyContent="flex-end"
-      borderTop="4px solid"
       borderColor="var(--seriesColor)"
+      borderTop="4px solid"
       h="full"
       p="var(--padding)"
       pt="var(--padding-top)"
@@ -79,15 +79,15 @@ function _TierListItem({
                 <Text
                   layerStyle="textStroke"
                   color="var(--color)"
-                  textAlign="center"
                   fontSize="sm"
                   fontWeight="bold"
+                  textAlign="center"
                 >
                   {title}
                 </Text>
               </Stack>
               {showInfo && (
-                <Text textAlign="center" fontSize="xs">
+                <Text fontSize="xs" textAlign="center">
                   {unit}
                 </Text>
               )}

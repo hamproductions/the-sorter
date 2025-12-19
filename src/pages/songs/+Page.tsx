@@ -108,7 +108,7 @@ export function Page() {
         }
       }
     }
-  }, []);
+  }, [songFilters, state]);
 
   const { left: leftItem, right: rightItem } =
     (state && getCurrentItem(state)) || ({} as { left: string[]; right: string[] });
@@ -150,7 +150,7 @@ export function Page() {
         `https://www.youtube-nocookie.com/embed/${song.musicVideo?.videoId}/?start=${song.musicVideo?.videoOffset}&html5=1`;
       if (url) preload(url, { as: 'document' });
     }
-  }, [state]);
+  }, [state, listToSort]);
 
   const isSorting = !!state;
 
@@ -180,7 +180,7 @@ export function Page() {
     <>
       <Metadata title={title} helmet />
       <Stack alignItems="center" w="full">
-        <Text textAlign="center" fontSize="3xl" fontWeight="bold">
+        <Text fontSize="3xl" fontWeight="bold" textAlign="center">
           {title}
         </Text>
         <Text textAlign="center">{t('description')}</Text>

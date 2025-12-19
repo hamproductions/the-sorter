@@ -71,7 +71,7 @@ export function Page() {
           );
 
           if (forPerformance.length > 0) {
-            const mostRecent = forPerformance.sort(
+            const mostRecent = forPerformance.toSorted(
               (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
             )[0];
             setCurrentPrediction(mostRecent);
@@ -172,9 +172,9 @@ export function Page() {
                 <>
                   <HStack gap={2} alignItems="center">
                     <Text
-                      textOverflow="ellipsis"
                       fontSize={{ base: 'sm', md: 'lg' }}
                       fontWeight="bold"
+                      textOverflow="ellipsis"
                       overflow="hidden"
                       whiteSpace="nowrap"
                     >
@@ -197,9 +197,9 @@ export function Page() {
                 <>
                   <HStack gap={2} alignItems="center">
                     <Text
-                      textOverflow="ellipsis"
                       fontSize={{ base: 'sm', md: 'lg' }}
                       fontWeight="bold"
+                      textOverflow="ellipsis"
                       overflow="hidden"
                       whiteSpace="nowrap"
                     >

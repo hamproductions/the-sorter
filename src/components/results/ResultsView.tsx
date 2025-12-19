@@ -77,18 +77,21 @@ export function ResultsView({
   const [showRenderingCanvas, setShowRenderingCanvas] = useState(false);
   const { t, i18n } = useTranslation();
 
-  const tabs = [
-    { id: 'default', label: t('results.list') },
-    { id: 'table', label: t('results.table') },
-    { id: 'grid', label: t('results.grid') },
-    { id: 'tier', label: t('results.tier') }
-  ];
+  const tabs = useMemo(
+    () => [
+      { id: 'default', label: t('results.list') },
+      { id: 'table', label: t('results.table') },
+      { id: 'grid', label: t('results.grid') },
+      { id: 'tier', label: t('results.tier') }
+    ],
+    [t]
+  );
 
   useEffect(() => {
     if (!tabs.find((t) => t.id === currentTab)) {
       setCurrentTab('default');
     }
-  }, [currentTab]);
+  }, [currentTab, setCurrentTab, tabs]);
 
   const displayOrder = savedDisplayOrder?.length === order?.length ? savedDisplayOrder : order;
 
@@ -192,7 +195,7 @@ export function ResultsView({
             type
           })
     );
-  }, [titlePrefix, isSeiyuu, currentTab]);
+  }, [titlePrefix, isSeiyuu, currentTab, t]);
   return (
     <>
       <Stack alignItems="center" w="full" textAlign="center">

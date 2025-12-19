@@ -17,6 +17,17 @@ import type { PerformanceFilters, Performance } from '~/types/setlist-prediction
 
 type SortOption = 'date-asc' | 'date-desc' | 'name-asc' | 'name-desc' | 'upcoming-first';
 
+// Extract tour name from performance name
+const getTourName = (perfName: string): string => {
+  // Remove patterns like " - XXX公演 (Day.X)" or " (Day.X)"
+  return perfName
+    .replace(/\s*-\s*.*公演\s*\(.*?\)$/g, '') // Remove " - XXX公演 (Day.X)"
+    .replace(/\s*\(Day\.\d+\)$/g, '') // Remove " (Day.X)"
+    .replace(/\s*\(.*?\)$/g, '') // Remove any trailing (...)
+    .replace(/\s*-\s*.*公演$/g, '') // Remove " - XXX公演"
+    .trim();
+};
+
 export function Page() {
   const { t } = useTranslation();
 
@@ -41,7 +52,7 @@ export function Page() {
 
     switch (sortBy) {
       case 'upcoming-first':
-        sorted.sort((a, b) => {
+        return sorted.toSorted((a, b) => {
           // Upcoming first, then by date ascending
           const aDate = new Date(a.date);
           const bDate = new Date(b.date);
@@ -55,34 +66,23 @@ export function Page() {
 
           return aDate.getTime() - bDate.getTime();
         });
-        break;
+
       case 'date-asc':
-        sorted.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-        break;
+        return sorted.toSorted((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
       case 'date-desc':
-        sorted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        break;
+        return sorted.toSorted((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
       case 'name-asc':
-        sorted.sort((a, b) => a.name.localeCompare(b.name));
-        break;
+        return sorted.toSorted((a, b) => a.name.localeCompare(b.name));
+
       case 'name-desc':
-        sorted.sort((a, b) => b.name.localeCompare(a.name));
-        break;
+        return sorted.toSorted((a, b) => b.name.localeCompare(a.name));
+
+      default:
+        return sorted;
     }
-
-    return sorted;
   }, [rawPerformances, sortBy]);
-
-  // Extract tour name from performance name
-  const getTourName = (perfName: string): string => {
-    // Remove patterns like " - XXX公演 (Day.X)" or " (Day.X)"
-    return perfName
-      .replace(/\s*-\s*.*公演\s*\(.*?\)$/g, '') // Remove " - XXX公演 (Day.X)"
-      .replace(/\s*\(Day\.\d+\)$/g, '') // Remove " (Day.X)"
-      .replace(/\s*\(.*?\)$/g, '') // Remove any trailing (...)
-      .replace(/\s*-\s*.*公演$/g, '') // Remove " - XXX公演"
-      .trim();
-  };
 
   // Group performances by tour/event
   const groupedByTour = useMemo(() => {
@@ -98,7 +98,7 @@ export function Page() {
 
     return Object.entries(tourGroups).map(([tourName, performances]) => ({
       tourName,
-      performances: performances.sort(
+      performances: performances.toSorted(
         (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
       )
     }));

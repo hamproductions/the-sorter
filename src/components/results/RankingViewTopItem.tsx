@@ -78,15 +78,15 @@ export function RankingViewTopItem({
               <Text
                 layerStyle="textStroke"
                 color="var(--color)"
-                textAlign="center"
                 fontSize="lg"
                 fontWeight="bold"
+                textAlign="center"
               >
                 {isSeiyuu ? getCastName(casts[0], locale) : fullName}
               </Text>
             </Stack>
             {isSeiyuu ? (
-              <Text textAlign="center" fontSize="xs">
+              <Text fontSize="xs" textAlign="center">
                 {fullName}
               </Text>
             ) : (

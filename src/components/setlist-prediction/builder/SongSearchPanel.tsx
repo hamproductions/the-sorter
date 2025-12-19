@@ -52,8 +52,8 @@ const DraggableSongItem = memo(function DraggableSongItem({
       borderBottomWidth="1px"
       borderRadius="md"
       p={2}
-      opacity={1}
       bgColor="bg.default"
+      opacity={1}
       shadow="none"
       _hover={{ bgColor: 'bg.subtle' }}
     >
@@ -261,7 +261,7 @@ export function SongSearchPanel({
       <Box borderRadius="md" borderWidth="1px" maxH={maxH} overflow="auto">
         {searchQuery.trim() === '' ? (
           <Box p={4}>
-            <Text color="fg.muted" textAlign="center" fontSize="sm">
+            <Text color="fg.muted" fontSize="sm" textAlign="center">
               {t('setlistPrediction.startTyping', {
                 defaultValue: 'Start typing to search for songs or artists...'
               })}
@@ -270,7 +270,7 @@ export function SongSearchPanel({
         ) : songMatches.length === 0 && artistMatches.length === 0 ? (
           <Box p={4}>
             <Stack gap={3} alignItems="center">
-              <Text color="fg.muted" textAlign="center" fontSize="sm">
+              <Text color="fg.muted" fontSize="sm" textAlign="center">
                 {t('setlistPrediction.noSongsFound', {
                   defaultValue: 'No songs found'
                 })}
@@ -323,7 +323,7 @@ export function SongSearchPanel({
       </Box>
 
       {(songMatches.length > 0 || artistMatches.length > 0) && (
-        <Text color="fg.muted" textAlign="center" fontSize="xs">
+        <Text color="fg.muted" fontSize="xs" textAlign="center">
           {t('setlistPrediction.showingResults', {
             count: songMatches.length + artistMatches.length,
             defaultValue: `Showing ${songMatches.length + artistMatches.length} results`

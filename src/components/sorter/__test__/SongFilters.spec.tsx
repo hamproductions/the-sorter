@@ -62,11 +62,11 @@ describe('SongFilters Component', () => {
       </I18nextProvider>
     );
 
-    expect(screen.getByText('Series')).toBeInTheDocument();
-    expect(screen.getByText('Types')).toBeInTheDocument();
-    expect(screen.getByText('Artists')).toBeInTheDocument();
-    expect(screen.getByText('Characters')).toBeInTheDocument();
-    expect(screen.getByText('Discographies')).toBeInTheDocument();
+    expect(screen.getAllByText('Series')[0]).toBeInTheDocument();
+    expect(screen.getAllByText('Types')[0]).toBeInTheDocument();
+    expect(screen.getAllByText('Artists')[0]).toBeInTheDocument();
+    expect(screen.getAllByText('Characters')[0]).toBeInTheDocument();
+    expect(screen.getAllByText('Discographies')[0]).toBeInTheDocument();
   });
 
   it('toggles Series selection', async () => {
@@ -80,8 +80,8 @@ describe('SongFilters Component', () => {
 
     // Assuming Series are rendered as Checkboxes with names from mock data
     // Note: Use a real serie name from your data since we are importing it.
-    // 'μ's' is id 1.
-    const checkbox = screen.getByLabelText("μ's");
+    // 'ラブライブ！' is id 1.
+    const checkbox = screen.getByLabelText('ラブライブ！');
     await user.click(checkbox);
 
     expect(setFilters).toHaveBeenCalled();
@@ -113,8 +113,9 @@ describe('SongFilters Component', () => {
       </I18nextProvider>
     );
 
-    const deselectBtn = screen.getByText('Deselect All');
-    await user.click(deselectBtn);
+    const deselectBtns = screen.getAllByText('Deselect All');
+    // The last button is the global "Deselect All" at the bottom
+    await user.click(deselectBtns[deselectBtns.length - 1]);
 
     expect(setFilters).toHaveBeenCalled();
   });

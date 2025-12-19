@@ -43,18 +43,19 @@ export function Page() {
 
   useEffect(() => {
     initialize();
+    // oxlint-disable-next-line exhaustive-deps
   }, []);
 
   useEffect(() => {
     void detectSoundStart(window.location.origin + songUrl).then(console.log);
-  }, [currentSong]);
+  }, [currentSong, songUrl]);
   console.log(songIndex, songUrl, currentSong);
 
   return (
     <>
       <Metadata title={title} helmet />
       <Stack alignItems="center" w="full">
-        <Text textAlign="center" fontSize="3xl" fontWeight="bold">
+        <Text fontSize="3xl" fontWeight="bold" textAlign="center">
           {title}
         </Text>
         <Text textAlign="center">{t('description')}</Text>

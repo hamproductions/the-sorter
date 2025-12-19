@@ -54,7 +54,7 @@ export const matchSongFilter = (item: Song, filter: SongFilterType) => {
   if (filter.characters && filter.characters.length > 0) {
     const songCharacters = new Set<string>();
     artistData.forEach((a) => {
-      a?.characters.forEach((c) => songCharacters.add(c));
+      a?.characters.forEach((c) => c && songCharacters.add(c));
     });
     charactersMatch = filter.characters.some((c) => songCharacters.has(String(c)));
   }

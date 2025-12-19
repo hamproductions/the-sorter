@@ -11,6 +11,7 @@ import units from '../../../data/units.json';
 import { Container, Stack } from 'styled-system/jsx';
 import { ResultsView } from '~/components/results/ResultsView';
 import { getFilterTitle } from '~/utils/filter';
+import { addPresetParams } from '~/utils/share';
 
 import { Button } from '~/components/ui/button';
 import { Metadata } from '~/components/layout/Metadata';
@@ -66,10 +67,9 @@ export function Page() {
   });
 
   const getShareUrl = () => {
-    if (import.meta.env.SSR) return '/';
-    const params = new URLSearchParams(location.search);
-    params.delete('data');
-    return `${location.origin}${import.meta.env.PUBLIC_ENV__BASE_URL ?? '/'}?${params.toString()}`;
+    const params = new URLSearchParams();
+    addPresetParams(params, filters, seiyuu);
+    return `/?${params.toString()}`;
   };
 
   return (
@@ -77,7 +77,7 @@ export function Page() {
       <Metadata title={title} helmet />
       <Container zIndex="1" flex={1} w="full" py={4} px={4}>
         <Stack alignItems="center" w="full">
-          <Text textAlign="center" fontSize="3xl" fontWeight="bold">
+          <Text fontSize="3xl" fontWeight="bold" textAlign="center">
             {title}
           </Text>
           <Text textAlign="center">{t('description')}</Text>

@@ -35,7 +35,7 @@ export function SortingPreviewDialog<T extends { id: string | number }>(
                   <Text minW="6" color="fg.subtle" fontSize="sm">
                     {index + 1}
                   </Text>
-                  <Text lineClamp={1} fontWeight="medium">
+                  <Text fontWeight="medium" lineClamp={1}>
                     {getName(item)}
                   </Text>
                 </HStack>
