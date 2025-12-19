@@ -81,7 +81,7 @@ describe('SongFilters Component', () => {
     // Assuming Series are rendered as Checkboxes with names from mock data
     // Note: Use a real serie name from your data since we are importing it.
     // 'ラブライブ！' is id 1.
-    const checkbox = screen.getByLabelText('ラブライブ！');
+    const checkbox = screen.getByLabelText('Love Live! School idol project');
     await user.click(checkbox);
 
     expect(setFilters).toHaveBeenCalled();
