@@ -100,7 +100,11 @@ export function Page() {
         };
 
         // Only show dialog if the filters are actually different
-        if (!isEqual(newFilters, songFilters)) {
+        // And if we haven't already shown the dialog (to prevent infinite loop)
+        const isDialogAlreadyShown =
+          showConfirmDialog?.type === 'new-session' && showConfirmDialog?.action === 'reset';
+
+        if (!isEqual(newFilters, songFilters) && !isDialogAlreadyShown) {
           setShowConfirmDialog({
             type: 'new-session',
             action: 'reset'
@@ -108,7 +112,7 @@ export function Page() {
         }
       }
     }
-  }, [songFilters, state]);
+  }, [songFilters, state, showConfirmDialog]);
 
   const { left: leftItem, right: rightItem } =
     (state && getCurrentItem(state)) || ({} as { left: string[]; right: string[] });

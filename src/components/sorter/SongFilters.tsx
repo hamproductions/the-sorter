@@ -14,6 +14,7 @@ import { DualListSelector } from './DualListSelector';
 import { Badge } from '~/components/ui/badge';
 import { HStack, Stack, Wrap, Box } from 'styled-system/jsx';
 import { isValidSongFilter } from '~/utils/song-filter';
+import { getSeriesName } from '~/utils/names';
 
 export type SongFilterType = {
   series: string[];
@@ -138,7 +139,9 @@ export function SongFilters({
     ) {
       initFilters();
     }
-  }, [initFilters, filters]);
+    
+  // oxlint-disable-next-line exhaustive-deps
+  }, [initFilters]);
 
   const seriesMap = useMemo(
     () =>
@@ -269,10 +272,13 @@ export function SongFilters({
             {series.map((s) => {
               return (
                 <Checkbox size="sm" key={s.id} value={String(s.id)}>
-                  {s.name}
+                  {getSeriesName(s.name, _i18n.language as any)}
                 </Checkbox>
               );
             })}
+            <Checkbox size="sm" value="cross">
+              {t('settings.cross_series')}
+            </Checkbox>
           </Wrap>
         </Group>
       </Stack>

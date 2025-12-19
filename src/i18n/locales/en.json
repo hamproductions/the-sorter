@@ -51,7 +51,8 @@
     "discographies": "Discographies",
     "logic_and": "Match All",
     "logic_or": "Match Any",
-    "global_logic": "Global Filtering Logic"
+    "global_logic": "Global Filtering Logic",
+    "cross_series": "Multiple Series"
   },
   "sort": {
     "start": "Start",
@@ -177,7 +178,9 @@
     "unsavedChanges": "Unsaved changes",
     "error": "Error",
     "edit": "Edit",
+    "confirm": "Confirm",
     "confirmDelete": "Are you sure?",
+    "menu": "Menu",
     "import": "Import",
     "close": "Close",
     "new": "New",

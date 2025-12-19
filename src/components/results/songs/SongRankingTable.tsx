@@ -72,8 +72,8 @@ export function SongRankingTable({
               style={{ ['--color' as 'color']: colorCode }}
               onClick={onSelectSong && (() => onSelectSong(c))}
               cursor="pointer"
-              borderColor="var(--color)"
               borderLeft="8px solid"
+              borderLeftColor="var(--color)"
             >
               <Table.Cell>{rank}</Table.Cell>
               <Table.Cell>

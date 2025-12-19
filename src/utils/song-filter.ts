@@ -24,8 +24,26 @@ export const matchSongFilter = (item: Song, filter: SongFilterType) => {
   const artistData = item.artists.map((i) => artistInfo.find((a) => a.id === i.id));
 
   // 1. Series Logic (OR within section)
-  const seriesMatch =
-    filter.series.length === 0 || item.seriesIds.some((s) => filter.series.includes(String(s)));
+  // 1. Series Logic (OR within section, but exclusive per series)
+  let seriesMatch = true;
+  if (filter.series.length > 0) {
+    // If "cross" is selected, we want songs with multiple series
+    const showCross = filter.series.includes('cross');
+    // The regular series IDs selected
+    const selectedSeriesIds = filter.series.filter((s) => s !== 'cross');
+
+    const matchesSpecificSeries =
+      selectedSeriesIds.length > 0 &&
+      item.seriesIds.some((s) => selectedSeriesIds.includes(String(s))) &&
+      item.seriesIds.length === 1;
+
+    const matchesCross = showCross && item.seriesIds.length > 1;
+
+    // If both types are selected, show if it matches EITHER (OR logic between specific and cross)
+    // If only specific series selected, show only those with single series ownership
+    // If only cross selected, show only those with multiple series ownership
+    seriesMatch = matchesSpecificSeries || matchesCross;
+  }
 
   // 2. Artists Logic (OR within section)
   const artistsMatch =
