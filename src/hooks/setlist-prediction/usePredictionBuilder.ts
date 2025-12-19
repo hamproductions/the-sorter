@@ -49,8 +49,7 @@ export function usePredictionBuilder({
         id: generateSetlistId(idBase),
         performanceId,
         items: [],
-        sections: [],
-        totalSongs: 0
+        sections: []
       },
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -100,14 +99,11 @@ export function usePredictionBuilder({
           items.push(newItem);
         }
 
-        const totalSongs = items.filter((item) => item.type === 'song').length;
-
         return {
           ...prev,
           setlist: {
             ...prev.setlist,
-            items,
-            totalSongs
+            items
           },
           updatedAt: new Date().toISOString()
         };
@@ -169,14 +165,11 @@ export function usePredictionBuilder({
           position: idx
         }));
 
-      const totalSongs = items.filter((item) => item.type === 'song').length;
-
       return {
         ...prev,
         setlist: {
           ...prev.setlist,
-          items,
-          totalSongs
+          items
         },
         updatedAt: new Date().toISOString()
       };
@@ -230,7 +223,7 @@ export function usePredictionBuilder({
       setlist: {
         ...prev.setlist,
         items: [],
-        totalSongs: 0
+        sections: []
       },
       updatedAt: new Date().toISOString()
     }));

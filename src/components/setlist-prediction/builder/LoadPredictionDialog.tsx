@@ -59,7 +59,7 @@ function PredictionItem({
             {performance ? performance.name : 'Custom Prediction'}
           </Text>
           <Text color="fg.muted" fontSize="xs">
-            {prediction.setlist.totalSongs} songs •{' '}
+            {prediction.setlist.items.filter((i) => i.type === 'song').length} songs •{' '}
             {new Date(prediction.updatedAt).toLocaleDateString()}
           </Text>
         </Stack>

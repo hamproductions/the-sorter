@@ -128,8 +128,6 @@ export function decompressPrediction(compressed: string): SetlistPrediction {
       type: s.t
     }));
 
-    const songCount = items.filter((item) => item.type === 'song').length;
-
     return {
       id: predictionId,
       performanceId: data.p,
@@ -145,8 +143,7 @@ export function decompressPrediction(compressed: string): SetlistPrediction {
         id: setlistId,
         performanceId: data.p,
         items,
-        sections,
-        totalSongs: songCount
+        sections
       },
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()

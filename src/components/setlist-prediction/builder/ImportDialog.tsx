@@ -16,8 +16,16 @@ import {
   importFromFile,
   parseActualSetlist
 } from '~/utils/setlist-prediction/import';
-import type { SetlistPrediction, SetlistItem } from '~/types/setlist-prediction';
-import { usePerformanceData } from '~/hooks/setlist-prediction/usePerformanceData';
+import type {
+  SetlistPrediction,
+  SetlistItem,
+  SongSetlistItem,
+  NonSongSetlistItem
+} from '~/types/setlist-prediction';
+import {
+  usePerformanceData,
+  usePerformanceSetlist
+} from '~/hooks/setlist-prediction/usePerformanceData';
 import { SetlistView } from '~/components/setlist-prediction/SetlistView';
 import {
   Root as DialogRoot,
@@ -48,6 +56,13 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
   const [selectedPerformanceId, setSelectedPerformanceId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Lazy load selected performance setlist
+  const {
+    setlist: selectedSetlist,
+    loading: loadingSetlist,
+    error: setlistError
+  } = usePerformanceSetlist(selectedPerformanceId || undefined);
+
   // Get current performance to filter by same series
   const currentPerformance = useMemo(() => {
     return performances.find((p) => p.id === performanceId);
@@ -55,9 +70,7 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
 
   // Filter performances for import
   const availablePerformances = useMemo(() => {
-    let filtered = performances.filter(
-      (p) => p.id !== performanceId && p.actualSetlist && p.actualSetlist.items.length > 0
-    );
+    let filtered = performances.filter((p) => p.id !== performanceId && p.hasSetlist);
 
     // Apply search filter
     if (performanceSearch.trim()) {
@@ -156,7 +169,7 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
               };
             }),
             sections: [],
-            totalSongs: parsed.items.filter((i) => i.type === 'song').length
+            isActual: true
           },
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
@@ -201,20 +214,19 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
       return;
     }
 
-    const selectedPerformance = performances.find((p) => p.id === selectedPerformanceId);
-    if (!selectedPerformance || !selectedPerformance.actualSetlist) {
-      setError('Selected performance has no setlist data');
+    if (!selectedSetlist) {
+      setError('Selected performance has no setlist data or is still loading');
       return;
     }
 
     // Find encore section from sections array
-    const encoreSection = selectedPerformance.actualSetlist.sections?.find(
+    const encoreSection = selectedSetlist.sections?.find(
       (s) => s.type === 'encore' || s.name.toLowerCase().includes('encore')
     );
     const encoreStartIndex = encoreSection?.startIndex ?? -1;
 
     // Find intermission/break sections from sections array
-    const intermissionSection = selectedPerformance.actualSetlist.sections?.find((s) => {
+    const intermissionSection = selectedSetlist.sections?.find((s) => {
       const name = s.name.toLowerCase();
       return (
         name.includes('intermission') ||
@@ -230,7 +242,7 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
     let encoreDividerInserted = false;
     let intermissionDividerInserted = false;
 
-    selectedPerformance.actualSetlist.items.forEach((item, index) => {
+    selectedSetlist.items.forEach((item, index) => {
       // Insert intermission divider before first intermission item
       if (
         intermissionStartIndex >= 0 &&
@@ -259,48 +271,50 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
 
       // Map item types
       if (item.type === 'song') {
+        const songItem = item as SongSetlistItem;
         // Songs: use songId to let the system look up the actual song name
         transformedItems.push({
           id: `item-${Date.now()}-${transformedItems.length}`,
           type: 'song' as const,
-          songId: item.songId || '',
-          customSongName: item.customSongName, // Preserve original name as fallback
-          remarks: item.remarks,
+          songId: songItem.songId || '',
+          customSongName: songItem.customSongName, // Preserve original name as fallback
+          remarks: songItem.remarks,
           position: transformedItems.length
         });
       } else if (item.type === 'mc') {
+        const mcItem = item as NonSongSetlistItem;
         // MC items stay as MC
         transformedItems.push({
           id: `item-${Date.now()}-${transformedItems.length}`,
           type: 'mc',
-          title: item.title || 'MC',
-          remarks: item.remarks,
+          title: mcItem.title || 'MC',
+          remarks: mcItem.remarks,
           position: transformedItems.length
         });
       } else {
+        const otherItem = item as NonSongSetlistItem;
         // Other types map to 'other'
         transformedItems.push({
           id: `item-${Date.now()}-${transformedItems.length}`,
           type: 'other',
-          title: item.title || 'Other',
-          remarks: item.remarks,
+          title: otherItem.title || 'Other',
+          remarks: otherItem.remarks,
           position: transformedItems.length
         });
       }
     });
 
-    const songCount = transformedItems.filter((item) => item.type === 'song').length;
+    const selectedPerformance = performances.find((p) => p.id === selectedPerformanceId);
 
     const prediction: SetlistPrediction = {
       id: `pred-${Date.now()}`,
       performanceId,
-      name: `Imported from ${selectedPerformance.name}`,
+      name: `Imported from ${selectedPerformance?.name || 'Unknown'}`,
       setlist: {
         id: `setlist-${Date.now()}`,
         performanceId,
         items: transformedItems,
-        sections: [],
-        totalSongs: songCount
+        sections: []
       },
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -429,7 +443,8 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
                               </Text>
                               <Text color="fg.muted" fontSize="xs">
                                 {new Date(perf.date).toLocaleDateString()} • {perf.venue} •{' '}
-                                {perf.actualSetlist?.totalSongs} songs
+                                {perf.actualSetlist?.items.filter((i) => i.type === 'song').length}{' '}
+                                songs
                               </Text>
                             </Stack>
                           </Box>
@@ -447,7 +462,25 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
                   {selectedPerformanceId ? (
                     (() => {
                       const selectedPerf = performances.find((p) => p.id === selectedPerformanceId);
-                      if (!selectedPerf || !selectedPerf.actualSetlist) return null;
+                      if (!selectedPerf) return null;
+
+                      if (loadingSetlist) {
+                        return (
+                          <Box display="flex" flex={1} justifyContent="center" alignItems="center">
+                            <Text>{t('common.loading', { defaultValue: 'Loading...' })}</Text>
+                          </Box>
+                        );
+                      }
+
+                      if (setlistError || !selectedSetlist) {
+                        return (
+                          <Box display="flex" flex={1} justifyContent="center" alignItems="center">
+                            <Text color="fg.error">
+                              {setlistError?.message || 'Setlist not found'}
+                            </Text>
+                          </Box>
+                        );
+                      }
 
                       return (
                         <Box
@@ -465,9 +498,9 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
                               id: 'temp',
                               performanceId: selectedPerf.id,
                               name: selectedPerf.name,
-                              setlist: selectedPerf.actualSetlist,
-                              createdAt: selectedPerf.createdAt,
-                              updatedAt: selectedPerf.updatedAt
+                              setlist: selectedSetlist,
+                              createdAt: new Date().toISOString(),
+                              updatedAt: new Date().toISOString()
                             }}
                             performance={selectedPerf}
                             showHeader={false}

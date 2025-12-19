@@ -46,6 +46,7 @@ import type {
   SetlistItem as SetlistItemType,
   CustomPerformance
 } from '~/types/setlist-prediction';
+import { isSongItem } from '~/types/setlist-prediction';
 import { usePredictionBuilder } from '~/hooks/setlist-prediction/usePredictionBuilder';
 import { useSongData } from '~/hooks/useSongData';
 import { getSongColor } from '~/utils/song';
@@ -766,8 +767,8 @@ export function PredictionBuilder({
                   </Text>
                   <Text fontSize="xs">
                     {t('setlistPrediction.totalSongs', {
-                      count: prediction.setlist.totalSongs,
-                      defaultValue: `${prediction.setlist.totalSongs} songs`
+                      count: prediction.setlist.items.filter(isSongItem).length,
+                      defaultValue: `${prediction.setlist.items.filter(isSongItem).length} songs`
                     })}
                   </Text>
                   <Text fontSize="xs">
@@ -818,8 +819,8 @@ export function PredictionBuilder({
                         </Text>
                         <Text fontSize="xs">
                           {t('setlistPrediction.totalSongs', {
-                            count: prediction.setlist.totalSongs,
-                            defaultValue: `${prediction.setlist.totalSongs} songs`
+                            count: prediction.setlist.items.filter(isSongItem).length,
+                            defaultValue: `${prediction.setlist.items.filter(isSongItem).length} songs`
                           })}
                         </Text>
                         <Text fontSize="xs">

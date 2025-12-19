@@ -61,7 +61,6 @@ export function Page() {
           }
         }),
         sections: [],
-        totalSongs: parsed.items.filter((i) => i.type === 'song').length,
         isActual: true
       };
 

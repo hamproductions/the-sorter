@@ -11,8 +11,7 @@ describe('validation utilities', () => {
       id: 'setlist-1',
       performanceId: 'perf-1',
       items: [{ id: 'item-1', type: 'song', songId: 'song-1', position: 0 }],
-      sections: [],
-      totalSongs: 1
+      sections: []
     },
     createdAt: '2023-01-01',
     updatedAt: '2023-01-01'

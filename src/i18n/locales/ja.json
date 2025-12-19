@@ -70,7 +70,8 @@
   "footer": {
     "created_by": "作者：",
     "footer_text": "他のランキングアプリからいろいろアイデアいただいています、素材は僕のものじゃないです。",
-    "source_code": "ソースコードをチェックしてみてね"
+    "source_code": "ソースコードをチェックしてみてね",
+    "data_updated": "データ更新日: {{date}}"
   },
   "results": {
     "sort_results": "ランキング結果",

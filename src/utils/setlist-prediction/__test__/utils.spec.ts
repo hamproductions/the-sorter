@@ -14,7 +14,6 @@ describe('Setlist Prediction Utils', () => {
     const mockSetlist: PerformanceSetlist = {
       id: 'setlist-1',
       performanceId: 'perf-1',
-      totalSongs: 3,
       items: [
         { id: '1', position: 0, songId: 'song-1', type: 'song' },
         { id: '2', position: 1, songId: 'song-2', type: 'song' },
@@ -107,7 +106,6 @@ describe('Setlist Prediction Utils', () => {
         setlist: {
           id: 'setlist-1',
           performanceId: 'perf-1',
-          totalSongs: 1,
           items: [{ id: '1', position: 0, songId: 'song-1', type: 'song' }],
           sections: []
         },
@@ -134,7 +132,6 @@ describe('Setlist Prediction Utils', () => {
       const setlist: PerformanceSetlist = {
         id: 's1',
         performanceId: 'p1',
-        totalSongs: 0,
         items: [],
         sections: []
       };
@@ -147,7 +144,6 @@ describe('Setlist Prediction Utils', () => {
       const setlist: PerformanceSetlist = {
         id: 's1',
         performanceId: 'p1',
-        totalSongs: 2,
         items: [
           { id: '1', position: 0, songId: 's1', type: 'song' },
           { id: '2', position: 2, songId: 's2', type: 'song' } // Gap

@@ -10,11 +10,11 @@ export interface Performance {
   venue?: string;
   venueJa?: string;
   seriesIds: string[];
-  artistIds: string[];
+  artistIds?: string[];
   unitIds?: string[];
 
   // Data source
-  source: 'llfans' | 'custom';
+  source?: 'llfans' | 'custom';
   llfansId?: string;
   createdBy?: string; // Phase 2
   isPublic?: boolean;
@@ -30,15 +30,16 @@ export interface Performance {
 
   // Status
   status: 'upcoming' | 'completed' | 'custom';
+  hasSetlist?: boolean;
 
   // Timestamps
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // ==================== Setlist Items ====================
 
-export type SetlistItemType = 'song' | 'mc' | 'other';
+export type SetlistItemType = 'song' | 'mc' | 'other' | 'custom' | 'vtr' | 'opening' | 'encore';
 
 export interface BaseSetlistItem {
   id: string;
@@ -58,7 +59,7 @@ export interface SongSetlistItem extends BaseSetlistItem {
 }
 
 export interface NonSongSetlistItem extends BaseSetlistItem {
-  type: 'mc' | 'other';
+  type: Exclude<SetlistItemType, 'song'>;
   title: string;
   titleJa?: string;
   duration?: number; // seconds
@@ -81,7 +82,6 @@ export interface PerformanceSetlist {
     type?: 'main' | 'encore' | 'special';
   }[];
 
-  totalSongs: number;
   estimatedDuration?: number; // minutes
 
   // For actual setlists

@@ -93,7 +93,7 @@ export function SaveSlotManager({
                       </Text>
                     </HStack>
                     <Text color="fg.muted" fontSize="xs">
-                      {prediction.setlist.totalSongs} songs •{' '}
+                      {prediction.setlist.items.filter((i) => i.type === 'song').length} songs •{' '}
                       {new Date(prediction.updatedAt).toLocaleString()}
                     </Text>
                     {prediction.score && (

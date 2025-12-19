@@ -127,8 +127,7 @@ export function importFromFile(file: File): Promise<ImportResult> {
             id: generateSetlistId('imported'),
             performanceId: 'imported',
             items: setlistItems,
-            sections: [],
-            totalSongs: setlistItems.filter((i) => i.type === 'song').length
+            sections: []
           },
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
@@ -275,8 +274,7 @@ export function importFromCSV(csv: string): ImportResult {
         id: generateSetlistId('imported'),
         performanceId: 'imported',
         items,
-        sections: [],
-        totalSongs: items.filter((i) => i.type === 'song').length
+        sections: []
       },
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()

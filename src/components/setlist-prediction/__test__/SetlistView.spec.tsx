@@ -25,8 +25,7 @@ describe('SetlistView', () => {
         { id: 'item-3', type: 'other', title: '━━ ENCORE ━━', position: 2 },
         { id: 'item-4', type: 'song', songId: 'song-1', position: 3 }
       ],
-      sections: [],
-      totalSongs: 2
+      sections: []
     },
     createdAt: '2023-01-01',
     updatedAt: '2023-01-01'

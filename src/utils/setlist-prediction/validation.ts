@@ -102,13 +102,6 @@ export function validateSetlist(setlist: PerformanceSetlist): ValidationResult {
     warnings.push('Setlist has no songs');
   }
 
-  // Validate totalSongs matches actual count
-  if (setlist.totalSongs !== songCount) {
-    warnings.push(
-      `totalSongs (${setlist.totalSongs}) doesn't match actual song count (${songCount})`
-    );
-  }
-
   // Validate sections
   if (setlist.sections && setlist.sections.length > 0) {
     for (const section of setlist.sections) {

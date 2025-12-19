@@ -28,8 +28,7 @@ describe('export utilities', () => {
         { id: 'item-1', type: 'song', songId: 'song-1', position: 0 },
         { id: 'item-2', type: 'mc', title: 'MC Talk', position: 1 }
       ],
-      sections: [],
-      totalSongs: 1
+      sections: []
     },
     createdAt: '2023-01-01',
     updatedAt: '2023-01-01'

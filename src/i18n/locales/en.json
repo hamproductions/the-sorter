@@ -72,7 +72,8 @@
   "footer": {
     "created_by": "Created by",
     "footer_text": "Inspired by a bunch of other sorters of course, Assets are not mine",
-    "source_code": "Check out source code on "
+    "source_code": "Check out source code on ",
+    "data_updated": "Data Update: {{date}}"
   },
   "results": {
     "sort_results": "Sort Results",

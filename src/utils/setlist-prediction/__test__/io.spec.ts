@@ -27,7 +27,6 @@ const mockPrediction: SetlistPrediction = {
   setlist: {
     id: 'setlist-1',
     performanceId: 'perf-1',
-    totalSongs: 2,
     items: [
       {
         id: 'item-1',

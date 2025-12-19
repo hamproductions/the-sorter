@@ -34,7 +34,7 @@ describe('ExportShareTools', () => {
     id: 'pred-1',
     performanceId: 'perf-1',
     name: 'Test Prediction',
-    setlist: { id: 'setlist-1', items: [], totalSongs: 0, sections: [], performanceId: 'perf-1' },
+    setlist: { id: 'setlist-1', items: [], sections: [], performanceId: 'perf-1' },
     createdAt: '2023-01-01',
     updatedAt: '2023-01-01'
   };

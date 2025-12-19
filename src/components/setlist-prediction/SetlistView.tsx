@@ -91,7 +91,8 @@ export function SetlistView({
               <Text>• {performance?.venue || prediction.customPerformance?.venue}</Text>
             )}
             <Text>
-              {performance || prediction.customPerformance ? '•' : ''} {setlist.totalSongs} songs
+              {performance || prediction.customPerformance ? '•' : ''}{' '}
+              {setlist.items.filter((i) => i.type === 'song').length} songs
             </Text>
           </HStack>
         </Box>
@@ -289,8 +290,8 @@ export function SetlistView({
         <Box borderTopWidth="1px" pt={3}>
           <Text color="fg.muted" fontSize="sm" textAlign="center">
             {t('setlistPrediction.totalSongs', {
-              count: setlist.totalSongs,
-              defaultValue: `Total Songs: ${setlist.totalSongs}`
+              count: setlist.items.filter((i) => i.type === 'song').length,
+              defaultValue: `Total Songs: ${setlist.items.filter((i) => i.type === 'song').length}`
             })}
           </Text>
         </Box>

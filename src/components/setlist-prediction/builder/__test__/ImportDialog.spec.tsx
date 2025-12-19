@@ -12,7 +12,7 @@ vi.mock('~/hooks/setlist-prediction/usePerformanceData', () => ({
         date: '2023-01-03',
         venue: 'Current Venue',
         seriesIds: ['series-1'],
-        actualSetlist: { items: [], totalSongs: 0 }
+        hasSetlist: false
       },
       {
         id: 'perf-1',
@@ -20,13 +20,7 @@ vi.mock('~/hooks/setlist-prediction/usePerformanceData', () => ({
         date: '2023-01-01',
         venue: 'Test Venue',
         seriesIds: ['series-1'],
-        actualSetlist: {
-          items: [
-            { type: 'song', songId: 'song-1', title: 'Song 1' },
-            { type: 'mc', title: 'MC 1' }
-          ],
-          totalSongs: 1
-        }
+        hasSetlist: true
       },
       {
         id: 'perf-2',
@@ -34,12 +28,23 @@ vi.mock('~/hooks/setlist-prediction/usePerformanceData', () => ({
         date: '2023-01-02',
         venue: 'Another Venue',
         seriesIds: ['series-1'],
-        actualSetlist: {
-          items: [],
-          totalSongs: 0
-        }
+        hasSetlist: false
       }
     ]
+  }),
+  usePerformanceSetlist: (id?: string) => ({
+    setlist:
+      id === 'perf-1'
+        ? {
+            id: 'setlist-1',
+            items: [
+              { type: 'song', songId: 'song-1', customSongName: 'Song 1', position: 0 },
+              { type: 'mc', title: 'MC 1', position: 1 }
+            ]
+          }
+        : null,
+    loading: false,
+    error: null
   })
 }));
 

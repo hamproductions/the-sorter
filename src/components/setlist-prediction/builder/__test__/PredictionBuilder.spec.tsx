@@ -53,7 +53,7 @@ vi.mock('../ImportDialog', () => ({
           onClick={() =>
             onImport({
               name: 'Imported Prediction',
-              setlist: { items: [], totalSongs: 0 }
+              setlist: { items: [] }
             })
           }
         >
@@ -67,7 +67,7 @@ vi.mock('~/hooks/setlist-prediction/usePredictionBuilder', () => ({
   usePredictionBuilder: ({ initialPrediction, onSave }: any) => {
     const prediction = initialPrediction || {
       name: '',
-      setlist: { items: [], totalSongs: 0 }
+      setlist: { items: [] }
     };
 
     return {

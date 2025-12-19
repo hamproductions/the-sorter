@@ -1,30 +1,101 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { Performance, PerformanceFilters } from '~/types/setlist-prediction';
+import type {
+  Performance,
+  PerformanceFilters,
+  PerformanceSetlist
+} from '~/types/setlist-prediction';
 
-let cachedPerformances: Performance[] | null = null;
+// Global caches to prevent re-fetching/re-importing
+let cachedMetadata: Performance[] | null = null;
+let cachedSetlists: Record<string, PerformanceSetlist> | null = null;
 
-async function loadPerformanceData(): Promise<Performance[]> {
-  if (cachedPerformances) return cachedPerformances;
+/**
+ * Loads performance metadata (300KB)
+ */
+async function loadPerformanceMetadata(): Promise<Performance[]> {
+  if (cachedMetadata) return cachedMetadata;
   const data = await import('../../../data/performance-info.json');
-  cachedPerformances = data.default as Performance[];
-  return cachedPerformances;
+  cachedMetadata = data.default as unknown as Performance[];
+  return cachedMetadata;
 }
 
+/**
+ * Loads all setlists (1.3MB)
+ */
+async function loadAllSetlists(): Promise<Record<string, PerformanceSetlist>> {
+  if (cachedSetlists) return cachedSetlists;
+  const data = await import('../../../data/performance-setlists.json');
+  cachedSetlists = data.default as unknown as Record<string, PerformanceSetlist>;
+  return cachedSetlists;
+}
+
+/**
+ * Hook to load performance metadata
+ */
 export function usePerformanceData() {
-  const [performances, setPerformances] = useState<Performance[]>(cachedPerformances ?? []);
-  const [loading, setLoading] = useState(!cachedPerformances);
+  const [performances, setPerformances] = useState<Performance[]>(cachedMetadata ?? []);
+  const [loading, setLoading] = useState(!cachedMetadata);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (cachedPerformances) return;
+    if (cachedMetadata) return;
 
-    loadPerformanceData()
-      .then(setPerformances)
-      .catch(setError)
+    loadPerformanceMetadata()
+      .then((data) => {
+        setPerformances(data);
+        return data;
+      })
+      .catch((err) => {
+        console.error('Failed to load performance metadata:', err);
+        setError(err instanceof Error ? err : new Error(String(err)));
+      })
       .finally(() => setLoading(false));
   }, []);
 
   return { performances, loading, error };
+}
+
+/**
+ * Hook to load a specific performance's setlist lazily
+ */
+export function usePerformanceSetlist(performanceId: string | undefined) {
+  const [setlist, setSetlist] = useState<PerformanceSetlist | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (!performanceId) {
+      setSetlist(null);
+      return;
+    }
+
+    // If already in cache (globally)
+    if (cachedSetlists?.[performanceId]) {
+      setSetlist(cachedSetlists[performanceId]);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    loadAllSetlists()
+      .then((allSetlists) => {
+        const found = allSetlists[performanceId];
+        if (found) {
+          setSetlist(found);
+        } else {
+          setError(new Error(`Setlist not found for performance ${performanceId}`));
+        }
+        return allSetlists;
+      })
+      .catch((err) => {
+        console.error(`Failed to load setlist for ${performanceId}:`, err);
+        setError(err instanceof Error ? err : new Error(String(err)));
+      })
+      .finally(() => setLoading(false));
+  }, [performanceId]);
+
+  return { setlist, loading, error };
 }
 
 export function useFilteredPerformances(filters: PerformanceFilters) {
@@ -63,9 +134,8 @@ export function useFilteredPerformances(filters: PerformanceFilters) {
         const searchLower = filters.search.toLowerCase();
         const matchesName = perf.name.toLowerCase().includes(searchLower);
         const matchesVenue = perf.venue?.toLowerCase().includes(searchLower);
-        const matchesDescription = perf.description?.toLowerCase().includes(searchLower);
 
-        if (!matchesName && !matchesVenue && !matchesDescription) {
+        if (!matchesName && !matchesVenue) {
           return false;
         }
       }
@@ -81,10 +151,11 @@ export function useFilteredPerformances(filters: PerformanceFilters) {
   };
 }
 
-export function usePerformance(performanceId: string) {
+export function usePerformance(performanceId: string | undefined) {
   const { performances } = usePerformanceData();
 
   const performance = useMemo(() => {
+    if (!performanceId) return undefined;
     return performances.find((p) => p.id === performanceId);
   }, [performances, performanceId]);
 
@@ -114,9 +185,8 @@ export function usePerformanceSearch(query: string) {
     return performances.filter((perf) => {
       const matchesName = perf.name.toLowerCase().includes(searchLower);
       const matchesVenue = perf.venue?.toLowerCase().includes(searchLower);
-      const matchesDescription = perf.description?.toLowerCase().includes(searchLower);
 
-      return matchesName || matchesVenue || matchesDescription;
+      return matchesName || matchesVenue;
     });
   }, [performances, debouncedQuery]);
 

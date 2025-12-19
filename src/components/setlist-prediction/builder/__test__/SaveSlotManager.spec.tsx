@@ -58,14 +58,14 @@ describe('SaveSlotManager', () => {
       {
         id: 'pred-1',
         name: 'Prediction 1',
-        setlist: { totalSongs: 10 },
+        setlist: { items: Array(10).fill({ type: 'song' }) },
         updatedAt: '2023-01-01T00:00:00Z',
         isFavorite: false
       },
       {
         id: 'pred-2',
         name: 'Prediction 2',
-        setlist: { totalSongs: 15 },
+        setlist: { items: Array(15).fill({ type: 'song' }) },
         updatedAt: '2023-01-02T00:00:00Z',
         isFavorite: true
       }
@@ -91,7 +91,7 @@ describe('SaveSlotManager', () => {
       {
         id: 'pred-1',
         name: 'Prediction 1',
-        setlist: { totalSongs: 10 },
+        setlist: { items: Array(10).fill({ type: 'song' }) },
         updatedAt: '2023-01-01T00:00:00Z'
       }
     ];
@@ -129,7 +129,7 @@ describe('SaveSlotManager', () => {
       {
         id: 'pred-1',
         name: 'Prediction 1',
-        setlist: { totalSongs: 10 },
+        setlist: { items: Array(10).fill({ type: 'song' }) },
         updatedAt: '2023-01-01T00:00:00Z'
       }
     ];
@@ -160,7 +160,7 @@ describe('SaveSlotManager', () => {
       {
         id: 'pred-1',
         name: 'Prediction 1',
-        setlist: { totalSongs: 10 },
+        setlist: { items: Array(10).fill({ type: 'song' }) },
         updatedAt: '2023-01-01T00:00:00Z'
       }
     ];

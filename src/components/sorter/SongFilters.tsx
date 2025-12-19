@@ -139,8 +139,8 @@ export function SongFilters({
     ) {
       initFilters();
     }
-    
-  // oxlint-disable-next-line exhaustive-deps
+
+    // oxlint-disable-next-line exhaustive-deps
   }, [initFilters]);
 
   const seriesMap = useMemo(
