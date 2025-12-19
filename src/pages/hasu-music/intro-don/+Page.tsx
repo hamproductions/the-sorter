@@ -43,7 +43,7 @@ export function Page() {
 
   useEffect(() => {
     initialize();
-    // eslint-disable-next-line
+    // oxlint-disable-next-line exhaustive-deps
   }, []);
 
   useEffect(() => {

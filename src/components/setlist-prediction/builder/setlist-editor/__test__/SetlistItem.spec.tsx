@@ -22,7 +22,6 @@ vi.mock('@dnd-kit/sortable', () => ({
 }));
 
 vi.mock('../../EditItemDialog', () => ({
-  // eslint-disable-next-line
   EditItemDialog: ({ open, onSave }: any) =>
     open ? (
       <div data-testid="edit-dialog">

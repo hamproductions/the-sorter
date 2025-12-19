@@ -122,7 +122,7 @@ describe('Home Page', () => {
             if (results) return;
             expect(container.container.textContent).not.toBe(currentText);
           },
-          { timeout: 5000 }
+          { timeout: 2000 }
         );
       }
       expect(await findByText('Sort Results')).toBeInTheDocument();

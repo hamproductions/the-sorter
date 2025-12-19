@@ -111,7 +111,7 @@ describe('ImportDialog', () => {
 
   it('handles text import', async () => {
     const { parseActualSetlist } = await import('~/utils/setlist-prediction/import');
-    // eslint-disable-next-line
+
     (parseActualSetlist as any).mockReturnValue({
       items: [{ type: 'song', title: 'Song 1' }]
     });
@@ -131,7 +131,7 @@ describe('ImportDialog', () => {
 
   it('handles JSON import', async () => {
     const { importFromJSON } = await import('~/utils/setlist-prediction/import');
-    // eslint-disable-next-line
+
     (importFromJSON as any).mockReturnValue({
       success: true,
       prediction: { id: 'imported' }
@@ -152,7 +152,7 @@ describe('ImportDialog', () => {
 
   it('handles file import', async () => {
     const { importFromFile } = await import('~/utils/setlist-prediction/import');
-    // eslint-disable-next-line
+
     (importFromFile as any).mockResolvedValue({
       success: true,
       prediction: { id: 'imported' }

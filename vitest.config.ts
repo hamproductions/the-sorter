@@ -23,7 +23,7 @@ export default defineConfig({
       }
     },
     isolate: true,
-    setupFiles: ['./vitest-setup.js'],
+    setupFiles: ['./vitest-setup.ts'],
     coverage: {
       provider: 'v8',
       // you can include other reporters, but 'json-summary' is required, json is recommended

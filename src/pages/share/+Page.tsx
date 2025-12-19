@@ -11,6 +11,7 @@ import units from '../../../data/units.json';
 import { Container, Stack } from 'styled-system/jsx';
 import { ResultsView } from '~/components/results/ResultsView';
 import { getFilterTitle } from '~/utils/filter';
+import { addPresetParams } from '~/utils/share';
 
 import { Button } from '~/components/ui/button';
 import { Metadata } from '~/components/layout/Metadata';
@@ -64,6 +65,12 @@ export function Page() {
   const title = t('title', {
     titlePrefix
   });
+
+  const getShareUrl = () => {
+    const params = new URLSearchParams();
+    addPresetParams(params, filters, seiyuu);
+    return `/?${params.toString()}`;
+  };
 
   return (
     <>

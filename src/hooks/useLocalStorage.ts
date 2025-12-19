@@ -21,7 +21,7 @@ export class LocalStorage<T = unknown> {
   }
 
   set value(value: NullOrUndefinedAble<T>) {
-    if (value !== null && value !== undefined) {
+    if (value !== null) {
       const val: string = JSON.stringify(value);
       localStorage.setItem(this.key, val);
     } else {
@@ -61,7 +61,8 @@ export const useLocalStorage = function <T>(
 
   useEffect(() => {
     setNewData(storage.current.value ?? initial);
-  }, [initial, setNewData]);
+    // oxlint-disable-next-line exhaustive-deps
+  }, []);
 
   useEffect(() => {
     window.addEventListener('storage', updateValue(key));

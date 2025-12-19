@@ -4,7 +4,6 @@ import { render, screen, fireEvent } from '~/__test__/utils';
 
 // Mock SongSearchPanel
 vi.mock('../SongSearchPanel', () => ({
-  // eslint-disable-next-line
   SongSearchPanel: ({ onAddSong, onAddCustomSong }: any) => (
     <div data-testid="song-search-panel">
       <button onClick={() => onAddSong('1', 'Test Song')}>Add Test Song</button>
