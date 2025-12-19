@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [1.12.0](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.11.1...v1.12.0) (2025-12-19)
+
+
+### Bug Fixes
+
+* missing prerender ([0662a54](https://github.com/Tanyawat-Arsaga/the-sorter/commit/0662a54b1b76d1e6c28b32762ee2c9116c64b7e8))
+
 ## [1.11.1](/compare/v1.11.0...v1.11.1) (2025-12-16)
 
 
