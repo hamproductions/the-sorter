@@ -2,6 +2,7 @@ import { Suspense, lazy, useEffect, useState } from 'react';
 import { preload } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { FaShare } from 'react-icons/fa6';
+import { isEqual } from 'lodash-es';
 import { Button } from '../../components/ui/styled/button';
 import { Kbd } from '../../components/ui/styled/kbd';
 import { Progress } from '../../components/ui/progress';
@@ -33,9 +34,21 @@ const ConfirmEndedDialog = lazy(() =>
   }))
 );
 
+const ConfirmNewSessionDialog = lazy(() =>
+  import('../../components/dialog/ConfirmDialog').then((m) => ({
+    default: m.ConfirmNewSessionDialog
+  }))
+);
+
 const SongFilters = lazy(() =>
   import('../../components/sorter/SongFilters').then((m) => ({
     default: m.SongFilters
+  }))
+);
+
+const SortingPreviewDialog = lazy(() =>
+  import('../../components/sorter/SortingPreviewDialog').then((m) => ({
+    default: m.SortingPreviewDialog
   }))
 );
 
@@ -63,9 +76,39 @@ export function Page() {
     isEnded
   } = useSongsSortData();
   const [showConfirmDialog, setShowConfirmDialog] = useState<{
-    type: 'mid-sort' | 'ended';
+    type: 'mid-sort' | 'ended' | 'preview' | 'new-session';
     action: 'reset' | 'clear';
   }>();
+
+  useEffect(() => {
+    if (state && state.status !== 'end') {
+      const params = new URLSearchParams(location.search);
+      const hasFilterParams =
+        params.has('series') ||
+        params.has('artists') ||
+        params.has('types') ||
+        params.has('characters') ||
+        params.has('discographies');
+
+      if (hasFilterParams) {
+        const newFilters = {
+          series: params.getAll('series'),
+          artists: params.getAll('artists'),
+          types: params.getAll('types') as ('group' | 'solo' | 'unit')[],
+          characters: params.getAll('characters').map(Number),
+          discographies: params.getAll('discographies').map(Number)
+        };
+
+        // Only show dialog if the filters are actually different
+        if (!isEqual(newFilters, songFilters)) {
+          setShowConfirmDialog({
+            type: 'new-session',
+            action: 'reset'
+          });
+        }
+      }
+    }
+  }, [songFilters, state]);
 
   const { left: leftItem, right: rightItem } =
     (state && getCurrentItem(state)) || ({} as { left: string[]; right: string[] });
@@ -107,7 +150,7 @@ export function Page() {
         `https://www.youtube-nocookie.com/embed/${song.musicVideo?.videoId}/?start=${song.musicVideo?.videoOffset}&html5=1`;
       if (url) preload(url, { as: 'document' });
     }
-  }, [state]);
+  }, [state, listToSort]);
 
   const isSorting = !!state;
 
@@ -137,7 +180,7 @@ export function Page() {
     <>
       <Metadata title={title} helmet />
       <Stack alignItems="center" w="full">
-        <Text textAlign="center" fontSize="3xl" fontWeight="bold">
+        <Text fontSize="3xl" fontWeight="bold" textAlign="center">
           {title}
         </Text>
         <Text textAlign="center">{t('description')}</Text>
@@ -161,9 +204,19 @@ export function Page() {
             </Wrap>
           </>
         )}
-        <Text fontSize="sm" fontWeight="bold">
-          {t('settings.song_sort_count', { count: listCount })}
-        </Text>
+        <Wrap justifyContent="center" alignItems="center">
+          <Text fontSize="sm" fontWeight="bold">
+            {t('settings.song_sort_count', { count: listCount })}
+          </Text>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={listCount === 0}
+            onClick={() => setShowConfirmDialog({ type: 'preview', action: 'reset' })}
+          >
+            {t('sort.preview')}
+          </Button>
+        </Wrap>
         <Wrap justifyContent="center">
           <Button onClick={() => void shareUrl()} variant="subtle">
             <FaShare /> {t('settings.share')}
@@ -284,6 +337,46 @@ export function Page() {
             }
             setShowConfirmDialog(undefined);
           }}
+          onOpenChange={({ open }) => {
+            if (!open) {
+              setShowConfirmDialog(undefined);
+            }
+          }}
+        />
+        <ConfirmNewSessionDialog
+          open={showConfirmDialog?.type === 'new-session'}
+          lazyMount
+          unmountOnExit
+          onConfirm={() => {
+            // User chose to accept the new link (reset current session and use new params)
+            clear();
+            // We need to parse URL params and set them as filters
+            const params = new URLSearchParams(location.search);
+            const newFilters = {
+              series: params.getAll('series'),
+              artists: params.getAll('artists'),
+              types: params.getAll('types') as ('group' | 'solo' | 'unit')[],
+              characters: params.getAll('characters').map(Number),
+              discographies: params.getAll('discographies').map(Number)
+            };
+            setSongFilters(newFilters);
+            setShowConfirmDialog(undefined);
+          }}
+          onOpenChange={({ open }) => {
+            if (!open) {
+              // User dismissed/cancelled (keep current session, remove URL params)
+              const url = new URL(window.location.href);
+              url.search = '';
+              window.history.replaceState({}, '', url.toString());
+              setShowConfirmDialog(undefined);
+            }
+          }}
+        />
+        <SortingPreviewDialog
+          open={showConfirmDialog?.type === 'preview'}
+          lazyMount
+          unmountOnExit
+          items={listToSort}
           onOpenChange={({ open }) => {
             if (!open) {
               setShowConfirmDialog(undefined);

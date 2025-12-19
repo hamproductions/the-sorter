@@ -76,7 +76,7 @@ export function EditResultsModal(
     } else {
       setItems(order.map((o) => o[0]).filter((i) => !!i));
     }
-  }, [order, originalOrder, rest.open]);
+  }, [order, originalOrder, rest.open, setOrder]);
 
   function handleDragStart(event: DragStartEvent) {
     const { active } = event;

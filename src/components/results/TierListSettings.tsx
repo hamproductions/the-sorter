@@ -36,7 +36,7 @@ export function TierListSettings({
         tierRanks: [...tierRanks.slice(0, tiers.length - 1), count]
       });
     }
-  }, [tiers, count]);
+  }, [tiers, count, tierRanks, setSettings, settings]);
   return (
     <Stack textAlign="start">
       <Text fontSize="lg" fontWeight="bold">
@@ -47,7 +47,7 @@ export function TierListSettings({
         <Text width="full" fontSize="sm" fontWeight="bold">
           {t('results.settings.tier.tier_name')}
         </Text>
-        <Text textAlign="center" fontSize="sm" fontWeight="bold">
+        <Text fontSize="sm" fontWeight="bold" textAlign="center">
           {t('results.settings.tier.ranks')}
         </Text>
         <Text></Text>

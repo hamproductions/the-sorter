@@ -39,6 +39,12 @@ const ConfirmEndedDialog = lazy(() =>
   }))
 );
 
+const ConfirmNewSessionDialog = lazy(() =>
+  import('../../components/dialog/ConfirmDialog').then((m) => ({
+    default: m.ConfirmNewSessionDialog
+  }))
+);
+
 const CharacterInfoDialog = lazy(() =>
   import('../../components/dialog/CharacterInfoDialog').then((m) => ({
     default: m.CharacterInfoDialog
@@ -48,6 +54,12 @@ const CharacterInfoDialog = lazy(() =>
 const CharacterFilters = lazy(() =>
   import('../../components/sorter/CharacterFilters').then((m) => ({
     default: m.CharacterFilters
+  }))
+);
+
+const SortingPreviewDialog = lazy(() =>
+  import('../../components/sorter/SortingPreviewDialog').then((m) => ({
+    default: m.SortingPreviewDialog
   }))
 );
 
@@ -76,7 +88,7 @@ export function Page() {
     clear
   } = useSortData();
   const [showConfirmDialog, setShowConfirmDialog] = useState<{
-    type: 'mid-sort' | 'ended';
+    type: 'mid-sort' | 'ended' | 'new-session' | 'preview';
     action: 'reset' | 'clear';
   }>();
   const {
@@ -123,10 +135,22 @@ export function Page() {
     const params = new URLSearchParams(location.search);
     const urlSeiyuu = params.get('seiyuu');
 
+    if (state && state.status !== 'end') {
+      const hasFilterParams =
+        params.has('series') || params.has('school') || params.has('units') || params.has('seiyuu');
+      if (hasFilterParams) {
+        setShowConfirmDialog({
+          type: 'new-session',
+          action: 'reset'
+        });
+        return;
+      }
+    }
+
     if (urlSeiyuu !== null) {
       setSeiyuu(urlSeiyuu === 'true');
     }
-  }, []);
+  }, [setSeiyuu, state]);
 
   // Preload Assets
   useEffect(() => {
@@ -138,7 +162,7 @@ export function Page() {
         preload(getPicUrl(item, 'icons'), { as: 'image' });
       }
     }
-  }, [state]);
+  }, [state, listToSort, seiyuu]);
 
   const isSorting = !!state;
 
@@ -168,7 +192,7 @@ export function Page() {
     <>
       <Metadata title={title} helmet />
       <Stack alignItems="center" w="full">
-        <Text textAlign="center" fontSize="3xl" fontWeight="bold">
+        <Text fontSize="3xl" fontWeight="bold" textAlign="center">
           {title}
         </Text>
         <Text textAlign="center">{t('description')}</Text>
@@ -202,6 +226,14 @@ export function Page() {
         <Text fontSize="sm" fontWeight="bold">
           {t('settings.sort_count', { count: listCount })}
         </Text>
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={listCount === 0}
+          onClick={() => setShowConfirmDialog({ type: 'preview', action: 'reset' })}
+        >
+          {t('sort.preview')}
+        </Button>
         <Wrap justifyContent="center">
           <Button onClick={() => void shareUrl()} variant="subtle">
             <FaShare /> {t('settings.share')}
@@ -354,6 +386,37 @@ export function Page() {
             }
           }}
         />
+        <ConfirmNewSessionDialog
+          open={showConfirmDialog?.type === 'new-session'}
+          lazyMount
+          unmountOnExit
+          onConfirm={() => {
+            // User chose to accept the new link (reset current session and use new params)
+            clear();
+            // We need to parse URL params and set them as filters
+            const params = new URLSearchParams(location.search);
+            const newFilters = {
+              series: params.getAll('series'),
+              school: params.getAll('school'),
+              units: params.getAll('units')
+            };
+            const urlSeiyuu = params.get('seiyuu');
+            if (urlSeiyuu !== null) {
+              setSeiyuu(urlSeiyuu === 'true');
+            }
+            setFilters(newFilters);
+            setShowConfirmDialog(undefined);
+          }}
+          onOpenChange={({ open }) => {
+            if (!open) {
+              // User dismissed/cancelled (keep current session, remove URL params)
+              const url = new URL(window.location.href);
+              url.search = '';
+              window.history.replaceState({}, '', url.toString());
+              setShowConfirmDialog(undefined);
+            }
+          }}
+        />
         <CharacterInfoDialog
           character={showCharacterInfo}
           isSeiyuu={seiyuu}
@@ -361,6 +424,18 @@ export function Page() {
           onOpenChange={(e) => {
             if (!e.open) {
               return setShowCharacterInfo(undefined);
+            }
+          }}
+        />
+        <SortingPreviewDialog
+          open={showConfirmDialog?.type === 'preview'}
+          lazyMount
+          unmountOnExit
+          items={listToSort}
+          getItemName={(item) => (item as Character).fullName || ''}
+          onOpenChange={({ open }) => {
+            if (!open) {
+              setShowConfirmDialog(undefined);
             }
           }}
         />

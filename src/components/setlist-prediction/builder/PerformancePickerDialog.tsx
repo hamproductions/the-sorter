@@ -152,7 +152,7 @@ export function PerformancePickerDialog({
               </Stack>
             </Box>
 
-            <Text color="fg.muted" textAlign="center" fontSize="xs">
+            <Text color="fg.muted" fontSize="xs" textAlign="center">
               {t('setlistPrediction.orSelectBelow', {
                 defaultValue: '— or select from list below —'
               })}

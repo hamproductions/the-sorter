@@ -47,8 +47,8 @@ export function SortableItem(props: {
               ['--seriesColor' as 'borderLeftColor']: seriesColor ?? colorCode
             }}
             alignItems="center"
-            borderLeft="8px solid"
             borderColor="var(--seriesColor)"
+            borderLeft="8px solid"
             rounded="md"
             p="2"
             bgColor="bg.canvas"

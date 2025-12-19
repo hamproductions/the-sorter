@@ -153,7 +153,7 @@ export function decompressPrediction(compressed: string): SetlistPrediction {
     };
   } catch (error) {
     console.error('Error decompressing prediction:', error);
-    throw new Error('Invalid or corrupted share URL');
+    throw new Error('Invalid or corrupted share URL', { cause: error });
   }
 }
 

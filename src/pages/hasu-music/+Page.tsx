@@ -19,6 +19,7 @@ import { getPicUrl } from '~/utils/assets';
 import { getNextItems } from '~/utils/preloading';
 import { HasuSongCard } from '~/components/sorter/HasuSongCard';
 import { isValidSongFilter } from '~/utils/hasu-song-filter';
+import type { HasuSongFilterType } from '~/components/sorter/HasuSongFilters';
 import { addHasuSongPresetParams } from '~/utils/share';
 
 const ConfirmMidSortDialog = lazy(() =>
@@ -30,6 +31,12 @@ const ConfirmMidSortDialog = lazy(() =>
 const ConfirmEndedDialog = lazy(() =>
   import('../../components/dialog/ConfirmDialog').then((m) => ({
     default: m.ConfirmEndedDialog
+  }))
+);
+
+const ConfirmNewSessionDialog = lazy(() =>
+  import('../../components/dialog/ConfirmDialog').then((m) => ({
+    default: m.ConfirmNewSessionDialog
   }))
 );
 
@@ -62,9 +69,23 @@ export function Page() {
     isEnded
   } = useHasuSongsSortData();
   const [showConfirmDialog, setShowConfirmDialog] = useState<{
-    type: 'mid-sort' | 'ended';
+    type: 'mid-sort' | 'ended' | 'new-session';
     action: 'reset' | 'clear';
   }>();
+
+  useEffect(() => {
+    if (state && state.status !== 'end') {
+      const params = new URLSearchParams(location.search);
+      const hasFilterParams =
+        params.has('generations') || params.has('units') || params.has('types');
+      if (hasFilterParams) {
+        setShowConfirmDialog({
+          type: 'new-session',
+          action: 'reset'
+        });
+      }
+    }
+  }, [state]);
 
   const { left: leftItem, right: rightItem } =
     (state && getCurrentItem(state)) || ({} as { left: string[]; right: string[] });
@@ -125,7 +146,7 @@ export function Page() {
     <>
       <Metadata title={title} helmet />
       <Stack alignItems="center" w="full">
-        <Text textAlign="center" fontSize="3xl" fontWeight="bold">
+        <Text fontSize="3xl" fontWeight="bold" textAlign="center">
           {title}
         </Text>
         <Text textAlign="center">{t('description')}</Text>
@@ -264,6 +285,33 @@ export function Page() {
           }}
           onOpenChange={({ open }) => {
             if (!open) {
+              setShowConfirmDialog(undefined);
+            }
+          }}
+        />
+        <ConfirmNewSessionDialog
+          open={showConfirmDialog?.type === 'new-session'}
+          lazyMount
+          unmountOnExit
+          onConfirm={() => {
+            // User chose to accept the new link (reset current session and use new params)
+            clear();
+            // We need to parse URL params and set them as filters
+            const params = new URLSearchParams(location.search);
+            const newFilters = {
+              generations: params.getAll('generations'),
+              units: params.getAll('units'),
+              types: params.getAll('types') as HasuSongFilterType['types']
+            };
+            setSongFilters(newFilters);
+            setShowConfirmDialog(undefined);
+          }}
+          onOpenChange={({ open }) => {
+            if (!open) {
+              // User dismissed/cancelled (keep current session, remove URL params)
+              const url = new URL(window.location.href);
+              url.search = '';
+              window.history.replaceState({}, '', url.toString());
               setShowConfirmDialog(undefined);
             }
           }}

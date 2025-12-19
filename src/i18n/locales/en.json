@@ -46,7 +46,12 @@
       "group": "Group Songs",
       "unit": "Unit Songs",
       "solo": "Solo"
-    }
+    },
+    "characters": "Characters",
+    "discographies": "Discographies",
+    "logic_and": "Match All",
+    "logic_or": "Match Any",
+    "global_logic": "Global Filtering Logic"
   },
   "sort": {
     "start": "Start",
@@ -58,7 +63,10 @@
     "keyboard_shortcuts": "Keyboard Shortcuts",
     "pick_left": "Pick Left",
     "pick_right": "Pick Right",
-    "comparison_no": "Comparison No. {{ count }}"
+    "comparison_no": "Comparison No. {{ count }}",
+    "preview": "Preview",
+    "preview_title": "Sorting Preview",
+    "preview_description": "First {{ count }} items shown"
   },
   "footer": {
     "created_by": "Created by",
@@ -127,8 +135,14 @@
       "title": "Sorting in progress",
       "description": "Your current sorting data will be lost, are you sure ?"
     },
+    "new_session_confirm": {
+      "title": "Sorting in progress",
+      "description": "You are currently in the middle of something different from your URL, do you want to stop and start over?"
+    },
     "proceed": "Proceed",
     "cancel": "Cancel",
+    "start_new_session": "Start New Session",
+    "continue_sorting": "Continue Sorting",
     "close": "Close",
     "character_info": {
       "profile": "Profile",
@@ -154,11 +168,29 @@
   },
   "common": {
     "loading": "Loading...",
+
     "back": "Back",
     "save": "Save",
+    "cancel": "Cancel",
     "clear": "Clear",
     "delete": "Delete",
-    "unsavedChanges": "Unsaved changes"
+    "unsavedChanges": "Unsaved changes",
+    "error": "Error",
+    "edit": "Edit",
+    "confirmDelete": "Are you sure?",
+    "import": "Import",
+    "close": "Close",
+    "new": "New",
+    "load": "Load",
+    "create": "Create",
+    "set": "Set Custom",
+
+    "available": "Available",
+    "selected": "Selected",
+    "search": "Search...",
+    "all": "All",
+    "no_items": "No items found",
+    "no_selection": "No items selected"
   },
   "setlistPrediction": {
     "title": "Setlist Prediction",
@@ -274,22 +306,5 @@
     "venue": "Venue (optional)",
     "date": "Date",
     "orSelectBelow": "— or select from list below —"
-  },
-  "common": {
-    "error": "Error",
-    "edit": "Edit",
-    "confirmDelete": "Are you sure?",
-    "back": "Back",
-    "save": "Save",
-    "import": "Import",
-    "clear": "Clear",
-    "close": "Close",
-    "cancel": "Cancel",
-    "unsavedChanges": "Unsaved changes",
-    "new": "New",
-    "load": "Load",
-    "create": "Create",
-    "set": "Set Custom",
-    "confirm": "Confirm"
   }
 }

@@ -27,6 +27,7 @@ styled-system
  
 **/raw/*
 
+scripts/internal
 scripts/internal/*
 
 *_report.json

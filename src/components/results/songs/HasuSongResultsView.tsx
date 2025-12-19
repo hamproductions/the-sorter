@@ -40,15 +40,27 @@ export function HasuSongResultsView({
   );
   const [title, setTitle] = useState<string>('My LoveLive! Ranking');
   const [description, setDescription] = useState<string>();
-  const [currentTab, setCurrentTab] = useLocalStorage<'grid' | 'tier'>('songs-result-tab', 'grid');
+  const [currentTab, setCurrentTab] = useLocalStorage<'grid' | 'tier'>(
+    'hasu-songs-result-tab',
+    'grid'
+  );
   const [timestamp, setTimestamp] = useState(new Date());
   const [showRenderingCanvas, setShowRenderingCanvas] = useState(false);
   const { t, i18n: _i18n } = useTranslation();
 
-  const tabs = [
-    { id: 'grid', label: t('results.grid') },
-    { id: 'tier', label: t('results.tier') }
-  ];
+  const tabs = useMemo(
+    () => [
+      { id: 'grid', label: t('results.grid') },
+      { id: 'tier', label: t('results.tier') }
+    ],
+    [t]
+  );
+
+  useEffect(() => {
+    if (!tabs.find((t) => t.id === currentTab)) {
+      setCurrentTab('grid');
+    }
+  }, [currentTab, setCurrentTab, tabs]);
 
   const songs = useMemo(() => {
     return (
@@ -189,7 +201,7 @@ export function HasuSongResultsView({
             type
           })
     );
-  }, [titlePrefix, currentTab]);
+  }, [titlePrefix, currentTab, t]);
   return (
     <>
       <Stack alignItems="center" w="full" textAlign="center">

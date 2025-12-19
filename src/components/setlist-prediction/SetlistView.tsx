@@ -256,17 +256,17 @@ export function SetlistView({
                           '&[data-compact=true]': { fontSize: 'sm' },
                           '&[data-is-divider=true]': {
                             w: 'full',
-                            textAlign: 'center',
-                            fontWeight: 'bold'
+                            fontWeight: 'bold',
+                            textAlign: 'center'
                           }
                         })}
                         data-compact={compact}
                         data-is-divider={isDivider}
                         w="auto"
-                        textAlign="left"
                         fontSize="md"
                         fontWeight="medium"
                         lineHeight="1.4"
+                        textAlign="left"
                       >
                         {title}
                       </Text>
@@ -287,7 +287,7 @@ export function SetlistView({
       {/* Footer with total songs */}
       {!compact && (
         <Box borderTopWidth="1px" pt={3}>
-          <Text color="fg.muted" textAlign="center" fontSize="sm">
+          <Text color="fg.muted" fontSize="sm" textAlign="center">
             {t('setlistPrediction.totalSongs', {
               count: setlist.totalSongs,
               defaultValue: `Total Songs: ${setlist.totalSongs}`

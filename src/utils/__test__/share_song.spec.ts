@@ -8,7 +8,9 @@ describe('Share Utils', () => {
       const filters = {
         series: ['series1', 'series2'],
         artists: ['artist1'],
-        types: ['group'] as ('group' | 'solo' | 'unit')[]
+        types: ['group'] as ('group' | 'solo' | 'unit')[],
+        characters: [1, 2],
+        discographies: [3]
       };
 
       const result = addSongPresetParams(params, filters);
@@ -17,6 +19,8 @@ describe('Share Utils', () => {
       expect(result.getAll('series')).toEqual(['series1', 'series2']);
       expect(result.getAll('artists')).toEqual(['artist1']);
       expect(result.getAll('types')).toEqual(['group']);
+      expect(result.getAll('characters')).toEqual(['1', '2']);
+      expect(result.getAll('discographies')).toEqual(['3']);
     });
 
     test('Create empty parameters when filter is empty', () => {
@@ -24,7 +28,9 @@ describe('Share Utils', () => {
       const filters = {
         series: [],
         artists: [],
-        types: [] as ('group' | 'solo' | 'unit')[]
+        types: [] as ('group' | 'solo' | 'unit')[],
+        characters: [],
+        discographies: []
       };
 
       const result = addSongPresetParams(params, filters);
@@ -36,7 +42,9 @@ describe('Share Utils', () => {
       const filters = {
         series: ['series1'],
         artists: [],
-        types: [] as ('group' | 'solo' | 'unit')[]
+        types: [] as ('group' | 'solo' | 'unit')[],
+        characters: [],
+        discographies: []
       };
 
       const result = addSongPresetParams(params, filters);

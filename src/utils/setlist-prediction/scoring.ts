@@ -170,8 +170,8 @@ function calculateBonuses(
   }
 
   // Closing song bonus
-  const predLastSong = [...prediction.items].reverse().find(isSongItem);
-  const actualLastSong = [...actual.items].reverse().find(isSongItem);
+  const predLastSong = [...prediction.items].toReversed().find(isSongItem);
+  const actualLastSong = [...actual.items].toReversed().find(isSongItem);
 
   if (predLastSong && actualLastSong && predLastSong.songId === actualLastSong.songId) {
     bonuses.closingSong = rules.bonuses.closingSong;

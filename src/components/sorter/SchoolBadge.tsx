@@ -28,8 +28,8 @@ export function SchoolBadge({
         h="fit-content"
         minH="5"
         color="colorPalette.fg"
-        textAlign="center"
         textWrap="wrap"
+        textAlign="center"
         {...rest}
       >
         {getSeriesName(series, locale)}
@@ -46,8 +46,8 @@ export function SchoolBadge({
       h="fit-content"
       minH="5"
       color="colorPalette.fg"
-      textAlign="center"
       textWrap="wrap"
+      textAlign="center"
       {...rest}
     >
       {song.seriesIds

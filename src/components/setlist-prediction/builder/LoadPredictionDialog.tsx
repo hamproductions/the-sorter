@@ -92,7 +92,7 @@ export function LoadPredictionDialog({
   const [selectedPredictionId, setSelectedPredictionId] = useState<string | null>(null);
 
   const sortedPredictions = useMemo(() => {
-    return [...predictions].sort(
+    return [...predictions].toSorted(
       (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
     );
   }, [predictions]);

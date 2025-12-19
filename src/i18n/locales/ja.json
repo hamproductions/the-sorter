@@ -44,7 +44,12 @@
       "unit": "ユニット曲",
       "solo": "ソロ曲",
       "105ver": "105期 ver."
-    }
+    },
+    "characters": "キャラクター",
+    "discographies": "ディスコグラフィ",
+    "logic_and": "すべて一致",
+    "logic_or": "いずれか一致",
+    "global_logic": "フィルター全体の設定"
   },
   "sort": {
     "start": "開始",
@@ -56,7 +61,10 @@
     "keyboard_shortcuts": "キーボードショートカット",
     "pick_left": "左を選択する",
     "pick_right": "右を選択する",
-    "comparison_no": "第{{ count }}回目"
+    "comparison_no": "第{{ count }}回目",
+    "preview": "プレビュー",
+    "preview_title": "ソートプレビュー",
+    "preview_description": "最初の{{ count }}件を表示"
   },
   "footer": {
     "created_by": "作者：",
@@ -129,8 +137,14 @@
       "title": "確認",
       "description": "ランキング結果のデータが消されます, よろしいですか?"
     },
+    "new_session_confirm": {
+      "title": "ランキング中です",
+      "description": "URLの設定とは異なるランキング作成が進行中です。現在の進捗を破棄して、最初からやり直しますか？"
+    },
     "proceed": "続行",
     "cancel": "キャンセル",
+    "start_new_session": "新しいセッションを開始",
+    "continue_sorting": "ランキングを続ける",
     "close": "閉じる",
     "character_info": {
       "profile": "プロフィール",
@@ -152,11 +166,22 @@
   },
   "common": {
     "loading": "読み込み中...",
+    "confirm": "確認",
+    "available": "選択可能",
+    "selected": "選択済み",
+    "search": "検索...",
+    "all": "すべて",
+    "no_items": "見つかりません",
+    "no_selection": "選択されていません",
     "back": "戻る",
     "save": "保存",
+    "cancel": "キャンセル",
     "clear": "クリア",
     "delete": "削除",
-    "unsavedChanges": "未保存の変更"
+    "unsavedChanges": "未保存の変更",
+    "error": "エラー",
+    "edit": "編集",
+    "confirmDelete": "本当によろしいですか？"
   },
   "setlistPrediction": {
     "title": "セットリスト予想",
@@ -233,10 +258,5 @@
     "presentMatches": "存在一致",
     "backToBuilder": "ビルダーに戻る",
     "calculateScore": "スコアを計算"
-  },
-  "common": {
-    "error": "エラー",
-    "edit": "編集",
-    "confirmDelete": "本当によろしいですか？"
   }
 }

@@ -61,8 +61,8 @@ export function RankingTable({
               style={{ ['--color' as 'color']: colorCode ?? (seriesColor as 'red') }}
               onClick={onSelectCharacter && (() => onSelectCharacter(c))}
               cursor="pointer"
-              borderLeft="8px solid"
               borderColor="var(--color)"
+              borderLeft="8px solid"
             >
               <Table.Cell>{rank}</Table.Cell>
               <Table.Cell>
@@ -87,7 +87,7 @@ export function RankingTable({
                         {isSeiyuu ? getCastName(casts[0], lang) : fullName}
                       </Text>
                       {isSeiyuu && casts[0].note && (
-                        <Text textAlign="center" fontSize="xs">
+                        <Text fontSize="xs" textAlign="center">
                           ({casts[0].note})
                         </Text>
                       )}

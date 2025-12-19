@@ -87,7 +87,7 @@ export function HasuSongFilters({
     ) {
       initFilters();
     }
-  }, []);
+  }, [filters, initFilters]);
 
   return (
     <Stack border="1px solid" borderColor="border.default" rounded="l1" p="4">

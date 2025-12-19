@@ -27,7 +27,7 @@ const mockPrediction: SetlistPrediction = {
 
 describe('Storage Utilities', () => {
   beforeEach(() => {
-    localStorage.clear();
+    window.localStorage.clear();
     vi.clearAllMocks();
   });
 

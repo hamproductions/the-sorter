@@ -1,4 +1,11 @@
-import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+  useCallback
+} from 'react';
 
 type NullOrUndefinedAble<T> = T | null | undefined;
 export class LocalStorage<T = unknown> {
@@ -34,14 +41,17 @@ export const useLocalStorage = function <T>(
   const storage = useRef(new LocalStorage<T>(key));
   const [data, setData] = useState<NullOrUndefinedAble<T>>(() => storage.current.value);
 
-  const setNewData: Dispatch<SetStateAction<NullOrUndefinedAble<T>>> = (
-    s: SetStateAction<NullOrUndefinedAble<T>>
-  ) => {
-    //@ts-expect-error force convert to function
-    const newData = typeof s === 'function' ? s.call(s, data) : s;
-    storage.current.value = newData;
-    setData(s);
-  };
+  const setNewData: Dispatch<SetStateAction<NullOrUndefinedAble<T>>> = useCallback(
+    (s: SetStateAction<NullOrUndefinedAble<T>>) => {
+      setData((prev) => {
+        //@ts-expect-error force convert to function
+        const newData = typeof s === 'function' ? s.call(s, prev) : s;
+        storage.current.value = newData;
+        return newData;
+      });
+    },
+    []
+  );
 
   const updateValue = (updateKey: string) => (storageEvent: StorageEvent) => {
     if (storageEvent.key === updateKey) {
@@ -51,6 +61,7 @@ export const useLocalStorage = function <T>(
 
   useEffect(() => {
     setNewData(storage.current.value ?? initial);
+    // oxlint-disable-next-line exhaustive-deps
   }, []);
 
   useEffect(() => {

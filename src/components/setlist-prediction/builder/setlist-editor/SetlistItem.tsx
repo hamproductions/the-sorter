@@ -183,7 +183,7 @@ const SetlistItemComponent = memo(function SetlistItem({
         <Box
           className={css({
             '&[data-is-divider=true]': { py: 3, bgColor: 'bg.emphasized' },
-            '&[data-has-color=true]': { borderLeft: '4px solid', borderColor: 'var(--song-color)' }
+            '&[data-has-color=true]': { borderColor: 'var(--song-color)', borderLeft: '4px solid' }
           })}
           data-is-divider={isDivider}
           data-has-color={Boolean(isSongItem(item) && songColor)}
@@ -217,9 +217,9 @@ const SetlistItemComponent = memo(function SetlistItem({
                   flexShrink={0}
                   minW="24px"
                   color={isSongItem(item) ? 'fg.default' : 'fg.muted'}
-                  textAlign="center"
                   fontSize="sm"
                   fontWeight="medium"
+                  textAlign="center"
                 >
                   {itemNumber}
                 </Text>
@@ -272,10 +272,10 @@ const SetlistItemComponent = memo(function SetlistItem({
                   <>
                     <Text
                       w={isDivider ? 'full' : 'auto'}
-                      textAlign={isDivider ? 'center' : 'left'}
                       fontSize="sm"
                       fontWeight={isDivider ? 'bold' : 'medium'}
                       lineHeight="1.4"
+                      textAlign={isDivider ? 'center' : 'left'}
                     >
                       {item.title}
                     </Text>

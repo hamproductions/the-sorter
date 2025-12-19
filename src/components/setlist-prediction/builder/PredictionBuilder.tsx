@@ -87,7 +87,7 @@ function DragPreview({ activeData }: { activeData: Record<string, unknown> | nul
     return (
       <Box
         className={css({
-          '&[data-has-color=true]': { borderLeft: '4px solid', borderColor: 'var(--song-color)' }
+          '&[data-has-color=true]': { borderColor: 'var(--song-color)', borderLeft: '4px solid' }
         })}
         style={{ '--song-color': songColor } as React.CSSProperties}
         data-has-color={Boolean(songColor)}
@@ -96,8 +96,8 @@ function DragPreview({ activeData }: { activeData: Record<string, unknown> | nul
         minW="250px"
         py={2}
         px={3}
-        opacity={0.95}
         bgColor="bg.default"
+        opacity={0.95}
         shadow="lg"
       >
         <HStack gap={2} alignItems="flex-start">
@@ -132,7 +132,7 @@ function DragPreview({ activeData }: { activeData: Record<string, unknown> | nul
     return (
       <Box
         className={css({
-          '&[data-has-color=true]': { borderLeft: '4px solid', borderColor: 'var(--song-color)' }
+          '&[data-has-color=true]': { borderColor: 'var(--song-color)', borderLeft: '4px solid' }
         })}
         style={{ '--song-color': songColor } as React.CSSProperties}
         data-has-color={Boolean(item.type === 'song' && songColor)}
@@ -141,8 +141,8 @@ function DragPreview({ activeData }: { activeData: Record<string, unknown> | nul
         minW="250px"
         py={2}
         px={3}
-        opacity={0.95}
         bgColor="bg.default"
+        opacity={0.95}
         shadow="lg"
       >
         <HStack gap={2} alignItems="flex-start">
@@ -192,8 +192,8 @@ function DragPreview({ activeData }: { activeData: Record<string, unknown> | nul
         minW="250px"
         py={2}
         px={3}
-        opacity={0.95}
         bgColor="bg.default"
+        opacity={0.95}
         shadow="lg"
       >
         <HStack gap={2} alignItems="flex-start">

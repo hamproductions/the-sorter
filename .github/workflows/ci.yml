@@ -15,8 +15,8 @@ jobs:
       - name: Run Lint All
         run: bun ci:check
       - uses: MeilCli/common-lint-reporter/transformer/eslint@v1.2.1
+        if: always()
         with:
-          # your output path
           report_files: |
             lint_report.json
       - name: Unit Test
