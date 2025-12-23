@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [1.13.0](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.12.0...v1.13.0) (2025-12-23)
+
+
+### Bug Fixes
+
+* failed test ([5941bd7](https://github.com/Tanyawat-Arsaga/the-sorter/commit/5941bd70e3e94b32661305d59dd12553324c39fa))
+* remove tracking ([3d32863](https://github.com/Tanyawat-Arsaga/the-sorter/commit/3d32863ce71597234bb5b4f467aa905ec6579ffd))
+
+
+### Features
+
+* add deploy thing ([324c6a4](https://github.com/Tanyawat-Arsaga/the-sorter/commit/324c6a4fbab32a7fa636e9d4450bf84630b72c26))
+* reduce setlist-prediction bundle, add date to footer ([00fddcb](https://github.com/Tanyawat-Arsaga/the-sorter/commit/00fddcbfedada8dc69745d9e2d020e78facaea17))
+* separate cross group option ([dab3adb](https://github.com/Tanyawat-Arsaga/the-sorter/commit/dab3adbdf8e33cf99377afe6f96f9f6d55d2b2cf))
+
 # [1.12.0](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.11.1...v1.12.0) (2025-12-19)
 
 
