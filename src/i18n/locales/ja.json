@@ -1,6 +1,6 @@
 {
   "title": "{{ titlePrefix }}ランキング",
-  "defaultTitlePrefix": "ラブライブシリーズ",
+  "defaultTitlePrefix": "ラブライブ！シリーズ",
   "description": "ヒトリダケナンテエラベナイヨーの時に役に立てるかも",
   "site_name": "ラブライブ!ランキング",
   "seiyuu": "声優",
@@ -87,7 +87,7 @@
     "ranking": "ランキング",
     "tierlist": "ティアリスト",
     "results_title": "{{ titlePrefix }}　{{ sortType }}{{ type }}",
-    "default_results_title": "ラブライブシリーズ　{{ sortType }}{{ type }}",
+    "default_results_title": "ラブライブ！シリーズ　{{ sortType }}{{ type }}",
     "generated_at": "作成日",
     "tier": "ティアリスト",
     "edit": " 結果を修正する（未完成）",
@@ -127,7 +127,7 @@
     "text_copied": "結果をコピーしました"
   },
   "share": {
-    "copy_text": "僕のラブライブシリーズランキングをみて！",
+    "copy_text": "僕のラブライブ！シリーズランキングをみて！",
     "create_your_own": "自分のを作る"
   },
   "dialog": {
