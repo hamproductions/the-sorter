@@ -3,6 +3,8 @@ name: Deploy Github Pages
 on:
   push:
     branches: main
+  release:
+    types: [published]
 jobs:
   # Build job
   build:
@@ -65,5 +67,20 @@ jobs:
         id: psi
         with:
           url: ${{ needs.deploy.outputs.url }}
+          key: ${{ secrets.PSI_API_KEY }}
           threshold: 80
           strategy: desktop
+
+  post-to-x:
+    needs: deploy
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post to X
+        uses: captradeoff/x-post-action@v1
+        with:
+          appKey: ${{ secrets.X_APP_KEY }}
+          appSecret: ${{ secrets.X_APP_SECRET }}
+          accessToken: ${{ secrets.X_ACCESS_TOKEN }}
+          accessSecret: ${{ secrets.X_ACCESS_SECRET }}
+          message: 'ラブライブ！ランキングツール ${{ github.event.release.tag_name }} が公開されました！ こちらからチェック: ${{ needs.deploy.outputs.url }}'
