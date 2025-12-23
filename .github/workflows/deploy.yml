@@ -2,9 +2,10 @@ name: Deploy Github Pages
 
 on:
   push:
-    branches: main
-  release:
-    types: [published]
+    branches:
+      - main
+    tags:
+      - 'v*'
 jobs:
   # Build job
   build:
@@ -73,7 +74,7 @@ jobs:
 
   post-to-x:
     needs: deploy
-    if: github.event_name == 'release'
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
       - name: Post to X
@@ -83,4 +84,4 @@ jobs:
           appSecret: ${{ secrets.X_APP_SECRET }}
           accessToken: ${{ secrets.X_ACCESS_TOKEN }}
           accessSecret: ${{ secrets.X_ACCESS_SECRET }}
-          message: 'ラブライブ！ランキングツール ${{ github.event.release.tag_name }} が公開されました！ こちらからチェック: ${{ needs.deploy.outputs.url }}'
+          message: 'ラブライブ！ランキングツール ${{ github.ref_name }} が公開されました！ こちらからチェック: ${{ needs.deploy.outputs.url }}'
