@@ -61,8 +61,9 @@ export function RankingTable({
               style={{ ['--color' as 'color']: colorCode ?? (seriesColor as 'red') }}
               onClick={onSelectCharacter && (() => onSelectCharacter(c))}
               cursor="pointer"
-              borderColor="var(--color)"
               borderLeft="8px solid"
+              borderLeftColor="var(--color)"
+              borderBottomColor="var(--color)"
             >
               <Table.Cell>{rank}</Table.Cell>
               <Table.Cell>

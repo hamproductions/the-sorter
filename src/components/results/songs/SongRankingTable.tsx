@@ -74,6 +74,7 @@ export function SongRankingTable({
               cursor="pointer"
               borderLeft="8px solid"
               borderLeftColor="var(--color)"
+              borderBottomColor="var(--color)"
             >
               <Table.Cell>{rank}</Table.Cell>
               <Table.Cell>

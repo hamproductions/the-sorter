@@ -38,8 +38,9 @@ function _TierListItem({
         ['--padding-top' as 'paddingTop']: token(`spacing.${showRank ? '4' : '2'}`)
       }}
       justifyContent="flex-end"
-      borderColor="var(--seriesColor)"
       borderTop="4px solid"
+      borderTopColor="var(--seriesColor)"
+      borderBottomColor="var(--seriesColor)"
       h="full"
       p="var(--padding)"
       pt="var(--padding-top)"

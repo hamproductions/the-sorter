@@ -26,9 +26,10 @@ export function RankingViewListItem({
         ['--seriesColor' as 'borderLeftColor']: seriesColor ?? colorCode
       }}
       alignItems="flex-start"
-      borderColor="var(--seriesColor)"
       borderLeft="4px solid"
       borderBottom="1px solid"
+      borderLeftColor="var(--color)"
+      borderBottomColor="var(--color)"
       h="full"
       py="0.5"
       px="2"
