@@ -1,5 +1,5 @@
 /// <reference types="vitest" />
-import react from '@vitejs/plugin-react';
+import react from '@vitejs/plugin-react-swc';
 import { configDefaults, defineConfig } from 'vitest/config';
 // import { defineConfig } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
@@ -7,7 +7,9 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 export default defineConfig({
   plugins: [
     tsconfigPaths(),
+    //@ts-expect-error it works
     react({
+      //@ts-expect-error it works
       babel: {
         plugins: [['babel-plugin-react-compiler', {}]]
       }

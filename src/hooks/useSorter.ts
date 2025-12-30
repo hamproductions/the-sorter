@@ -41,7 +41,11 @@ export const useSorter = <T>(items: T[], statePrefix?: string) => {
     (value: 'left' | 'right' | 'tie') => () => {
       const currentState = stateRef.current;
       if (currentState) {
-        setHistory([...(historyRef.current ?? []), cloneDeep(currentState)]);
+        let newHistory = [...(historyRef.current ?? []), cloneDeep(currentState)];
+        if (newHistory.length > 50) {
+          newHistory = newHistory.slice(-50);
+        }
+        setHistory(newHistory);
         const nextStep = step(value, currentState);
         setState(nextStep);
       }
