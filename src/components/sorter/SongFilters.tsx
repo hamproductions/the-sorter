@@ -9,6 +9,7 @@ import series from '../../../data/series-info.json';
 import artists from '../../../data/artists-info.json';
 import character from '../../../data/character-info.json';
 import discographies from '../../../data/discography-info.json';
+import songs from '../../../data/song-info.json';
 
 import { DualListSelector } from './DualListSelector';
 import { Badge } from '~/components/ui/badge';
@@ -21,7 +22,9 @@ export type SongFilterType = {
   artists: string[];
   types: ('group' | 'solo' | 'unit')[];
   characters: number[];
+
   discographies: number[];
+  years: number[];
 };
 
 const artistsWithoutCharacters = artists.filter(
@@ -39,12 +42,22 @@ const artistsWithoutCharacters = artists.filter(
     !character.some((c) => a.name.includes(c.fullName))
 );
 
+const years = Array.from(
+  new Set(
+    songs
+      .map((s) => s.releasedOn?.substring(0, 4))
+      .filter((y): y is string => !!y)
+      .map(Number)
+  )
+).sort((a, b) => b - a);
+
 const FILTER_VALUES = {
   series: series.map((s) => s.id),
   artists: artistsWithoutCharacters.map((v) => v.id),
   types: ['group', 'solo', 'unit'],
   characters: character.map((c) => c.id),
-  discographies: discographies.map((d) => Number(d.id))
+  discographies: discographies.map((d) => Number(d.id)),
+  years: years
 } satisfies Record<keyof SongFilterType, unknown>;
 
 export function SongFilters({
@@ -85,7 +98,9 @@ export function SongFilters({
         artists: [],
         types: [],
         characters: [],
-        discographies: []
+
+        discographies: [],
+        years: []
       };
     });
   };
@@ -97,13 +112,15 @@ export function SongFilters({
     const urlTypes = params.getAll('types');
     const urlCharacters = params.getAll('characters');
     const urlDiscographies = params.getAll('discographies');
+    const urlYears = params.getAll('years');
 
     if (
       urlSeries.length > 0 ||
       urlArtists.length > 0 ||
       urlTypes.length > 0 ||
       urlCharacters.length > 0 ||
-      urlDiscographies.length > 0
+      urlDiscographies.length > 0 ||
+      urlYears.length > 0
     ) {
       setFilters({
         series: urlSeries.filter((s) => FILTER_VALUES.series.includes(s)),
@@ -112,7 +129,8 @@ export function SongFilters({
           FILTER_VALUES.types.includes(s as 'group' | 'solo' | 'unit')
         ) as ('group' | 'solo' | 'unit')[],
         characters: urlCharacters.map(Number).filter((c) => !isNaN(c)),
-        discographies: urlDiscographies.map(Number).filter((d) => !isNaN(d))
+        discographies: urlDiscographies.map(Number).filter((d) => !isNaN(d)),
+        years: urlYears.map(Number).filter((y) => !isNaN(y))
       });
       return;
     }
@@ -122,7 +140,8 @@ export function SongFilters({
       artists: [],
       types: [],
       characters: [],
-      discographies: []
+      discographies: [],
+      years: []
     });
   }, [setFilters]);
 
@@ -134,6 +153,7 @@ export function SongFilters({
       params.has('types') ||
       params.has('characters') ||
       params.has('discographies') ||
+      params.has('years') ||
       filters === undefined ||
       !isValidSongFilter(filters)
     ) {
@@ -253,6 +273,7 @@ export function SongFilters({
   const charactersCount = filters?.characters?.length ?? 0;
   const typesCount = filters?.types?.length ?? 0;
   const discographiesCount = filters?.discographies?.length ?? 0;
+  const yearsCount = filters?.years?.length ?? 0;
 
   return (
     <Stack border="1px solid" borderColor="border.default" rounded="l1" p="4">
@@ -368,6 +389,30 @@ export function SongFilters({
             {FILTER_VALUES.types.map((type) => (
               <Checkbox size="sm" key={type} value={type}>
                 {t(`settings.type.${type}`)}
+              </Checkbox>
+            ))}
+          </Wrap>
+        </Group>
+      </Stack>
+
+      <Box height="1px" bg="border.subtle" />
+
+      {/* Years */}
+      <Stack>
+        {renderHeader(t('settings.years'), yearsCount, 'years', false)}
+        <Group
+          asChild
+          defaultValue={[]}
+          value={filters?.years?.map(String) ?? []}
+          onValueChange={(years) => {
+            if (!filters) return;
+            setFilters({ ...filters, years: years.map(Number) });
+          }}
+        >
+          <Wrap>
+            {years.map((year) => (
+              <Checkbox size="sm" key={year} value={String(year)}>
+                {year}
               </Checkbox>
             ))}
           </Wrap>

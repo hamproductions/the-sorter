@@ -50,6 +50,7 @@
     "logic_and": "すべて一致",
     "logic_or": "いずれか一致",
     "global_logic": "フィルター全体の設定",
+    "years": "発売年",
     "cross_series": "複数シリーズ"
   },
   "sort": {
