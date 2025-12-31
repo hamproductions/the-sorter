@@ -102,6 +102,7 @@ export function SongCard({
           </Text>
         )}
         <Text fontSize="sm">{formatArtistsWithVariants(song.artists, artistsData, lang)}</Text>
+
       </Stack>
     </Stack>
   );
