@@ -88,7 +88,8 @@ export function Page() {
         params.has('artists') ||
         params.has('types') ||
         params.has('characters') ||
-        params.has('discographies');
+        params.has('discographies') ||
+        params.has('years');
 
       if (hasFilterParams) {
         const newFilters = {
@@ -96,7 +97,8 @@ export function Page() {
           artists: params.getAll('artists'),
           types: params.getAll('types') as ('group' | 'solo' | 'unit')[],
           characters: params.getAll('characters').map(Number),
-          discographies: params.getAll('discographies').map(Number)
+          discographies: params.getAll('discographies').map(Number),
+          years: params.getAll('years').map(Number)
         };
 
         // Only show dialog if the filters are actually different
@@ -140,7 +142,7 @@ export function Page() {
     try {
       await navigator.clipboard.writeText(url);
       toast?.({ description: t('toast.url_copied') });
-    } catch {}
+    } catch { }
   };
 
   // Preload Assets
@@ -361,7 +363,8 @@ export function Page() {
               artists: params.getAll('artists'),
               types: params.getAll('types') as ('group' | 'solo' | 'unit')[],
               characters: params.getAll('characters').map(Number),
-              discographies: params.getAll('discographies').map(Number)
+              discographies: params.getAll('discographies').map(Number),
+              years: params.getAll('years').map(Number)
             };
             setSongFilters(newFilters);
             setShowConfirmDialog(undefined);
