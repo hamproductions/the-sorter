@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [1.15.0](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.14.0...v1.15.0) (2026-01-06)
+
+
+### Features
+
+* Feature update, localization fixes, small bug fixes, etc. ([#27](https://github.com/Tanyawat-Arsaga/the-sorter/issues/27)) ([9efea40](https://github.com/Tanyawat-Arsaga/the-sorter/commit/9efea4033169ca25607413e5c6314181f0acd1c5))
+
 # [1.14.0](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.13.4...v1.14.0) (2026-01-06)
 
 
