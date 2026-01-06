@@ -239,7 +239,7 @@ export function SongResultsView({
             ))}
             <Tabs.Indicator />
           </Tabs.List>
-          <Box w="full" p="4">
+          <Box w="full" p="4" overflowX="auto">
             <Tabs.Content value="table">
               <SongRankingTable songs={songs} />
             </Tabs.Content>
