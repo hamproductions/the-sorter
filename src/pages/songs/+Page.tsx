@@ -3,6 +3,8 @@ import { preload } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { FaShare } from 'react-icons/fa6';
 import { isEqual } from 'lodash-es';
+import { ComparisonInfo } from '../../components/sorter/ComparisonInfo';
+import { KeyboardShortcuts } from '../../components/sorter/KeyboardShortcuts';
 import { Button } from '../../components/ui/styled/button';
 import { Kbd } from '../../components/ui/styled/kbd';
 import { Progress } from '../../components/ui/progress';
@@ -21,6 +23,8 @@ import { useSongData } from '~/hooks/useSongData';
 import { useArtistsData } from '~/hooks/useArtistsData';
 import { isValidSongFilter } from '~/utils/song-filter';
 import { addSongPresetParams } from '~/utils/share';
+import { getSongName } from '~/utils/names';
+import type { Song } from '~/types/songs';
 
 const ConfirmMidSortDialog = lazy(() =>
   import('../../components/dialog/ConfirmDialog').then((m) => ({
@@ -56,7 +60,7 @@ export function Page() {
   const songs = useSongData();
   const artists = useArtistsData();
   const { toast } = useToaster();
-  const { t, i18n: _i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const {
     noTieMode,
     setNoTieMode,
@@ -64,7 +68,9 @@ export function Page() {
     left,
     right,
     state,
-    count,
+    comparisonsCount,
+    isEstimatedCount,
+    maxComparisons,
     tie,
     undo,
     progress,
@@ -290,28 +296,13 @@ export function Page() {
                       {t('sort.undo')}
                     </Button>
                   </HStack>
-                  <Stack hideBelow="sm" gap="1">
-                    <Text fontWeight="bold">{t('sort.keyboard_shortcuts')}</Text>
-                    <Wrap>
-                      <Text>
-                        <Kbd>←</Kbd>: {t('sort.pick_left')}
-                      </Text>
-                      <Text>
-                        <Kbd>→</Kbd>: {t('sort.pick_right')}
-                      </Text>
-                      <Text
-                        data-disabled={noTieMode === true || undefined}
-                        textDecoration={{ _disabled: 'line-through' }}
-                      >
-                        <Kbd>↓</Kbd>: {t('sort.tie')}
-                      </Text>
-                      <Text>
-                        <Kbd>↑</Kbd>: {t('sort.undo')}
-                      </Text>
-                    </Wrap>
-                  </Stack>
+                  <KeyboardShortcuts noTieMode={noTieMode} />
                 </Stack>
-                <Text>{t('sort.comparison_no', { count })}</Text>
+                <ComparisonInfo
+                  comparisonsCount={comparisonsCount}
+                  isEstimatedCount={isEstimatedCount}
+                  maxComparisons={maxComparisons}
+                />
                 <Progress
                   translations={{ value: (details) => `${details.percent}%` }}
                   value={progress}
@@ -383,6 +374,9 @@ export function Page() {
           lazyMount
           unmountOnExit
           items={listToSort}
+          getItemName={(item) =>
+            getSongName((item as Song).name, (item as Song).englishName, i18n.language)
+          }
           onOpenChange={({ open }) => {
             if (!open) {
               setShowConfirmDialog(undefined);

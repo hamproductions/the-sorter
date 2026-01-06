@@ -14,6 +14,7 @@ import { Link } from '~/components/ui/link';
 import type { SetlistItem, Performance, SetlistPrediction } from '~/types/setlist-prediction';
 import { useSongData } from '~/hooks/useSongData';
 import { getSongColor } from '~/utils/song';
+import { getSongName } from '~/utils/names';
 
 export interface SetlistViewProps {
   prediction: SetlistPrediction;
@@ -41,7 +42,8 @@ export function SetlistView({
   showHeader = true,
   compact = false
 }: SetlistViewProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
   const songData = useSongData();
   const setlist = prediction.setlist;
   const items = setlist.items;
@@ -146,7 +148,9 @@ export function SetlistView({
             } else {
               const songs = Array.isArray(songData) ? songData : [];
               const songDetails = songs.find((song) => String(song.id) === String(item.songId));
-              songName = songDetails?.name || `Song ${item.songId}`;
+              songName = songDetails
+                ? getSongName(songDetails.name, songDetails.englishName, lang)
+                : `Song ${item.songId}`;
               songColor = songDetails ? getSongColor(songDetails) : undefined;
 
               // Get artist name

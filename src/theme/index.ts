@@ -83,6 +83,11 @@ export const theme: PartialTheme = {
       }
     }
   },
-  keyframes: {},
+  keyframes: {
+    rainbowScroll: {
+      '0%': { backgroundPosition: '200% 50%' },
+      '100%': { backgroundPosition: '0% 50%' }
+    }
+  },
   recipes: {}
 };

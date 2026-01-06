@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { FaShare } from 'react-icons/fa6';
 import type { ShareDisplayData } from '../../components/results/ResultsView';
 import { CharacterCard } from '../../components/sorter/CharacterCard';
+import { ComparisonInfo } from '../../components/sorter/ComparisonInfo';
+import { KeyboardShortcuts } from '../../components/sorter/KeyboardShortcuts';
 import { Button } from '../../components/ui/button';
 import { Kbd } from '../../components/ui/kbd';
 import { Progress } from '../../components/ui/progress';
@@ -15,6 +17,7 @@ import { useSortData } from '../../hooks/useSortData';
 import type { Character } from '../../types';
 import { getCurrentItem } from '../../utils/sort';
 import { addPresetParams, serializeData } from '~/utils/share';
+import { getCastName, getFullName } from '~/utils/character';
 import { getNextItems } from '~/utils/preloading';
 import { getFilterTitle, isValidFilter } from '~/utils/filter';
 import { getPicUrl } from '~/utils/assets';
@@ -76,7 +79,9 @@ export function Page() {
     left,
     right,
     state,
-    count,
+    comparisonsCount,
+    isEstimatedCount,
+    maxComparisons,
     tie,
     undo,
     progress,
@@ -302,28 +307,13 @@ export function Page() {
                       {t('sort.undo')}
                     </Button>
                   </HStack>
-                  <Stack hideBelow="sm" gap="1">
-                    <Text fontWeight="bold">{t('sort.keyboard_shortcuts')}</Text>
-                    <Wrap>
-                      <Text>
-                        <Kbd>←</Kbd>: {t('sort.pick_left')}
-                      </Text>
-                      <Text>
-                        <Kbd>→</Kbd>: {t('sort.pick_right')}
-                      </Text>
-                      <Text
-                        data-disabled={noTieMode === true || undefined}
-                        textDecoration={{ _disabled: 'line-through' }}
-                      >
-                        <Kbd>↓</Kbd>: {t('sort.tie')}
-                      </Text>
-                      <Text>
-                        <Kbd>↑</Kbd>: {t('sort.undo')}
-                      </Text>
-                    </Wrap>
-                  </Stack>
+                  <KeyboardShortcuts noTieMode={noTieMode} />
                 </Stack>
-                <Text>{t('sort.comparison_no', { count })}</Text>
+                <ComparisonInfo
+                  comparisonsCount={comparisonsCount}
+                  isEstimatedCount={isEstimatedCount}
+                  maxComparisons={maxComparisons}
+                />
                 <Progress
                   translations={{ value: (details) => `${details.percent}%` }}
                   value={progress}
@@ -432,7 +422,10 @@ export function Page() {
           lazyMount
           unmountOnExit
           items={listToSort}
-          getItemName={(item) => (item as Character).fullName || ''}
+          getItemName={(item) => {
+            const c = item as Character;
+            return seiyuu ? getCastName(c.casts[0], i18n.language) : getFullName(c, i18n.language);
+          }}
           onOpenChange={({ open }) => {
             if (!open) {
               setShowConfirmDialog(undefined);

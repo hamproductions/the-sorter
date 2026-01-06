@@ -7,6 +7,9 @@ import { useToaster } from '~/context/ToasterContext';
 import { matchSongFilter } from '~/utils/hasu-song-filter';
 import { hasFilter } from '~/utils/filter';
 import type { HasuSongFilterType } from '~/components/sorter/HasuSongFilters';
+import { getAssetUrl } from '~/utils/assets';
+import { TieToastContent } from '~/components/sorter/TieToastContent';
+import { token } from 'styled-system/tokens';
 
 export const useHasuSongsSortData = () => {
   const { t } = useTranslation();
@@ -26,17 +29,17 @@ export const useHasuSongsSortData = () => {
 
   const {
     init,
-    // history,
     left,
     right,
     state,
-    count,
+    comparisonsCount,
+    isEstimatedCount,
+    maxComparisons,
     tie,
     undo,
     progress,
     clear,
     isEnded
-    // reset
   } = useSorter(
     listToSort.map((l) => l.id),
     'hasu-songs'
@@ -45,11 +48,16 @@ export const useHasuSongsSortData = () => {
   const { toast } = useToaster();
 
   const handleTie = useCallback(() => {
+    const isMobile = window.matchMedia(`(max-width: ${token('breakpoints.sm')})`).matches;
     if (!noTieMode) {
-      toast?.({ description: 'ヒトリダケナンテエラベナイヨー' });
+      toast?.({
+        meta: { backgroundImage: getAssetUrl('/assets/bg.webp') },
+        description: TieToastContent,
+        duration: 1000,
+        placement: isMobile ? 'top' : undefined
+      });
       tie();
     } else {
-      //TODO: somehow add a pic
       toast?.({ description: t('toast.tie_not_allowed'), type: 'error' });
     }
   }, [toast, tie, noTieMode, t]);
@@ -91,7 +99,9 @@ export const useHasuSongsSortData = () => {
     left,
     right,
     state,
-    count,
+    comparisonsCount,
+    isEstimatedCount,
+    maxComparisons,
     tie: handleTie,
     undo,
     progress,

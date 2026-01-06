@@ -6,7 +6,7 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useMemo } from 'react';
 import artistsData from '../../../../data/artists-info.json';
-import { getArtistName } from '~/utils/names';
+import { getArtistName, getSongName } from '~/utils/names';
 import {
   Root as DialogRoot,
   Backdrop as DialogBackdrop,
@@ -74,7 +74,7 @@ export function EditItemDialog({ open, onOpenChange, item, onSave }: EditItemDia
         return {
           id: s.id,
           name: s.name,
-          nameRomaji: undefined,
+          englishName: s.englishName,
           artist: artist ? getArtistName(artist.name, lang) : undefined,
           color: getSongColor(s)
         };
@@ -242,11 +242,11 @@ export function EditItemDialog({ open, onOpenChange, item, onSave }: EditItemDia
                             >
                               <Stack gap={0.5}>
                                 <Text fontSize="sm" fontWeight="medium">
-                                  {song.name}
+                                  {getSongName(song.name, song.englishName, lang)}
                                 </Text>
-                                {song.nameRomaji && (
+                                {lang === 'en' && song.englishName && (
                                   <Text color="fg.muted" fontSize="xs">
-                                    {song.nameRomaji}
+                                    {song.name}
                                   </Text>
                                 )}
                                 {song.artist && (

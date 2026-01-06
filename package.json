@@ -16,7 +16,7 @@
     "lint:fix": "oxlint src --fix && eslint src --fix --concurrency=auto",
     "fix": "bun lint:fix",
     "preview": "vite preview",
-    "prepare": "panda codegen && bun scripts/add-english-names.ts",
+    "prepare": "panda codegen",
     "test": "vitest",
     "test:ui": "vitest --ui --coverage.enabled",
     "test:preview": "NODE_ENV=test-preview vitest-preview && open https://localhost:5006",
@@ -30,7 +30,8 @@
     "release:major": "release-it major --ci",
     "update-version": "bun scripts/update-version-release-it.ts",
     "install-hooks": "chmod +x .git/hooks/commit-msg && chmod +x scripts/check-version.ts",
-    "check-version": "bun scripts/check-version.ts"
+    "check-version": "bun scripts/check-version.ts",
+    "data-viewer": "bun run tools/data-viewer/src/index.ts"
   },
   "dependencies": {
     "@ark-ui/react": "^4.8.1",
@@ -40,6 +41,7 @@
     "@pandacss/dev": "^1.7.1",
     "@park-ui/panda-preset": "^0.43.1",
     "@sentry/react": "^8.54.0",
+    "@tanstack/react-virtual": "^3.13.16",
     "file-saver": "^2.0.5",
     "i18next": "^24.2.1",
     "lodash-es": "^4.17.21",

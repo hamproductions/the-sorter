@@ -17,11 +17,21 @@ beforeEach(async () => {
   delete window.location;
   //@ts-expect-error will do later zzz
   window.location = new URL('http://localhost/');
+  //@ts-expect-error mocking idk
+  window.matchMedia = vi.fn((query) => {
+    return {
+      matches: query !== '(prefers-color-scheme: dark)',
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn()
+    };
+  });
 
   // Clear localStorage safely
   try {
     window.localStorage.clear();
-  } catch (e) {}
+  } catch {}
 });
 
 afterEach(async () => {

@@ -9,7 +9,7 @@ import { useDraggable } from '@dnd-kit/core';
 import { MdArrowForward, MdDragIndicator } from 'react-icons/md';
 import { toHiragana, toRomaji } from 'wanakana';
 import artistsData from '../../../../data/artists-info.json';
-import { getArtistName } from '~/utils/names';
+import { getArtistName, getSongName } from '~/utils/names';
 import { css } from 'styled-system/css';
 import { Box, Stack, HStack } from 'styled-system/jsx';
 import { Input } from '~/components/ui/styled/input';
@@ -22,16 +22,18 @@ interface DraggableSongItemProps {
   song: {
     id: string;
     name: string;
-    nameRomaji?: string;
+    englishName?: string;
     artist?: string;
     series?: string;
     color: string;
   };
+  lang: string;
   onAddSong: (songId: string, songTitle: string) => void;
 }
 
 const DraggableSongItem = memo(function DraggableSongItem({
   song,
+  lang,
   onAddSong
 }: DraggableSongItemProps) {
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, isDragging } = useDraggable({
@@ -72,11 +74,11 @@ const DraggableSongItem = memo(function DraggableSongItem({
         </Box>
         <Stack flex={1} gap={0.5}>
           <Text fontSize="sm" fontWeight="medium">
-            {song.name}
+            {getSongName(song.name, song.englishName, lang)}
           </Text>
-          {song.nameRomaji && (
+          {lang === 'en' && song.englishName && (
             <Text color="fg.muted" fontSize="xs">
-              {song.nameRomaji}
+              {song.name}
             </Text>
           )}
           {song.artist && (
@@ -168,7 +170,7 @@ export function SongSearchPanel({
       .filter((song) => {
         const phoneticName = song.phoneticName ?? '';
         const phoneticRomaji = toRomaji(phoneticName);
-        const searchText = `${song.name} ${phoneticName}`.toLowerCase();
+        const searchText = `${song.name} ${phoneticName} ${song.englishName ?? ''}`.toLowerCase();
 
         // Normalize romaji by removing spaces for better matching
         const normalizedPhoneticRomaji = phoneticRomaji.replace(/\s+/g, '');
@@ -191,7 +193,7 @@ export function SongSearchPanel({
         return {
           id: song.id,
           name: song.name,
-          nameRomaji: undefined,
+          englishName: song.englishName,
           series: undefined,
           seriesIds: song.seriesIds,
           artist: artist ? getArtistName(artist.name, lang) : undefined,
@@ -227,7 +229,7 @@ export function SongSearchPanel({
         return {
           id: song.id,
           name: song.name,
-          nameRomaji: undefined,
+          englishName: song.englishName,
           series: undefined,
           seriesIds: song.seriesIds,
           artist: artist ? getArtistName(artist.name, lang) : undefined,
@@ -296,7 +298,7 @@ export function SongSearchPanel({
             {songMatches.length > 0 && (
               <>
                 {songMatches.map((song) => (
-                  <DraggableSongItem key={song.id} song={song} onAddSong={onAddSong} />
+                  <DraggableSongItem key={song.id} song={song} lang={lang} onAddSong={onAddSong} />
                 ))}
               </>
             )}
@@ -314,7 +316,7 @@ export function SongSearchPanel({
                   </Box>
                 )}
                 {artistMatches.map((song) => (
-                  <DraggableSongItem key={song.id} song={song} onAddSong={onAddSong} />
+                  <DraggableSongItem key={song.id} song={song} lang={lang} onAddSong={onAddSong} />
                 ))}
               </>
             )}

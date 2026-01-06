@@ -10,12 +10,12 @@
   "cancel": "Cancel",
   "hasu-songs": "Hasu no Sora Songs",
   "songs": "Songs",
-  "artist": "アーティスト",
-  "song-name": "タイトル",
+  "artist": "Artist",
+  "song-name": "Title",
   "navigation": {
     "characters": "Characters",
     "hasu-music": "Hasunosora",
-    "songs": "Songs (New)",
+    "songs": "Songs",
     "setlist-prediction": "Setlist Prediction"
   },
   "settings": {
@@ -66,9 +66,12 @@
     "pick_left": "Pick Left",
     "pick_right": "Pick Right",
     "comparison_no": "Comparison No. {{ count }}",
+    "comparisons": "comparisons",
+    "estimate_disclaimer": "Estimate based on worst case. Usually fewer.",
     "preview": "Preview",
     "preview_title": "Sorting Preview",
-    "preview_description": "First {{ count }} items shown"
+    "preview_description": "First {{ count }} items shown",
+    "preview_search": "Search..."
   },
   "footer": {
     "created_by": "Created by",

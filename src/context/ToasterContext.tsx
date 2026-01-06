@@ -5,16 +5,29 @@ import { FaXmark } from 'react-icons/fa6';
 import { IconButton } from '~/components/ui/icon-button';
 import { Toast } from '~/components/ui/toast';
 
-type ToastOptions = Parameters<typeof toaster.create>[0];
+type RenderFn = () => ReactNode;
+type ToastContent = ReactNode | RenderFn;
+
+interface ToastOptions {
+  title?: ToastContent;
+  description?: ToastContent;
+  type?: 'info' | 'success' | 'warning' | 'error';
+  duration?: number;
+  placement?: 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end';
+  meta?: {
+    backgroundImage?: string;
+  };
+}
+
+const isRenderFn = (value: unknown): value is RenderFn => typeof value === 'function';
+
 const ToasterContext = createContext<{ toast: (options: ToastOptions) => void }>({
-  toast: () => {
-    // noop - will be replaced by provider
-  }
+  toast: () => {}
 });
 
 const toaster = createToaster({
   placement: 'bottom-end',
-  max: 10,
+  max: 5,
   overlap: true
 });
 
@@ -23,10 +36,12 @@ export function ToasterProvider({ children }: { children: ReactNode }) {
     <ToasterContext.Provider
       value={{
         toast: (options) => {
+          console.log(options);
           toaster.create({
             type: 'info',
-            ...options
-          });
+            ...options,
+            placement: options.placement ?? 'bottom-end'
+          } as Parameters<typeof toaster.create>[0]);
         }
       }}
     >
@@ -34,10 +49,22 @@ export function ToasterProvider({ children }: { children: ReactNode }) {
       <Suspense>
         <Toast.Toaster toaster={toaster}>
           {(toast) => {
+            const title = isRenderFn(toast.title) ? toast.title() : toast.title;
+            const description = isRenderFn(toast.description)
+              ? toast.description()
+              : toast.description;
             return (
-              <Toast.Root>
-                <Toast.Title>{toast.title}</Toast.Title>
-                <Toast.Description>{toast.description}</Toast.Description>
+              <Toast.Root
+                style={{
+                  backgroundImage: toast.meta?.backgroundImage
+                    ? `url(${toast.meta.backgroundImage})`
+                    : undefined
+                }}
+                bgPosition="center"
+                bgSize="cover"
+              >
+                {title && <Toast.Title>{title}</Toast.Title>}
+                {description && <Toast.Description>{description}</Toast.Description>}
                 <Toast.CloseTrigger asChild>
                   <IconButton size="sm" variant="link">
                     <FaXmark />

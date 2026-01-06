@@ -17,6 +17,48 @@ interface MergeState<I> {
   arrIdx?: number;
 }
 
+export const calculateMaxComparisons = (n: number): number => {
+  if (n <= 1) return 0;
+  let max = 0;
+  for (let currentSize = 1; currentSize <= n - 1; currentSize *= 2) {
+    for (let leftStart = 0; leftStart < n - 1; leftStart += 2 * currentSize) {
+      const mid = Math.min(leftStart + currentSize - 1, n - 1);
+      const end = Math.min(leftStart + 2 * currentSize - 1, n - 1);
+      const n1 = mid - leftStart + 1;
+      const n2 = end - mid;
+      max += n1 + n2 - 1;
+    }
+  }
+  return max;
+};
+
+export const estimateComparisonsMade = <I>(state: SortState<I>, n: number): number => {
+  const { currentSize, leftStart, mergeState } = state;
+  let count = 0;
+
+  for (let size = 1; size < currentSize; size *= 2) {
+    for (let ls = 0; ls < n - 1; ls += 2 * size) {
+      const mid = Math.min(ls + size - 1, n - 1);
+      const end = Math.min(ls + 2 * size - 1, n - 1);
+      const n1 = mid - ls + 1;
+      const n2 = end - mid;
+      count += n1 + n2 - 1;
+    }
+  }
+
+  for (let ls = 0; ls < leftStart; ls += 2 * currentSize) {
+    const mid = Math.min(ls + currentSize - 1, n - 1);
+    const end = Math.min(ls + 2 * currentSize - 1, n - 1);
+    const n1 = mid - ls + 1;
+    const n2 = end - mid;
+    count += n1 + n2 - 1;
+  }
+
+  count += (mergeState?.leftArrIdx ?? 0) + (mergeState?.rightArrIdx ?? 0);
+
+  return count;
+};
+
 export const initSort = <I>(arr: I[]): SortState<I> => {
   return mergeSort({
     arr: arr.map((a) => [a]),

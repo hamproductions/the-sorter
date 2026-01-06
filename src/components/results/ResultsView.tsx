@@ -254,11 +254,11 @@ export function ResultsView({
                 </Accordion.ItemContent>
               </Accordion.Item>
             </Accordion.Root>
-            <HStack justifyContent="space-between" w="full">
+            <Wrap justifyContent="space-between" w="full">
               <Button variant="subtle" onClick={() => setShowEditResults(true)}>
                 <FaPencil /> {t('results.edit')}
               </Button>
-              <Wrap justifyContent="flex-end" w="full">
+              <Wrap justifyContent="flex-end">
                 <Button
                   variant="subtle"
                   data-testid="share-results-button"
@@ -280,7 +280,7 @@ export function ResultsView({
                   <FaDownload /> {t('results.download')}
                 </Button>
               </Wrap>
-            </HStack>
+            </Wrap>
           </Stack>
         )}
         <Tabs.Root
