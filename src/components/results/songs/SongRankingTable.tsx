@@ -7,7 +7,7 @@ import type { Artist, Song } from '~/types/songs';
 import { getSongColor } from '~/utils/song';
 import { useArtistsData } from '~/hooks/useArtistsData';
 import { SchoolBadge } from '~/components/sorter/SchoolBadge';
-import { getArtistName } from '~/utils/names';
+import { getArtistName, getSongName } from '~/utils/names';
 
 function formatArtistsWithVariants(
   songArtists: Song['artists'],
@@ -63,7 +63,7 @@ export function SongRankingTable({
       </Table.Head>
       <Table.Body>
         {songs.map((c, idx) => {
-          const { rank, name, artists: songArtists } = c;
+          const { rank, name, englishName, artists: songArtists } = c;
           const colorCode = getSongColor(c);
 
           return (
@@ -79,7 +79,7 @@ export function SongRankingTable({
               <Table.Cell>{rank}</Table.Cell>
               <Table.Cell>
                 <Text layerStyle="textStroke" color="var(--color)" fontSize="md" fontWeight="bold">
-                  {name}
+                  {getSongName(name, englishName)}
                 </Text>
               </Table.Cell>
               <Table.Cell>

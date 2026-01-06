@@ -22,3 +22,7 @@ export const getArtistName = (artist: string, locale: Locale | undefined) => {
   if (locale === 'en' && found?.englishName) return found.englishName;
   return artist;
 };
+
+export const getSongName = (name: string, englishName: string | undefined): string => {
+  return englishName || name;
+};

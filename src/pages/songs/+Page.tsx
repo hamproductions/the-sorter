@@ -21,6 +21,8 @@ import { useSongData } from '~/hooks/useSongData';
 import { useArtistsData } from '~/hooks/useArtistsData';
 import { isValidSongFilter } from '~/utils/song-filter';
 import { addSongPresetParams } from '~/utils/share';
+import { getSongName } from '~/utils/names';
+import type { Song } from '~/types/songs';
 
 const ConfirmMidSortDialog = lazy(() =>
   import('../../components/dialog/ConfirmDialog').then((m) => ({
@@ -383,6 +385,7 @@ export function Page() {
           lazyMount
           unmountOnExit
           items={listToSort}
+          getItemName={(item) => getSongName((item as Song).name, (item as Song).englishName)}
           onOpenChange={({ open }) => {
             if (!open) {
               setShowConfirmDialog(undefined);

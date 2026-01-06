@@ -30,7 +30,8 @@
     "release:major": "release-it major --ci",
     "update-version": "bun scripts/update-version-release-it.ts",
     "install-hooks": "chmod +x .git/hooks/commit-msg && chmod +x scripts/check-version.ts",
-    "check-version": "bun scripts/check-version.ts"
+    "check-version": "bun scripts/check-version.ts",
+    "data-viewer": "bun run tools/data-viewer/src/index.ts"
   },
   "dependencies": {
     "@ark-ui/react": "^4.8.1",

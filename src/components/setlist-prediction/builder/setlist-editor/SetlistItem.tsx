@@ -21,6 +21,7 @@ import type { SetlistItem as SetlistItemType } from '~/types/setlist-prediction'
 import { isSongItem } from '~/types/setlist-prediction';
 import { useSongData } from '~/hooks/useSongData';
 import { getSongColor } from '~/utils/song';
+import { getSongName } from '~/utils/names';
 import type { Song } from '~/types';
 
 export interface SetlistItemProps {
@@ -233,7 +234,9 @@ const SetlistItemComponent = memo(function SetlistItem({
                       <Text fontSize="sm" fontWeight="medium" lineHeight="1.4">
                         {item.isCustomSong
                           ? item.customSongName
-                          : songDetails?.name || item.customSongName || `Song ${item.songId}`}
+                          : songDetails
+                            ? getSongName(songDetails.name, songDetails.englishName)
+                            : item.customSongName || `Song ${item.songId}`}
                       </Text>
                       {!item.isCustomSong && (
                         <Link

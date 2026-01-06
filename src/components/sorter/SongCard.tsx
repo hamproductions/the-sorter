@@ -1,11 +1,10 @@
 import { useTranslation } from 'react-i18next';
-import { toRomaji } from 'wanakana';
 import { Text } from '../ui/text';
 import type { StackProps } from 'styled-system/jsx';
 import { Center, Stack } from 'styled-system/jsx';
 import type { Artist, Song } from '~/types/songs';
 import { getSongColor } from '~/utils/song';
-import { getArtistName } from '~/utils/names';
+import { getArtistName, getSongName } from '~/utils/names';
 import { useArtistsData } from '~/hooks/useArtistsData';
 
 function formatArtistsWithVariants(
@@ -94,11 +93,11 @@ export function SongCard({
       </Stack>
       <Stack gap={0} alignItems="center">
         <Text layerStyle="textStroke" color="var(--color)" fontSize="2xl" fontWeight="bold">
-          {song.name}
+          {getSongName(song.name, song.englishName)}
         </Text>
-        {lang === 'en' && song.phoneticName && (
+        {song.englishName && (
           <Text color="fg.muted" fontSize="xs">
-            {toRomaji(song.phoneticName)}
+            {song.name}
           </Text>
         )}
         <Text fontSize="sm">{formatArtistsWithVariants(song.artists, artistsData, lang)}</Text>
