@@ -9,6 +9,9 @@ import { hasFilter } from '~/utils/filter';
 
 import { matchSongFilter } from '~/utils/song-filter';
 import type { SongFilterType } from '~/components/sorter/SongFilters';
+import { getAssetUrl } from '~/utils/assets';
+import { TieToastContent } from '~/components/sorter/TieToastContent';
+import { token } from 'styled-system/tokens';
 
 export const useSongsSortData = () => {
   const { t } = useTranslation();
@@ -51,11 +54,16 @@ export const useSongsSortData = () => {
   // }, [listToSort]);
 
   const handleTie = useCallback(() => {
+    const isMobile = window.matchMedia(`(max-width: ${token('breakpoints.sm')})`).matches;
     if (!noTieMode) {
-      toast?.({ description: 'ヒトリダケナンテエラベナイヨー' });
+      toast?.({
+        meta: { backgroundImage: getAssetUrl('/assets/bg.webp') },
+        description: TieToastContent,
+        duration: 1000,
+        placement: isMobile ? 'top' : undefined
+      });
       tie();
     } else {
-      //TODO: somehow add a pic
       toast?.({ description: t('toast.tie_not_allowed'), type: 'error' });
     }
   }, [toast, tie, noTieMode, t]);

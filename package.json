@@ -16,7 +16,7 @@
     "lint:fix": "oxlint src --fix && eslint src --fix --concurrency=auto",
     "fix": "bun lint:fix",
     "preview": "vite preview",
-    "prepare": "panda codegen && bun scripts/add-english-names.ts",
+    "prepare": "panda codegen",
     "test": "vitest",
     "test:ui": "vitest --ui --coverage.enabled",
     "test:preview": "NODE_ENV=test-preview vitest-preview && open https://localhost:5006",

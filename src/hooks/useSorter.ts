@@ -2,12 +2,7 @@ import shuffle from 'lodash-es/shuffle';
 import { useEffect, useCallback, useRef } from 'react';
 import cloneDeep from 'lodash-es/cloneDeep';
 import type { SortState } from '../utils/sort';
-import {
-  step,
-  initSort,
-  calculateMaxComparisons,
-  estimateComparisonsMade
-} from '../utils/sort';
+import { step, initSort, calculateMaxComparisons, estimateComparisonsMade } from '../utils/sort';
 import { useLocalStorage } from './useLocalStorage';
 
 export const useSorter = <T>(items: T[], statePrefix?: string) => {
@@ -85,7 +80,9 @@ export const useSorter = <T>(items: T[], statePrefix?: string) => {
   }, [setState, setHistory, setComparisonsCount]);
 
   const maxComparisons = calculateMaxComparisons(items.length);
-  const estimatedProgress = state ? estimateComparisonsMade(state, items.length) / maxComparisons : 0;
+  const estimatedProgress = state
+    ? estimateComparisonsMade(state, items.length) / maxComparisons
+    : 0;
 
   const clear = () => {
     setHistory(undefined);

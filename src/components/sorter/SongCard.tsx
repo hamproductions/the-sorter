@@ -71,11 +71,13 @@ export function SongCard({
         alignItems="center"
         w="full"
         minH={{ base: 0, sm: '240px' }}
+        overflow="hidden"
       >
-        <Center position="absolute" flex={1} w="full" h="full">
-          <Center w="full" h="full">
+        <Center position="absolute" flex={1} w="full" h="full" overflow="hidden">
+          <Center w="full" maxW="full" h="full">
             {song.musicVideo && (
               <iframe
+                style={{ maxWidth: '100%' }}
                 height="240"
                 src={`https://www.youtube-nocookie.com/embed/${song.musicVideo.videoId}/?start=${song.musicVideo.videoOffset}&html5=1`}
                 title="YouTube video player"
@@ -100,7 +102,9 @@ export function SongCard({
             {song.name}
           </Text>
         )}
-        <Text fontSize="sm">{formatArtistsWithVariants(song.artists, artistsData, lang)}</Text>
+        <Text fontSize="sm" textAlign="center">
+          {formatArtistsWithVariants(song.artists, artistsData, lang)}
+        </Text>
       </Stack>
     </Stack>
   );
