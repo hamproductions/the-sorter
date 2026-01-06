@@ -50,7 +50,8 @@ const mockFilters: SongFilterType = {
   artists: [],
   types: [],
   characters: [],
-  discographies: []
+  discographies: [],
+  years: []
 };
 
 describe('SongFilters Component', () => {

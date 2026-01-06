@@ -10,7 +10,8 @@ describe('Share Utils', () => {
         artists: ['artist1'],
         types: ['group'] as ('group' | 'solo' | 'unit')[],
         characters: [1, 2],
-        discographies: [3]
+        discographies: [3],
+        years: [2015]
       };
 
       const result = addSongPresetParams(params, filters);
@@ -30,7 +31,8 @@ describe('Share Utils', () => {
         artists: [],
         types: [] as ('group' | 'solo' | 'unit')[],
         characters: [],
-        discographies: []
+        discographies: [],
+        years: []
       };
 
       const result = addSongPresetParams(params, filters);
@@ -44,7 +46,8 @@ describe('Share Utils', () => {
         artists: [],
         types: [] as ('group' | 'solo' | 'unit')[],
         characters: [],
-        discographies: []
+        discographies: [],
+        years: []
       };
 
       const result = addSongPresetParams(params, filters);

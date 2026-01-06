@@ -96,7 +96,8 @@ export function Page() {
           artists: params.getAll('artists'),
           types: params.getAll('types') as ('group' | 'solo' | 'unit')[],
           characters: params.getAll('characters').map(Number),
-          discographies: params.getAll('discographies').map(Number)
+          discographies: params.getAll('discographies').map(Number),
+          years: params.getAll('years').map(Number)
         };
 
         // Only show dialog if the filters are actually different
@@ -361,7 +362,8 @@ export function Page() {
               artists: params.getAll('artists'),
               types: params.getAll('types') as ('group' | 'solo' | 'unit')[],
               characters: params.getAll('characters').map(Number),
-              discographies: params.getAll('discographies').map(Number)
+              discographies: params.getAll('discographies').map(Number),
+              years: params.getAll('years').map(Number)
             };
             setSongFilters(newFilters);
             setShowConfirmDialog(undefined);

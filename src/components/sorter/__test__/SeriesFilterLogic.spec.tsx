@@ -35,7 +35,8 @@ const emptyFilter: SongFilterType = {
   artists: [],
   types: [],
   characters: [],
-  discographies: []
+  discographies: [],
+  years: []
 };
 
 describe('Series Filter Logic', () => {

@@ -52,6 +52,7 @@
     "logic_and": "Match All",
     "logic_or": "Match Any",
     "global_logic": "Global Filtering Logic",
+    "years": "Years",
     "cross_series": "Multiple Series"
   },
   "sort": {
@@ -170,7 +171,6 @@
   },
   "common": {
     "loading": "Loading...",
-
     "back": "Back",
     "save": "Save",
     "cancel": "Cancel",
@@ -188,7 +188,6 @@
     "load": "Load",
     "create": "Create",
     "set": "Set Custom",
-
     "available": "Available",
     "selected": "Selected",
     "search": "Search...",

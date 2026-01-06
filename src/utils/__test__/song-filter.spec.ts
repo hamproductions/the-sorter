@@ -19,6 +19,7 @@ const createFilter = (overrides?: Partial<SongFilterType>): SongFilterType => ({
   artists: [],
   types: [],
   discographies: [],
+  years: [],
   ...overrides
 });
 
@@ -65,6 +66,41 @@ describe('matchSongFilter', () => {
       expect(matchSongFilter(songHonoka, createFilter({ artists: ['4'] }))).toBe(false);
       // OR: 6 OR 4 -> Matches song with 6
       expect(matchSongFilter(songHonoka, createFilter({ artists: ['4', '6'] }))).toBe(true);
+    });
+  });
+
+  describe('Years Filter Logic', () => {
+    const song2015 = {
+      ...songHonoka,
+      releasedOn: '2015-10-07'
+    } as Song;
+
+    const song2016 = {
+      ...songHonoka,
+      releasedOn: '2016-01-01'
+    } as Song;
+
+    const songNoDate = {
+      ...songHonoka,
+      releasedOn: undefined
+    } as Song;
+
+    test('Years (OR logic)', () => {
+      // 2015 Match
+      expect(matchSongFilter(song2015, createFilter({ years: [2015] }))).toBe(true);
+      // 2016 No Match
+      expect(matchSongFilter(song2015, createFilter({ years: [2016] }))).toBe(false);
+      // 2016 Match
+      expect(matchSongFilter(song2016, createFilter({ years: [2016] }))).toBe(true);
+      // OR: 2015 OR 2016 Match
+      expect(matchSongFilter(song2015, createFilter({ years: [2015, 2016] }))).toBe(true);
+    });
+
+    test('Song with no date', () => {
+      // Should not match if year filter is active
+      expect(matchSongFilter(songNoDate, createFilter({ years: [2015] }))).toBe(false);
+      // Should match if no year filter
+      expect(matchSongFilter(songNoDate, createFilter({ years: [] }))).toBe(true);
     });
   });
 
