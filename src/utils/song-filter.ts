@@ -83,8 +83,21 @@ export const matchSongFilter = (item: Song, filter: SongFilterType) => {
     discographiesMatch = filter.discographies.some((d) => item.discographyIds?.includes(d));
   }
 
+  // 6. Years Logic (OR within section)
+  let yearsMatch = true;
+  if (filter.years && filter.years.length > 0) {
+    const songYear = item.releasedOn ? Number(item.releasedOn.substring(0, 4)) : undefined;
+    if (songYear) {
+      yearsMatch = filter.years.includes(songYear);
+    } else {
+      yearsMatch = false; // Filter active but song has no year -> no match
+    }
+  }
+
   // Global Logic: AND between sections
-  return seriesMatch && artistsMatch && typesMatch && charactersMatch && discographiesMatch;
+  return (
+    seriesMatch && artistsMatch && typesMatch && charactersMatch && discographiesMatch && yearsMatch
+  );
 };
 
 export const isValidSongFilter = (filter?: SongFilterType | null): filter is SongFilterType => {
@@ -94,7 +107,8 @@ export const isValidSongFilter = (filter?: SongFilterType | null): filter is Son
     !Array.isArray(artists) ||
     !Array.isArray(types) ||
     !Array.isArray(series) ||
-    (discographies && !Array.isArray(discographies))
+    (discographies && !Array.isArray(discographies)) ||
+    (filter.years && !Array.isArray(filter.years))
   )
     return false;
   return true;
