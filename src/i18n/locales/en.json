@@ -68,7 +68,8 @@
     "comparison_no": "Comparison No. {{ count }}",
     "preview": "Preview",
     "preview_title": "Sorting Preview",
-    "preview_description": "First {{ count }} items shown"
+    "preview_description": "First {{ count }} items shown",
+    "preview_search": "Search..."
   },
   "footer": {
     "created_by": "Created by",

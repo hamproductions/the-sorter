@@ -41,6 +41,7 @@
     "@pandacss/dev": "^1.7.1",
     "@park-ui/panda-preset": "^0.43.1",
     "@sentry/react": "^8.54.0",
+    "@tanstack/react-virtual": "^3.13.16",
     "file-saver": "^2.0.5",
     "i18next": "^24.2.1",
     "lodash-es": "^4.17.21",

@@ -58,7 +58,7 @@ export function Page() {
   const songs = useSongData();
   const artists = useArtistsData();
   const { toast } = useToaster();
-  const { t, i18n: _i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const {
     noTieMode,
     setNoTieMode,
@@ -385,7 +385,7 @@ export function Page() {
           lazyMount
           unmountOnExit
           items={listToSort}
-          getItemName={(item) => getSongName((item as Song).name, (item as Song).englishName)}
+          getItemName={(item) => getSongName((item as Song).name, (item as Song).englishName, i18n.language)}
           onOpenChange={({ open }) => {
             if (!open) {
               setShowConfirmDialog(undefined);

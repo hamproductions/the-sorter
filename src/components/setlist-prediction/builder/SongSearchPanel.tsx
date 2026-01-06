@@ -27,11 +27,13 @@ interface DraggableSongItemProps {
     series?: string;
     color: string;
   };
+  lang: string;
   onAddSong: (songId: string, songTitle: string) => void;
 }
 
 const DraggableSongItem = memo(function DraggableSongItem({
   song,
+  lang,
   onAddSong
 }: DraggableSongItemProps) {
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, isDragging } = useDraggable({
@@ -72,9 +74,9 @@ const DraggableSongItem = memo(function DraggableSongItem({
         </Box>
         <Stack flex={1} gap={0.5}>
           <Text fontSize="sm" fontWeight="medium">
-            {getSongName(song.name, song.englishName)}
+            {getSongName(song.name, song.englishName, lang)}
           </Text>
-          {song.englishName && (
+          {lang === 'en' && song.englishName && (
             <Text color="fg.muted" fontSize="xs">
               {song.name}
             </Text>
@@ -296,7 +298,7 @@ export function SongSearchPanel({
             {songMatches.length > 0 && (
               <>
                 {songMatches.map((song) => (
-                  <DraggableSongItem key={song.id} song={song} onAddSong={onAddSong} />
+                  <DraggableSongItem key={song.id} song={song} lang={lang} onAddSong={onAddSong} />
                 ))}
               </>
             )}
@@ -314,7 +316,7 @@ export function SongSearchPanel({
                   </Box>
                 )}
                 {artistMatches.map((song) => (
-                  <DraggableSongItem key={song.id} song={song} onAddSong={onAddSong} />
+                  <DraggableSongItem key={song.id} song={song} lang={lang} onAddSong={onAddSong} />
                 ))}
               </>
             )}

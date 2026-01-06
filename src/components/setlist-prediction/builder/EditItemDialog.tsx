@@ -242,9 +242,9 @@ export function EditItemDialog({ open, onOpenChange, item, onSave }: EditItemDia
                             >
                               <Stack gap={0.5}>
                                 <Text fontSize="sm" fontWeight="medium">
-                                  {getSongName(song.name, song.englishName)}
+                                  {getSongName(song.name, song.englishName, lang)}
                                 </Text>
-                                {song.englishName && (
+                                {lang === 'en' && song.englishName && (
                                   <Text color="fg.muted" fontSize="xs">
                                     {song.name}
                                   </Text>

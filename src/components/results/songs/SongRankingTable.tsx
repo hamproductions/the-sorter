@@ -79,7 +79,7 @@ export function SongRankingTable({
               <Table.Cell>{rank}</Table.Cell>
               <Table.Cell>
                 <Text layerStyle="textStroke" color="var(--color)" fontSize="md" fontWeight="bold">
-                  {getSongName(name, englishName)}
+                  {getSongName(name, englishName, lang)}
                 </Text>
               </Table.Cell>
               <Table.Cell>

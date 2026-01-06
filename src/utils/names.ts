@@ -23,6 +23,11 @@ export const getArtistName = (artist: string, locale: Locale | undefined) => {
   return artist;
 };
 
-export const getSongName = (name: string, englishName: string | undefined): string => {
-  return englishName || name;
+export const getSongName = (
+  name: string,
+  englishName: string | undefined,
+  locale: Locale | undefined
+): string => {
+  if (locale === 'en' && englishName) return englishName;
+  return name;
 };

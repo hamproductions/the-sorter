@@ -42,7 +42,8 @@ export function SetlistView({
   showHeader = true,
   compact = false
 }: SetlistViewProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
   const songData = useSongData();
   const setlist = prediction.setlist;
   const items = setlist.items;
@@ -148,7 +149,7 @@ export function SetlistView({
               const songs = Array.isArray(songData) ? songData : [];
               const songDetails = songs.find((song) => String(song.id) === String(item.songId));
               songName = songDetails
-                ? getSongName(songDetails.name, songDetails.englishName)
+                ? getSongName(songDetails.name, songDetails.englishName, lang)
                 : `Song ${item.songId}`;
               songColor = songDetails ? getSongColor(songDetails) : undefined;
 

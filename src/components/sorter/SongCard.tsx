@@ -93,9 +93,9 @@ export function SongCard({
       </Stack>
       <Stack gap={0} alignItems="center">
         <Text layerStyle="textStroke" color="var(--color)" fontSize="2xl" fontWeight="bold">
-          {getSongName(song.name, song.englishName)}
+          {getSongName(song.name, song.englishName, lang)}
         </Text>
-        {song.englishName && (
+        {lang === 'en' && song.englishName && (
           <Text color="fg.muted" fontSize="xs">
             {song.name}
           </Text>

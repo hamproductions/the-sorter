@@ -67,7 +67,8 @@ const SetlistItemComponent = memo(function SetlistItem({
   draggedItem,
   draggedSongDetails
 }: SetlistItemProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
   const songData = useSongData();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
 
@@ -235,7 +236,7 @@ const SetlistItemComponent = memo(function SetlistItem({
                         {item.isCustomSong
                           ? item.customSongName
                           : songDetails
-                            ? getSongName(songDetails.name, songDetails.englishName)
+                            ? getSongName(songDetails.name, songDetails.englishName, lang)
                             : item.customSongName || `Song ${item.songId}`}
                       </Text>
                       {!item.isCustomSong && (
