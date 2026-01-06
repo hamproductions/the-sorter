@@ -15,6 +15,7 @@ import { useSortData } from '../../hooks/useSortData';
 import type { Character } from '../../types';
 import { getCurrentItem } from '../../utils/sort';
 import { addPresetParams, serializeData } from '~/utils/share';
+import { getCastName, getFullName } from '~/utils/character';
 import { getNextItems } from '~/utils/preloading';
 import { getFilterTitle, isValidFilter } from '~/utils/filter';
 import { getPicUrl } from '~/utils/assets';
@@ -432,7 +433,10 @@ export function Page() {
           lazyMount
           unmountOnExit
           items={listToSort}
-          getItemName={(item) => (item as Character).fullName || ''}
+          getItemName={(item) => {
+            const c = item as Character;
+            return seiyuu ? getCastName(c.casts[0], i18n.language) : getFullName(c, i18n.language);
+          }}
           onOpenChange={({ open }) => {
             if (!open) {
               setShowConfirmDialog(undefined);

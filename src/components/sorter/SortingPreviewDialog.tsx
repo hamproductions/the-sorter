@@ -1,5 +1,5 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaXmark } from 'react-icons/fa6';
 import { Box, HStack, Stack } from 'styled-system/jsx';
@@ -18,11 +18,14 @@ export function SortingPreviewDialog<T extends { id: string | number }>(
   const [parentEl, setParentEl] = useState<HTMLDivElement | null>(null);
   const [search, setSearch] = useState('');
 
-  const getName = (item: T) => {
-    if (getItemName) return getItemName(item);
-    const i = item as unknown as { name?: string; fullName?: string };
-    return i.name || i.fullName || String(item.id);
-  };
+  const getName = useCallback(
+    (item: T) => {
+      if (getItemName) return getItemName(item);
+      const i = item as unknown as { name?: string; fullName?: string };
+      return i.name || i.fullName || String(item.id);
+    },
+    [getItemName]
+  );
 
   const filteredItems = useMemo(() => {
     if (!search.trim()) return items.map((item, idx) => ({ item, originalIndex: idx }));
@@ -30,7 +33,7 @@ export function SortingPreviewDialog<T extends { id: string | number }>(
     return items
       .map((item, idx) => ({ item, originalIndex: idx }))
       .filter(({ item }) => getName(item).toLowerCase().includes(query));
-  }, [items, search]);
+  }, [getName, items, search]);
 
   const virtualizer = useVirtualizer({
     count: filteredItems.length,

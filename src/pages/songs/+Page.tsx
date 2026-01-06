@@ -385,7 +385,9 @@ export function Page() {
           lazyMount
           unmountOnExit
           items={listToSort}
-          getItemName={(item) => getSongName((item as Song).name, (item as Song).englishName, i18n.language)}
+          getItemName={(item) =>
+            getSongName((item as Song).name, (item as Song).englishName, i18n.language)
+          }
           onOpenChange={({ open }) => {
             if (!open) {
               setShowConfirmDialog(undefined);
