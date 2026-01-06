@@ -36,7 +36,6 @@ export function ToasterProvider({ children }: { children: ReactNode }) {
     <ToasterContext.Provider
       value={{
         toast: (options) => {
-          console.log(options);
           toaster.create({
             type: 'info',
             ...options,
