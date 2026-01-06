@@ -31,7 +31,7 @@ beforeEach(async () => {
   // Clear localStorage safely
   try {
     window.localStorage.clear();
-  } catch (e) {}
+  } catch {}
 });
 
 afterEach(async () => {
