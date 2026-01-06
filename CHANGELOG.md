@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [1.14.0](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.13.4...v1.14.0) (2026-01-06)
+
+
+### Bug Fixes
+
+* add 50 limit to sort history ([91c9bb4](https://github.com/Tanyawat-Arsaga/the-sorter/commit/91c9bb41d4f902ef6a82d3dd57a8861928c1d788))
+* lockfile ([81238cc](https://github.com/Tanyawat-Arsaga/the-sorter/commit/81238cc020fddd706dfd4d35c4793838a5c679a9))
+* typo what the fuck ([7d9351b](https://github.com/Tanyawat-Arsaga/the-sorter/commit/7d9351bb05355e841377e235e1e3d4271f1b8ad5))
+
+
+### Features
+
+* add year filter, data update ([#26](https://github.com/Tanyawat-Arsaga/the-sorter/issues/26)) ([601a573](https://github.com/Tanyawat-Arsaga/the-sorter/commit/601a5735e12c855ad3bda4c9d846b3cc1b223e62)), closes [#25](https://github.com/Tanyawat-Arsaga/the-sorter/issues/25)
+* data update ([1a9d808](https://github.com/Tanyawat-Arsaga/the-sorter/commit/1a9d80891066cd9c2e06b602ebac2024d9d680e3))
+
 ## [1.13.4](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.13.3...v1.13.4) (2025-12-26)
 
 
