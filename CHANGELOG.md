@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [1.15.0](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.14.0...v1.15.0) (2026-01-06)
+
+
+### Bug Fixes
+
+* better tie card ([fd1ddab](https://github.com/Tanyawat-Arsaga/the-sorter/commit/fd1ddab05f5c559737a3cd32a552a4804f8c93b7))
+* lint ([b5f2ea5](https://github.com/Tanyawat-Arsaga/the-sorter/commit/b5f2ea5913c81f6fec18c2fc24f4c2e6db4b49e0))
+* matchmedia mocking ([de8d1fb](https://github.com/Tanyawat-Arsaga/the-sorter/commit/de8d1fbb00ce0802d449da1a3c0d06b257d3dd24))
+* mobile clipping ([1487264](https://github.com/Tanyawat-Arsaga/the-sorter/commit/1487264f608d439e71f0a04e9b0a500c6f3c755f))
+* most localizations, check and bun tests etc ([a2fe62f](https://github.com/Tanyawat-Arsaga/the-sorter/commit/a2fe62f2c2b7a6f3da0505e065a784b0877deed0))
+
+
+### Features
+
+* localization etc ([9e5308e](https://github.com/Tanyawat-Arsaga/the-sorter/commit/9e5308eb1e41dfa84e4eed37d86a336e155234e6))
+* song english translation ([4fa5300](https://github.com/Tanyawat-Arsaga/the-sorter/commit/4fa53009907e3f94b9e7e66b31e489f82901b949))
+* songs english localization pog? ([7e3588e](https://github.com/Tanyawat-Arsaga/the-sorter/commit/7e3588e80606f8be226bd7b9d9ef41857d965015))
+* update count and shit ([a41dd92](https://github.com/Tanyawat-Arsaga/the-sorter/commit/a41dd92eb8d193e9e4b07d61e7389287d75b9f6d))
+* update sorting comparasion counter ([39eae7e](https://github.com/Tanyawat-Arsaga/the-sorter/commit/39eae7edacdc4d2716e81ba5633192c04bc07b39))
+
 # [1.14.0](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.13.4...v1.14.0) (2026-01-06)
 
 
