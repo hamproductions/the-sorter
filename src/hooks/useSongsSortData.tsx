@@ -25,11 +25,11 @@ export const useSongsSortData = () => {
 
   const {
     init,
-    // history,
     left,
     right,
     state,
-    count,
+    comparisonsCount,
+    isEstimatedCount,
     tie,
     undo,
     progress,
@@ -96,7 +96,8 @@ export const useSongsSortData = () => {
     left,
     right,
     state,
-    count,
+    comparisonsCount,
+    isEstimatedCount,
     tie: handleTie,
     undo,
     progress,

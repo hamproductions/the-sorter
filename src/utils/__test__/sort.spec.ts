@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import shuffle from 'lodash-es/shuffle';
-import { getCurrentItem, initSort, step } from '../sort';
+import {
+  getCurrentItem,
+  initSort,
+  step,
+  calculateMaxComparisons,
+  estimateComparisonsMade
+} from '../sort';
 
 const createNumberArray = (n = 10) =>
   Array(n)
@@ -120,6 +126,61 @@ describe('Sorting', () => {
 
         expect(sort).not.toThrow();
       });
+    });
+  });
+
+  describe('calculateMaxComparisons', () => {
+    it('returns 0 for n=0', () => {
+      expect(calculateMaxComparisons(0)).toBe(0);
+    });
+
+    it('returns 0 for n=1', () => {
+      expect(calculateMaxComparisons(1)).toBe(0);
+    });
+
+    it('returns correct max for n=2', () => {
+      expect(calculateMaxComparisons(2)).toBe(1);
+    });
+
+    it('returns correct max for n=10', () => {
+      expect(calculateMaxComparisons(10)).toBe(29);
+    });
+  });
+
+  describe('estimateComparisonsMade', () => {
+    it('returns 0 at initial state', () => {
+      const state = initSort(createNumberArray());
+      expect(estimateComparisonsMade(state, 10)).toBe(0);
+    });
+
+    it('increases after each step', () => {
+      let state = initSort(createNumberArray());
+      const initial = estimateComparisonsMade(state, 10);
+
+      state = step('left', state);
+      const afterOne = estimateComparisonsMade(state, 10);
+
+      state = step('right', state);
+      const afterTwo = estimateComparisonsMade(state, 10);
+
+      expect(afterOne).toBeGreaterThan(initial);
+      expect(afterTwo).toBeGreaterThan(afterOne);
+    });
+
+    it('increases monotonically throughout sorting', () => {
+      let state = initSort(shuffle(createNumberArray()));
+      let prevCount = estimateComparisonsMade(state, 10);
+
+      while (state.status !== 'end') {
+        const { left, right } = getCurrentItem(state) ?? {};
+        if (!left || !right) throw new Error('Invalid State');
+        const direction = left[0] < right[0] ? 'left' : 'right';
+        state = step(direction, state);
+
+        const currentCount = estimateComparisonsMade(state, 10);
+        expect(currentCount).toBeGreaterThanOrEqual(prevCount);
+        prevCount = currentCount;
+      }
     });
   });
 });

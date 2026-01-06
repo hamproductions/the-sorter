@@ -66,7 +66,8 @@ export function Page() {
     left,
     right,
     state,
-    count,
+    comparisonsCount,
+    isEstimatedCount,
     tie,
     undo,
     progress,
@@ -313,7 +314,7 @@ export function Page() {
                     </Wrap>
                   </Stack>
                 </Stack>
-                <Text>{t('sort.comparison_no', { count })}</Text>
+                <Text>{t('sort.comparison_no', { count: `${isEstimatedCount ? '~' : ''}${comparisonsCount}` })}</Text>
                 <Progress
                   translations={{ value: (details) => `${details.percent}%` }}
                   value={progress}

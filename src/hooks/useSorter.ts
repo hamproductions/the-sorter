@@ -2,7 +2,12 @@ import shuffle from 'lodash-es/shuffle';
 import { useEffect, useCallback, useRef } from 'react';
 import cloneDeep from 'lodash-es/cloneDeep';
 import type { SortState } from '../utils/sort';
-import { step, initSort } from '../utils/sort';
+import {
+  step,
+  initSort,
+  calculateMaxComparisons,
+  estimateComparisonsMade
+} from '../utils/sort';
 import { useLocalStorage } from './useLocalStorage';
 
 export const useSorter = <T>(items: T[], statePrefix?: string) => {
@@ -11,6 +16,10 @@ export const useSorter = <T>(items: T[], statePrefix?: string) => {
   );
   const [history, setHistory] = useLocalStorage<SortState<T>[]>(
     `${statePrefix ? statePrefix + '-' : ''}sort-state-history`,
+    undefined
+  );
+  const [comparisonsCount, setComparisonsCount] = useLocalStorage<number | undefined>(
+    `${statePrefix ? statePrefix + '-' : ''}comparisons-count`,
     undefined
   );
 
@@ -32,10 +41,11 @@ export const useSorter = <T>(items: T[], statePrefix?: string) => {
 
   const stateRef = useRef(state);
   const historyRef = useRef(history);
+  const comparisonsCountRef = useRef(comparisonsCount);
 
-  // Update refs synchronously during render to avoid useEffect timing issues
   stateRef.current = state;
   historyRef.current = history;
+  comparisonsCountRef.current = comparisonsCount;
 
   const handleStep = useCallback(
     (value: 'left' | 'right' | 'tie') => () => {
@@ -46,19 +56,22 @@ export const useSorter = <T>(items: T[], statePrefix?: string) => {
           newHistory = newHistory.slice(-50);
         }
         setHistory(newHistory);
+        const currentCount =
+          comparisonsCountRef.current ?? estimateComparisonsMade(currentState, items.length);
+        setComparisonsCount(currentCount + 1);
         const nextStep = step(value, currentState);
         setState(nextStep);
       }
     },
-    [setHistory, setState]
+    [setHistory, setState, setComparisonsCount, items.length]
   );
 
   const reset = useCallback(() => {
     setState(initSort(shuffle(items)));
-    // setState(initSort(items));
     setHistory([]);
+    setComparisonsCount(1);
     localStorage.removeItem('results-display-order');
-  }, [items, setState, setHistory]);
+  }, [items, setState, setHistory, setComparisonsCount]);
 
   const handleUndo = useCallback(() => {
     const currentHistory = historyRef.current;
@@ -67,32 +80,33 @@ export const useSorter = <T>(items: T[], statePrefix?: string) => {
     if (previousState) {
       setState(previousState);
       setHistory(currentHistory.slice(0, -1));
+      setComparisonsCount(Math.max(0, (comparisonsCountRef.current ?? 1) - 1));
     }
-  }, [setState, setHistory]);
+  }, [setState, setHistory, setComparisonsCount]);
 
-  const getProgress = () => {
-    const sizeCount = Math.ceil(Math.log2(items.length));
-    const currentStep = Math.ceil(Math.log2(state?.currentSize ?? 1));
-    const next = (currentStep + 1) / sizeCount;
-    const current = currentStep / sizeCount;
-    const stepProgress = (state?.mergeState?.arrIdx ?? 0) / items.length;
-
-    return current + (next - current) * stepProgress;
-  };
+  const maxComparisons = calculateMaxComparisons(items.length);
+  const estimatedProgress = state ? estimateComparisonsMade(state, items.length) / maxComparisons : 0;
 
   const clear = () => {
     setHistory(undefined);
     setState(undefined);
+    setComparisonsCount(undefined);
     localStorage.removeItem('results-display-order');
   };
 
-  const progress = getProgress();
-  const isEnded = progress === 1 || isNaN(progress);
+  const progress = Math.min(1, estimatedProgress);
+  const isEnded = state?.status === 'end';
+
+  const isEstimatedCount = comparisonsCount === undefined && state !== undefined;
+  const actualComparisonsCount =
+    comparisonsCount ?? (state ? estimateComparisonsMade(state, items.length) : 0);
 
   return {
     state,
     history,
-    count: (history?.length ?? 0) + 1,
+    comparisonsCount: actualComparisonsCount,
+    isEstimatedCount,
+    maxComparisons,
     init: () => reset(),
     left: handleStep('left'),
     right: handleStep('right'),

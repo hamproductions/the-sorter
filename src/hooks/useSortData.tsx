@@ -43,17 +43,16 @@ export const useSortData = () => {
 
   const {
     init,
-    // history,
     left,
     right,
     state,
-    count,
+    comparisonsCount,
+    isEstimatedCount,
     tie,
     undo,
     progress,
     clear,
     isEnded
-    // reset
   } = useSorter(listToSort.map((l) => l.id));
 
   const { toast } = useToaster();
@@ -114,7 +113,8 @@ export const useSortData = () => {
     left,
     right,
     state,
-    count,
+    comparisonsCount,
+    isEstimatedCount,
     tie: handleTie,
     undo,
     progress,

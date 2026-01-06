@@ -26,17 +26,16 @@ export const useHasuSongsSortData = () => {
 
   const {
     init,
-    // history,
     left,
     right,
     state,
-    count,
+    comparisonsCount,
+    isEstimatedCount,
     tie,
     undo,
     progress,
     clear,
     isEnded
-    // reset
   } = useSorter(
     listToSort.map((l) => l.id),
     'hasu-songs'
@@ -91,7 +90,8 @@ export const useHasuSongsSortData = () => {
     left,
     right,
     state,
-    count,
+    comparisonsCount,
+    isEstimatedCount,
     tie: handleTie,
     undo,
     progress,
