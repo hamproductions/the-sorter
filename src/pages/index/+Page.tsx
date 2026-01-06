@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { FaShare } from 'react-icons/fa6';
 import type { ShareDisplayData } from '../../components/results/ResultsView';
 import { CharacterCard } from '../../components/sorter/CharacterCard';
+import { ComparisonInfo } from '../../components/sorter/ComparisonInfo';
+import { KeyboardShortcuts } from '../../components/sorter/KeyboardShortcuts';
 import { Button } from '../../components/ui/button';
 import { Kbd } from '../../components/ui/kbd';
 import { Progress } from '../../components/ui/progress';
@@ -79,6 +81,7 @@ export function Page() {
     state,
     comparisonsCount,
     isEstimatedCount,
+    maxComparisons,
     tie,
     undo,
     progress,
@@ -304,28 +307,13 @@ export function Page() {
                       {t('sort.undo')}
                     </Button>
                   </HStack>
-                  <Stack hideBelow="sm" gap="1">
-                    <Text fontWeight="bold">{t('sort.keyboard_shortcuts')}</Text>
-                    <Wrap>
-                      <Text>
-                        <Kbd>←</Kbd>: {t('sort.pick_left')}
-                      </Text>
-                      <Text>
-                        <Kbd>→</Kbd>: {t('sort.pick_right')}
-                      </Text>
-                      <Text
-                        data-disabled={noTieMode === true || undefined}
-                        textDecoration={{ _disabled: 'line-through' }}
-                      >
-                        <Kbd>↓</Kbd>: {t('sort.tie')}
-                      </Text>
-                      <Text>
-                        <Kbd>↑</Kbd>: {t('sort.undo')}
-                      </Text>
-                    </Wrap>
-                  </Stack>
+                  <KeyboardShortcuts noTieMode={noTieMode} />
                 </Stack>
-                <Text>{t('sort.comparison_no', { count: `${isEstimatedCount ? '~' : ''}${comparisonsCount}` })}</Text>
+                <ComparisonInfo
+                  comparisonsCount={comparisonsCount}
+                  isEstimatedCount={isEstimatedCount}
+                  maxComparisons={maxComparisons}
+                />
                 <Progress
                   translations={{ value: (details) => `${details.percent}%` }}
                   value={progress}

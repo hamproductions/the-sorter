@@ -66,6 +66,8 @@
     "pick_left": "Pick Left",
     "pick_right": "Pick Right",
     "comparison_no": "Comparison No. {{ count }}",
+    "comparisons": "comparisons",
+    "estimate_disclaimer": "Estimate based on worst case. Usually fewer.",
     "preview": "Preview",
     "preview_title": "Sorting Preview",
     "preview_description": "First {{ count }} items shown",

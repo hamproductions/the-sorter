@@ -64,6 +64,8 @@
     "pick_left": "左を選択する",
     "pick_right": "右を選択する",
     "comparison_no": "第{{ count }}回目",
+    "comparisons": "回",
+    "estimate_disclaimer": "最悪ケースの予測です。通常はもっと少なくなります。",
     "preview": "プレビュー",
     "preview_title": "ソートプレビュー",
     "preview_description": "最初の{{ count }}件を表示",
