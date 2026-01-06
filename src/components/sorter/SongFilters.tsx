@@ -49,7 +49,7 @@ const years = Array.from(
       .filter((y): y is string => !!y)
       .map(Number)
   )
-).sort((a, b) => b - a);
+).toSorted((a, b) => b - a);
 
 const FILTER_VALUES = {
   series: series.map((s) => s.id),
