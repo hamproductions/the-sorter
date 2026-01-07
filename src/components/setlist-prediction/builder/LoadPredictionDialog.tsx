@@ -22,6 +22,7 @@ export interface LoadPredictionDialogProps {
   onOpenChange: (open: boolean) => void;
   onSelectPrediction: (prediction: SetlistPrediction) => void;
   onDeletePrediction?: (predictionId: string) => void;
+  performanceId?: string; // Optional filter by performance ID
 }
 
 function PredictionItem({
@@ -84,18 +85,26 @@ export function LoadPredictionDialog({
   open,
   onOpenChange,
   onSelectPrediction,
-  onDeletePrediction
+  onDeletePrediction,
+  performanceId = undefined // optional filter
 }: LoadPredictionDialogProps) {
   const { t } = useTranslation();
   const { predictions } = usePredictionStorage();
 
   const [selectedPredictionId, setSelectedPredictionId] = useState<string | null>(null);
 
-  const sortedPredictions = useMemo(() => {
-    return [...predictions].toSorted(
+  // build the set of predictions to display
+  // should be filtered by performanceId if provided
+  // and sorted by updatedAt descending
+  const displayPredictions = useMemo(() => {
+    let filtered = [...predictions];
+    if (performanceId) {
+      filtered = filtered.filter((p) => p.performanceId === performanceId);
+    }
+    return filtered.toSorted(
       (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
     );
-  }, [predictions]);
+  }, [predictions, performanceId]);
 
   const handleConfirm = () => {
     if (selectedPredictionId) {
@@ -136,7 +145,7 @@ export function LoadPredictionDialog({
 
             <Box flex={1} minH={0} overflow="auto">
               <Stack gap={2}>
-                {sortedPredictions.length === 0 ? (
+                {displayPredictions.length === 0 ? (
                   <Box
                     borderRadius="md"
                     borderWidth="1px"
@@ -151,7 +160,7 @@ export function LoadPredictionDialog({
                     </Text>
                   </Box>
                 ) : (
-                  sortedPredictions.map((prediction) => (
+                  displayPredictions.map((prediction) => (
                     <PredictionItem
                       key={prediction.id}
                       prediction={prediction}

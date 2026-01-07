@@ -234,6 +234,8 @@
     "yourSetlist": "Your Setlist",
     "itemCount": "{{count}} items",
     "savedPredictions": "Saved Predictions",
+    "myPredictions": "My Predictions",
+    "searchPlaceholder": "Search performances, venues...",
     "newPrediction": "+ New",
     "noPredictions": "No predictions yet",
     "songs": "songs",

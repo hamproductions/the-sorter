@@ -20,7 +20,6 @@ import type {
 } from '~/types/setlist-prediction';
 import { LoadPredictionDialog } from '~/components/setlist-prediction/builder/LoadPredictionDialog';
 import { usePredictionStorage } from '~/hooks/setlist-prediction/usePredictionStorage';
-import { usePageContext } from 'vike-react/usePageContext';
 
 type SortOption = 'date-asc' | 'date-desc' | 'name-asc' | 'name-desc' | 'upcoming-first';
 
@@ -37,7 +36,7 @@ const getTourName = (perfName: string): string => {
 
 export function Page() {
   const { t } = useTranslation();
-  const { deletePrediction } = usePredictionStorage();
+  const { predictions, deletePrediction } = usePredictionStorage();
 
   const [loadDialogOpen, setLoadDialogOpen] = useState(false);
 
@@ -344,6 +343,23 @@ export function Page() {
                                 {performance.venue || 'TBA'}
                               </Text>
                             </Stack>
+                            {/* Display a load predictions button for performances we find in your local storage have a prediction (could be multiple) */}
+                            {/* Only display predictions in the dialog for that performance */}
+                            {predictions.find((p) => p.performanceId === performance.id) && (
+                              <Button
+                                variant="subtle"
+                                size="sm"
+                                onClick={(e) => {
+                                  // set load dialog open with predictions filtered to this performance
+                                  setLoadDialogOpen(true);
+                                  e.preventDefault();
+                                }}
+                              >
+                                {t('setlistPrediction.loadPrediction', {
+                                  defaultValue: 'Load Prediction'
+                                })}
+                              </Button>
+                            )}
                             <Button size="sm">
                               {t('setlistPrediction.createPrediction', {
                                 defaultValue: 'Create Prediction'
