@@ -18,9 +18,12 @@ import {
 } from '~/hooks/setlist-prediction/usePerformanceData';
 import { parseActualSetlist } from '~/utils/setlist-prediction/import';
 import { calculateScore } from '~/utils/setlist-prediction/scoring';
-import type { PerformanceSetlist, SetlistItemType, SetlistPrediction } from '~/types/setlist-prediction';
+import type {
+  PerformanceSetlist,
+  SetlistItemType,
+  SetlistPrediction
+} from '~/types/setlist-prediction';
 import { generateSetlistId } from '~/utils/setlist-prediction/id';
-import { isSongItem } from '~/types/setlist-prediction';
 import { SetlistView } from '~/components/setlist-prediction/SetlistView';
 
 export function Page() {
@@ -40,7 +43,7 @@ export function Page() {
   const actualPrediction = {
     id: '012938109283',
     setlist: actualSetlist,
-    name: "Actual Setlist"
+    name: 'Actual Setlist'
   } as SetlistPrediction;
   // call the hook unconditionally (safe no-op if `performance?.id` is falsy)
   const { setlist } = usePerformanceSetlist(performance?.id ?? '');
@@ -185,8 +188,7 @@ export function Page() {
         )}
 
         {/* Comparison View */}
-        {
-        actualSetlist && (
+        {actualSetlist && (
           <Grid gap={4} gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }}>
             {/* Prediction */}
             <Box borderRadius="lg" borderWidth="1px" p={4} bgColor="bg.default">
@@ -195,7 +197,7 @@ export function Page() {
               </Text>
               <Stack gap={1}>
                 <SetlistView prediction={prediction} />
-                
+
                 {/* {prediction.setlist.items.map((item, index) => (
                   <HStack key={item.id} gap={2} borderRadius="sm" p={2} bgColor="bg.subtle">
                     <Text minW="30px" color="fg.muted" fontSize="sm" fontWeight="bold">
@@ -206,7 +208,6 @@ export function Page() {
                     </Text>
                   </HStack>
                 ))} */}
-
               </Stack>
             </Box>
 
