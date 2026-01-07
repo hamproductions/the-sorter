@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [1.16.0](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.15.0...v1.16.0) (2026-01-07)
+
+
+### Bug Fixes
+
+* **data:** rename "La la Yuuki no Uta" to "Daisuki no Uta" ([1297a7e](https://github.com/Tanyawat-Arsaga/the-sorter/commit/1297a7e0e996d29f493f4db9efa41aaabf30c93d))
+* remove log ([5855510](https://github.com/Tanyawat-Arsaga/the-sorter/commit/5855510d4d9304458a953a43e9cafce745b40dc7))
+
+
+### Features
+
+* history viewer ([a6f0714](https://github.com/Tanyawat-Arsaga/the-sorter/commit/a6f0714cb55f457d2fb06d9dea3887a5fcdb86c3))
+
 # [1.15.0](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.14.0...v1.15.0) (2026-01-06)
 
 
