@@ -3,7 +3,7 @@
  * Compare prediction against actual setlist and calculate score
  */
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePageContext } from 'vike-react/usePageContext';
 import { Stack, Box, HStack, Grid } from 'styled-system/jsx';
@@ -12,25 +12,46 @@ import { Button } from '~/components/ui/styled/button';
 import { Textarea } from '~/components/ui/styled/textarea';
 import { Metadata } from '~/components/layout/Metadata';
 import { usePredictionStorage } from '~/hooks/setlist-prediction/usePredictionStorage';
-import { usePerformance } from '~/hooks/setlist-prediction/usePerformanceData';
+import {
+  usePerformance,
+  usePerformanceSetlist
+} from '~/hooks/setlist-prediction/usePerformanceData';
 import { parseActualSetlist } from '~/utils/setlist-prediction/import';
 import { calculateScore } from '~/utils/setlist-prediction/scoring';
-import type { PerformanceSetlist, SetlistItemType } from '~/types/setlist-prediction';
+import type { PerformanceSetlist, SetlistItemType, SetlistPrediction } from '~/types/setlist-prediction';
 import { generateSetlistId } from '~/utils/setlist-prediction/id';
 import { isSongItem } from '~/types/setlist-prediction';
+import { SetlistView } from '~/components/setlist-prediction/SetlistView';
 
 export function Page() {
   const { t } = useTranslation();
   const pageContext = usePageContext();
   const { getPrediction, savePrediction } = usePredictionStorage();
 
-  const predictionId = (pageContext.routeParams as { predictionId: string }).predictionId;
+  const predictionId = (pageContext.routeParams as { prediction?: string }).prediction ?? '';
   const prediction = getPrediction(predictionId);
   const performance = usePerformance(prediction?.performanceId ?? '');
+  console.log('performance', performance);
 
   const [actualSetlistText, setActualSetlistText] = useState('');
   const [actualSetlist, setActualSetlist] = useState<PerformanceSetlist | null>(null);
   const [isScored, setIsScored] = useState(false);
+
+  const actualPrediction = {
+    id: '012938109283',
+    setlist: actualSetlist,
+    name: "Actual Setlist"
+  } as SetlistPrediction;
+  // call the hook unconditionally (safe no-op if `performance?.id` is falsy)
+  const { setlist } = usePerformanceSetlist(performance?.id ?? '');
+
+  // update actual setlist only when we have a setlist and the performance indicates it has one
+  useEffect(() => {
+    if (performance?.hasSetlist && setlist) {
+      console.log('Setting actual setlist from loaded setlist', setlist);
+      setActualSetlist(setlist);
+    }
+  }, [performance?.id, performance?.hasSetlist, setlist]);
 
   const handleParseActual = () => {
     try {
@@ -90,6 +111,8 @@ export function Page() {
     savePrediction(updatedPrediction);
     setIsScored(true);
   };
+
+  console.log('actualSetlist', actualSetlist);
 
   if (!prediction) {
     return (
@@ -162,7 +185,8 @@ export function Page() {
         )}
 
         {/* Comparison View */}
-        {actualSetlist && (
+        {
+        actualSetlist && (
           <Grid gap={4} gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }}>
             {/* Prediction */}
             <Box borderRadius="lg" borderWidth="1px" p={4} bgColor="bg.default">
@@ -170,7 +194,9 @@ export function Page() {
                 {t('setlistPrediction.yourPrediction', { defaultValue: 'Your Prediction' })}
               </Text>
               <Stack gap={1}>
-                {prediction.setlist.items.map((item, index) => (
+                <SetlistView prediction={prediction} />
+                
+                {/* {prediction.setlist.items.map((item, index) => (
                   <HStack key={item.id} gap={2} borderRadius="sm" p={2} bgColor="bg.subtle">
                     <Text minW="30px" color="fg.muted" fontSize="sm" fontWeight="bold">
                       {index + 1}.
@@ -179,7 +205,8 @@ export function Page() {
                       {isSongItem(item) ? `♪ Song ${item.songId}` : `[${item.title}]`}
                     </Text>
                   </HStack>
-                ))}
+                ))} */}
+
               </Stack>
             </Box>
 
@@ -189,16 +216,7 @@ export function Page() {
                 {t('setlistPrediction.actualSetlist', { defaultValue: 'Actual Setlist' })}
               </Text>
               <Stack gap={1}>
-                {actualSetlist.items.map((item, index) => (
-                  <HStack key={item.id} gap={2} borderRadius="sm" p={2} bgColor="bg.subtle">
-                    <Text minW="30px" color="fg.muted" fontSize="sm" fontWeight="bold">
-                      {index + 1}.
-                    </Text>
-                    <Text fontSize="sm">
-                      {isSongItem(item) ? `♪ Song ${item.songId}` : `[${item.title}]`}
-                    </Text>
-                  </HStack>
-                ))}
+                <SetlistView prediction={actualPrediction} />
               </Stack>
             </Box>
           </Grid>

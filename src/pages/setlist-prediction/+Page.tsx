@@ -3,7 +3,7 @@
  * Users browse and select performances to create predictions for
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { join } from 'path-browserify';
 import { Stack, Box, HStack } from 'styled-system/jsx';
@@ -13,7 +13,14 @@ import { Input } from '~/components/ui/styled/input';
 import { Checkbox } from '~/components/ui/checkbox';
 import { Metadata } from '~/components/layout/Metadata';
 import { useFilteredPerformances } from '~/hooks/setlist-prediction/usePerformanceData';
-import type { PerformanceFilters, Performance } from '~/types/setlist-prediction';
+import type {
+  PerformanceFilters,
+  Performance,
+  SetlistPrediction
+} from '~/types/setlist-prediction';
+import { LoadPredictionDialog } from '~/components/setlist-prediction/builder/LoadPredictionDialog';
+import { usePredictionStorage } from '~/hooks/setlist-prediction/usePredictionStorage';
+import { usePageContext } from 'vike-react/usePageContext';
 
 type SortOption = 'date-asc' | 'date-desc' | 'name-asc' | 'name-desc' | 'upcoming-first';
 
@@ -30,6 +37,24 @@ const getTourName = (perfName: string): string => {
 
 export function Page() {
   const { t } = useTranslation();
+  const { deletePrediction } = usePredictionStorage();
+
+  const [loadDialogOpen, setLoadDialogOpen] = useState(false);
+
+  const handleSelectPrediction = useCallback((prediction: SetlistPrediction) => {
+    window.location.href = join(
+      import.meta.env.BASE_URL,
+      `/setlist-prediction/marking/${prediction.id}`
+    );
+    localStorage.setItem('setlist-builder-last-prediction', prediction.id);
+  }, []);
+
+  const handleDeletePrediction = useCallback(
+    (predictionId: string) => {
+      deletePrediction(predictionId);
+    },
+    [deletePrediction]
+  );
 
   const [filters, setFilters] = useState<PerformanceFilters>({
     seriesIds: [],
@@ -141,12 +166,7 @@ export function Page() {
               })}
             </Text>
           </Stack>
-          <Button
-            onClick={() =>
-              (window.location.href = join(import.meta.env.BASE_URL, '/setlist-prediction/builder'))
-            }
-            flexShrink={0}
-          >
+          <Button onClick={() => setLoadDialogOpen(true)} flexShrink={0}>
             {t('setlistPrediction.myPredictions', { defaultValue: 'My Predictions' })}
           </Button>
         </HStack>
@@ -378,6 +398,14 @@ export function Page() {
           </Stack>
         </Box>
       </Stack>
+
+      {/* Dialogues; sit at the bottom waiting to be opened */}
+      <LoadPredictionDialog
+        open={loadDialogOpen}
+        onOpenChange={setLoadDialogOpen}
+        onSelectPrediction={handleSelectPrediction}
+        onDeletePrediction={handleDeletePrediction}
+      />
     </>
   );
 }
