@@ -196,7 +196,9 @@
     "search": "Search...",
     "all": "All",
     "no_items": "No items found",
-    "no_selection": "No items selected"
+    "no_selection": "No items selected",
+    "moveUp": "Move up",
+    "moveDown": "Move down"
   },
   "setlistPrediction": {
     "title": "Setlist Prediction",
@@ -304,6 +306,13 @@
     "getStartedHint": "Load a saved prediction or create a new one to get started.",
     "loadPrediction": "Load Prediction",
     "loadPredictionDescription": "Select a saved prediction to load into the builder.",
+    "editItem": "Edit Item",
+    "editItemDescription": "Edit song details or add remarks/variant information.",
+    "currentSong": "Current Song",
+    "changeSong": "Change Song",
+    "variantRemarks": "Variant / Remarks",
+    "addRemarks": "Ver., Acoustic, Special notes...",
+    "remarksHint": "Variant info will replace the artist name in the setlist display",
     "newPredictionDescription": "Create a new prediction for a performance or a custom setlist.",
     "forPerformance": "For Performance",
     "customPrediction": "Custom",
@@ -313,6 +322,12 @@
     "performanceName": "Performance name *",
     "venue": "Venue (optional)",
     "date": "Date",
-    "orSelectBelow": "— or select from list below —"
+    "orSelectBelow": "— or select from list below —",
+    "selectPerformanceToPreview": "Select a performance to preview its setlist",
+    "preview": "Preview",
+    "authorName": "Author Name (optional)",
+    "authorNamePlaceholder": "Enter your name...",
+    "addItem": "Add Item",
+    "quickAddHint": "Drag into setlist or double-click to add to bottom"
   }
 }
