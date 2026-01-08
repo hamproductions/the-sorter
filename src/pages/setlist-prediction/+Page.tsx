@@ -38,7 +38,13 @@ export function Page() {
   const { t } = useTranslation();
   const { predictions, deletePrediction } = usePredictionStorage();
 
+  // Dialog state: control visibility and which performance's predictions we should show
+  // - `loadDialogOpen`: controls whether the LoadPredictionDialog is visible
+  // - `dialogPerformanceId`: when set, the dialog will filter predictions to this performance
+  // We set `dialogPerformanceId` right before opening the dialog (so the dialog can filter),
+  // and clear it when the dialog closes to avoid leaving a stale filter in memory.
   const [loadDialogOpen, setLoadDialogOpen] = useState(false);
+  const [dialogPerformanceId, setDialogPerformanceId] = useState<string | null>(null);
 
   const handleSelectPrediction = useCallback((prediction: SetlistPrediction) => {
     window.location.href = join(
@@ -165,7 +171,13 @@ export function Page() {
               })}
             </Text>
           </Stack>
-          <Button onClick={() => setLoadDialogOpen(true)} flexShrink={0}>
+          <Button
+            onClick={() => {
+              setLoadDialogOpen(true);
+              setDialogPerformanceId(null);
+            }}
+            flexShrink={0}
+          >
             {t('setlistPrediction.myPredictions', { defaultValue: 'My Predictions' })}
           </Button>
         </HStack>
@@ -350,9 +362,14 @@ export function Page() {
                                 variant="subtle"
                                 size="sm"
                                 onClick={(e) => {
-                                  // set load dialog open with predictions filtered to this performance
-                                  setLoadDialogOpen(true);
+                                  // Prevent the anchor from navigating and stop the click from
+                                  // bubbling up to the parent anchor element. This ensures
+                                  // only the button's action runs (open the dialog) and the
+                                  // performance row's link is not activated.
                                   e.preventDefault();
+                                  e.stopPropagation();
+                                  setDialogPerformanceId(performance.id);
+                                  setLoadDialogOpen(true);
                                 }}
                               >
                                 {t('setlistPrediction.loadPrediction', {
@@ -416,9 +433,20 @@ export function Page() {
       </Stack>
 
       {/* Dialogues; sit at the bottom waiting to be opened */}
+      {/*
+        LoadPredictionDialog:
+        - `performanceId` is passed so the dialog can filter saved predictions to a
+        specific performance when the user clicks "Load Prediction" on a performance row.
+        - We wrap `onOpenChange` to clear `dialogPerformanceId` when the dialog closes,
+        preventing stale filters from persisting.
+      */}
       <LoadPredictionDialog
         open={loadDialogOpen}
-        onOpenChange={setLoadDialogOpen}
+        onOpenChange={(open: boolean) => {
+          setLoadDialogOpen(open);
+          // if (!open) setDialogPerformanceId(null);
+        }}
+        performanceId={dialogPerformanceId || undefined}
         onSelectPrediction={handleSelectPrediction}
         onDeletePrediction={handleDeletePrediction}
       />
