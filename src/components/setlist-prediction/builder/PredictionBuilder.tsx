@@ -4,7 +4,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import {
   MeasuringStrategy,
   closestCenter,
@@ -235,7 +235,8 @@ export function PredictionBuilder({
     clearItems,
     updateMetadata,
     setPerformanceId,
-    save
+    save,
+    reset,
   } = usePredictionBuilder({
     performanceId,
     customPerformance,
@@ -243,6 +244,8 @@ export function PredictionBuilder({
     autosave: true,
     onSave
   });
+  
+  
 
   // Sync performanceId and customPerformance from props when they change externally
   const [prevPerformanceId, setPrevPerformanceId] = useState(performanceId);
@@ -254,6 +257,16 @@ export function PredictionBuilder({
   }
 
   const [predictionName, setPredictionName] = useState(prediction.name);
+  // If the parent provides a new `initialPrediction`, reset the hook's internal
+  // state and update UI fields (like `predictionName`) so the builder reflects
+  // the newly selected prediction.
+  useEffect(() => {
+    // `reset` will set the hook's prediction state to `initialPrediction`.
+    reset();
+    if (initialPrediction) {
+      setPredictionName(initialPrediction.name);
+    }
+  }, [initialPrediction, reset]);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(false);
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false);

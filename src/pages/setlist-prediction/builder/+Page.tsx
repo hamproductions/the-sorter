@@ -23,7 +23,12 @@ import type { SetlistPrediction, CustomPerformance } from '~/types/setlist-predi
 
 export function Page() {
   const { t } = useTranslation();
-  const { savePrediction, getPrediction, deletePrediction } = usePredictionStorage();
+  const {
+    savePrediction,
+    getPrediction,
+    deletePrediction,
+    ready: predictionsReady
+  } = usePredictionStorage();
 
   const searchParams = new URLSearchParams(
     typeof window !== 'undefined' ? window.location.search : ''
@@ -51,9 +56,18 @@ export function Page() {
   useEffect(() => {
     if (isInitialized) return;
 
+    // Wait until predictions are loaded from storage before calling `getPrediction`.
+    // otherwise we may not find the prediction even if it exists.
+    if (!predictionsReady) return;
+    console.log('Predictions ready, initializing builder state.');
+    console.log('predictionIdParam:', predictionIdParam);
+    if (performanceIdParam) {
+      setCurrentPerformanceId(performanceIdParam);
+    }
     if (predictionIdParam) {
       const prediction = getPrediction(predictionIdParam);
       if (prediction) {
+        console.log('Loaded prediction for id param:', prediction);
         setCurrentPrediction(prediction);
         setCurrentPerformanceId(prediction.performanceId);
         setIsInitialized(true);
@@ -141,6 +155,9 @@ export function Page() {
     },
     [deletePrediction, currentPrediction]
   );
+  console.log('currentPerformanceId:', !currentPerformanceId);
+  console.log('currentPrediction:', currentPrediction);
+  console.log('customPerformance:', customPerformance);
 
   const showEmptyState = !currentPerformanceId && !currentPrediction && !customPerformance;
 

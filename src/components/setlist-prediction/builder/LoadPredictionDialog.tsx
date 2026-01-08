@@ -106,6 +106,8 @@ export function LoadPredictionDialog({
   const [internalPredictions, setInternalPredictions] = useState<SetlistPrediction[]>(predictions);
 
   useEffect(() => {
+    console.log(' predictions changed, resetting builder state.');
+    console.log('New  predictions:', predictions);
     setInternalPredictions(predictions);
   }, [predictions]);
 
