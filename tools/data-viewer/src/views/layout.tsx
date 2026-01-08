@@ -1,19 +1,16 @@
-import { Html } from '@elysiajs/html'
+import { Html } from '@elysiajs/html';
 
-export function Layout({
-  title,
-  children,
-}: {
-  title: string
-  children: JSX.Element
-}) {
+export function Layout({ title, children }: { title: string; children: JSX.Element }) {
   return (
     <html lang="en" data-theme="dark">
       <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>{title}</title>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+        />
         <script src="https://unpkg.com/htmx.org@2.0.4"></script>
         <style>{`
           :root { --pico-font-size: 14px; }
@@ -97,12 +94,16 @@ export function Layout({
           .diff-badge.added { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
           .diff-badge.removed { background: rgba(239, 68, 68, 0.2); color: #f87171; }
           .diff-badge.modified { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+          .modal.diff-old { border: 1px solid #f87171; }
+          .modal.diff-old .modal-header { background: rgba(239, 68, 68, 0.15); }
+          .modal.diff-new { border: 1px solid #4ade80; }
+          .modal.diff-new .modal-header { background: rgba(34, 197, 94, 0.15); }
           .diff-section { margin-bottom: 1rem; }
           .diff-section h5 { margin: 0 0 0.5rem 0; font-size: 12px; color: var(--pico-muted-color); }
           .diff-table-wrapper { max-height: 400px; overflow: auto; border: 1px solid var(--pico-muted-border-color); border-radius: 4px; }
           .diff-table { font-size: 12px; margin: 0; width: 100%; }
           .diff-table th, .diff-table td { padding: 0.35rem 0.5rem; white-space: nowrap; }
-          .diff-table th { background: var(--pico-card-sectionning-background-color); position: sticky; top: 0; z-index: 1; }
+          .diff-table th { background: var(--pico-card-background-color); position: sticky; top: 0; z-index: 1; }
           .diff-old { background: rgba(239, 68, 68, 0.15); color: #f87171; }
           .diff-new { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
           .diff-row-old { border-bottom: none; }
@@ -122,15 +123,13 @@ export function Layout({
           .history-btn { font-size: 10px !important; padding: 0.15rem 0.4rem !important; margin: 0 !important; }
         `}</style>
       </head>
-      <body>
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
-  )
+  );
 }
 
 function HistoryModal({ filename }: { filename: string }) {
-  const modalId = `history-modal-${filename.replace('.', '-')}`
+  const modalId = `history-modal-${filename.replace('.', '-')}`;
   return (
     <>
       <button
@@ -155,38 +154,27 @@ function HistoryModal({ filename }: { filename: string }) {
               ×
             </button>
           </div>
-          <div
-            hx-get={`/api/history/${filename}`}
-            hx-trigger="load"
-            hx-swap="innerHTML"
-          >
+          <div hx-get={`/api/history/${filename}`} hx-trigger="load" hx-swap="innerHTML">
             <p>Loading...</p>
           </div>
         </div>
       </div>
     </>
-  )
+  );
 }
 
-export function Topbar({
-  files,
-  active,
-}: {
-  files: readonly string[]
-  active?: string
-}) {
+export function Topbar({ files, active }: { files: readonly string[]; active?: string }) {
   return (
     <nav class="container-fluid">
       <ul>
-        <li><strong>Data Viewer</strong></li>
+        <li>
+          <strong>Data Viewer</strong>
+        </li>
       </ul>
       <ul>
         {files.map((file) => (
           <li class="file-tab">
-            <a
-              href={`/?file=${file}`}
-              class={file === active ? 'contrast' : 'secondary'}
-            >
+            <a href={`/?file=${file}`} class={file === active ? 'contrast' : 'secondary'}>
               {file.replace('.json', '')}
             </a>
             {file === active && <HistoryModal filename={file} />}
@@ -194,5 +182,5 @@ export function Topbar({
         ))}
       </ul>
     </nav>
-  )
+  );
 }
