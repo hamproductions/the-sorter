@@ -2,7 +2,7 @@
  * Hook for managing prediction storage in localStorage
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import type { SetlistPrediction } from '~/types/setlist-prediction';
 import {
   PredictionStorage,
@@ -13,6 +13,7 @@ import {
 export function usePredictionStorage() {
   const [predictions, setPredictions] = useState<Record<string, SetlistPrediction>>({});
   const [activePredictionId, setActivePredictionId] = useState<string | null>(null);
+  const [ready, setReady] = useState(false);
 
   // Load predictions from localStorage on mount
   useEffect(() => {
@@ -21,6 +22,7 @@ export function usePredictionStorage() {
 
     const activeId = ActivePredictionStorage.get();
     setActivePredictionId(activeId);
+    setReady(true);
   }, []);
 
   const savePrediction = useCallback((prediction: SetlistPrediction) => {
@@ -37,6 +39,7 @@ export function usePredictionStorage() {
 
   const getPrediction = useCallback(
     (id: string): SetlistPrediction | null => {
+      console.log('Getting prediction with id:', predictions);
       return predictions[id] || null;
     },
     [predictions]
@@ -84,9 +87,12 @@ export function usePredictionStorage() {
     setActivePredictionId(null);
   }, []);
 
+  const predictionsArray = useMemo(() => Object.values(predictions), [predictions]);
+
   return {
-    predictions: Object.values(predictions),
+    predictions: predictionsArray,
     predictionsById: predictions,
+    ready,
     activePredictionId,
     activePrediction: activePredictionId ? predictions[activePredictionId] : null,
     savePrediction,

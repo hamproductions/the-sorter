@@ -11,5 +11,6 @@
   "pandaOnlyIncluded": false,
   "pandaStylePropsFirst": false,
   "pandaSortOtherProps": false,
-  "pandaFunctions": []
+  "pandaFunctions": [],
+  "endOfLine": "auto"
 }

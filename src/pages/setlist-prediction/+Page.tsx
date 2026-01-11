@@ -3,7 +3,7 @@
  * Users browse and select performances to create predictions for
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { join } from 'path-browserify';
 import { Stack, Box, HStack } from 'styled-system/jsx';
@@ -13,7 +13,13 @@ import { Input } from '~/components/ui/styled/input';
 import { Checkbox } from '~/components/ui/checkbox';
 import { Metadata } from '~/components/layout/Metadata';
 import { useFilteredPerformances } from '~/hooks/setlist-prediction/usePerformanceData';
-import type { PerformanceFilters, Performance } from '~/types/setlist-prediction';
+import type {
+  PerformanceFilters,
+  Performance,
+  SetlistPrediction
+} from '~/types/setlist-prediction';
+import { LoadPredictionDialog } from '~/components/setlist-prediction/builder/LoadPredictionDialog';
+import { usePredictionStorage } from '~/hooks/setlist-prediction/usePredictionStorage';
 
 type SortOption = 'date-asc' | 'date-desc' | 'name-asc' | 'name-desc' | 'upcoming-first';
 
@@ -30,6 +36,38 @@ const getTourName = (perfName: string): string => {
 
 export function Page() {
   const { t } = useTranslation();
+  const { predictions, deletePrediction } = usePredictionStorage();
+
+  // Dialog state: control visibility and which performance's predictions we should show
+  // - `loadDialogOpen`: controls whether the LoadPredictionDialog is visible
+  // - `dialogPerformanceId`: when set, the dialog will filter predictions to this performance
+  // We set `dialogPerformanceId` right before opening the dialog (so the dialog can filter),
+  // and clear it when the dialog closes to avoid leaving a stale filter in memory.
+  const [loadDialogOpen, setLoadDialogOpen] = useState(false);
+  const [dialogPerformanceId, setDialogPerformanceId] = useState<string | null>(null);
+
+  const handleSelectLoadPrediction = useCallback((prediction: SetlistPrediction) => {
+    window.location.href = join(
+      import.meta.env.BASE_URL,
+      `/setlist-prediction/builder/?${prediction.id}`
+    );
+    localStorage.setItem('setlist-builder-last-prediction', prediction.id);
+  }, []);
+
+  const handleSelectScorePrediction = useCallback((prediction: SetlistPrediction) => {
+    window.location.href = join(
+      import.meta.env.BASE_URL,
+      `/setlist-prediction/marking/${prediction.id}`
+    );
+    localStorage.setItem('setlist-builder-last-prediction', prediction.id);
+  }, []);
+
+  const handleDeletePrediction = useCallback(
+    (predictionId: string) => {
+      deletePrediction(predictionId);
+    },
+    [deletePrediction]
+  );
 
   const [filters, setFilters] = useState<PerformanceFilters>({
     seriesIds: [],
@@ -142,9 +180,10 @@ export function Page() {
             </Text>
           </Stack>
           <Button
-            onClick={() =>
-              (window.location.href = join(import.meta.env.BASE_URL, '/setlist-prediction/builder'))
-            }
+            onClick={() => {
+              setLoadDialogOpen(true);
+              setDialogPerformanceId(null);
+            }}
             flexShrink={0}
           >
             {t('setlistPrediction.myPredictions', { defaultValue: 'My Predictions' })}
@@ -324,6 +363,28 @@ export function Page() {
                                 {performance.venue || 'TBA'}
                               </Text>
                             </Stack>
+                            {/* Display a load predictions button for performances we find in your local storage have a prediction (could be multiple) */}
+                            {/* Only display predictions in the dialog for that performance */}
+                            {predictions.find((p) => p.performanceId === performance.id) && (
+                              <Button
+                                variant="subtle"
+                                size="sm"
+                                onClick={(e) => {
+                                  // Prevent the anchor from navigating and stop the click from
+                                  // bubbling up to the parent anchor element. This ensures
+                                  // only the button's action runs (open the dialog) and the
+                                  // performance row's link is not activated.
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  setDialogPerformanceId(performance.id);
+                                  setLoadDialogOpen(true);
+                                }}
+                              >
+                                {t('setlistPrediction.loadPrediction', {
+                                  defaultValue: 'Load Prediction'
+                                })}
+                              </Button>
+                            )}
                             <Button size="sm">
                               {t('setlistPrediction.createPrediction', {
                                 defaultValue: 'Create Prediction'
@@ -378,6 +439,26 @@ export function Page() {
           </Stack>
         </Box>
       </Stack>
+
+      {/* Dialogues; sit at the bottom waiting to be opened */}
+      {/*
+        LoadPredictionDialog:
+        - `performanceId` is passed so the dialog can filter saved predictions to a
+        specific performance when the user clicks "Load Prediction" on a performance row.
+        - We wrap `onOpenChange` to clear `dialogPerformanceId` when the dialog closes,
+        preventing stale filters from persisting.
+      */}
+      <LoadPredictionDialog
+        open={loadDialogOpen}
+        onOpenChange={(open: boolean) => {
+          setLoadDialogOpen(open);
+          // if (!open) setDialogPerformanceId(null);
+        }}
+        performanceId={dialogPerformanceId || undefined}
+        onSelectLoadPrediction={handleSelectLoadPrediction}
+        onSelectScorePrediction={handleSelectScorePrediction}
+        onDeletePrediction={handleDeletePrediction}
+      />
     </>
   );
 }

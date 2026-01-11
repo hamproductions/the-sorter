@@ -23,7 +23,12 @@ import type { SetlistPrediction, CustomPerformance } from '~/types/setlist-predi
 
 export function Page() {
   const { t } = useTranslation();
-  const { savePrediction, getPrediction, deletePrediction } = usePredictionStorage();
+  const {
+    savePrediction,
+    getPrediction,
+    deletePrediction,
+    ready: predictionsReady
+  } = usePredictionStorage();
 
   const searchParams = new URLSearchParams(
     typeof window !== 'undefined' ? window.location.search : ''
@@ -51,9 +56,16 @@ export function Page() {
   useEffect(() => {
     if (isInitialized) return;
 
+    // Wait until predictions are loaded from storage before calling `getPrediction`.
+    // otherwise we may not find the prediction even if it exists.
+    if (!predictionsReady) return;
+    if (performanceIdParam) {
+      setCurrentPerformanceId(performanceIdParam);
+    }
     if (predictionIdParam) {
       const prediction = getPrediction(predictionIdParam);
       if (prediction) {
+        console.log('Loaded prediction for id param:', prediction);
         setCurrentPrediction(prediction);
         setCurrentPerformanceId(prediction.performanceId);
         setIsInitialized(true);
@@ -103,9 +115,9 @@ export function Page() {
 
     setLoadDialogOpen(true);
     setIsInitialized(true);
-  }, [performanceIdParam, predictionIdParam, getPrediction, isInitialized]);
+  }, [performanceIdParam, predictionIdParam, getPrediction, isInitialized, predictionsReady]);
 
-  const handleSelectPrediction = useCallback((prediction: SetlistPrediction) => {
+  const handleSelectLoadPrediction = useCallback((prediction: SetlistPrediction) => {
     setCurrentPrediction(prediction);
     setCurrentPerformanceId(prediction.performanceId);
     setCustomPerformance(prediction.customPerformance);
@@ -141,6 +153,9 @@ export function Page() {
     },
     [deletePrediction, currentPrediction]
   );
+  console.log('currentPerformanceId:', !currentPerformanceId);
+  console.log('currentPrediction:', currentPrediction);
+  console.log('customPerformance:', customPerformance);
 
   const showEmptyState = !currentPerformanceId && !currentPrediction && !customPerformance;
 
@@ -350,7 +365,7 @@ export function Page() {
       <LoadPredictionDialog
         open={loadDialogOpen}
         onOpenChange={setLoadDialogOpen}
-        onSelectPrediction={handleSelectPrediction}
+        onSelectLoadPrediction={handleSelectLoadPrediction}
         onDeletePrediction={handleDeletePrediction}
       />
 

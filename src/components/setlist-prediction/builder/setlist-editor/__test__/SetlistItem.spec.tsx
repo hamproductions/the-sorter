@@ -159,7 +159,7 @@ describe('SetlistItem', () => {
 
     const [, user] = await render(<SetlistItem {...defaultProps} item={item} />);
 
-    const editButton = screen.getByLabelText('Edit item');
+    const editButton = screen.getByLabelText('Edit Item');
     await user.click(editButton);
 
     expect(screen.getByTestId('edit-dialog')).toBeInTheDocument();
