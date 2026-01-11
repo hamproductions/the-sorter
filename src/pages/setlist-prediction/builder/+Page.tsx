@@ -59,8 +59,6 @@ export function Page() {
     // Wait until predictions are loaded from storage before calling `getPrediction`.
     // otherwise we may not find the prediction even if it exists.
     if (!predictionsReady) return;
-    console.log('Predictions ready, initializing builder state.');
-    console.log('predictionIdParam:', predictionIdParam);
     if (performanceIdParam) {
       setCurrentPerformanceId(performanceIdParam);
     }

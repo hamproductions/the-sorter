@@ -34,7 +34,6 @@ export function Page() {
   const predictionId = (pageContext.routeParams as { prediction?: string }).prediction ?? '';
   const prediction = getPrediction(predictionId);
   const performance = usePerformance(prediction?.performanceId ?? '');
-  console.log('performance', performance);
 
   const [actualSetlistText, setActualSetlistText] = useState('');
   const [actualSetlist, setActualSetlist] = useState<PerformanceSetlist | null>(null);
@@ -51,7 +50,6 @@ export function Page() {
   // update actual setlist only when we have a setlist and the performance indicates it has one
   useEffect(() => {
     if (performance?.hasSetlist && setlist) {
-      console.log('Setting actual setlist from loaded setlist', setlist);
       setActualSetlist(setlist);
     }
   }, [performance?.id, performance?.hasSetlist, setlist]);
@@ -114,8 +112,6 @@ export function Page() {
     savePrediction(updatedPrediction);
     setIsScored(true);
   };
-
-  console.log('actualSetlist', actualSetlist);
 
   if (!prediction) {
     return (

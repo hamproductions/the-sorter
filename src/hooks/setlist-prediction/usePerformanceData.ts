@@ -8,15 +8,22 @@ import type {
 // Global caches to prevent re-fetching/re-importing
 let cachedMetadata: Performance[] | null = null;
 let cachedSetlists: Record<string, PerformanceSetlist> | null = null;
+// Shared in-flight promise so concurrent callers reuse the same import
+let cachedMetadataPromise: Promise<Performance[]> | null = null;
 
 /**
  * Loads performance metadata (300KB)
  */
 async function loadPerformanceMetadata(): Promise<Performance[]> {
   if (cachedMetadata) return cachedMetadata;
-  const data = await import('../../../data/performance-info.json');
-  cachedMetadata = data.default as unknown as Performance[];
-  return cachedMetadata;
+  if (cachedMetadataPromise) return cachedMetadataPromise;
+
+  cachedMetadataPromise = import('../../../data/performance-info.json').then((data) => {
+    cachedMetadata = data.default as unknown as Performance[];
+    return cachedMetadata;
+  });
+
+  return cachedMetadataPromise;
 }
 
 /**
@@ -38,7 +45,13 @@ export function usePerformanceData() {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (cachedMetadata) return;
+    // If another consumer already populated the module cache while this hook
+    // was mounting, make sure local state reflects that and clear loading.
+    if (cachedMetadata) {
+      setPerformances(cachedMetadata);
+      setLoading(false);
+      return;
+    }
 
     loadPerformanceMetadata()
       .then((data) => {
@@ -47,6 +60,7 @@ export function usePerformanceData() {
       })
       .catch((err) => {
         console.error('Failed to load performance metadata:', err);
+        cachedMetadataPromise = null; // Clear promise so future calls can retry
         setError(err instanceof Error ? err : new Error(String(err)));
       })
       .finally(() => setLoading(false));

@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, use } from 'react';
 import { css } from 'styled-system/css';
 import { Box, Stack, HStack } from 'styled-system/jsx';
 import { Button } from '~/components/ui/styled/button';
 import { Text } from '~/components/ui/styled/text';
 import { usePredictionStorage } from '~/hooks/setlist-prediction/usePredictionStorage';
-import { usePerformance } from '~/hooks/setlist-prediction/usePerformanceData';
+import { usePerformance, usePerformanceData } from '~/hooks/setlist-prediction/usePerformanceData';
 import type { SetlistPrediction } from '~/types/setlist-prediction';
 import {
   Root as DialogRoot,
@@ -40,7 +40,22 @@ function PredictionItem({
   onDelete?: () => void;
   isSelected: boolean;
 }) {
-  const performance = usePerformance(prediction.performanceId || '');
+  const { loading: performancesLoading } = usePerformanceData();
+  const performance = usePerformance(prediction.performanceId);
+
+  useEffect(() => {
+    console.log(
+      `PredictionItem: performance for prediction ${prediction.name} is`,
+      performance,
+      'loading:',
+      performancesLoading
+    );
+    if (!performancesLoading && !performance) {
+      console.log(
+        `PredictionItem: No performance found for prediction ${prediction.name} with performanceId ${prediction.performanceId}`
+      );
+    }
+  }, [performance, performancesLoading, prediction.name]);
 
   // We display the associated performance name (if available) to give context
   // for saved predictions. `usePerformance` will return the performance object
@@ -65,7 +80,13 @@ function PredictionItem({
             {prediction.name}
           </Text>
           <Text color="fg.muted" fontSize="xs">
-            {performance ? performance.name : 'Custom Prediction'}
+            {performancesLoading ? (
+              <Box borderRadius="sm" width="40%" height="10px" bgColor="bg.muted" />
+            ) : performance ? (
+              performance.name
+            ) : (
+              'Custom Prediction'
+            )}
           </Text>
           <Text color="fg.muted" fontSize="xs">
             {prediction.setlist.items.filter((i) => i.type === 'song').length} songs •{' '}
@@ -97,19 +118,17 @@ export function LoadPredictionDialog({
   performanceId = undefined // optional filter
 }: LoadPredictionDialogProps) {
   const { t } = useTranslation();
-  const { predictions, deletePrediction } = usePredictionStorage();
+  const { predictions, deletePrediction, ready: predictionsReady } = usePredictionStorage();
 
   // Internal copy of predictions to allow optimistic UI updates when deleting.
-  // We sync this internal array from the storage-backed `predictions` so other
-  // parts of the app can still update storage while the dialog reflects changes
-  // immediately.
-  const [internalPredictions, setInternalPredictions] = useState<SetlistPrediction[]>(predictions);
+  // We wait for the storage hook to be ready before syncing so we don't flash
+  // default/placeholder values while persistent data is still loading.
+  const [internalPredictions, setInternalPredictions] = useState<SetlistPrediction[]>([]);
 
   useEffect(() => {
-    console.log(' predictions changed, resetting builder state.');
-    console.log('New  predictions:', predictions);
+    if (!predictionsReady) return;
     setInternalPredictions(predictions);
-  }, [predictions]);
+  }, [predictions, predictionsReady]);
 
   const [selectedPredictionId, setSelectedPredictionId] = useState<string | null>(null);
 
@@ -169,7 +188,23 @@ export function LoadPredictionDialog({
 
             <Box flex={1} minH={0} overflow="auto">
               <Stack gap={2}>
-                {displayPredictions.length === 0 ? (
+                {!predictionsReady ? (
+                  // Simple skeleton while predictions load
+                  Array.from({ length: 6 }).map((_, idx) => (
+                    <Box
+                      key={`skeleton-${idx}`}
+                      borderRadius="md"
+                      borderWidth="1px"
+                      p={3}
+                      _hover={{ bgColor: 'bg.subtle' }}
+                    >
+                      <Stack gap={0.5}>
+                        <Box borderRadius="sm" width="60%" height="12px" bgColor="bg.muted" />
+                        <Box borderRadius="sm" width="40%" height="10px" bgColor="bg.muted" />
+                      </Stack>
+                    </Box>
+                  ))
+                ) : displayPredictions.length === 0 ? (
                   <Box
                     borderRadius="md"
                     borderWidth="1px"
