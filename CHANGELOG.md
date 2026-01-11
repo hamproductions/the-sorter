@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [1.17.0](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.16.1...v1.17.0) (2026-01-11)
+
+
+### Bug Fixes
+
+* add back reset to PredictionBuilder so that predictions load from url correctly ([fda5129](https://github.com/Tanyawat-Arsaga/the-sorter/commit/fda51292ea3afd7b4b4089ef6589f594166e383a))
+* add missing i18n keys for setlist prediction ([2b94aa8](https://github.com/Tanyawat-Arsaga/the-sorter/commit/2b94aa8bfd95820d34cdfa40f115621b1ebe1eeb))
+* lint stuff ([76d3a8d](https://github.com/Tanyawat-Arsaga/the-sorter/commit/76d3a8da44c9750e9df8c2b0e9a01731c76932c7))
+* my prediction deletion works now ([e4eb894](https://github.com/Tanyawat-Arsaga/the-sorter/commit/e4eb894f2e6edb14015ee741f253c5e89dd5e2f9))
+* performance metadata loads correctly on PredictionView components ([0e0d773](https://github.com/Tanyawat-Arsaga/the-sorter/commit/0e0d7735b3132dc7f020b0eead47786c4f35ee5e))
+* wondermates typo ([2844892](https://github.com/Tanyawat-Arsaga/the-sorter/commit/2844892e99c62594e98c9cb07d3dd4d801a74a11))
+
+
+### Features
+
+* add score button to load prediction dialogue, and disable it if performance doesn't have setlist yet ([ba44da7](https://github.com/Tanyawat-Arsaga/the-sorter/commit/ba44da732040542e0aa595846a187b0f35fc5852))
+* load prediction button on performance only shows my predictions for that performance ([4fe2047](https://github.com/Tanyawat-Arsaga/the-sorter/commit/4fe204760a0a7eb1d34e543f5c81e6ad094e02a8))
+
 ## [1.16.1](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.16.0...v1.16.1) (2026-01-08)
 
 
