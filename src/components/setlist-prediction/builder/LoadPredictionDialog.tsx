@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useState, useMemo, useEffect, use } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { css } from 'styled-system/css';
 import { Box, Stack, HStack } from 'styled-system/jsx';
 import { Button } from '~/components/ui/styled/button';
@@ -118,7 +118,7 @@ export function LoadPredictionDialog({
   performanceId = undefined // optional filter
 }: LoadPredictionDialogProps) {
   const { t } = useTranslation();
-  const { predictions, deletePrediction, ready: predictionsReady } = usePredictionStorage();
+  const { predictions, ready: predictionsReady } = usePredictionStorage();
 
   // Internal copy of predictions to allow optimistic UI updates when deleting.
   // We wait for the storage hook to be ready before syncing so we don't flash
@@ -227,21 +227,15 @@ export function LoadPredictionDialog({
                       onDelete={
                         onDeletePrediction
                           ? () => {
-                              // 1) Tell parent to remove from persistent storage
-                              // Prefer deleting via the storage hook directly so the
-                              // dialog doesn't depend on the parent callback executing.
-                              // This ensures deletion always happens even if the parent
-                              // didn't pass a handler or it wasn't invoked for some reason.
-                              if (deletePrediction) {
-                                deletePrediction(prediction.id);
-                              }
-                              // Also call the parent's handler if provided for any
+                              // 1) Call the parent's handler if provided for any
                               // additional side-effects the parent needs.
+                              // (For the LoadPredictionDialog usage in the builder,
+                              // this deletes prediction from persistent storage)
                               if (onDeletePrediction) {
                                 onDeletePrediction(prediction.id);
                               }
 
-                              // 3) Remove from internal list immediately so UI updates
+                              // 2) Remove from internal list immediately so UI updates (optimistic update)
                               setInternalPredictions((prev) =>
                                 prev.filter((p) => p.id !== prediction.id)
                               );
