@@ -236,6 +236,7 @@ export function PredictionBuilder({
     updateMetadata,
     setPerformanceId,
     save,
+    reset
   } = usePredictionBuilder({
     performanceId,
     customPerformance,
@@ -243,8 +244,6 @@ export function PredictionBuilder({
     autosave: true,
     onSave
   });
-  
-  
 
   // Sync performanceId and customPerformance from props when they change externally
   const [prevPerformanceId, setPrevPerformanceId] = useState(performanceId);
@@ -260,11 +259,12 @@ export function PredictionBuilder({
   // state and update UI fields (like `predictionName`) so the builder reflects
   // the newly selected prediction.
   useEffect(() => {
-
+    // `reset` will set the hook's prediction state to `initialPrediction`.
+    reset();
     if (initialPrediction) {
       setPredictionName(initialPrediction.name);
     }
-  }, [initialPrediction]);
+  }, [initialPrediction, reset]);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(false);
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
