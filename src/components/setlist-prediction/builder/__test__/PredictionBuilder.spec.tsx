@@ -81,7 +81,8 @@ vi.mock('~/hooks/setlist-prediction/usePredictionBuilder', () => ({
       clearItems: vi.fn(),
       updateMetadata: vi.fn(),
       setPerformanceId: vi.fn(),
-      save: onSave || vi.fn()
+      save: onSave || vi.fn(),
+      reset: vi.fn()
     };
   }
 }));
