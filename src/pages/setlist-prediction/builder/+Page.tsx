@@ -115,7 +115,7 @@ export function Page() {
 
     setLoadDialogOpen(true);
     setIsInitialized(true);
-  }, [performanceIdParam, predictionIdParam, getPrediction, isInitialized]);
+  }, [performanceIdParam, predictionIdParam, getPrediction, isInitialized, predictionsReady]);
 
   const handleSelectLoadPrediction = useCallback((prediction: SetlistPrediction) => {
     setCurrentPrediction(prediction);

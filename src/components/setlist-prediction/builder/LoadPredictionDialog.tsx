@@ -44,20 +44,6 @@ function PredictionItem({
   const { loading: performancesLoading } = usePerformanceData();
   const performance = usePerformance(prediction.performanceId);
 
-  useEffect(() => {
-    console.log(
-      `PredictionItem: performance for prediction ${prediction.name} is`,
-      performance,
-      'loading:',
-      performancesLoading
-    );
-    if (!performancesLoading && !performance) {
-      console.log(
-        `PredictionItem: No performance found for prediction ${prediction.name} with performanceId ${prediction.performanceId}`
-      );
-    }
-  }, [performance, performancesLoading, prediction.name]);
-
   // We display the associated performance name (if available) to give context
   // for saved predictions. `usePerformance` will return the performance object
   // for the prediction's `performanceId` when that data is loaded.
@@ -121,7 +107,6 @@ export function LoadPredictionDialog({
 }: LoadPredictionDialogProps) {
   const { t } = useTranslation();
   const { predictions, ready: predictionsReady } = usePredictionStorage();
-  const { loading: performancesLoading } = usePerformanceData();
 
   // Internal copy of predictions to allow optimistic UI updates when deleting.
   // We wait for the storage hook to be ready before syncing so we don't flash
