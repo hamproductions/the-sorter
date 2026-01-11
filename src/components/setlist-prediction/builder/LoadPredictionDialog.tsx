@@ -24,7 +24,8 @@ import {
 export interface LoadPredictionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSelectPrediction: (prediction: SetlistPrediction) => void;
+  onSelectLoadPrediction: (prediction: SetlistPrediction) => void;
+  onSelectScorePrediction: (prediction: SetlistPrediction) => void;
   onDeletePrediction?: (predictionId: string) => void;
   performanceId?: string;
 }
@@ -113,12 +114,14 @@ function PredictionItem({
 export function LoadPredictionDialog({
   open,
   onOpenChange,
-  onSelectPrediction,
+  onSelectLoadPrediction,
+  onSelectScorePrediction,
   onDeletePrediction,
   performanceId = undefined // optional filter
 }: LoadPredictionDialogProps) {
   const { t } = useTranslation();
   const { predictions, ready: predictionsReady } = usePredictionStorage();
+  const { loading: performancesLoading } = usePerformanceData();
 
   // Internal copy of predictions to allow optimistic UI updates when deleting.
   // We wait for the storage hook to be ready before syncing so we don't flash
@@ -131,6 +134,10 @@ export function LoadPredictionDialog({
   }, [predictions, predictionsReady]);
 
   const [selectedPredictionId, setSelectedPredictionId] = useState<string | null>(null);
+
+  const selectedPrediction = predictions.find((p) => p.id === selectedPredictionId);
+  const selectedPerformance = usePerformance(selectedPrediction?.performanceId || undefined);
+  console.log('selectedPerformance', selectedPerformance);
 
   // build the set of predictions to display
   // Build the set of predictions to display in the dialog.
@@ -149,13 +156,20 @@ export function LoadPredictionDialog({
     );
   }, [internalPredictions, performanceId]);
 
-  const handleConfirm = () => {
-    if (selectedPredictionId) {
-      const prediction = predictions.find((p) => p.id === selectedPredictionId);
-      if (prediction) {
-        onSelectPrediction(prediction);
-        onOpenChange(false);
-      }
+  // Handlers for confirming load or score actions
+  // These call the appropriate parent handler with the selected prediction (after finding it from the localStorage list of predictions)
+  // and then close the dialog.
+  const handleConfirmLoad = () => {
+    if (selectedPrediction) {
+      onSelectLoadPrediction(selectedPrediction);
+      onOpenChange(false);
+    }
+  };
+
+  const handleConfirmScore = () => {
+    if (selectedPrediction) {
+      onSelectScorePrediction(selectedPrediction);
+      onOpenChange(false);
     }
   };
 
@@ -264,7 +278,20 @@ export function LoadPredictionDialog({
               <DialogCloseTrigger asChild>
                 <Button variant="outline">{t('common.cancel', { defaultValue: 'Cancel' })}</Button>
               </DialogCloseTrigger>
-              <Button onClick={handleConfirm} disabled={!selectedPredictionId}>
+              {/* Only show Score button if the performance has an actual setlist */}
+              {/* If not, display a disabled button with a message saying this performance hasn't happened yet */}
+              {selectedPerformance?.hasSetlist ? (
+                <Button onClick={handleConfirmScore} disabled={!selectedPredictionId}>
+                  {t('common.score', { defaultValue: 'Score' })}
+                </Button>
+              ) : (
+                <Button variant="ghost" disabled={!selectedPredictionId}>
+                  {t('setlistPrediction.performanceNotOccurred', {
+                    defaultValue: 'This performance has not occurred yet'
+                  })}
+                </Button>
+              )}
+              <Button onClick={handleConfirmLoad} disabled={!selectedPredictionId}>
                 {t('common.load', { defaultValue: 'Load' })}
               </Button>
             </Box>

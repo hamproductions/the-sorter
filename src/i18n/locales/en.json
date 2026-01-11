@@ -190,6 +190,7 @@
     "new": "New",
     "load": "Load",
     "create": "Create",
+    "score": "Score",
     "set": "Set Custom",
     "available": "Available",
     "selected": "Selected",
@@ -328,6 +329,7 @@
     "authorName": "Author Name (optional)",
     "authorNamePlaceholder": "Enter your name...",
     "addItem": "Add Item",
-    "quickAddHint": "Drag into setlist or double-click to add to bottom"
+    "quickAddHint": "Drag into setlist or double-click to add to bottom",
+    "noSongsFound": "No songs found"
   }
 }

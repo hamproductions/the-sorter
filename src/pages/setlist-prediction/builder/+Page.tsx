@@ -117,7 +117,7 @@ export function Page() {
     setIsInitialized(true);
   }, [performanceIdParam, predictionIdParam, getPrediction, isInitialized]);
 
-  const handleSelectPrediction = useCallback((prediction: SetlistPrediction) => {
+  const handleSelectLoadPrediction = useCallback((prediction: SetlistPrediction) => {
     setCurrentPrediction(prediction);
     setCurrentPerformanceId(prediction.performanceId);
     setCustomPerformance(prediction.customPerformance);
@@ -365,7 +365,7 @@ export function Page() {
       <LoadPredictionDialog
         open={loadDialogOpen}
         onOpenChange={setLoadDialogOpen}
-        onSelectPrediction={handleSelectPrediction}
+        onSelectLoadPrediction={handleSelectLoadPrediction}
         onDeletePrediction={handleDeletePrediction}
       />
 

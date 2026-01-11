@@ -46,7 +46,15 @@ export function Page() {
   const [loadDialogOpen, setLoadDialogOpen] = useState(false);
   const [dialogPerformanceId, setDialogPerformanceId] = useState<string | null>(null);
 
-  const handleSelectPrediction = useCallback((prediction: SetlistPrediction) => {
+  const handleSelectLoadPrediction = useCallback((prediction: SetlistPrediction) => {
+    window.location.href = join(
+      import.meta.env.BASE_URL,
+      `/setlist-prediction/builder/?${prediction.id}`
+    );
+    localStorage.setItem('setlist-builder-last-prediction', prediction.id);
+  }, []);
+
+    const handleSelectScorePrediction = useCallback((prediction: SetlistPrediction) => {
     window.location.href = join(
       import.meta.env.BASE_URL,
       `/setlist-prediction/marking/${prediction.id}`
@@ -447,7 +455,8 @@ export function Page() {
           // if (!open) setDialogPerformanceId(null);
         }}
         performanceId={dialogPerformanceId || undefined}
-        onSelectPrediction={handleSelectPrediction}
+        onSelectLoadPrediction={handleSelectLoadPrediction}
+        onSelectScorePrediction={handleSelectScorePrediction}
         onDeletePrediction={handleDeletePrediction}
       />
     </>
