@@ -46,11 +46,11 @@ export function DropPreview({
     <Box
       className={css({
         '&[data-position=bottom]': { mt: 1 },
-        '&[data-position=top]': { mb: 1 }
+        '&[data-position=top]': { mb: 1 },
+        '&[data-drop-text=true]': { w: 'full', maxW: '400px' }
       })}
       data-position={position}
-      w={showDropHereText ? 'full' : undefined}
-      maxW={showDropHereText ? '400px' : undefined}
+      data-drop-text={showDropHereText}
       opacity={0.6}
     >
       <Box

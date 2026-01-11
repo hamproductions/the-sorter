@@ -260,7 +260,7 @@ export function SongSearchPanel({
       />
 
       {/* Search Results */}
-      <Box borderRadius="md" borderWidth="1px" maxH={maxH} overflow="auto">
+      <Box style={{ maxHeight: maxH }} borderRadius="md" borderWidth="1px" overflow="auto">
         {searchQuery.trim() === '' ? (
           <Box p={4}>
             <Text color="fg.muted" fontSize="sm" textAlign="center">

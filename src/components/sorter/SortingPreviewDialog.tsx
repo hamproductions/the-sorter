@@ -60,19 +60,25 @@ export function SortingPreviewDialog<T extends { id: string | number }>(
               onChange={(e) => setSearch(e.target.value)}
             />
             <Box ref={setParentEl} h="calc(80vh - 200px)" overflow="auto">
-              <Box position="relative" w="full" h={`${virtualizer.getTotalSize()}px`}>
+              <Box
+                style={{ height: `${virtualizer.getTotalSize()}px` }}
+                position="relative"
+                w="full"
+              >
                 {virtualizer.getVirtualItems().map((virtualItem) => {
                   const { item, originalIndex } = filteredItems[virtualItem.index];
                   return (
                     <HStack
                       key={virtualItem.key}
-                      style={{ transform: `translateY(${virtualItem.start}px)` }}
+                      style={{
+                        transform: `translateY(${virtualItem.start}px)`,
+                        height: `${virtualItem.size}px`
+                      }}
                       position="absolute"
                       top={0}
                       left={0}
                       rounded="l2"
                       w="full"
-                      h={`${virtualItem.size}px`}
                       p="2"
                       bg="bg.subtle"
                     >

@@ -25,7 +25,7 @@ export interface LoadPredictionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSelectLoadPrediction: (prediction: SetlistPrediction) => void;
-  onSelectScorePrediction: (prediction: SetlistPrediction) => void;
+  onSelectScorePrediction?: (prediction: SetlistPrediction) => void;
   onDeletePrediction?: (predictionId: string) => void;
   performanceId?: string;
 }
@@ -152,7 +152,7 @@ export function LoadPredictionDialog({
   };
 
   const handleConfirmScore = () => {
-    if (selectedPrediction) {
+    if (selectedPrediction && onSelectScorePrediction) {
       onSelectScorePrediction(selectedPrediction);
       onOpenChange(false);
     }
@@ -265,11 +265,11 @@ export function LoadPredictionDialog({
               </DialogCloseTrigger>
               {/* Only show Score button if the performance has an actual setlist */}
               {/* If not, display a disabled button with a message saying this performance hasn't happened yet */}
-              {selectedPerformance?.hasSetlist ? (
+              {selectedPerformance?.hasSetlist && onSelectScorePrediction ? (
                 <Button onClick={handleConfirmScore} disabled={!selectedPredictionId}>
                   {t('common.score', { defaultValue: 'Score' })}
                 </Button>
-              ) : (
+              ) : selectedPerformance?.hasSetlist ? null : (
                 <Button variant="ghost" disabled={!selectedPredictionId}>
                   {t('setlistPrediction.performanceNotOccurred', {
                     defaultValue: 'This performance has not occurred yet'
