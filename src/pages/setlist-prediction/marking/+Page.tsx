@@ -249,7 +249,12 @@ export function Page() {
                 {t('setlistPrediction.yourPrediction', { defaultValue: 'Your Prediction' })}
               </Text>
               <Stack gap={1}>
-                <SetlistView prediction={prediction} matchResults={predictionMatchResults} />
+                <SetlistView
+                  prediction={prediction}
+                  // Passing match results displays color coding for comparison view
+                  // Only display color coding if user has clicked score button
+                  matchResults={isScored ? predictionMatchResults : undefined}
+                />
 
                 {/* {prediction.setlist.items.map((item, index) => (
                   <HStack key={item.id} gap={2} borderRadius="sm" p={2} bgColor="bg.subtle">
@@ -270,7 +275,12 @@ export function Page() {
                 {t('setlistPrediction.actualSetlist', { defaultValue: 'Actual Setlist' })}
               </Text>
               <Stack gap={1}>
-                <SetlistView prediction={actualPrediction} matchResults={actualMatchResults} />
+                <SetlistView
+                  prediction={actualPrediction}
+                  // Passing match results displays color coding for comparison view
+                  // Only display color coding if user has clicked score button
+                  matchResults={isScored ? actualMatchResults : undefined}
+                />
               </Stack>
             </Box>
           </Grid>
