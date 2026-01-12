@@ -22,6 +22,8 @@ export interface SetlistViewProps {
   authorName?: string;
   showHeader?: boolean;
   compact?: boolean;
+  /** Match results for color-coding songs in comparison mode (green=exact, yellow=close/present) */
+  matchResults?: Map<string, 'exact' | 'close' | 'present' | 'section'>;
 }
 
 // Convert number to circled number (①②③...)
@@ -40,7 +42,8 @@ export function SetlistView({
   performance,
   authorName,
   showHeader = true,
-  compact = false
+  compact = false,
+  matchResults
 }: SetlistViewProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
@@ -161,6 +164,9 @@ export function SetlistView({
             }
           }
 
+          // Get match type for this item (only for songs)
+          const matchType = isSongItem(item) ? matchResults?.get(item.id) : undefined;
+
           return (
             <Box
               className={css({
@@ -170,18 +176,25 @@ export function SetlistView({
                 '&[data-has-color=true]': {
                   borderLeft: '4px solid',
                   borderLeftColor: 'var(--song-color)'
+                },
+                // Match type color-coding for comparison mode
+                '&[data-match-type=exact]': {
+                  bgColor: { base: 'rgb(0,255,0, 0.4)'},
+                },
+                '&[data-match-type=close], &[data-match-type=present], &[data-match-type=section]': {
+                  bgColor: { base: 'rgb(255,255,0, 0.3)' }
                 }
               })}
               key={item.id || index}
               style={{ '--song-color': songColor } as React.CSSProperties}
               data-has-color={Boolean(isSongItem(item) && songColor)}
               data-is-divider={isDivider}
-              data-row-odd={index % 2 !== 0}
+              data-row-odd={!matchType && index % 2 !== 0}
               data-compact={compact}
+              data-match-type={matchType}
               borderBottomWidth="1px"
               py={3}
               px={4}
-              bgColor="bg.default"
             >
               <HStack
                 className={css({ '&[data-compact=true]': { gap: 2 } })}

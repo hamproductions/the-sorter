@@ -3,7 +3,7 @@
  * Compare prediction against actual setlist and calculate score
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePageContext } from 'vike-react/usePageContext';
 import { Stack, Box, HStack, Grid } from 'styled-system/jsx';
@@ -113,6 +113,23 @@ export function Page() {
     setIsScored(true);
   };
 
+  // Build match result maps for color-coding comparison view
+  const { predictionMatchResults, actualMatchResults } = useMemo(() => {
+    const predMap = new Map<string, 'exact' | 'close' | 'present' | 'section'>();
+    const actualMap = new Map<string, 'exact' | 'close' | 'present' | 'section'>();
+
+    if (prediction?.score?.itemScores) {
+      for (const itemScore of prediction.score.itemScores) {
+        if (itemScore.matched && itemScore.matchType) {
+          predMap.set(itemScore.itemId, itemScore.matchType);
+          actualMap.set(itemScore.actualItemId, itemScore.matchType);
+        }
+      }
+    }
+
+    return { predictionMatchResults: predMap, actualMatchResults: actualMap };
+  }, [prediction?.score?.itemScores]);
+
   if (!prediction) {
     return (
       <>
@@ -192,7 +209,7 @@ export function Page() {
                 {t('setlistPrediction.yourPrediction', { defaultValue: 'Your Prediction' })}
               </Text>
               <Stack gap={1}>
-                <SetlistView prediction={prediction} />
+                <SetlistView prediction={prediction} matchResults={predictionMatchResults} />
 
                 {/* {prediction.setlist.items.map((item, index) => (
                   <HStack key={item.id} gap={2} borderRadius="sm" p={2} bgColor="bg.subtle">
@@ -213,7 +230,7 @@ export function Page() {
                 {t('setlistPrediction.actualSetlist', { defaultValue: 'Actual Setlist' })}
               </Text>
               <Stack gap={1}>
-                <SetlistView prediction={actualPrediction} />
+                <SetlistView prediction={actualPrediction} matchResults={actualMatchResults} />
               </Stack>
             </Box>
           </Grid>
