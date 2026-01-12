@@ -23,6 +23,7 @@ import type {
   SetlistItemType,
   SetlistPrediction
 } from '~/types/setlist-prediction';
+import { isSongItem } from '~/types/setlist-prediction';
 import { generateSetlistId } from '~/utils/setlist-prediction/id';
 import { SetlistView } from '~/components/setlist-prediction/SetlistView';
 
@@ -119,16 +120,46 @@ export function Page() {
     const actualMap = new Map<string, 'exact' | 'close' | 'present' | 'section'>();
 
     if (prediction?.score?.itemScores) {
+      // First pass: build maps from scored matches
       for (const itemScore of prediction.score.itemScores) {
         if (itemScore.matched && itemScore.matchType) {
           predMap.set(itemScore.itemId, itemScore.matchType);
           actualMap.set(itemScore.actualItemId, itemScore.matchType);
         }
       }
+
+      // Second pass: handle duplicate songs that weren't matched but exist in the other setlist
+      // (This can happen if a the same song is in the actual or predicted setlist multiple times)
+      // Then only the first gets matched, and the duplicate don't get marked.
+      // This second pass marks the duplicates as 'present' if they exist anywhere in the other setlist. So that they are still highlighted.
+
+      // Get all song IDs from each setlist
+      const predSongIds = new Set(
+        prediction.setlist.items.filter(isSongItem).map((item) => item.songId)
+      );
+      const actualSongIds = actualSetlist
+        ? new Set(actualSetlist.items.filter(isSongItem).map((item) => item.songId))
+        : new Set<string>();
+
+      // Mark unmatched prediction songs as 'present' if they exist anywhere in actual
+      for (const item of prediction.setlist.items) {
+        if (isSongItem(item) && !predMap.has(item.id) && actualSongIds.has(item.songId)) {
+          predMap.set(item.id, 'present');
+        }
+      }
+
+      // Vice versa of above: Mark unmatched actual songs as 'present' if they exist anywhere in prediction
+      if (actualSetlist) {
+        for (const item of actualSetlist.items) {
+          if (isSongItem(item) && !actualMap.has(item.id) && predSongIds.has(item.songId)) {
+            actualMap.set(item.id, 'present');
+          }
+        }
+      }
     }
 
     return { predictionMatchResults: predMap, actualMatchResults: actualMap };
-  }, [prediction?.score?.itemScores]);
+  }, [prediction?.score?.itemScores, prediction?.setlist.items, actualSetlist]);
 
   if (!prediction) {
     return (
