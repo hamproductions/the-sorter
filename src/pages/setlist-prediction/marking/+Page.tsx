@@ -5,7 +5,6 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { usePageContext } from 'vike-react/usePageContext';
 import { Stack, Box, HStack, Grid } from 'styled-system/jsx';
 import { Text } from '~/components/ui/styled/text';
 import { Button } from '~/components/ui/styled/button';
@@ -26,19 +25,26 @@ import type {
 import { isSongItem } from '~/types/setlist-prediction';
 import { generateSetlistId } from '~/utils/setlist-prediction/id';
 import { SetlistView } from '~/components/setlist-prediction/SetlistView';
+import { usePageContext } from 'vike-react/usePageContext';
 
 export function Page() {
   const { t } = useTranslation();
-  const pageContext = usePageContext();
   const { getPrediction, savePrediction } = usePredictionStorage();
 
-  const predictionId = (pageContext.routeParams as { prediction?: string }).prediction ?? '';
-  const prediction = getPrediction(predictionId);
-  const performance = usePerformance(prediction?.performanceId ?? '');
+  // When the page loads, get the prediction ID from the URL params
+  // and set the predictionId state variable, which will trigger a re-render
+
+  const { urlParsed } = usePageContext();
+  const predictionId = urlParsed.search.prediction ?? '';
+
+  // const predictionId = (pageContext.routeParams as { prediction?: string }).prediction ?? '';
 
   const [actualSetlistText, setActualSetlistText] = useState('');
   const [actualSetlist, setActualSetlist] = useState<PerformanceSetlist | null>(null);
   const [isScored, setIsScored] = useState(false);
+
+  const prediction = getPrediction(predictionId);
+  const performance = usePerformance(prediction?.performanceId ?? '');
 
   const actualPrediction = {
     id: '012938109283',
@@ -50,10 +56,13 @@ export function Page() {
 
   // update actual setlist only when we have a setlist and the performance indicates it has one
   useEffect(() => {
+    // If no prediction or performance (prediction ID not found, or prediction/performance data not loaded yet), return early
+    if (!prediction || !performance) return;
+    // Try loading setlist from performance data
     if (performance?.hasSetlist && setlist) {
       setActualSetlist(setlist);
     }
-  }, [performance?.id, performance?.hasSetlist, setlist]);
+  }, [performance, prediction, setlist]);
 
   const handleParseActual = () => {
     try {

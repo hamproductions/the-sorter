@@ -57,7 +57,7 @@ export function Page() {
   const handleSelectScorePrediction = useCallback((prediction: SetlistPrediction) => {
     window.location.href = join(
       import.meta.env.BASE_URL,
-      `/setlist-prediction/marking/${prediction.id}`
+      `/setlist-prediction/marking?prediction=${prediction.id}`
     );
     localStorage.setItem('setlist-builder-last-prediction', prediction.id);
   }, []);

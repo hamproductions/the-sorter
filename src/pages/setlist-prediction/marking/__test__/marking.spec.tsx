@@ -72,7 +72,7 @@ const createMockPrediction = (overrides?: Partial<SetlistPrediction>): SetlistPr
 });
 
 // Import Page component after mocks are set up
-import { Page } from '../@prediction/+Page';
+import { Page } from '../+Page';
 
 describe('Marking Mode Page', () => {
   beforeEach(() => {

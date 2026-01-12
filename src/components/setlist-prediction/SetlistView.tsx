@@ -179,11 +179,12 @@ export function SetlistView({
                 },
                 // Match type color-coding for comparison mode
                 '&[data-match-type=exact]': {
-                  bgColor: { base: 'rgb(0,255,0, 0.4)'},
+                  bgColor: { base: 'rgb(0,255,0, 0.4)' }
                 },
-                '&[data-match-type=close], &[data-match-type=present], &[data-match-type=section]': {
-                  bgColor: { base: 'rgb(255,255,0, 0.3)' }
-                }
+                '&[data-match-type=close], &[data-match-type=present], &[data-match-type=section]':
+                  {
+                    bgColor: { base: 'rgb(255,255,0, 0.3)' }
+                  }
               })}
               key={item.id || index}
               style={{ '--song-color': songColor } as React.CSSProperties}
