@@ -160,3 +160,104 @@ describe('SetlistView', () => {
     expect(screen.getByText('Long talk')).toBeInTheDocument();
   });
 });
+
+describe('SetlistView - Match results color coding', () => {
+  const mockPrediction: SetlistPrediction = {
+    id: 'pred-1',
+    performanceId: 'perf-1',
+    name: 'Test Prediction',
+    setlist: {
+      id: 'setlist-1',
+      performanceId: 'perf-1',
+      items: [
+        { id: 'item-1', type: 'song', songId: 'song-1', position: 0 },
+        { id: 'item-2', type: 'song', songId: 'song-1', position: 1 },
+        { id: 'item-3', type: 'mc', title: 'MC Talk', position: 2 },
+        { id: 'item-4', type: 'song', songId: 'song-1', position: 3 }
+      ],
+      sections: []
+    },
+    createdAt: '2023-01-01',
+    updatedAt: '2023-01-01'
+  };
+
+  it('applies exact match type to song items', async () => {
+    const matchResults = new Map<string, 'exact' | 'close' | 'present' | 'section'>([
+      ['item-1', 'exact'],
+      ['item-2', 'exact']
+    ]);
+
+    const [{ container }] = await render(
+      <SetlistView prediction={mockPrediction} matchResults={matchResults} />
+    );
+
+    const exactMatchElements = container.querySelectorAll('[data-match-type="exact"]');
+    expect(exactMatchElements.length).toBe(2);
+  });
+
+  it('applies close match type to song items', async () => {
+    const matchResults = new Map<string, 'exact' | 'close' | 'present' | 'section'>([
+      ['item-1', 'close']
+    ]);
+
+    const [{ container }] = await render(
+      <SetlistView prediction={mockPrediction} matchResults={matchResults} />
+    );
+
+    const closeMatchElements = container.querySelectorAll('[data-match-type="close"]');
+    expect(closeMatchElements.length).toBe(1);
+  });
+
+  it('applies present match type to song items', async () => {
+    const matchResults = new Map<string, 'exact' | 'close' | 'present' | 'section'>([
+      ['item-1', 'present'],
+      ['item-4', 'present']
+    ]);
+
+    const [{ container }] = await render(
+      <SetlistView prediction={mockPrediction} matchResults={matchResults} />
+    );
+
+    const presentMatchElements = container.querySelectorAll('[data-match-type="present"]');
+    expect(presentMatchElements.length).toBe(2);
+  });
+
+  it('does not apply match type to non-song items', async () => {
+    // Even if we try to set match type for MC item, it should not be applied
+    const matchResults = new Map<string, 'exact' | 'close' | 'present' | 'section'>([
+      ['item-1', 'exact'],
+      ['item-3', 'exact'] // MC item - should not get match type
+    ]);
+
+    const [{ container }] = await render(
+      <SetlistView prediction={mockPrediction} matchResults={matchResults} />
+    );
+
+    // Only the song item should have data-match-type
+    const allMatchTypeElements = container.querySelectorAll('[data-match-type]');
+    expect(allMatchTypeElements.length).toBe(1);
+  });
+
+  it('renders without match results when not provided', async () => {
+    const [{ container }] = await render(<SetlistView prediction={mockPrediction} />);
+
+    const allMatchTypeElements = container.querySelectorAll('[data-match-type]');
+    expect(allMatchTypeElements.length).toBe(0);
+  });
+
+  it('handles mixed match types', async () => {
+    const matchResults = new Map<string, 'exact' | 'close' | 'present' | 'section'>([
+      ['item-1', 'exact'],
+      ['item-2', 'close'],
+      ['item-4', 'present']
+    ]);
+
+    const [{ container }] = await render(
+      <SetlistView prediction={mockPrediction} matchResults={matchResults} />
+    );
+
+    expect(container.querySelectorAll('[data-match-type="exact"]').length).toBe(1);
+    expect(container.querySelectorAll('[data-match-type="close"]').length).toBe(1);
+    expect(container.querySelectorAll('[data-match-type="present"]').length).toBe(1);
+  });
+});

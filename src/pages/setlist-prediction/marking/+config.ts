@@ -1,5 +1,6 @@
 import type { Config } from 'vike/types';
 
 export default {
-  title: 'Marking Mode'
+  title: 'Marking Mode',
+  prerender: true
 } satisfies Config;

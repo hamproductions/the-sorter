@@ -3,9 +3,8 @@
  * Compare prediction against actual setlist and calculate score
  */
 
-import { useEffect, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { usePageContext } from 'vike-react/usePageContext';
 import { Stack, Box, HStack, Grid } from 'styled-system/jsx';
 import { Text } from '~/components/ui/styled/text';
 import { Button } from '~/components/ui/styled/button';
@@ -23,36 +22,52 @@ import type {
   SetlistItemType,
   SetlistPrediction
 } from '~/types/setlist-prediction';
+import { isSongItem } from '~/types/setlist-prediction';
 import { generateSetlistId } from '~/utils/setlist-prediction/id';
 import { SetlistView } from '~/components/setlist-prediction/SetlistView';
+import { usePageContext } from 'vike-react/usePageContext';
 
 export function Page() {
   const { t } = useTranslation();
-  const pageContext = usePageContext();
   const { getPrediction, savePrediction } = usePredictionStorage();
 
-  const predictionId = (pageContext.routeParams as { prediction?: string }).prediction ?? '';
+  // When the page loads, get the prediction ID from the URL params
+  // and set the predictionId state variable, which will trigger a re-render
+
+  const { urlParsed } = usePageContext();
+  const predictionId = urlParsed.search.prediction ?? '';
+
+  // const predictionId = (pageContext.routeParams as { prediction?: string }).prediction ?? '';
+
+  const [actualSetlistText, setActualSetlistText] = useState('');
+  // State for user-parsed setlist (from textarea input)
+  const [parsedActualSetlist, setParsedActualSetlist] = useState<PerformanceSetlist | null>(null);
+  const [isScored, setIsScored] = useState(false);
+
+  // Ref for scrolling to score section
+  const scoreRef = useRef<HTMLDivElement>(null);
+
   const prediction = getPrediction(predictionId);
   const performance = usePerformance(prediction?.performanceId ?? '');
 
-  const [actualSetlistText, setActualSetlistText] = useState('');
-  const [actualSetlist, setActualSetlist] = useState<PerformanceSetlist | null>(null);
-  const [isScored, setIsScored] = useState(false);
-
-  const actualPrediction = {
-    id: '012938109283',
-    setlist: actualSetlist,
-    name: 'Actual Setlist'
-  } as SetlistPrediction;
   // call the hook unconditionally (safe no-op if `performance?.id` is falsy)
   const { setlist } = usePerformanceSetlist(performance?.id ?? '');
 
-  // update actual setlist only when we have a setlist and the performance indicates it has one
-  useEffect(() => {
-    if (performance?.hasSetlist && setlist) {
-      setActualSetlist(setlist);
-    }
-  }, [performance?.id, performance?.hasSetlist, setlist]);
+  // Derive actualSetlist: prefer user-parsed, fallback to performance data
+  const actualSetlist = useMemo(() => {
+    // User-parsed setlist takes precedence
+    if (parsedActualSetlist) return parsedActualSetlist;
+    // Otherwise use setlist from the performance data if available
+    if (performance?.hasSetlist && setlist) return setlist;
+    return null;
+  }, [parsedActualSetlist, performance?.hasSetlist, setlist]);
+
+  // Create a fake prediction for the actual setlist so that we can display with PredictionView component
+  const actualPrediction = {
+    id: '012938109283',
+    setlist: actualSetlist,
+    name: performance ? performance.name : 'Actual Setlist'
+  } as SetlistPrediction;
 
   const handleParseActual = () => {
     try {
@@ -86,7 +101,7 @@ export function Page() {
         isActual: true
       };
 
-      setActualSetlist(actualSetlistData);
+      setParsedActualSetlist(actualSetlistData);
     } catch {
       alert(
         t('setlistPrediction.failedToParse', {
@@ -111,7 +126,59 @@ export function Page() {
 
     savePrediction(updatedPrediction);
     setIsScored(true);
+
+    // Scroll to score section after state update
+    setTimeout(() => {
+      scoreRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 0);
   };
+
+  // Build match result maps for color-coding comparison view
+  const { predictionMatchResults, actualMatchResults } = useMemo(() => {
+    const predMap = new Map<string, 'exact' | 'close' | 'present' | 'section'>();
+    const actualMap = new Map<string, 'exact' | 'close' | 'present' | 'section'>();
+
+    if (prediction?.score?.itemScores) {
+      // First pass: build maps from scored matches
+      for (const itemScore of prediction.score.itemScores) {
+        if (itemScore.matched && itemScore.matchType) {
+          predMap.set(itemScore.itemId, itemScore.matchType);
+          actualMap.set(itemScore.actualItemId, itemScore.matchType);
+        }
+      }
+
+      // Second pass: handle duplicate songs that weren't matched but exist in the other setlist
+      // (This can happen if a the same song is in the actual or predicted setlist multiple times)
+      // Then only the first gets matched, and the duplicate don't get marked.
+      // This second pass marks the duplicates as 'present' if they exist anywhere in the other setlist. So that they are still highlighted.
+
+      // Get all song IDs from each setlist
+      const predSongIds = new Set(
+        prediction.setlist.items.filter(isSongItem).map((item) => item.songId)
+      );
+      const actualSongIds = actualSetlist
+        ? new Set(actualSetlist.items.filter(isSongItem).map((item) => item.songId))
+        : new Set<string>();
+
+      // Mark unmatched prediction songs as 'present' if they exist anywhere in actual
+      for (const item of prediction.setlist.items) {
+        if (isSongItem(item) && !predMap.has(item.id) && actualSongIds.has(item.songId)) {
+          predMap.set(item.id, 'present');
+        }
+      }
+
+      // Vice versa of above: Mark unmatched actual songs as 'present' if they exist anywhere in prediction
+      if (actualSetlist) {
+        for (const item of actualSetlist.items) {
+          if (isSongItem(item) && !actualMap.has(item.id) && predSongIds.has(item.songId)) {
+            actualMap.set(item.id, 'present');
+          }
+        }
+      }
+    }
+
+    return { predictionMatchResults: predMap, actualMatchResults: actualMap };
+  }, [prediction?.score?.itemScores, prediction?.setlist.items, actualSetlist]);
 
   if (!prediction) {
     return (
@@ -137,6 +204,18 @@ export function Page() {
       />
 
       <Stack gap={4} w="full" maxW="6xl" mx="auto" p={4}>
+        {/* Back Button */}
+        <Box>
+          <Button variant="ghost" size="sm" asChild>
+            <a href="/setlist-prediction">
+              ←{' '}
+              {t('setlistPrediction.backToPerformances', {
+                defaultValue: 'Back to Performance List'
+              })}
+            </a>
+          </Button>
+        </Box>
+
         {/* Header */}
         <Box>
           <Text mb={2} fontSize="2xl" fontWeight="bold">
@@ -185,43 +264,76 @@ export function Page() {
 
         {/* Comparison View */}
         {actualSetlist && (
-          <Grid gap={4} gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }}>
-            {/* Prediction */}
-            <Box borderRadius="lg" borderWidth="1px" p={4} bgColor="bg.default">
-              <Text mb={3} fontSize="lg" fontWeight="bold">
-                {t('setlistPrediction.yourPrediction', { defaultValue: 'Your Prediction' })}
-              </Text>
-              <Stack gap={1}>
-                <SetlistView prediction={prediction} />
+          <>
+            {/* Calculate Score Button - Top */}
+            {!isScored && (
+              <Button size="lg" onClick={handleCalculateScore}>
+                {t('setlistPrediction.calculateScore', { defaultValue: 'Calculate Score' })}
+              </Button>
+            )}
 
-                {/* {prediction.setlist.items.map((item, index) => (
-                  <HStack key={item.id} gap={2} borderRadius="sm" p={2} bgColor="bg.subtle">
-                    <Text minW="30px" color="fg.muted" fontSize="sm" fontWeight="bold">
-                      {index + 1}.
-                    </Text>
-                    <Text fontSize="sm">
-                      {isSongItem(item) ? `♪ Song ${item.songId}` : `[${item.title}]`}
-                    </Text>
-                  </HStack>
-                ))} */}
-              </Stack>
-            </Box>
+            {/* 2x2 Grid: Headers in row 1 (same height), Setlists in row 2 */}
+            <Grid
+              gap={0}
+              gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }}
+              gridTemplateRows={{ base: 'auto', md: 'auto 1fr' }}
+              borderRadius="lg"
+              borderWidth="1px"
+              overflow="hidden"
+            >
+              {/* Row 1: Headers */}
+              <Box
+                borderRightWidth={{ base: '0', md: '1px' }}
+                borderBottomWidth="1px"
+                p={4}
+                bgColor="bg.default"
+              >
+                <Text fontSize="lg" fontWeight="bold">
+                  {t('setlistPrediction.yourPrediction', { defaultValue: 'Your Prediction' })}
+                </Text>
+                <Text color="fg.muted" fontSize="md">
+                  {prediction.name}
+                </Text>
+                <Text color="fg.muted" fontSize="sm">
+                  {prediction.setlist.items.filter((i) => i.type === 'song').length} songs
+                </Text>
+              </Box>
 
-            {/* Actual */}
-            <Box borderRadius="lg" borderWidth="1px" p={4} bgColor="bg.default">
-              <Text mb={3} fontSize="lg" fontWeight="bold">
-                {t('setlistPrediction.actualSetlist', { defaultValue: 'Actual Setlist' })}
-              </Text>
-              <Stack gap={1}>
-                <SetlistView prediction={actualPrediction} />
-              </Stack>
-            </Box>
-          </Grid>
+              <Box borderBottomWidth="1px" p={4} bgColor="bg.default">
+                <Text fontSize="lg" fontWeight="bold">
+                  {t('setlistPrediction.actualSetlist', { defaultValue: 'Actual Setlist' })}
+                </Text>
+                <Text color="fg.muted" fontSize="md">
+                  {performance?.name || 'Actual Setlist'}
+                </Text>
+                <Text color="fg.muted" fontSize="sm">
+                  {actualSetlist.items.filter((i) => i.type === 'song').length} songs
+                </Text>
+              </Box>
+
+              {/* Row 2: Setlist items */}
+              <Box borderRightWidth={{ base: '0', md: '1px' }} p={4} bgColor="bg.default">
+                <SetlistView
+                  prediction={prediction}
+                  showHeader={false}
+                  matchResults={isScored ? predictionMatchResults : undefined}
+                />
+              </Box>
+
+              <Box p={4} bgColor="bg.default">
+                <SetlistView
+                  prediction={actualPrediction}
+                  showHeader={false}
+                  matchResults={isScored ? actualMatchResults : undefined}
+                />
+              </Box>
+            </Grid>
+          </>
         )}
 
         {/* Score Display */}
         {isScored && prediction.score && (
-          <Box borderRadius="lg" borderWidth="2px" p={6} bgColor="bg.emphasized">
+          <Box ref={scoreRef} borderRadius="lg" borderWidth="2px" p={6} bgColor="bg.emphasized">
             <Stack gap={3} alignItems="center">
               <Text fontSize="2xl" fontWeight="bold">
                 {t('setlistPrediction.yourScore', { defaultValue: 'Your Score' })}
