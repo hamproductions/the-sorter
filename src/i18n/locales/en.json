@@ -330,6 +330,7 @@
     "authorNamePlaceholder": "Enter your name...",
     "addItem": "Add Item",
     "quickAddHint": "Drag into setlist or double-click to add to bottom",
-    "noSongsFound": "No songs found"
+    "noSongsFound": "No songs found",
+    "backToPerformances": "Back to Performance List"
   }
 }

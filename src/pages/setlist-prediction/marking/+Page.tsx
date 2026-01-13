@@ -204,6 +204,18 @@ export function Page() {
       />
 
       <Stack gap={4} w="full" maxW="6xl" mx="auto" p={4}>
+        {/* Back Button */}
+        <Box>
+          <Button variant="ghost" size="sm" asChild>
+            <a href="/setlist-prediction">
+              ←{' '}
+              {t('setlistPrediction.backToPerformances', {
+                defaultValue: 'Back to Performance List'
+              })}
+            </a>
+          </Button>
+        </Box>
+
         {/* Header */}
         <Box>
           <Text mb={2} fontSize="2xl" fontWeight="bold">
