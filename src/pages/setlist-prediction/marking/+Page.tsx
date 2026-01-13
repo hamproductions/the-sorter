@@ -3,7 +3,7 @@
  * Compare prediction against actual setlist and calculate score
  */
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Stack, Box, HStack, Grid } from 'styled-system/jsx';
 import { Text } from '~/components/ui/styled/text';
@@ -40,29 +40,31 @@ export function Page() {
   // const predictionId = (pageContext.routeParams as { prediction?: string }).prediction ?? '';
 
   const [actualSetlistText, setActualSetlistText] = useState('');
-  const [actualSetlist, setActualSetlist] = useState<PerformanceSetlist | null>(null);
+  // State for user-parsed setlist (from textarea input)
+  const [parsedActualSetlist, setParsedActualSetlist] = useState<PerformanceSetlist | null>(null);
   const [isScored, setIsScored] = useState(false);
 
   const prediction = getPrediction(predictionId);
   const performance = usePerformance(prediction?.performanceId ?? '');
 
+  // call the hook unconditionally (safe no-op if `performance?.id` is falsy)
+  const { setlist } = usePerformanceSetlist(performance?.id ?? '');
+
+  // Derive actualSetlist: prefer user-parsed, fallback to performance data
+  const actualSetlist = useMemo(() => {
+    // User-parsed setlist takes precedence
+    if (parsedActualSetlist) return parsedActualSetlist;
+    // Otherwise use setlist from the performance data if available
+    if (performance?.hasSetlist && setlist) return setlist;
+    return null;
+  }, [parsedActualSetlist, performance?.hasSetlist, setlist]);
+
+  // Create a fake prediction for the actual setlist so that we can display with PredictionView component
   const actualPrediction = {
     id: '012938109283',
     setlist: actualSetlist,
     name: 'Actual Setlist'
   } as SetlistPrediction;
-  // call the hook unconditionally (safe no-op if `performance?.id` is falsy)
-  const { setlist } = usePerformanceSetlist(performance?.id ?? '');
-
-  // update actual setlist only when we have a setlist and the performance indicates it has one
-  useEffect(() => {
-    // If no prediction or performance (prediction ID not found, or prediction/performance data not loaded yet), return early
-    if (!prediction || !performance) return;
-    // Try loading setlist from performance data
-    if (performance?.hasSetlist && setlist) {
-      setActualSetlist(setlist);
-    }
-  }, [performance, prediction, setlist]);
 
   const handleParseActual = () => {
     try {
@@ -96,7 +98,7 @@ export function Page() {
         isActual: true
       };
 
-      setActualSetlist(actualSetlistData);
+      setParsedActualSetlist(actualSetlistData);
     } catch {
       alert(
         t('setlistPrediction.failedToParse', {
