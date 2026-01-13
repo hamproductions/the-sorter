@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.17.2](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.17.1...v1.17.2) (2026-01-13)
+
+
+### Bug Fixes
+
+* fix lint for test ([17765f2](https://github.com/Tanyawat-Arsaga/the-sorter/commit/17765f238c7e87bcab5af7924d4aad67aaee7e11))
+* **marking mode:** fix vite routing error changing from route params to query params ([4d960e6](https://github.com/Tanyawat-Arsaga/the-sorter/commit/4d960e68efd1820c1ef4cf2fe6e79114764582d6))
+* **marking mode:** set *all* copies of the same song in predicted or actual setlist yellow if the song is present in the other setlist (or green if exact position match) ([4c720d8](https://github.com/Tanyawat-Arsaga/the-sorter/commit/4c720d864efc876436b5199587a3bce63d047d9d))
+* only display color coding when scoring button pressed ([ce51d67](https://github.com/Tanyawat-Arsaga/the-sorter/commit/ce51d67092220eacf6ef613d857a2a395ac21367))
+* reduce number of rerenders needed for the marking mode page by removing the useEffect with dependency on setlist ([f0ed5f3](https://github.com/Tanyawat-Arsaga/the-sorter/commit/f0ed5f3809af33112f58b7b769e27e6957ddd86d))
+* update scoring algorithm to account for duplicate items ([84a5fdf](https://github.com/Tanyawat-Arsaga/the-sorter/commit/84a5fdfa9275c90914583252ec59bcc00b838567))
+
+
+### Features
+
+* add back button to marking mode ([c0d039f](https://github.com/Tanyawat-Arsaga/the-sorter/commit/c0d039fb26c60031a233448a20192faaeb1f3d6a))
+* CI or pull requests ([698ebef](https://github.com/Tanyawat-Arsaga/the-sorter/commit/698ebef27ad858c5cb39ce714635cb3ed5d04fe2))
+* color coded setlist prediction match results ([cf1a684](https://github.com/Tanyawat-Arsaga/the-sorter/commit/cf1a6842a99a4ceac9906f7c5081d93277159dd8))
+* data update ([72e6ea4](https://github.com/Tanyawat-Arsaga/the-sorter/commit/72e6ea46a3419461cadfcc28cd826308c63f1ea5))
+* **marking mode:** add calculate score button on top that scrolls to bottom ([03c69f3](https://github.com/Tanyawat-Arsaga/the-sorter/commit/03c69f31b93d3b10d2d5277000bc0090117a006e))
+* **marking mode:** add performance name to comparison header actual column ([c95c73b](https://github.com/Tanyawat-Arsaga/the-sorter/commit/c95c73b11b8ba9101e5b8dca69b1703e0da4d77c))
+
 ## [1.17.1](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.17.0...v1.17.1) (2026-01-11)
 
 
