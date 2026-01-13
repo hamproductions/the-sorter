@@ -331,6 +331,7 @@
     "addItem": "Add Item",
     "quickAddHint": "Drag into setlist or double-click to add to bottom",
     "noSongsFound": "No songs found",
-    "backToPerformances": "Back to Performance List"
+    "backToPerformances": "Back to Performance List",
+    "performanceNotOccurred": "Performance has not occurred yet",
   }
 }
