@@ -88,37 +88,79 @@ interface Match {
 function matchSongs(predItems: SetlistItem[], actualItems: SetlistItem[]): Match[] {
   const matches: Match[] = [];
   const usedActual = new Set<string>();
+  const usedPred = new Set<string>();
 
   // Filter to only song items
   const predSongs = predItems.filter(isSongItem);
   const actualSongs = actualItems.filter(isSongItem);
 
-  // Match by song ID
+  // Pass 1: Find exact matches first (same songId AND same position)
   for (const predItem of predSongs) {
-    const actualItem = actualSongs.find(
+    const exactMatch = actualSongs.find(
+      (a) =>
+        a.songId === predItem.songId && a.position === predItem.position && !usedActual.has(a.id)
+    );
+
+    if (exactMatch) {
+      matches.push({
+        predItemId: predItem.id,
+        actualItemId: exactMatch.id,
+        predPos: predItem.position,
+        actualPos: exactMatch.position,
+        positionDiff: 0,
+        matchType: 'exact'
+      });
+      usedActual.add(exactMatch.id);
+      usedPred.add(predItem.id);
+    }
+  }
+
+  // Pass 2: Find close matches (within range) for remaining predictions
+  for (const predItem of predSongs) {
+    if (usedPred.has(predItem.id)) continue;
+
+    const closeMatch = actualSongs.find(
+      (a) =>
+        a.songId === predItem.songId &&
+        !usedActual.has(a.id) &&
+        Math.abs(predItem.position - a.position) <= DEFAULT_SCORING_RULES.closeMatch.range
+    );
+
+    if (closeMatch) {
+      const positionDiff = Math.abs(predItem.position - closeMatch.position);
+      matches.push({
+        predItemId: predItem.id,
+        actualItemId: closeMatch.id,
+        predPos: predItem.position,
+        actualPos: closeMatch.position,
+        positionDiff,
+        matchType: 'close'
+      });
+      usedActual.add(closeMatch.id);
+      usedPred.add(predItem.id);
+    }
+  }
+
+  // Pass 3: Find present matches (any position) for remaining predictions
+  for (const predItem of predSongs) {
+    if (usedPred.has(predItem.id)) continue;
+
+    const presentMatch = actualSongs.find(
       (a) => a.songId === predItem.songId && !usedActual.has(a.id)
     );
 
-    if (actualItem) {
-      const positionDiff = Math.abs(predItem.position - actualItem.position);
-
-      let matchType: Match['matchType'] = 'present';
-      if (positionDiff === 0) {
-        matchType = 'exact';
-      } else if (positionDiff <= DEFAULT_SCORING_RULES.closeMatch.range) {
-        matchType = 'close';
-      }
-
+    if (presentMatch) {
+      const positionDiff = Math.abs(predItem.position - presentMatch.position);
       matches.push({
         predItemId: predItem.id,
-        actualItemId: actualItem.id,
+        actualItemId: presentMatch.id,
         predPos: predItem.position,
-        actualPos: actualItem.position,
+        actualPos: presentMatch.position,
         positionDiff,
-        matchType
+        matchType: 'present'
       });
-
-      usedActual.add(actualItem.id);
+      usedActual.add(presentMatch.id);
+      usedPred.add(predItem.id);
     }
   }
 
