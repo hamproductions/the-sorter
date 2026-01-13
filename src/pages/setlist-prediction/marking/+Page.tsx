@@ -278,36 +278,41 @@ export function Page() {
               gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }}
               gridTemplateRows={{ base: 'auto', md: 'auto 1fr' }}
               borderRadius="lg"
-              overflow="hidden"
               borderWidth="1px"
+              overflow="hidden"
             >
               {/* Row 1: Headers */}
-              <Box p={4} bgColor="bg.default" borderRightWidth={{ base: '0', md: '1px' }} borderBottomWidth="1px">
+              <Box
+                borderRightWidth={{ base: '0', md: '1px' }}
+                borderBottomWidth="1px"
+                p={4}
+                bgColor="bg.default"
+              >
                 <Text fontSize="lg" fontWeight="bold">
                   {t('setlistPrediction.yourPrediction', { defaultValue: 'Your Prediction' })}
                 </Text>
-                <Text fontSize="md" color="fg.muted">
+                <Text color="fg.muted" fontSize="md">
                   {prediction.name}
                 </Text>
-                <Text fontSize="sm" color="fg.muted">
+                <Text color="fg.muted" fontSize="sm">
                   {prediction.setlist.items.filter((i) => i.type === 'song').length} songs
                 </Text>
               </Box>
 
-              <Box p={4} bgColor="bg.default" borderBottomWidth="1px">
+              <Box borderBottomWidth="1px" p={4} bgColor="bg.default">
                 <Text fontSize="lg" fontWeight="bold">
                   {t('setlistPrediction.actualSetlist', { defaultValue: 'Actual Setlist' })}
                 </Text>
-                <Text fontSize="md" color="fg.muted">
+                <Text color="fg.muted" fontSize="md">
                   {performance?.name || 'Actual Setlist'}
                 </Text>
-                <Text fontSize="sm" color="fg.muted">
+                <Text color="fg.muted" fontSize="sm">
                   {actualSetlist.items.filter((i) => i.type === 'song').length} songs
                 </Text>
               </Box>
 
               {/* Row 2: Setlist items */}
-              <Box p={4} bgColor="bg.default" borderRightWidth={{ base: '0', md: '1px' }}>
+              <Box borderRightWidth={{ base: '0', md: '1px' }} p={4} bgColor="bg.default">
                 <SetlistView
                   prediction={prediction}
                   showHeader={false}
