@@ -6,11 +6,23 @@ import type { SetlistPrediction } from '~/types/setlist-prediction';
 // Store mock return values that can be modified per test
 let mockPrediction: SetlistPrediction | null = null;
 let mockPerformance: ReturnType<typeof createMockPerformance> | null = null;
+let mockSetlist: ReturnType<typeof createMockSetlist> | null = null;
+
+const createMockSetlist = () => ({
+  id: 'setlist-1',
+  performanceId: 'perf-1',
+  items: [
+    { id: 'pred-item-1', type: 'song' as const, songId: 'song-1', position: 0 },
+    { id: 'pred-item-2', type: 'song' as const, songId: 'song-2', position: 1 },
+    { id: 'pred-item-3', type: 'mc' as const, title: 'MC Talk', position: 2 }
+  ],
+  sections: []
+});
 
 const createMockPerformance = () => ({
   id: 'perf-1',
   name: 'Test Performance',
-  date: '2025-01-01',
+  date: '2025-06-13',
   seriesIds: [],
   status: 'completed' as const,
   hasSetlist: true
@@ -48,7 +60,9 @@ vi.mock('~/hooks/setlist-prediction/usePredictionStorage', () => ({
 // Mock performance data hooks
 vi.mock('~/hooks/setlist-prediction/usePerformanceData', () => ({
   usePerformance: () => mockPerformance,
-  usePerformanceSetlist: () => ({ setlist: null })
+  usePerformanceSetlist: () => ({
+    setlist: mockSetlist
+  })
 }));
 
 // Helper to create a mock prediction
@@ -71,6 +85,22 @@ const createMockPrediction = (overrides?: Partial<SetlistPrediction>): SetlistPr
   ...overrides
 });
 
+const mockPageContext = {
+  urlPathname: '/setlist-prediction/marking',
+  urlParsed: {
+    pathname: '/setlist-prediction/marking',
+    search: {
+      prediction: 'test-pred-id'
+    },
+    searchOriginal: '?prediction=test-pred-id',
+    hash: ''
+  }
+};
+
+vi.mock('vike-react/usePageContext', () => ({
+  usePageContext: vi.fn(() => mockPageContext)
+}));
+
 // Import Page component after mocks are set up
 import { Page } from '../+Page';
 
@@ -79,6 +109,7 @@ describe('Marking Mode Page', () => {
     // Reset mocks before each test
     mockPrediction = null;
     mockPerformance = createMockPerformance();
+    mockSetlist = null; // Start with no setlist so import section shows by default
   });
 
   afterEach(() => {
@@ -123,11 +154,13 @@ describe('Marking Mode Page', () => {
     it('displays performance info when available', async () => {
       mockPrediction = createMockPrediction();
       mockPerformance = createMockPerformance();
+      mockSetlist = createMockSetlist(); // Set actual setlist so comparison view shows
 
       await render(<Page />);
 
       expect(screen.getByText(/Test Performance/)).toBeInTheDocument();
-      expect(screen.getByText(/Song One/)).toBeInTheDocument();
+      // Song One appears in both prediction and actual setlist
+      expect(screen.getAllByText(/Song One/).length).toBeGreaterThanOrEqual(1);
     });
 
     it('displays performance date when available', async () => {
