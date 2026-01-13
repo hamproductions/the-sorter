@@ -3,7 +3,7 @@
  * Compare prediction against actual setlist and calculate score
  */
 
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Stack, Box, HStack, Grid } from 'styled-system/jsx';
 import { Text } from '~/components/ui/styled/text';
@@ -43,6 +43,9 @@ export function Page() {
   // State for user-parsed setlist (from textarea input)
   const [parsedActualSetlist, setParsedActualSetlist] = useState<PerformanceSetlist | null>(null);
   const [isScored, setIsScored] = useState(false);
+
+  // Ref for scrolling to score section
+  const scoreRef = useRef<HTMLDivElement>(null);
 
   const prediction = getPrediction(predictionId);
   const performance = usePerformance(prediction?.performanceId ?? '');
@@ -123,6 +126,11 @@ export function Page() {
 
     savePrediction(updatedPrediction);
     setIsScored(true);
+
+    // Scroll to score section after state update
+    setTimeout(() => {
+      scoreRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 0);
   };
 
   // Build match result maps for color-coding comparison view
@@ -244,7 +252,15 @@ export function Page() {
 
         {/* Comparison View */}
         {actualSetlist && (
-          <Grid gap={4} gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }}>
+          <>
+            {/* Calculate Score Button - Top */}
+            {!isScored && (
+              <Button size="lg" onClick={handleCalculateScore}>
+                {t('setlistPrediction.calculateScore', { defaultValue: 'Calculate Score' })}
+              </Button>
+            )}
+
+            <Grid gap={4} gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }}>
             {/* Prediction */}
             <Box borderRadius="lg" borderWidth="1px" p={4} bgColor="bg.default">
               <Text mb={3} fontSize="lg" fontWeight="bold">
@@ -286,11 +302,12 @@ export function Page() {
               </Stack>
             </Box>
           </Grid>
+          </>
         )}
 
         {/* Score Display */}
         {isScored && prediction.score && (
-          <Box borderRadius="lg" borderWidth="2px" p={6} bgColor="bg.emphasized">
+          <Box ref={scoreRef} borderRadius="lg" borderWidth="2px" p={6} bgColor="bg.emphasized">
             <Stack gap={3} alignItems="center">
               <Text fontSize="2xl" fontWeight="bold">
                 {t('setlistPrediction.yourScore', { defaultValue: 'Your Score' })}
