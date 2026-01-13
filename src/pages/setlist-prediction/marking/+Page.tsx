@@ -208,7 +208,7 @@ export function Page() {
         {/* Back Button */}
         <Box>
           <Button variant="ghost" size="sm" asChild>
-            <a href="/setlist-prediction">
+            <a href={join(import.meta.env.BASE_URL, '/setlist-prediction')}>
               ←{' '}
               {t('setlistPrediction.backToPerformances', {
                 defaultValue: 'Back to Performance List'

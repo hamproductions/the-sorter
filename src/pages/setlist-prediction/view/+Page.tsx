@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { join } from 'path-browserify';
 import { Stack, Box, HStack } from 'styled-system/jsx';
 import { Text } from '~/components/ui/styled/text';
 import { Button } from '~/components/ui/styled/button';
@@ -163,7 +164,9 @@ export function Page() {
           <Button
             size="sm"
             variant="link"
-            onClick={() => (window.location.href = '/setlist-prediction')}
+            onClick={() =>
+              (window.location.href = join(import.meta.env.BASE_URL, '/setlist-prediction'))
+            }
             mt={2}
           >
             {t('setlistPrediction.createYourOwn', {
