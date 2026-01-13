@@ -66,7 +66,7 @@ export function Page() {
   const actualPrediction = {
     id: '012938109283',
     setlist: actualSetlist,
-    name: 'Actual Setlist'
+    name: performance ? performance.name : 'Actual Setlist'
   } as SetlistPrediction;
 
   const handleParseActual = () => {
@@ -272,48 +272,57 @@ export function Page() {
               </Button>
             )}
 
-            <Grid gap={4} gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }}>
-            {/* Prediction */}
-            <Box borderRadius="lg" borderWidth="1px" p={4} bgColor="bg.default">
-              <Text mb={3} fontSize="lg" fontWeight="bold">
-                {t('setlistPrediction.yourPrediction', { defaultValue: 'Your Prediction' })}
-              </Text>
-              <Stack gap={1}>
+            {/* 2x2 Grid: Headers in row 1 (same height), Setlists in row 2 */}
+            <Grid
+              gap={0}
+              gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }}
+              gridTemplateRows={{ base: 'auto', md: 'auto 1fr' }}
+              borderRadius="lg"
+              overflow="hidden"
+              borderWidth="1px"
+            >
+              {/* Row 1: Headers */}
+              <Box p={4} bgColor="bg.default" borderRightWidth={{ base: '0', md: '1px' }} borderBottomWidth="1px">
+                <Text fontSize="lg" fontWeight="bold">
+                  {t('setlistPrediction.yourPrediction', { defaultValue: 'Your Prediction' })}
+                </Text>
+                <Text fontSize="md" color="fg.muted">
+                  {prediction.name}
+                </Text>
+                <Text fontSize="sm" color="fg.muted">
+                  {prediction.setlist.items.filter((i) => i.type === 'song').length} songs
+                </Text>
+              </Box>
+
+              <Box p={4} bgColor="bg.default" borderBottomWidth="1px">
+                <Text fontSize="lg" fontWeight="bold">
+                  {t('setlistPrediction.actualSetlist', { defaultValue: 'Actual Setlist' })}
+                </Text>
+                <Text fontSize="md" color="fg.muted">
+                  {performance?.name || 'Actual Setlist'}
+                </Text>
+                <Text fontSize="sm" color="fg.muted">
+                  {actualSetlist.items.filter((i) => i.type === 'song').length} songs
+                </Text>
+              </Box>
+
+              {/* Row 2: Setlist items */}
+              <Box p={4} bgColor="bg.default" borderRightWidth={{ base: '0', md: '1px' }}>
                 <SetlistView
                   prediction={prediction}
-                  // Passing match results displays color coding for comparison view
-                  // Only display color coding if user has clicked score button
+                  showHeader={false}
                   matchResults={isScored ? predictionMatchResults : undefined}
                 />
+              </Box>
 
-                {/* {prediction.setlist.items.map((item, index) => (
-                  <HStack key={item.id} gap={2} borderRadius="sm" p={2} bgColor="bg.subtle">
-                    <Text minW="30px" color="fg.muted" fontSize="sm" fontWeight="bold">
-                      {index + 1}.
-                    </Text>
-                    <Text fontSize="sm">
-                      {isSongItem(item) ? `♪ Song ${item.songId}` : `[${item.title}]`}
-                    </Text>
-                  </HStack>
-                ))} */}
-              </Stack>
-            </Box>
-
-            {/* Actual */}
-            <Box borderRadius="lg" borderWidth="1px" p={4} bgColor="bg.default">
-              <Text mb={3} fontSize="lg" fontWeight="bold">
-                {t('setlistPrediction.actualSetlist', { defaultValue: 'Actual Setlist' })}
-              </Text>
-              <Stack gap={1}>
+              <Box p={4} bgColor="bg.default">
                 <SetlistView
                   prediction={actualPrediction}
-                  // Passing match results displays color coding for comparison view
-                  // Only display color coding if user has clicked score button
+                  showHeader={false}
                   matchResults={isScored ? actualMatchResults : undefined}
                 />
-              </Stack>
-            </Box>
-          </Grid>
+              </Box>
+            </Grid>
           </>
         )}
 

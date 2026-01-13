@@ -158,7 +158,8 @@ describe('Marking Mode Page', () => {
 
       await render(<Page />);
 
-      expect(screen.getByText(/Test Performance/)).toBeInTheDocument();
+      // Test Performance appears in page header and actual setlist header
+      expect(screen.getAllByText(/Test Performance/).length).toBeGreaterThanOrEqual(1);
       // Song One appears in both prediction and actual setlist
       expect(screen.getAllByText(/Song One/).length).toBeGreaterThanOrEqual(1);
     });
