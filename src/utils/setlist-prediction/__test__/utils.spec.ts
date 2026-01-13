@@ -168,27 +168,27 @@ describe('Setlist Prediction Utils', () => {
 
       // Exact match at position 0 (green)
       expect(p1Score?.matched).toBe(true);
-      expect(p1Score?.matchType).toBe('exact');
-      expect(p1Score?.positionDiff).toBe(0);
-      expect(p1Score?.actualItemId).toBe('a1');
+      expect(p1Score && 'matchType' in p1Score ? p1Score.matchType : undefined).toBe('exact');
+      expect(p1Score && 'positionDiff' in p1Score ? p1Score.positionDiff : undefined).toBe(0);
+      expect(p1Score && 'actualItemId' in p1Score ? p1Score.actualItemId : undefined).toBe('a1');
 
       // Close match at position 2→3 (yellow)
       expect(p3Score?.matched).toBe(true);
-      expect(p3Score?.matchType).toBe('close');
-      expect(p3Score?.positionDiff).toBe(1);
-      expect(p3Score?.actualItemId).toBe('a4');
+      expect(p3Score && 'matchType' in p3Score ? p3Score.matchType : undefined).toBe('close');
+      expect(p3Score && 'positionDiff' in p3Score ? p3Score.positionDiff : undefined).toBe(1);
+      expect(p3Score && 'actualItemId' in p3Score ? p3Score.actualItemId : undefined).toBe('a4');
 
       // Exact match at position 6 (green) - prioritized over earlier predictions
       expect(p7Score?.matched).toBe(true);
-      expect(p7Score?.matchType).toBe('exact');
-      expect(p7Score?.positionDiff).toBe(0);
-      expect(p7Score?.actualItemId).toBe('a7');
+      expect(p7Score && 'matchType' in p7Score ? p7Score.matchType : undefined).toBe('exact');
+      expect(p7Score && 'positionDiff' in p7Score ? p7Score.positionDiff : undefined).toBe(0);
+      expect(p7Score && 'actualItemId' in p7Score ? p7Score.actualItemId : undefined).toBe('a7');
 
       // Close match at position 8→9 (yellow)
       expect(p9Score?.matched).toBe(true);
-      expect(p9Score?.matchType).toBe('close');
-      expect(p9Score?.positionDiff).toBe(1);
-      expect(p9Score?.actualItemId).toBe('a10');
+      expect(p9Score && 'matchType' in p9Score ? p9Score.matchType : undefined).toBe('close');
+      expect(p9Score && 'positionDiff' in p9Score ? p9Score.positionDiff : undefined).toBe(1);
+      expect(p9Score && 'actualItemId' in p9Score ? p9Score.actualItemId : undefined).toBe('a10');
 
       // Unmatched predictions (no more actuals available after exact/close passes)
       expect(p5Score?.matched).toBe(false); // Position 4
