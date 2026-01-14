@@ -29,6 +29,7 @@
     "select_all": "Select All",
     "deselect_all": "Deselect All",
     "no_tie_mode": "No DD Allowed Mode (Hard)",
+    "heardle_mode": "Heardle Mode",
     "generation": {
       "103": "103th",
       "104": "104th",

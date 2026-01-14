@@ -17,6 +17,7 @@ export const useSongsSortData = () => {
   const { t } = useTranslation();
   const songs = useSongData();
   const [noTieMode, setNoTieMode] = useLocalStorage('dd-mode', false);
+  const [heardleMode, setHeardleMode] = useLocalStorage('heardle-mode', false);
   const [songFilters, setSongFilters] = useLocalStorage<SongFilterType>('song-filters', undefined);
   const listToSort = useMemo(() => {
     return songs && songFilters && hasFilter(songFilters)
@@ -101,6 +102,8 @@ export const useSongsSortData = () => {
   return {
     noTieMode: noTieMode ?? false,
     setNoTieMode,
+    heardleMode: heardleMode ?? false,
+    setHeardleMode,
     init,
     left,
     right,

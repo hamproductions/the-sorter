@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text } from '../ui/text';
 import type { StackProps } from 'styled-system/jsx';
@@ -6,6 +7,42 @@ import type { Artist, Song } from '~/types/songs';
 import { getSongColor } from '~/utils/song';
 import { getArtistName, getSongName } from '~/utils/names';
 import { useArtistsData } from '~/hooks/useArtistsData';
+
+function useAudioBlobUrl(url: string | undefined): string | null {
+  const [blobUrl, setBlobUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!url) {
+      setBlobUrl(null);
+      return;
+    }
+
+    let cancelled = false;
+    let objectUrl: string | null = null;
+
+    fetch(url, { referrerPolicy: 'no-referrer' })
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.blob();
+      })
+      .then((blob) => {
+        if (cancelled) return;
+        objectUrl = URL.createObjectURL(blob);
+        setBlobUrl(objectUrl);
+      })
+      .catch((err) => {
+        console.error('Failed to fetch audio:', err);
+        if (!cancelled) setBlobUrl(null);
+      });
+
+    return () => {
+      cancelled = true;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [url]);
+
+  return blobUrl;
+}
 
 function formatArtistsWithVariants(
   songArtists: Song['artists'],
@@ -41,10 +78,12 @@ function formatArtistsWithVariants(
 export function SongCard({
   song,
   artists: _artists,
+  heardleMode,
   ...rest
-}: { song?: Song; artists?: Artist[] } & StackProps) {
+}: { song?: Song; artists?: Artist[]; heardleMode?: boolean } & StackProps) {
   const { i18n } = useTranslation();
   const artistsData = useArtistsData();
+  const audioBlobUrl = useAudioBlobUrl(heardleMode ? song?.wikiAudioUrl : undefined);
 
   const lang = i18n.language;
 
@@ -75,7 +114,10 @@ export function SongCard({
       >
         <Center position="absolute" flex={1} w="full" h="full" overflow="hidden">
           <Center w="full" maxW="full" h="full">
-            {song.musicVideo && (
+            {heardleMode && audioBlobUrl && (
+              <audio src={audioBlobUrl} controls style={{ width: '100%' }} />
+            )}
+            {!heardleMode && song.musicVideo && (
               <iframe
                 style={{ maxWidth: '100%' }}
                 height="240"
@@ -95,7 +137,7 @@ export function SongCard({
       </Stack>
       <Stack gap={0} alignItems="center">
         <Text layerStyle="textStroke" color="var(--color)" fontSize="2xl" fontWeight="bold">
-          {getSongName(song.name, song.englishName, lang)}
+          {!heardleMode && getSongName(song.name, song.englishName, lang)}
         </Text>
         {lang === 'en' && song.englishName && (
           <Text color="fg.muted" fontSize="xs">
@@ -103,7 +145,7 @@ export function SongCard({
           </Text>
         )}
         <Text fontSize="sm" textAlign="center">
-          {formatArtistsWithVariants(song.artists, artistsData, lang)}
+          {!heardleMode && formatArtistsWithVariants(song.artists, artistsData, lang)}
         </Text>
       </Stack>
     </Stack>

@@ -65,6 +65,8 @@ export function Page() {
   const {
     noTieMode,
     setNoTieMode,
+    heardleMode,
+    setHeardleMode,
     init,
     left,
     right,
@@ -216,6 +218,13 @@ export function Page() {
               >
                 {t('settings.no_tie_mode')}
               </Switch>
+              <Switch
+                checked={heardleMode}
+                disabled={isSorting}
+                onCheckedChange={(e) => setHeardleMode(e.checked)}
+              >
+                {t('settings.heardle_mode')}
+              </Switch>
             </Wrap>
           </>
         )}
@@ -264,6 +273,7 @@ export function Page() {
                           song={currentLeft}
                           artists={artistLeft}
                           flex={1}
+                          heardleMode={heardleMode}
                         />
                         <Box hideBelow="sm">
                           <Kbd>←</Kbd>
@@ -275,6 +285,7 @@ export function Page() {
                           song={currentRight}
                           artists={artistRight}
                           flex={1}
+                          heardleMode={heardleMode}
                         />
                         <Box hideBelow="sm">
                           <Kbd>→</Kbd>
