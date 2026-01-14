@@ -11,6 +11,7 @@ import { Button } from '~/components/ui/styled/button';
 import { Textarea } from '~/components/ui/styled/textarea';
 import { Metadata } from '~/components/layout/Metadata';
 import { usePredictionStorage } from '~/hooks/setlist-prediction/usePredictionStorage';
+import { join } from 'path-browserify';
 import {
   usePerformance,
   usePerformanceSetlist
@@ -207,7 +208,7 @@ export function Page() {
         {/* Back Button */}
         <Box>
           <Button variant="ghost" size="sm" asChild>
-            <a href="/setlist-prediction">
+            <a href={join(import.meta.env.BASE_URL, '/setlist-prediction')}>
               ←{' '}
               {t('setlistPrediction.backToPerformances', {
                 defaultValue: 'Back to Performance List'
@@ -385,7 +386,10 @@ export function Page() {
 
               <Button
                 onClick={() => {
-                  window.location.href = `/setlist-prediction/builder?performance=${prediction.performanceId}&prediction=${prediction.id}`;
+                  window.location.href = join(
+                    import.meta.env.BASE_URL,
+                    `/setlist-prediction/builder/?${prediction.id}`
+                  );
                 }}
               >
                 {t('setlistPrediction.backToBuilder', { defaultValue: 'Back to Builder' })}
