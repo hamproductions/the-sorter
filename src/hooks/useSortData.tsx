@@ -85,7 +85,7 @@ export const useSortData = () => {
 
   useEffect(() => {
     const handleKeystroke = (e: KeyboardEvent) => {
-      if (state?.status !== 'end') {
+      if (state && state.status !== 'end') {
         switch (e.key) {
           case 'ArrowLeft':
             left();
@@ -111,7 +111,7 @@ export const useSortData = () => {
     return () => {
       document.removeEventListener('keydown', handleKeystroke);
     };
-  }, [left, right, handleTie, undo, state?.status]);
+  }, [left, right, handleTie, undo, state]);
 
   return {
     seiyuu: seiyuu ?? false,

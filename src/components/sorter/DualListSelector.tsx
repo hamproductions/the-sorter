@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useRef, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuArrowRight, LuArrowLeft, LuChevronsRight, LuChevronsLeft } from 'react-icons/lu';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { Dialog } from '~/components/ui/dialog';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
@@ -9,10 +10,12 @@ import { Text } from '~/components/ui/text';
 import { Badge } from '~/components/ui/badge';
 import { HStack, Stack, Box } from 'styled-system/jsx';
 
-interface Item {
+export interface Item {
   id: string | number;
   name: string;
   category?: string;
+  color?: string;
+  [key: string]: any;
 }
 
 interface DualListSelectorProps {
@@ -21,7 +24,12 @@ interface DualListSelectorProps {
   items: Item[];
   selectedIds: (string | number)[];
   onSelectionChange: (ids: (string | number)[]) => void;
-  categories?: { id: string; label: string }[];
+  categories?: { id: string; label: string; color?: string }[];
+  searchFilter?: (item: Item, query: string) => boolean;
+  /**
+   * Optional function to calculate search score. If provided, results will be sorted by score descending.
+   */
+  getSearchScore?: (item: Item, query: string) => number;
 }
 
 export function DualListSelector({
@@ -30,13 +38,18 @@ export function DualListSelector({
   items,
   selectedIds,
   onSelectionChange,
-  categories
+  categories,
+  searchFilter,
+  getSearchScore
 }: DualListSelectorProps) {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [tempSelectedIds, setTempSelectedIds] = useState<(string | number)[]>([]);
+
+  const availableListRef = useRef<HTMLDivElement>(null);
+  const selectedListRef = useRef<HTMLDivElement>(null);
 
   const handleOpen = () => {
     setTempSelectedIds([...selectedIds]);
@@ -57,18 +70,51 @@ export function DualListSelector({
   };
 
   const availableItems = useMemo(() => {
-    return items.filter((item) => {
+    const filtered = items.filter((item) => {
       const isSelected = tempSelectedIds.includes(item.id);
       if (isSelected) return false;
-      const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
+
+      let matchesSearch = false;
+      if (searchFilter) {
+        matchesSearch = searchFilter(item, searchQuery);
+      } else {
+        matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
+      }
+
       const matchesCategory = selectedCategory === 'ALL' || item.category === selectedCategory;
       return matchesSearch && matchesCategory;
     });
-  }, [items, tempSelectedIds, searchQuery, selectedCategory]);
+
+    // Sort by search score if applicable
+    // Sort by search score if applicable
+    if (searchQuery && getSearchScore) {
+      filtered.sort((a, b) => {
+        const scoreA = getSearchScore(a, searchQuery);
+        const scoreB = getSearchScore(b, searchQuery);
+        return scoreB - scoreA;
+      });
+    }
+
+    return filtered;
+  }, [items, tempSelectedIds, searchQuery, selectedCategory, searchFilter, getSearchScore]);
 
   const selectedItemsList = useMemo(() => {
     return items.filter((item) => tempSelectedIds.includes(item.id));
   }, [items, tempSelectedIds]);
+
+  const rowVirtualizerAvailable = useVirtualizer({
+    count: availableItems.length,
+    getScrollElement: () => availableListRef.current,
+    estimateSize: () => 40,
+    overscan: 20
+  });
+
+  const rowVirtualizerSelected = useVirtualizer({
+    count: selectedItemsList.length,
+    getScrollElement: () => selectedListRef.current,
+    estimateSize: () => 40,
+    overscan: 20
+  });
 
   const addAll = () => {
     const idsToAdd = availableItems.map((i) => i.id);
@@ -128,8 +174,18 @@ export function DualListSelector({
                       <Button
                         key={cat.id}
                         size="xs"
-                        variant={selectedCategory === cat.id ? 'solid' : 'outline'}
+                        variant={selectedCategory === cat.id ? 'subtle' : 'outline'}
                         onClick={() => setSelectedCategory(cat.id)}
+                        style={
+                          cat.color
+                            ? {
+                                borderColor: cat.color,
+                                backgroundColor:
+                                  selectedCategory === cat.id ? cat.color : undefined,
+                                color: selectedCategory === cat.id ? 'white' : cat.color
+                              }
+                            : undefined
+                        }
                       >
                         {cat.label}
                       </Button>
@@ -138,11 +194,11 @@ export function DualListSelector({
                 )}
 
                 <Box
+                  ref={availableListRef}
                   flex="1"
                   borderColor="border.subtle"
                   borderRadius="md"
                   borderWidth="1px"
-                  p="2"
                   bg="bg.subtle"
                   overflowY="auto"
                 >
@@ -151,23 +207,49 @@ export function DualListSelector({
                       {t('common.no_items')}
                     </Text>
                   ) : (
-                    <Stack gap="1">
-                      {availableItems.map((item) => (
-                        <HStack
-                          key={item.id}
-                          onClick={() => addItem(item.id)}
-                          cursor="pointer"
-                          justifyContent="space-between"
-                          p="2"
-                          _hover={{ bg: 'bg.subtle' }}
-                        >
-                          <Text truncate lineClamp={1}>
-                            {item.name}
-                          </Text>
-                          <LuArrowRight />
-                        </HStack>
-                      ))}
-                    </Stack>
+                    <div
+                      style={{
+                        height: `${rowVirtualizerAvailable.getTotalSize()}px`,
+                        width: '100%',
+                        position: 'relative'
+                      }}
+                    >
+                      {rowVirtualizerAvailable.getVirtualItems().map((virtualRow) => {
+                        const item = availableItems[virtualRow.index];
+                        return (
+                          <div
+                            key={item.id}
+                            style={{
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              width: '100%',
+                              transform: `translateY(${virtualRow.start}px)`
+                            }}
+                          >
+                            <HStack
+                              onClick={() => addItem(item.id)}
+                              ref={rowVirtualizerAvailable.measureElement}
+                              data-index={virtualRow.index}
+                              style={{
+                                borderLeft: item.color ? `4px solid ${item.color}` : undefined
+                              }}
+                              cursor="pointer"
+                              justifyContent="space-between"
+                              minH="10"
+                              py="2"
+                              px="2"
+                              _hover={{ bg: 'bg.subtle' }}
+                            >
+                              <Text truncate lineClamp={1}>
+                                {item.name}
+                              </Text>
+                              <LuArrowRight />
+                            </HStack>
+                          </div>
+                        );
+                      })}
+                    </div>
                   )}
                 </Box>
               </Stack>
@@ -205,29 +287,61 @@ export function DualListSelector({
                     {tempSelectedIds.length}
                   </Badge>
                 </HStack>
-                <Box flex="1" borderRadius="md" borderWidth="1px" p="2" overflowY="auto">
+                <Box
+                  ref={selectedListRef}
+                  flex="1"
+                  borderRadius="md"
+                  borderWidth="1px"
+                  overflowY="auto"
+                >
                   {selectedItemsList.length === 0 ? (
                     <Text py="4" color="fg.muted" textAlign="center">
                       {t('common.no_selection')}
                     </Text>
                   ) : (
-                    <Stack gap="1">
-                      {selectedItemsList.map((item) => (
-                        <HStack
-                          key={item.id}
-                          onClick={() => removeItem(item.id)}
-                          cursor="pointer"
-                          justifyContent="space-between"
-                          p="2"
-                          _hover={{ bg: 'bg.subtle' }}
-                        >
-                          <LuArrowLeft />
-                          <Text truncate lineClamp={1}>
-                            {item.name}
-                          </Text>
-                        </HStack>
-                      ))}
-                    </Stack>
+                    <div
+                      style={{
+                        height: `${rowVirtualizerSelected.getTotalSize()}px`,
+                        width: '100%',
+                        position: 'relative'
+                      }}
+                    >
+                      {rowVirtualizerSelected.getVirtualItems().map((virtualRow) => {
+                        const item = selectedItemsList[virtualRow.index];
+                        return (
+                          <div
+                            key={item.id}
+                            style={{
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              width: '100%',
+                              transform: `translateY(${virtualRow.start}px)`
+                            }}
+                          >
+                            <HStack
+                              onClick={() => removeItem(item.id)}
+                              ref={rowVirtualizerSelected.measureElement}
+                              data-index={virtualRow.index}
+                              style={{
+                                borderLeft: item.color ? `4px solid ${item.color}` : undefined
+                              }}
+                              cursor="pointer"
+                              justifyContent="space-between"
+                              minH="10"
+                              py="2"
+                              px="2"
+                              _hover={{ bg: 'bg.subtle' }}
+                            >
+                              <LuArrowLeft />
+                              <Text truncate lineClamp={1}>
+                                {item.name}
+                              </Text>
+                            </HStack>
+                          </div>
+                        );
+                      })}
+                    </div>
                   )}
                 </Box>
               </Stack>

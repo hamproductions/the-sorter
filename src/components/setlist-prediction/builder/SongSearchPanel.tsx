@@ -7,9 +7,10 @@ import { useTranslation } from 'react-i18next';
 import { useState, useMemo, memo, useEffect } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { MdArrowForward, MdDragIndicator } from 'react-icons/md';
-import { toHiragana, toRomaji } from 'wanakana';
+
 import artistsData from '../../../../data/artists-info.json';
 import { getArtistName, getSongName } from '~/utils/names';
+import { fuzzySearch } from '~/utils/search';
 import { css } from 'styled-system/css';
 import { Box, Stack, HStack } from 'styled-system/jsx';
 import { Input } from '~/components/ui/styled/input';
@@ -160,26 +161,13 @@ export function SongSearchPanel({
     }
 
     const query = debouncedQuery.toLowerCase();
-    const queryHiragana = toHiragana(query, { passRomaji: false });
-    const queryRomaji = toRomaji(queryHiragana);
     const songs = Array.isArray(songData) ? songData : [];
 
     // Step 1: Find songs that match by name
     const directSongMatches = new Set<string>();
     const songMatchResults = songs
       .filter((song) => {
-        const phoneticName = song.phoneticName ?? '';
-        const phoneticRomaji = toRomaji(phoneticName);
-        const searchText = `${song.name} ${phoneticName} ${song.englishName ?? ''}`.toLowerCase();
-
-        // Normalize romaji by removing spaces for better matching
-        const normalizedPhoneticRomaji = phoneticRomaji.replace(/\s+/g, '');
-        const normalizedQueryRomaji = queryRomaji.replace(/\s+/g, '');
-
-        const matches =
-          searchText.includes(query) ||
-          phoneticName.includes(queryHiragana) ||
-          normalizedPhoneticRomaji.includes(normalizedQueryRomaji);
+        const matches = fuzzySearch(song, debouncedQuery);
         if (matches) {
           directSongMatches.add(song.id);
         }

@@ -34,14 +34,29 @@ export const addHasuSongPresetParams = (params: URLSearchParams, filters: HasuSo
   return params;
 };
 
+export const getAllCommaSeparated = (params: URLSearchParams, key: string): string[] => {
+  return params
+    .getAll(key)
+    .flatMap((v) => v.split(','))
+    .filter((v) => v !== '');
+};
+
 export const addSongPresetParams = (params: URLSearchParams, filters: SongFilterType) => {
-  for (const key of ['series', 'artists', 'types', 'characters', 'discographies'] as const) {
+  for (const key of [
+    'series',
+    'artists',
+    'types',
+    'characters',
+    'discographies',
+    'songs',
+    'years'
+  ] as const) {
     const list = filters?.[key];
     if (list && list?.length > 0) {
-      list.forEach((item) => params.append(key, String(item)));
+      // Use comma separated values for shorter URLs
+      params.append(key, list.join(','));
     }
   }
-  // Removed logic params appending as they are no longer part of SongFilterType
 
   return params;
 };

@@ -9,11 +9,15 @@ import { Input } from '~/components/ui/input';
 import { Text } from '~/components/ui/text';
 
 export function SortingPreviewDialog<T extends { id: string | number }>(
-  props: Dialog.RootProps & { items: T[]; getItemName?: (item: T) => string }
+  props: Dialog.RootProps & {
+    items: T[];
+    getItemName?: (item: T) => string;
+    getItemColor?: (item: T) => string | undefined;
+  }
 ) {
   'use no memo';
 
-  const { items, getItemName, ...rest } = props;
+  const { items, getItemName, getItemColor, ...rest } = props;
   const { t } = useTranslation();
   const [parentEl, setParentEl] = useState<HTMLDivElement | null>(null);
   const [search, setSearch] = useState('');
@@ -25,6 +29,15 @@ export function SortingPreviewDialog<T extends { id: string | number }>(
       return i.name || i.fullName || String(item.id);
     },
     [getItemName]
+  );
+
+  const getColor = useCallback(
+    (item: T) => {
+      if (getItemColor) return getItemColor(item);
+      const i = item as unknown as { color?: string };
+      return i.color;
+    },
+    [getItemColor]
   );
 
   const filteredItems = useMemo(() => {
@@ -67,12 +80,14 @@ export function SortingPreviewDialog<T extends { id: string | number }>(
               >
                 {virtualizer.getVirtualItems().map((virtualItem) => {
                   const { item, originalIndex } = filteredItems[virtualItem.index];
+                  const color = getColor(item);
                   return (
                     <HStack
                       key={virtualItem.key}
                       style={{
                         transform: `translateY(${virtualItem.start}px)`,
-                        height: `${virtualItem.size}px`
+                        height: `${virtualItem.size}px`,
+                        borderLeft: color ? `4px solid ${color}` : undefined
                       }}
                       position="absolute"
                       top={0}

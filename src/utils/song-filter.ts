@@ -94,20 +94,33 @@ export const matchSongFilter = (item: Song, filter: SongFilterType) => {
     }
   }
 
+  // 7. Songs Logic (OR within section)
+  let songsMatch = true;
+  if (filter.songs && filter.songs.length > 0) {
+    songsMatch = filter.songs.includes(Number(item.id));
+  }
+
   // Global Logic: AND between sections
   return (
-    seriesMatch && artistsMatch && typesMatch && charactersMatch && discographiesMatch && yearsMatch
+    seriesMatch &&
+    artistsMatch &&
+    typesMatch &&
+    charactersMatch &&
+    discographiesMatch &&
+    yearsMatch &&
+    songsMatch
   );
 };
 
 export const isValidSongFilter = (filter?: SongFilterType | null): filter is SongFilterType => {
   if (!filter) return false;
-  const { artists, types, series, discographies } = filter;
+  const { artists, types, series, discographies, songs } = filter;
   if (
     !Array.isArray(artists) ||
     !Array.isArray(types) ||
     !Array.isArray(series) ||
     (discographies && !Array.isArray(discographies)) ||
+    (songs && !Array.isArray(songs)) ||
     (filter.years && !Array.isArray(filter.years))
   )
     return false;

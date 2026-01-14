@@ -64,7 +64,7 @@ export const useHasuSongsSortData = () => {
 
   useEffect(() => {
     const handleKeystroke = (e: KeyboardEvent) => {
-      if (state?.status !== 'end') {
+      if (state && state.status !== 'end') {
         switch (e.key) {
           case 'ArrowLeft':
             left();
@@ -90,7 +90,7 @@ export const useHasuSongsSortData = () => {
     return () => {
       document.removeEventListener('keydown', handleKeystroke);
     };
-  }, [left, right, handleTie, undo, state?.status]);
+  }, [left, right, handleTie, undo, state]);
 
   return {
     noTieMode: noTieMode ?? false,

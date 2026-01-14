@@ -36,6 +36,7 @@ const emptyFilter: SongFilterType = {
   types: [],
   characters: [],
   discographies: [],
+  songs: [],
   years: []
 };
 

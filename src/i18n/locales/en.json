@@ -49,6 +49,7 @@
     },
     "characters": "Characters",
     "discographies": "Discographies",
+    "songs": "Songs",
     "logic_and": "Match All",
     "logic_or": "Match Any",
     "global_logic": "Global Filtering Logic",

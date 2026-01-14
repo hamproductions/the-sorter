@@ -5,6 +5,7 @@ import { FaShare } from 'react-icons/fa6';
 import { isEqual } from 'lodash-es';
 import { ComparisonInfo } from '../../components/sorter/ComparisonInfo';
 import { KeyboardShortcuts } from '../../components/sorter/KeyboardShortcuts';
+import series from '../../../data/series-info.json';
 import { Button } from '../../components/ui/styled/button';
 import { Kbd } from '../../components/ui/styled/kbd';
 import { Progress } from '../../components/ui/progress';
@@ -22,7 +23,7 @@ import { SongResultsView } from '~/components/results/songs/SongResultsView';
 import { useSongData } from '~/hooks/useSongData';
 import { useArtistsData } from '~/hooks/useArtistsData';
 import { isValidSongFilter } from '~/utils/song-filter';
-import { addSongPresetParams } from '~/utils/share';
+import { addSongPresetParams, getAllCommaSeparated } from '~/utils/share';
 import { getSongName } from '~/utils/names';
 import type { Song } from '~/types/songs';
 
@@ -94,16 +95,19 @@ export function Page() {
         params.has('artists') ||
         params.has('types') ||
         params.has('characters') ||
-        params.has('discographies');
+        params.has('characters') ||
+        params.has('discographies') ||
+        params.has('songs');
 
       if (hasFilterParams) {
         const newFilters = {
-          series: params.getAll('series'),
-          artists: params.getAll('artists'),
-          types: params.getAll('types') as ('group' | 'solo' | 'unit')[],
-          characters: params.getAll('characters').map(Number),
-          discographies: params.getAll('discographies').map(Number),
-          years: params.getAll('years').map(Number)
+          series: getAllCommaSeparated(params, 'series'),
+          artists: getAllCommaSeparated(params, 'artists'),
+          types: getAllCommaSeparated(params, 'types') as ('group' | 'solo' | 'unit')[],
+          characters: getAllCommaSeparated(params, 'characters').map(Number),
+          discographies: getAllCommaSeparated(params, 'discographies').map(Number),
+          songs: getAllCommaSeparated(params, 'songs').map(Number),
+          years: getAllCommaSeparated(params, 'years').map(Number)
         };
 
         // Only show dialog if the filters are actually different
@@ -349,12 +353,13 @@ export function Page() {
             // We need to parse URL params and set them as filters
             const params = new URLSearchParams(location.search);
             const newFilters = {
-              series: params.getAll('series'),
-              artists: params.getAll('artists'),
-              types: params.getAll('types') as ('group' | 'solo' | 'unit')[],
-              characters: params.getAll('characters').map(Number),
-              discographies: params.getAll('discographies').map(Number),
-              years: params.getAll('years').map(Number)
+              series: getAllCommaSeparated(params, 'series'),
+              artists: getAllCommaSeparated(params, 'artists'),
+              types: getAllCommaSeparated(params, 'types') as ('group' | 'solo' | 'unit')[],
+              characters: getAllCommaSeparated(params, 'characters').map(Number),
+              discographies: getAllCommaSeparated(params, 'discographies').map(Number),
+              songs: getAllCommaSeparated(params, 'songs').map(Number),
+              years: getAllCommaSeparated(params, 'years').map(Number)
             };
             setSongFilters(newFilters);
             setShowConfirmDialog(undefined);
@@ -377,6 +382,14 @@ export function Page() {
           getItemName={(item) =>
             getSongName((item as Song).name, (item as Song).englishName, i18n.language)
           }
+          getItemColor={(item) => {
+            const song = item as Song;
+            const seriesId = song.seriesIds?.[0];
+            const seriesInfo = series.find(
+              (s: { id: string | number; color: string }) => s.id == seriesId
+            );
+            return seriesInfo?.color;
+          }}
           onOpenChange={({ open }) => {
             if (!open) {
               setShowConfirmDialog(undefined);

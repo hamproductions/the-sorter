@@ -19,6 +19,7 @@ const createFilter = (overrides?: Partial<SongFilterType>): SongFilterType => ({
   artists: [],
   types: [],
   discographies: [],
+  songs: [],
   years: [],
   ...overrides
 });
@@ -26,7 +27,7 @@ const createFilter = (overrides?: Partial<SongFilterType>): SongFilterType => ({
 describe('matchSongFilter', () => {
   // Mock Data
   const songHonoka = {
-    id: 's1',
+    id: '101',
     name: 'Honoka Solo',
     artists: [{ id: '6', variant: null }], // Maki (id 6)
     seriesIds: [1],
@@ -101,6 +102,17 @@ describe('matchSongFilter', () => {
       expect(matchSongFilter(songNoDate, createFilter({ years: [2015] }))).toBe(false);
       // Should match if no year filter
       expect(matchSongFilter(songNoDate, createFilter({ years: [] }))).toBe(true);
+    });
+  });
+
+  describe('Songs Filter Logic', () => {
+    test('Songs (OR logic)', () => {
+      // ID 101 Match
+      expect(matchSongFilter(songHonoka, createFilter({ songs: [101] }))).toBe(true);
+      // ID 102 No Match
+      expect(matchSongFilter(songHonoka, createFilter({ songs: [102] }))).toBe(false);
+      // OR: 101 OR 102 Match
+      expect(matchSongFilter(songHonoka, createFilter({ songs: [101, 102] }))).toBe(true);
     });
   });
 

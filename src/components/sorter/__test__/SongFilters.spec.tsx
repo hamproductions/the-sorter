@@ -34,6 +34,7 @@ void i18n.use(initReactI18next).init({
         'settings.artists': 'Artists',
         'settings.characters': 'Characters',
         'settings.discographies': 'Discographies',
+        'settings.songs': 'Songs',
         'settings.select_all': 'Select All',
         'settings.deselect_all': 'Deselect All',
         'settings.type.group': 'Group',
@@ -51,6 +52,7 @@ const mockFilters: SongFilterType = {
   types: [],
   characters: [],
   discographies: [],
+  songs: [],
   years: []
 };
 
@@ -68,6 +70,7 @@ describe('SongFilters Component', () => {
     expect(screen.getAllByText('Artists')[0]).toBeInTheDocument();
     expect(screen.getAllByText('Characters')[0]).toBeInTheDocument();
     expect(screen.getAllByText('Discographies')[0]).toBeInTheDocument();
+    expect(screen.getAllByText('Songs')[0]).toBeInTheDocument();
   });
 
   it('toggles Series selection', async () => {

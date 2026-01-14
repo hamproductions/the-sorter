@@ -15,7 +15,9 @@ import { DualListSelector } from './DualListSelector';
 import { Badge } from '~/components/ui/badge';
 import { HStack, Stack, Wrap, Box } from 'styled-system/jsx';
 import { isValidSongFilter } from '~/utils/song-filter';
-import { getSeriesName } from '~/utils/names';
+import { getSeriesName, getSongName } from '~/utils/names';
+import { fuzzySearch, getSearchScore } from '~/utils/search';
+import { getAllCommaSeparated } from '~/utils/share';
 
 export type SongFilterType = {
   series: string[];
@@ -24,6 +26,7 @@ export type SongFilterType = {
   characters: number[];
 
   discographies: number[];
+  songs: number[];
   years: number[];
 };
 
@@ -57,6 +60,7 @@ const FILTER_VALUES = {
   types: ['group', 'solo', 'unit'],
   characters: character.map((c) => c.id),
   discographies: discographies.map((d) => Number(d.id)),
+  songs: songs.map((s) => Number(s.id)),
   years: years
 } satisfies Record<keyof SongFilterType, unknown>;
 
@@ -100,6 +104,7 @@ export function SongFilters({
         characters: [],
 
         discographies: [],
+        songs: [],
         years: []
       };
     });
@@ -107,12 +112,13 @@ export function SongFilters({
 
   const initFilters = useCallback(() => {
     const params = new URLSearchParams(location.search);
-    const urlSeries = params.getAll('series');
-    const urlArtists = params.getAll('artists');
-    const urlTypes = params.getAll('types');
-    const urlCharacters = params.getAll('characters');
-    const urlDiscographies = params.getAll('discographies');
-    const urlYears = params.getAll('years');
+    const urlSeries = getAllCommaSeparated(params, 'series');
+    const urlArtists = getAllCommaSeparated(params, 'artists');
+    const urlTypes = getAllCommaSeparated(params, 'types');
+    const urlCharacters = getAllCommaSeparated(params, 'characters');
+    const urlDiscographies = getAllCommaSeparated(params, 'discographies');
+    const urlSongs = getAllCommaSeparated(params, 'songs');
+    const urlYears = getAllCommaSeparated(params, 'years');
 
     if (
       urlSeries.length > 0 ||
@@ -120,6 +126,7 @@ export function SongFilters({
       urlTypes.length > 0 ||
       urlCharacters.length > 0 ||
       urlDiscographies.length > 0 ||
+      urlSongs.length > 0 ||
       urlYears.length > 0
     ) {
       setFilters({
@@ -130,6 +137,7 @@ export function SongFilters({
         ) as ('group' | 'solo' | 'unit')[],
         characters: urlCharacters.map(Number).filter((c) => !isNaN(c)),
         discographies: urlDiscographies.map(Number).filter((d) => !isNaN(d)),
+        songs: urlSongs.map(Number).filter((s) => !isNaN(s)),
         years: urlYears.map(Number).filter((y) => !isNaN(y))
       });
       return;
@@ -141,6 +149,7 @@ export function SongFilters({
       types: [],
       characters: [],
       discographies: [],
+      songs: [],
       years: []
     });
   }, [setFilters]);
@@ -153,6 +162,7 @@ export function SongFilters({
       params.has('types') ||
       params.has('characters') ||
       params.has('discographies') ||
+      params.has('songs') ||
       params.has('years') ||
       filters === undefined ||
       !isValidSongFilter(filters)
@@ -190,14 +200,25 @@ export function SongFilters({
     return character.filter((c) => selectedSeriesIds.includes(String(c.seriesId)));
   }, [selectedSeriesIds]);
 
+  // Helper for series color mapping
+  const seriesColorMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    series.forEach((s) => {
+      map[String(s.id)] = s.color;
+    });
+    return map;
+  }, []);
+
   const artistItems = useMemo(
     () =>
       filteredArtists.map((a) => ({
         id: a.id,
         name: _i18n.language === 'en' ? a.englishName || a.name : a.name,
-        category: seriesMap[String(a.seriesIds[0])]
+        category: seriesMap[String(a.seriesIds[0])],
+        color: seriesColorMap[String(a.seriesIds[0])],
+        englishName: a.englishName
       })),
-    [filteredArtists, _i18n.language, seriesMap]
+    [filteredArtists, _i18n.language, seriesMap, seriesColorMap]
   );
 
   const characterItems = useMemo(
@@ -205,9 +226,10 @@ export function SongFilters({
       filteredCharacters.map((c) => ({
         id: Number(c.id),
         name: _i18n.language === 'en' ? c.englishName || c.fullName : c.fullName,
-        category: seriesMap[c.seriesId]
+        category: seriesMap[c.seriesId],
+        color: c.colorCode ?? seriesColorMap[String(c.seriesId)]
       })),
-    [filteredCharacters, _i18n.language, seriesMap]
+    [filteredCharacters, _i18n.language, seriesMap, seriesColorMap]
   );
 
   const discographyItems = useMemo(
@@ -215,12 +237,41 @@ export function SongFilters({
       discographies.map((d) => ({
         id: Number(d.id),
         name: d.name,
-        category: d.seriesIds.map((sid) => seriesMap[String(sid)]).join(', ')
+        category: d.seriesIds.map((sid) => seriesMap[String(sid)]).join(', '),
+        color: seriesColorMap[String(d.seriesIds[0])]
       })),
-    [seriesMap]
+    [seriesMap, seriesColorMap]
   );
 
-  const categories = useMemo(() => series.map((s) => ({ id: s.name, label: s.name })), []);
+  const filteredSongs = useMemo(() => {
+    if (selectedSeriesIds.length === 0) return songs;
+    const selectedSongIds = filters?.songs ?? [];
+    return songs.filter((s) => {
+      const matchesSeries = s.seriesIds.some((sid) => selectedSeriesIds.includes(String(sid)));
+      const isAlreadySelected = selectedSongIds.includes(Number(s.id));
+      return matchesSeries || isAlreadySelected;
+    });
+  }, [selectedSeriesIds, filters?.songs]);
+
+  const songItems = useMemo(
+    () =>
+      filteredSongs
+        .map((s) => ({
+          id: Number(s.id),
+          name: getSongName(s.name, s.englishName, _i18n.language),
+          category: s.seriesIds.map((sid) => seriesMap[String(sid)]).join(', '),
+          color: seriesColorMap[String(s.seriesIds[0])],
+          phoneticName: s.phoneticName,
+          englishName: s.englishName
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name, _i18n.language)),
+    [filteredSongs, seriesMap, seriesColorMap, _i18n.language]
+  );
+
+  const categories = useMemo(
+    () => series.map((s) => ({ id: s.name, label: s.name, color: s.color })),
+    []
+  );
 
   // Helper for Adaptive Header
   const renderHeader = (
@@ -273,6 +324,7 @@ export function SongFilters({
   const charactersCount = filters?.characters?.length ?? 0;
   const typesCount = filters?.types?.length ?? 0;
   const discographiesCount = filters?.discographies?.length ?? 0;
+  const songsCount = filters?.songs?.length ?? 0;
   const yearsCount = filters?.years?.length ?? 0;
 
   return (
@@ -322,6 +374,8 @@ export function SongFilters({
               setFilters({ ...filters, artists: ids.map(String) });
             }}
             categories={categories}
+            searchFilter={fuzzySearch}
+            getSearchScore={getSearchScore}
           />
 
           {filters?.artists && filters.artists.length > 0 && (
@@ -434,6 +488,8 @@ export function SongFilters({
             setFilters({ ...filters, discographies: ids.map(Number) });
           }}
           categories={categories}
+          searchFilter={fuzzySearch}
+          getSearchScore={getSearchScore}
         />
         {filters?.discographies && filters.discographies.length > 0 && (
           <HStack gap="2" pt="2" flexWrap="wrap">
@@ -446,6 +502,33 @@ export function SongFilters({
                 </Badge>
               );
             })}
+          </HStack>
+        )}
+      </Stack>
+
+      <Box height="1px" bg="border.subtle" />
+
+      {/* Songs */}
+      <Stack>
+        {renderHeader(t('settings.songs') || 'Songs', songsCount, 'songs', true)}
+        <DualListSelector
+          title={t('settings.songs') || 'Songs'}
+          triggerLabel={t('settings.songs') || 'Songs'}
+          items={songItems}
+          selectedIds={filters?.songs ?? []}
+          onSelectionChange={(ids) => {
+            if (!filters) return;
+            setFilters({ ...filters, songs: ids.map(Number) });
+          }}
+          categories={categories}
+          searchFilter={fuzzySearch}
+          getSearchScore={getSearchScore}
+        />
+        {filters?.songs && filters.songs.length > 0 && (
+          <HStack gap="2" pt="2" flexWrap="wrap">
+            <Badge variant="subtle" size="sm">
+              {filters.songs.length} {t('common.selected')}
+            </Badge>
           </HStack>
         )}
       </Stack>

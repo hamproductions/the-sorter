@@ -47,6 +47,7 @@
     },
     "characters": "キャラクター",
     "discographies": "ディスコグラフィ",
+    "songs": "楽曲",
     "logic_and": "すべて一致",
     "logic_or": "いずれか一致",
     "global_logic": "フィルター全体の設定",
