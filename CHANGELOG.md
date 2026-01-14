@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [1.18.0](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.17.2...v1.18.0) (2026-01-14)
+
+
+### Bug Fixes
+
+* change translation to match test expectation ([053fccc](https://github.com/Tanyawat-Arsaga/the-sorter/commit/053fccccb02bbdf608dd5aced72e8e0e4d8b04fd))
+* correct URL for other locations ([ab069ab](https://github.com/Tanyawat-Arsaga/the-sorter/commit/ab069ab49e1ad95457706d0053f8306e3ec744ed))
+* **marking mode:** correct URL for back to builder ([e892a9a](https://github.com/Tanyawat-Arsaga/the-sorter/commit/e892a9a56904659c548af3c71c0ac1b5a0352b88))
+* remove trailing comma in translation keys file ([9ea3fc6](https://github.com/Tanyawat-Arsaga/the-sorter/commit/9ea3fc6b877795bbc638c3c47e5b0d2903489033))
+
+
+### Features
+
+* song filters pog, better filters pog ([693d0dd](https://github.com/Tanyawat-Arsaga/the-sorter/commit/693d0dd4721d53538d514cd2662f2c4274107cb0))
+
 ## [1.17.2](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.17.1...v1.17.2) (2026-01-13)
 
 
