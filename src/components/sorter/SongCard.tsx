@@ -7,42 +7,7 @@ import type { Artist, Song } from '~/types/songs';
 import { getSongColor } from '~/utils/song';
 import { getArtistName, getSongName } from '~/utils/names';
 import { useArtistsData } from '~/hooks/useArtistsData';
-
-function useAudioBlobUrl(url: string | undefined): string | null {
-  const [blobUrl, setBlobUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!url) {
-      setBlobUrl(null);
-      return;
-    }
-
-    let cancelled = false;
-    let objectUrl: string | null = null;
-
-    fetch(url, { referrerPolicy: 'no-referrer' })
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.blob();
-      })
-      .then((blob) => {
-        if (cancelled) return;
-        objectUrl = URL.createObjectURL(blob);
-        setBlobUrl(objectUrl);
-      })
-      .catch((err) => {
-        console.error('Failed to fetch audio:', err);
-        if (!cancelled) setBlobUrl(null);
-      });
-
-    return () => {
-      cancelled = true;
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
-    };
-  }, [url]);
-
-  return blobUrl;
-}
+import { Heardle } from './Heardle';
 
 function formatArtistsWithVariants(
   songArtists: Song['artists'],
@@ -83,7 +48,7 @@ export function SongCard({
 }: { song?: Song; artists?: Artist[]; heardleMode?: boolean } & StackProps) {
   const { i18n } = useTranslation();
   const artistsData = useArtistsData();
-  const audioBlobUrl = useAudioBlobUrl(heardleMode ? song?.wikiAudioUrl : undefined);
+
 
   const lang = i18n.language;
 
@@ -114,9 +79,7 @@ export function SongCard({
       >
         <Center position="absolute" flex={1} w="full" h="full" overflow="hidden">
           <Center w="full" maxW="full" h="full">
-            {heardleMode && audioBlobUrl && (
-              <audio src={audioBlobUrl} controls style={{ width: '100%' }} />
-            )}
+            {heardleMode && <Heardle song={song}></Heardle>}
             {!heardleMode && song.musicVideo && (
               <iframe
                 style={{ maxWidth: '100%' }}
