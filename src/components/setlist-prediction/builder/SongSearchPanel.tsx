@@ -18,6 +18,7 @@ import { Button } from '~/components/ui/styled/button';
 import { Text } from '~/components/ui/styled/text';
 import { useSongData } from '~/hooks/useSongData';
 import { getSongColor } from '~/utils/song';
+import type { Song } from '~/types/songs';
 
 interface DraggableSongItemProps {
   song: {
@@ -135,17 +136,22 @@ export interface SongSearchPanelProps {
   onAddCustomSong?: (customName: string) => void;
   maxH?: string | number;
   hideTitle?: boolean;
+  /** Optional custom song inventory to search within (for Heardle mode). If not provided, searches all songs. */
+  songInventory?: Song[];
 }
 
 export function SongSearchPanel({
   onAddSong,
   onAddCustomSong,
   maxH = '400px',
-  hideTitle = false
+  hideTitle = false,
+  songInventory
 }: SongSearchPanelProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
-  const songData = useSongData();
+  const allSongData = useSongData();
+  // Use provided inventory or fall back to all songs
+  const songData = songInventory ?? allSongData;
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
 

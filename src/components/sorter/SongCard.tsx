@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text } from '../ui/text';
 import type { StackProps } from 'styled-system/jsx';
@@ -40,19 +39,55 @@ function formatArtistsWithVariants(
     .join(', ');
 }
 
+export interface SongCardProps extends StackProps {
+  song?: Song;
+  artists?: Artist[];
+  heardleMode?: boolean;
+  /** Whether the song has been revealed (guessed correctly or auto-revealed) */
+  isRevealed?: boolean;
+  /** Song inventory for Heardle search */
+  songInventory?: Song[];
+  /** Current attempt count for this song */
+  attempts?: number;
+  /** Maximum attempts allowed */
+  maxAttempts?: number;
+  /** Guess history for this song */
+  guessHistory?: ('wrong' | 'pass')[];
+  /** Audio duration for current attempt */
+  audioDuration?: number;
+  /** Called when user makes a guess */
+  onGuess?: (guessedSongId: string) => void;
+  /** Called when user passes */
+  onPass?: () => void;
+  /** Called when song has no audio */
+  onNoAudio?: () => void;
+}
+
 export function SongCard({
   song,
   artists: _artists,
   heardleMode,
+  isRevealed,
+  songInventory,
+  attempts = 0,
+  maxAttempts = 5,
+  guessHistory = [],
+  audioDuration = 1,
+  onGuess,
+  onPass,
+  onNoAudio,
   ...rest
-}: { song?: Song; artists?: Artist[]; heardleMode?: boolean } & StackProps) {
+}: SongCardProps) {
   const { i18n } = useTranslation();
   const artistsData = useArtistsData();
-
 
   const lang = i18n.language;
 
   if (!song) return null;
+
+  // Determine if we should show Heardle or revealed content
+  const showHeardle = heardleMode && !isRevealed && songInventory && onGuess && onPass && onNoAudio;
+  const showInfo = !heardleMode || isRevealed;
 
   return (
     <Stack
@@ -79,8 +114,20 @@ export function SongCard({
       >
         <Center position="absolute" flex={1} w="full" h="full" overflow="hidden">
           <Center w="full" maxW="full" h="full">
-            {heardleMode && <Heardle song={song}></Heardle>}
-            {!heardleMode && song.musicVideo && (
+            {showHeardle && (
+              <Heardle
+                song={song}
+                songInventory={songInventory}
+                attempts={attempts}
+                maxAttempts={maxAttempts}
+                guessHistory={guessHistory}
+                audioDuration={audioDuration}
+                onGuess={onGuess}
+                onPass={onPass}
+                onNoAudio={onNoAudio}
+              />
+            )}
+            {showInfo && song.musicVideo && (
               <iframe
                 style={{ maxWidth: '100%' }}
                 height="240"
@@ -100,15 +147,15 @@ export function SongCard({
       </Stack>
       <Stack gap={0} alignItems="center">
         <Text layerStyle="textStroke" color="var(--color)" fontSize="2xl" fontWeight="bold">
-          {!heardleMode && getSongName(song.name, song.englishName, lang)}
+          {showInfo && getSongName(song.name, song.englishName, lang)}
         </Text>
-        {lang === 'en' && song.englishName && (
+        {showInfo && lang === 'en' && song.englishName && (
           <Text color="fg.muted" fontSize="xs">
             {song.name}
           </Text>
         )}
         <Text fontSize="sm" textAlign="center">
-          {!heardleMode && formatArtistsWithVariants(song.artists, artistsData, lang)}
+          {showInfo && formatArtistsWithVariants(song.artists, artistsData, lang)}
         </Text>
       </Stack>
     </Stack>

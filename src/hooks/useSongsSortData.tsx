@@ -13,19 +13,29 @@ import { getAssetUrl } from '~/utils/assets';
 import { TieToastContent } from '~/components/sorter/TieToastContent';
 import { token } from 'styled-system/tokens';
 
-export const useSongsSortData = () => {
+export const useSongsSortData = (excludedSongIds?: Set<string>) => {
   const { t } = useTranslation();
   const songs = useSongData();
   const [noTieMode, setNoTieMode] = useLocalStorage('dd-mode', false);
   const [heardleMode, setHeardleMode] = useLocalStorage('heardle-mode', false);
   const [songFilters, setSongFilters] = useLocalStorage<SongFilterType>('song-filters', undefined);
+
+  // First apply song filters, then exclude failed songs (for Heardle mode)
   const listToSort = useMemo(() => {
-    return songs && songFilters && hasFilter(songFilters)
-      ? songs.filter((s) => {
-          return matchSongFilter(s, songFilters ?? {});
-        })
-      : songs;
-  }, [songs, songFilters]);
+    let filtered =
+      songs && songFilters && hasFilter(songFilters)
+        ? songs.filter((s) => {
+            return matchSongFilter(s, songFilters ?? {});
+          })
+        : songs;
+
+    // Exclude failed songs if provided
+    if (excludedSongIds && excludedSongIds.size > 0) {
+      filtered = filtered.filter((s) => !excludedSongIds.has(s.id));
+    }
+
+    return filtered;
+  }, [songs, songFilters, excludedSongIds]);
 
   const {
     init,

@@ -26,11 +26,14 @@ export function SongResultsView({
   titlePrefix,
   songsData,
   order,
+  failedSongs,
   ...props
 }: RootProps & {
   titlePrefix?: string;
   songsData: Song[];
   order?: string[][];
+  /** Songs that failed in Heardle mode (couldn't guess within 5 attempts) */
+  failedSongs?: Song[];
 }) {
   const artists = useArtistsData();
   const seriesData = useSeriesData();
@@ -245,6 +248,44 @@ export function SongResultsView({
             </Tabs.Content>
           </Box>
         </Tabs.Root>
+
+        {/* Heardle Failed Section */}
+        {failedSongs && failedSongs.length > 0 && (
+          <Stack w="full" mt="8">
+            <Heading color="red.500" fontSize="xl" fontWeight="bold">
+              {t('heardle.failed_section', { defaultValue: 'Heardle Failed' })}
+            </Heading>
+            <Text color="fg.muted" fontSize="sm">
+              {t('heardle.failed_description', {
+                defaultValue: "Songs you couldn't guess within 5 attempts"
+              })}
+            </Text>
+            <Box
+              border="1px solid"
+              borderColor="red.200"
+              borderRadius="md"
+              w="full"
+              p="4"
+              bg="bg.subtle"
+            >
+              <Stack gap={1}>
+                {failedSongs.map((song) => {
+                  const songArtists = song.artists
+                    .map((art) => artists.find((a) => a.id === art.id))
+                    .filter(Boolean);
+                  return (
+                    <HStack key={song.id} justifyContent="space-between">
+                      <Text color="fg.muted">{song.name}</Text>
+                      <Text color="fg.muted" fontSize="sm">
+                        {songArtists.map((a) => a?.name).join(', ')}
+                      </Text>
+                    </HStack>
+                  );
+                })}
+              </Stack>
+            </Box>
+          </Stack>
+        )}
       </Stack>
       {showRenderingCanvas && (
         <Box position="absolute" w="0" h="0" overflow="hidden">

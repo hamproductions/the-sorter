@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react';
 import { preload } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { FaShare } from 'react-icons/fa6';
@@ -19,6 +19,7 @@ import { Metadata } from '~/components/layout/Metadata';
 import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
 import { SongCard } from '~/components/sorter/SongCard';
 import { useSongsSortData } from '~/hooks/useSongsSortData';
+import { useHeardleState } from '~/hooks/useHeardleState';
 import { SongResultsView } from '~/components/results/songs/SongResultsView';
 import { useSongData } from '~/hooks/useSongData';
 import { useArtistsData } from '~/hooks/useArtistsData';
@@ -62,6 +63,21 @@ export function Page() {
   const artists = useArtistsData();
   const { toast } = useToaster();
   const { t, i18n } = useTranslation();
+
+  // Heardle state management
+  const {
+    isSongRevealed,
+    getAttemptCount,
+    getGuessHistory,
+    getAudioDuration,
+    makeGuess,
+    passGuess,
+    autoReveal,
+    resetSession,
+    failedSongIds,
+    maxAttempts
+  } = useHeardleState();
+
   const {
     noTieMode,
     setNoTieMode,
@@ -83,7 +99,7 @@ export function Page() {
     listCount,
     clear,
     isEnded
-  } = useSongsSortData();
+  } = useSongsSortData(failedSongIds.size > 0 ? failedSongIds : undefined);
   const [showConfirmDialog, setShowConfirmDialog] = useState<{
     type: 'mid-sort' | 'ended' | 'preview' | 'new-session';
     action: 'reset' | 'clear';
@@ -141,6 +157,60 @@ export function Page() {
       .map((i) => artists.find((a) => a.id === i.id))
       .filter((i) => i !== undefined) ?? [];
 
+  // Heardle mode state for current comparison
+  const isLeftRevealed = currentLeft ? isSongRevealed(currentLeft.id) : false;
+  const isRightRevealed = currentRight ? isSongRevealed(currentRight.id) : false;
+  const bothRevealed = !heardleMode || (isLeftRevealed && isRightRevealed);
+
+  // Get failed songs for results display
+  const failedSongsForResults = useMemo(() => {
+    return songs.filter((s) => failedSongIds.has(s.id));
+  }, [songs, failedSongIds]);
+
+  // Heardle handlers for left song
+  const handleLeftGuess = useCallback(
+    (guessedId: string) => {
+      if (currentLeft) {
+        makeGuess(currentLeft.id, guessedId);
+      }
+    },
+    [currentLeft, makeGuess]
+  );
+
+  const handleLeftPass = useCallback(() => {
+    if (currentLeft) {
+      passGuess(currentLeft.id);
+    }
+  }, [currentLeft, passGuess]);
+
+  const handleLeftNoAudio = useCallback(() => {
+    if (currentLeft) {
+      autoReveal(currentLeft.id);
+    }
+  }, [currentLeft, autoReveal]);
+
+  // Heardle handlers for right song
+  const handleRightGuess = useCallback(
+    (guessedId: string) => {
+      if (currentRight) {
+        makeGuess(currentRight.id, guessedId);
+      }
+    },
+    [currentRight, makeGuess]
+  );
+
+  const handleRightPass = useCallback(() => {
+    if (currentRight) {
+      passGuess(currentRight.id);
+    }
+  }, [currentRight, passGuess]);
+
+  const handleRightNoAudio = useCallback(() => {
+    if (currentRight) {
+      autoReveal(currentRight.id);
+    }
+  }, [currentRight, autoReveal]);
+
   // const titlePrefix = getFilterTitle(filters, data, i18n.language) ?? t('defaultTitlePrefix');
   const title = t('title', {
     titlePrefix: t('songs')
@@ -178,6 +248,8 @@ export function Page() {
         action: 'reset'
       });
     } else {
+      // Reset Heardle session state when starting new sort
+      resetSession();
       init();
     }
   };
@@ -189,6 +261,8 @@ export function Page() {
         action: 'clear'
       });
     } else {
+      // Reset Heardle session state when clearing
+      resetSession();
       clear();
     }
   };
@@ -269,11 +343,20 @@ export function Page() {
                     >
                       <Stack flex="1" alignItems="center" w="full">
                         <SongCard
-                          onClick={() => left()}
+                          onClick={bothRevealed ? () => left() : undefined}
                           song={currentLeft}
                           artists={artistLeft}
-                          flex={1}
                           heardleMode={heardleMode}
+                          isRevealed={isLeftRevealed}
+                          songInventory={listToSort}
+                          attempts={getAttemptCount(currentLeft.id)}
+                          maxAttempts={maxAttempts}
+                          guessHistory={getGuessHistory(currentLeft.id)}
+                          audioDuration={getAudioDuration(getAttemptCount(currentLeft.id))}
+                          onGuess={handleLeftGuess}
+                          onPass={handleLeftPass}
+                          onNoAudio={handleLeftNoAudio}
+                          flex={1}
                         />
                         <Box hideBelow="sm">
                           <Kbd>←</Kbd>
@@ -281,11 +364,20 @@ export function Page() {
                       </Stack>
                       <Stack flex="1" alignItems="center" w="full">
                         <SongCard
-                          onClick={() => right()}
+                          onClick={bothRevealed ? () => right() : undefined}
                           song={currentRight}
                           artists={artistRight}
-                          flex={1}
                           heardleMode={heardleMode}
+                          isRevealed={isRightRevealed}
+                          songInventory={listToSort}
+                          attempts={getAttemptCount(currentRight.id)}
+                          maxAttempts={maxAttempts}
+                          guessHistory={getGuessHistory(currentRight.id)}
+                          audioDuration={getAudioDuration(getAttemptCount(currentRight.id))}
+                          onGuess={handleRightGuess}
+                          onPass={handleRightPass}
+                          onNoAudio={handleRightNoAudio}
+                          flex={1}
                         />
                         <Box hideBelow="sm">
                           <Kbd>→</Kbd>
@@ -293,11 +385,19 @@ export function Page() {
                       </Stack>
                     </HStack>
                   )}
+                  {/* Show message when ranking is disabled in Heardle mode */}
+                  {heardleMode && !bothRevealed && (
+                    <Text color="fg.muted" fontSize="sm" textAlign="center">
+                      {t('heardle.guess_both_songs', {
+                        defaultValue: 'Guess both songs to enable ranking'
+                      })}
+                    </Text>
+                  )}
                   <HStack justifyContent="center" w="full">
                     <Button
                       size={{ base: '2xl', md: 'lg' }}
                       onClick={() => tie()}
-                      disabled={noTieMode}
+                      disabled={noTieMode || !bothRevealed}
                       flex={{ base: 1, md: 'unset' }}
                     >
                       {t('sort.tie')}
@@ -329,7 +429,12 @@ export function Page() {
             )}
             {state.arr && isEnded && (
               <Suspense>
-                <SongResultsView songsData={songs} w="full" order={state.arr} />
+                <SongResultsView
+                  songsData={songs}
+                  failedSongs={heardleMode ? failedSongsForResults : undefined}
+                  w="full"
+                  order={state.arr}
+                />
               </Suspense>
             )}
           </Stack>
@@ -341,6 +446,8 @@ export function Page() {
           lazyMount
           unmountOnExit
           onConfirm={() => {
+            // Reset Heardle session when confirming dialog action
+            resetSession();
             if (showConfirmDialog?.action === 'clear') {
               clear();
             } else {
@@ -360,6 +467,7 @@ export function Page() {
           unmountOnExit
           onConfirm={() => {
             // User chose to accept the new link (reset current session and use new params)
+            resetSession();
             clear();
             // We need to parse URL params and set them as filters
             const params = new URLSearchParams(location.search);
@@ -412,6 +520,8 @@ export function Page() {
           lazyMount
           unmountOnExit
           onConfirm={() => {
+            // Reset Heardle session when confirming dialog action
+            resetSession();
             if (showConfirmDialog?.action === 'clear') {
               clear();
             } else {
