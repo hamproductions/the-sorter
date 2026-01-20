@@ -1,6 +1,6 @@
 import { CharacterIcon } from '../sorter/CharacterIcon';
 import { SchoolBadge } from '../sorter/SchoolBadge';
-import { Text } from '../ui/text';
+import { Text } from '../ui';
 import { getPicUrl } from '~/utils/assets';
 import { Box, Center, Stack, Wrap, styled } from 'styled-system/jsx';
 

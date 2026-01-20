@@ -9,8 +9,7 @@ import { SetlistItem as SetlistItemComponent } from './setlist-editor/SetlistIte
 import { SetlistEndDropZone } from './setlist-editor/SetlistEndDropZone';
 import { DropPreview } from './setlist-editor/DropPreview';
 import { Box, Stack, HStack } from 'styled-system/jsx';
-import { Text } from '~/components/ui/styled/text';
-import { Button } from '~/components/ui/styled/button';
+import { Text, Button } from '~/components/ui';
 import type { SetlistItem } from '~/types/setlist-prediction';
 import type { Song } from '~/types';
 

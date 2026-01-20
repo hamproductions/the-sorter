@@ -13,9 +13,7 @@ import { getArtistName, getSongName } from '~/utils/names';
 import { fuzzySearch } from '~/utils/search';
 import { css } from 'styled-system/css';
 import { Box, Stack, HStack } from 'styled-system/jsx';
-import { Input } from '~/components/ui/styled/input';
-import { Button } from '~/components/ui/styled/button';
-import { Text } from '~/components/ui/styled/text';
+import { Input, Button, Text } from '~/components/ui';
 import { useSongData } from '~/hooks/useSongData';
 import { getSongColor } from '~/utils/song';
 

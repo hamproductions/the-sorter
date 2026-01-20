@@ -1,13 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaXmark } from 'react-icons/fa6';
-import { Dialog } from '~/components/ui/dialog';
-import { Button } from '~/components/ui/button';
-import { Checkbox } from '~/components/ui/checkbox';
-import { Group } from '~/components/ui/styled/checkbox';
-import { IconButton } from '~/components/ui/icon-button';
-import { Input } from '~/components/ui/input';
-import { Text } from '~/components/ui/text';
+import { Dialog, Button, Checkbox, Input, Text, CloseButton } from '~/components/ui';
 import { HStack, Stack, Wrap } from 'styled-system/jsx';
 
 type LogicType = 'and' | 'or';
@@ -79,9 +72,7 @@ export function FilterSectionModal({
             <HStack justifyContent="space-between" alignItems="center">
               <Dialog.Title>{title}</Dialog.Title>
               <Dialog.CloseTrigger asChild>
-                <IconButton variant="ghost" size="sm">
-                  <FaXmark />
-                </IconButton>
+                <CloseButton />
               </Dialog.CloseTrigger>
             </HStack>
 
@@ -95,12 +86,30 @@ export function FilterSectionModal({
 
             <HStack gap="2" justifyContent="space-between" flexWrap="wrap">
               {logic && onLogicChange && (
-                <Group value={[logic]} onValueChange={(val) => onLogicChange(val[0] as LogicType)}>
+                <Checkbox.Group
+                  value={[logic]}
+                  onValueChange={(value: string[]) => onLogicChange(value[0] as LogicType)}
+                >
                   <HStack>
-                    <Checkbox value="and">{t('settings.logic_and')}</Checkbox>
-                    <Checkbox value="or">{t('settings.logic_or')}</Checkbox>
+                    <Checkbox.Root value="and">
+                      <Checkbox.HiddenInput />
+                      <Checkbox.Control>
+                        <Checkbox.Indicator />
+                      </Checkbox.Control>
+
+                      <Checkbox.Label>{t('settings.logic_and')}</Checkbox.Label>
+                    </Checkbox.Root>
+
+                    <Checkbox.Root value="or">
+                      <Checkbox.HiddenInput />
+                      <Checkbox.Control>
+                        <Checkbox.Indicator />
+                      </Checkbox.Control>
+
+                      <Checkbox.Label>{t('settings.logic_or')}</Checkbox.Label>
+                    </Checkbox.Root>
                   </HStack>
-                </Group>
+                </Checkbox.Group>
               )}
               <HStack>
                 <Button size="xs" variant="outline" onClick={handleSelectAll}>
@@ -113,22 +122,26 @@ export function FilterSectionModal({
             </HStack>
           </Stack>
 
-          <Stack flex="1" p="4" overflowY="auto">
-            <Group
+          <Stack flex={1} p="4" overflowY="auto">
+            <Checkbox.Group
               value={selectedIds.map(String)}
-              onValueChange={(val) => {
+              onValueChange={(value: string[]) => {
                 const isNumber = typeof items[0]?.id === 'number';
-                onSelectionChange(val.map((v) => (isNumber ? Number(v) : v)));
+                onSelectionChange(value.map((v: string) => (isNumber ? Number(v) : v)));
               }}
             >
               <Wrap gap="4">
                 {filteredItems.map((item) => (
-                  <Checkbox key={item.id} value={String(item.id)}>
-                    {item.name}
-                  </Checkbox>
+                  <Checkbox.Root key={item.id} value={String(item.id)}>
+                    <Checkbox.HiddenInput />
+                    <Checkbox.Control>
+                      <Checkbox.Indicator />
+                    </Checkbox.Control>
+                    <Checkbox.Label>{item.name}</Checkbox.Label>
+                  </Checkbox.Root>
                 ))}
               </Wrap>
-            </Group>
+            </Checkbox.Group>
             {filteredItems.length === 0 && (
               <Text py="8" color="fg.subtle" textAlign="center">
                 No results found.
@@ -137,7 +150,9 @@ export function FilterSectionModal({
           </Stack>
 
           <Stack borderColor="border.default" borderTop="1px solid" p="4">
-            <Button onClick={() => setIsOpen(false)}>{t('common.confirm')}</Button>
+            <Dialog.ActionTrigger asChild>
+              <Button>{t('common.confirm')}</Button>
+            </Dialog.ActionTrigger>
           </Stack>
         </Dialog.Content>
       </Dialog.Positioner>

@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next';
-import { FaXmark } from 'react-icons/fa6';
 import type { DragEndEvent, DragStartEvent, UniqueIdentifier } from '@dnd-kit/core';
 import {
   DndContext,
@@ -20,9 +19,7 @@ import {
 } from '@dnd-kit/sortable';
 import { useEffect, useMemo, useState } from 'react';
 import { isEqual } from 'lodash-es';
-import { Dialog } from '../../ui/dialog';
-import { IconButton } from '../../ui/icon-button';
-import { Button } from '../../ui/button';
+import { Dialog, Button, CloseButton } from '../../ui';
 import { SortableItem } from './SortableItem';
 import { HStack, Stack } from 'styled-system/jsx';
 import type { Character } from '~/types';
@@ -157,16 +154,16 @@ export function EditResultsModal(
               </DragOverlay>
             </DndContext>
             <HStack w="full" justifyItems="flex-end">
-              <Button onClick={handleCancel} variant="subtle">
-                {t('cancel')}
-              </Button>
+              <Dialog.ActionTrigger asChild>
+                <Button onClick={handleCancel} variant="subtle">
+                  {t('cancel')}
+                </Button>
+              </Dialog.ActionTrigger>
               <Button onClick={handleSave}>{t('save')}</Button>
             </HStack>
           </Stack>
           <Dialog.CloseTrigger asChild position="absolute" top="2" right="2">
-            <IconButton aria-label="Close Dialog" variant="ghost" size="sm">
-              <FaXmark />
-            </IconButton>
+            <CloseButton />
           </Dialog.CloseTrigger>
         </Dialog.Content>
       </Dialog.Positioner>

@@ -6,9 +6,7 @@
 import { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Stack, Box, HStack, Grid } from 'styled-system/jsx';
-import { Text } from '~/components/ui/styled/text';
-import { Button } from '~/components/ui/styled/button';
-import { Textarea } from '~/components/ui/styled/textarea';
+import { Text, Button, Textarea } from '~/components/ui';
 import { Metadata } from '~/components/layout/Metadata';
 import { usePredictionStorage } from '~/hooks/setlist-prediction/usePredictionStorage';
 import { join } from 'path-browserify';

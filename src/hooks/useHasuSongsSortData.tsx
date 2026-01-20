@@ -52,10 +52,10 @@ export const useHasuSongsSortData = () => {
     if (!noTieMode) {
       toast?.({
         meta: { backgroundImage: getAssetUrl('/assets/bg.webp') },
-        description: TieToastContent,
+        description: <TieToastContent />,
         duration: 1000,
         placement: isMobile ? 'top' : undefined
-      });
+      } as any);
       tie();
     } else {
       toast?.({ description: t('toast.tie_not_allowed'), type: 'error' });

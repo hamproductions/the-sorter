@@ -3,32 +3,34 @@ import { FaChevronDown, FaCopy, FaDownload, FaXTwitter } from 'react-icons/fa6';
 
 import { useTranslation } from 'react-i18next';
 
-import type { TierListSettings as TierListSettingsData } from '../TierList';
 import { DEFAULT_TIERS } from '../TierList';
+import type { TierListSettings as TierListSettingsData } from '../TierList';
 import { TierListSettings } from '../TierListSettings';
 import { HasuSongGridView } from './HasuSongGridView';
 import { HasuSongTierList } from './HasuSongTierList';
-import { Tabs } from '~/components/ui/tabs';
-import { Accordion } from '~/components/ui/accordion';
+import {
+  Accordion,
+  Button,
+  FormLabel,
+  Heading,
+  Input,
+  Tabs,
+  type TabsValueChangeDetails,
+  Text,
+  Textarea
+} from '~/components/ui';
 import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
-import { FormLabel } from '~/components/ui/form-label';
-import { Heading } from '~/components/ui/heading';
-import { Input } from '~/components/ui/input';
-import { Textarea } from '~/components/ui/textarea';
 import { useToaster } from '~/context/ToasterContext';
 import { useLocalStorage } from '~/hooks/useLocalStorage';
 import type { WithRank } from '~/types';
-import { Text } from '~/components/ui/text';
 import type { HasuSong } from '~/types/songs';
-import { Button } from '~/components/ui/button';
-import type { RootProps } from '~/components/ui/styled/tabs';
 
 export function HasuSongResultsView({
   titlePrefix,
   songsData,
   order,
   ...props
-}: RootProps & {
+}: Tabs.RootProps & {
   titlePrefix?: string;
   songsData: HasuSong[];
   order?: number[][];
@@ -63,27 +65,24 @@ export function HasuSongResultsView({
   }, [currentTab, setCurrentTab, tabs]);
 
   const songs = useMemo(() => {
-    return (
-      order
-        ?.map((ids, idx, arr) => {
-          const startRank = arr
-            .slice(0, idx)
-            .reduce((p, c) => p + (Array.isArray(c) ? c.length : 1), 1);
-          if (Array.isArray(ids)) {
-            return ids
-              .map((id) => {
-                const song = songsData.find((s) => s.id === id);
-                return song ? { rank: startRank, ...song } : null;
-              })
-              .filter((d): d is WithRank<HasuSong> => d !== null);
-          } else {
-            const chara = songsData.find((i) => i.id === ids);
-            if (!chara) return [];
-            return [{ rank: startRank, ...chara }];
-          }
-        })
-        .filter((c): c is WithRank<HasuSong>[] => !!c) ?? []
-    ).flatMap((s) => s);
+    const mapped = (order ?? []).map((ids, idx, arr) => {
+      const startRank = arr
+        .slice(0, idx)
+        .reduce((p, c) => p + (Array.isArray(c) ? c.length : 1), 1);
+      if (Array.isArray(ids)) {
+        return ids
+          .map((id) => {
+            const song = songsData.find((s) => s.id === id);
+            return song ? { rank: startRank, ...song } : null;
+          })
+          .filter((d): d is WithRank<HasuSong> => d !== null);
+      } else {
+        const chara = songsData.find((i) => i.id === (ids as unknown as number));
+        if (!chara) return [];
+        return [{ rank: startRank, ...chara } as WithRank<HasuSong>];
+      }
+    });
+    return mapped.flat();
   }, [order, songsData]);
 
   const makeScreenshot = async () => {
@@ -122,14 +121,14 @@ export function HasuSongResultsView({
 
   const exportText = async () => {
     await navigator.clipboard.writeText(
-      order
-        ?.flatMap((item, idx) =>
+      (order ?? [])
+        .flatMap((item, idx) =>
           item.map((i) => {
             const s = songsData.find((s) => s.id === i);
             return `${idx + 1}. ${s?.title} - ${s?.unit}`;
           })
         )
-        .join('\n') ?? ''
+        .join('\n')
     );
     toast?.({ description: t('toast.text_copied') });
   };
@@ -137,7 +136,7 @@ export function HasuSongResultsView({
   const exportJSON = async () => {
     await navigator.clipboard.writeText(
       JSON.stringify(
-        order?.flatMap((item, idx) =>
+        (order ?? []).flatMap((item, idx) =>
           item.map((i) => {
             const s = songsData.find((s) => s.id === i);
             return {
@@ -153,7 +152,7 @@ export function HasuSongResultsView({
   };
 
   const getShareText = () => {
-    const seiyuuList = order
+    const seiyuuList = (order ?? [])
       ?.flatMap((ids, idx) =>
         ids.map((id) => {
           const song = songsData.find((s) => s.id === id);
@@ -276,7 +275,7 @@ export function HasuSongResultsView({
           lazyMount
           defaultValue="default"
           value={currentTab}
-          onValueChange={(d) => setCurrentTab(d.value as 'tier' | 'grid')}
+          onValueChange={(d: TabsValueChangeDetails) => setCurrentTab(d.value as 'tier' | 'grid')}
           {...props}
         >
           <Tabs.List>

@@ -3,10 +3,7 @@ import React from 'react';
 import { FaArrowsRotate, FaCopy, FaTrash } from 'react-icons/fa6';
 import type { WithTranslation } from 'react-i18next';
 import { withTranslation } from 'react-i18next';
-import { Button } from '../ui/button';
-import { Code } from '../ui/code';
-import { Link } from '../ui/link';
-import { Text } from '../ui/text';
+import { Button, Code, Link, Text, Heading } from '../ui';
 import { SentryContext } from './SentryContext';
 import { Center, Stack, Wrap } from 'styled-system/jsx';
 class ErrorBoundaryInner extends React.Component<
@@ -54,7 +51,7 @@ class ErrorBoundaryInner extends React.Component<
       return (
         <Center w="100vw" minH="100vh" px="4">
           <Stack alignItems="center">
-            <Text fontSize="2xl">{this.props.t('error_page.title')}</Text>
+            <Heading fontStyle="2xl">{this.props.t('error_page.title')}</Heading>
             <Text>
               {this.props.t('error_page.text')}
               <Link href="https://discordapp.com/users/260776161032798208" target="_blank">
@@ -62,7 +59,7 @@ class ErrorBoundaryInner extends React.Component<
               </Link>
               {this.props.t('error_page.to_fix_it')}
             </Text>
-            <Code p="4" whiteSpace="pre-wrap">
+            <Code h="fit-content" p="4" whiteSpace="pre-wrap">
               {this.state.error.stack}
             </Code>
             {/* <Code p="4" whiteSpace="pre-wrap">

@@ -7,9 +7,7 @@ import { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { domToPng } from 'modern-screenshot';
 import { Box, Stack } from 'styled-system/jsx';
-import { Button } from '~/components/ui/styled/button';
-import { Input } from '~/components/ui/styled/input';
-import { Text } from '~/components/ui/styled/text';
+import { Button, Input, Text } from '~/components/ui';
 import type { SetlistPrediction, Performance } from '~/types/setlist-prediction';
 import {
   generateShareUrl,

@@ -1,8 +1,14 @@
 import { defineConfig } from '@pandacss/dev';
-import { createPreset } from '@park-ui/panda-preset';
+import { recipes, slotRecipes } from './src/theme/recipes';
 import { theme } from './src/theme';
-import pink from '@park-ui/panda-preset/colors/pink';
-import mauve from '@park-ui/panda-preset/colors/mauve';
+import { globalCss } from './src/theme/global-css';
+import { conditions } from './src/theme/conditions';
+import { pink } from './src/theme/colors/pink';
+import { mauve } from './src/theme/colors/mauve';
+import { red } from './src/theme/colors/red';
+import { green } from './src/theme/colors/green';
+import { amber } from './src/theme/colors/amber';
+import { blue } from './src/theme/colors/blue';
 
 const config = defineConfig({
   preflight: true,
@@ -14,11 +20,7 @@ const config = defineConfig({
 
   presets: [
     '@pandacss/preset-base',
-    createPreset({
-      accentColor: pink,
-      grayColor: mauve,
-      radius: 'lg'
-    })
+    '@pandacss/preset-panda',
   ],
 
   // Where to look for your css declarations
@@ -26,6 +28,14 @@ const config = defineConfig({
 
   // Files to exclude
   exclude: [],
+
+  globalCss: {
+    ...globalCss.extend,
+    html: {
+      ...globalCss.extend.html,
+      colorPalette: 'pink'
+    }
+  },
 
   staticCss: {
     recipes: {
@@ -43,8 +53,42 @@ const config = defineConfig({
   },
   // Useful for theme customization
   theme: {
-    extend: theme
+    extend: {
+      ...theme,
+      recipes,
+      slotRecipes,
+      semanticTokens: {
+        ...theme.semanticTokens,
+        colors: {
+          ...theme.semanticTokens?.colors,
+          pink: pink,
+          gray: mauve,
+          mauve: mauve,
+          red: red,
+          green: green,
+          amber: amber,
+          blue: blue,
+        },
+        radii: {
+          l1: { value: '{radii.md}' },
+          l2: { value: '{radii.lg}' },
+          l3: { value: '{radii.xl}' }
+        }
+      }
+    }
   },
+
+  plugins: [
+    {
+      name: 'Remove Panda Preset Colors',
+      hooks: {
+        'preset:resolved': ({ utils, preset, name }) =>
+          name === '@pandacss/preset-panda'
+            ? utils.omit(preset, ['theme.tokens.colors', 'theme.semanticTokens.colors'])
+            : preset
+      }
+    }
+  ],
 
   jsxFramework: 'react',
 
@@ -59,7 +103,9 @@ const config = defineConfig({
   },
 
   conditions: {
+    ...conditions,
     extend: {
+      ...conditions.extend,
       dark: ['&.dark, .dark &'],
       light: ['&.light, .light &']
     }

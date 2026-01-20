@@ -7,10 +7,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { join } from 'path-browserify';
 import { Stack, Box, HStack } from 'styled-system/jsx';
-import { Text } from '~/components/ui/styled/text';
-import { Button } from '~/components/ui/styled/button';
-import { Input } from '~/components/ui/styled/input';
-import { Checkbox } from '~/components/ui/checkbox';
+import { Text, Button, Input, Checkbox } from '~/components/ui';
 import { Metadata } from '~/components/layout/Metadata';
 import { useFilteredPerformances } from '~/hooks/setlist-prediction/usePerformanceData';
 import type {
@@ -217,14 +214,20 @@ export function Page() {
           {/* Filters & Options */}
           <HStack gap={3} flexWrap="wrap">
             {/* Hide Completed */}
-            <Checkbox
+            <Checkbox.Root
               checked={hideCompleted}
               onCheckedChange={(details: { checked: boolean | 'indeterminate' }) =>
                 handleHideCompletedChange(details.checked === true)
               }
             >
-              {t('setlistPrediction.hideCompleted', { defaultValue: 'Hide ended events' })}
-            </Checkbox>
+              <Checkbox.HiddenInput />
+              <Checkbox.Control>
+                <Checkbox.Indicator />
+              </Checkbox.Control>
+              <Checkbox.Label>
+                {t('setlistPrediction.hideCompleted', { defaultValue: 'Hide ended events' })}
+              </Checkbox.Label>
+            </Checkbox.Root>
 
             {/* Sort By */}
             <Box>

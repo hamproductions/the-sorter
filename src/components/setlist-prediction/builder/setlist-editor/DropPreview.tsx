@@ -7,7 +7,7 @@ import { useMemo } from 'react';
 import { MdDragIndicator } from 'react-icons/md';
 import artistsData from '../../../../../data/artists-info.json';
 import { Box, HStack, Stack } from 'styled-system/jsx';
-import { Text } from '~/components/ui/styled/text';
+import { Text } from '~/components/ui';
 import { css } from 'styled-system/css';
 import type { SetlistItem } from '~/types/setlist-prediction';
 import { isSongItem } from '~/types/setlist-prediction';

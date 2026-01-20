@@ -1,6 +1,5 @@
 import { Center, Stack } from 'styled-system/jsx';
-import { Link } from '~/components/ui/link';
-import { Text } from '~/components/ui/text';
+import { Link, Text } from '~/components/ui';
 
 export { Page };
 

@@ -6,11 +6,7 @@ import { isEqual } from 'lodash-es';
 import { ComparisonInfo } from '../../components/sorter/ComparisonInfo';
 import { KeyboardShortcuts } from '../../components/sorter/KeyboardShortcuts';
 import series from '../../../data/series-info.json';
-import { Button } from '../../components/ui/styled/button';
-import { Kbd } from '../../components/ui/styled/kbd';
-import { Progress } from '../../components/ui/progress';
-import { Switch } from '../../components/ui/switch';
-import { Text } from '../../components/ui/styled/text';
+import { Button, Kbd, Progress, Switch, Text } from '../../components/ui';
 import { useToaster } from '../../context/ToasterContext';
 import { getCurrentItem } from '../../utils/sort';
 import { getNextItems } from '~/utils/preloading';
@@ -209,13 +205,15 @@ export function Page() {
               )}
             </Suspense>
             <Wrap>
-              <Switch
+              <Switch.Root
                 checked={noTieMode}
                 disabled={isSorting}
-                onCheckedChange={(e) => setNoTieMode(e.checked)}
+                onCheckedChange={(details) => setNoTieMode(details.checked)}
               >
-                {t('settings.no_tie_mode')}
-              </Switch>
+                <Switch.HiddenInput />
+                <Switch.Control />
+                <Switch.Label>{t('settings.no_tie_mode')}</Switch.Label>
+              </Switch.Root>
             </Wrap>
           </>
         )}
@@ -307,13 +305,11 @@ export function Page() {
                   isEstimatedCount={isEstimatedCount}
                   maxComparisons={maxComparisons}
                 />
-                <Progress
-                  translations={{ value: (details) => `${details.percent}%` }}
-                  value={progress}
-                  min={0}
-                  max={1}
-                  defaultValue={0}
-                />
+                <Progress.Root value={progress} min={0} max={1} defaultValue={0}>
+                  <Progress.Track>
+                    <Progress.Range />
+                  </Progress.Track>
+                </Progress.Root>
               </Stack>
             )}
             {state.arr && isEnded && (

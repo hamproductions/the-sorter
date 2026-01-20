@@ -1,16 +1,13 @@
 import { join } from 'path-browserify';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BiMenu, BiX } from 'react-icons/bi';
 import { Box, Container, HStack, Stack } from 'styled-system/jsx';
 import { ColorModeToggle } from '~/components/layout/ColorModeToggle';
 import { Footer } from '~/components/layout/Footer';
 import { LanguageToggle } from '~/components/layout/LanguageToggle';
-import { Drawer } from '~/components/ui/drawer';
-import { Link } from '~/components/ui/link';
-import { Button } from '~/components/ui/styled/button';
-import { IconButton } from '~/components/ui/styled/icon-button';
+import { Drawer, Link, Button, CloseButton } from '~/components/ui';
 import { getAssetUrl } from '~/utils/assets';
+import { BiMenu } from 'react-icons/bi';
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation();
@@ -107,9 +104,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <HStack justifyContent="space-between" alignItems="center" w="full">
                 <Drawer.Title>{t('common.menu', { defaultValue: 'Menu' })}</Drawer.Title>
                 <Drawer.CloseTrigger asChild>
-                  <IconButton variant="ghost" size="sm">
-                    <BiX size={24} />
-                  </IconButton>
+                  <CloseButton />
                 </Drawer.CloseTrigger>
               </HStack>
             </Drawer.Header>

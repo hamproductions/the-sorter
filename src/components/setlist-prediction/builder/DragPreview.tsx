@@ -1,6 +1,6 @@
 import { MdDragIndicator } from 'react-icons/md';
 import { Box, HStack, Stack } from 'styled-system/jsx';
-import { Text } from '~/components/ui/styled/text';
+import { Text } from '~/components/ui';
 
 interface DragPreviewProps {
   activeData: Record<string, unknown> | null;

@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next';
+import { Table, Text } from '~/components/ui';
+import type { Song } from '~/types/songs';
+import type { Artist } from '~/types/songs';
 import type { WithRank } from '~/types';
 import { Stack } from 'styled-system/jsx';
-import { Table } from '~/components/ui/table';
-import { Text } from '~/components/ui/text';
-import type { Artist, Song } from '~/types/songs';
 import { getSongColor } from '~/utils/song';
 import { useArtistsData } from '~/hooks/useArtistsData';
 import { SchoolBadge } from '~/components/sorter/SchoolBadge';
@@ -53,7 +53,7 @@ export function SongRankingTable({
   const lang = i18n.language;
 
   return (
-    <Table.Root size="sm">
+    <Table.Root>
       <Table.Head>
         <Table.Row>
           <Table.Header textAlign={'center'}>{t('ranking')}</Table.Header>

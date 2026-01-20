@@ -1,15 +1,10 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaXmark } from 'react-icons/fa6';
 import { groupBy } from 'lodash-es';
-import { Dialog } from '../ui/dialog';
-import { Button } from '../ui/button';
-import { IconButton } from '../ui/icon-button';
+import { Dialog, Button, Text, Heading, CloseButton } from '~/components/ui';
 import { LanguageToggle } from '../layout/LanguageToggle';
 import { CharacterIcon } from '../sorter/CharacterIcon';
-import { Text } from '../ui/text';
 import { SchoolBadge } from '../sorter/SchoolBadge';
-import { Heading } from '../ui/heading';
 import { getPicUrl } from '~/utils/assets';
 import { getCastName, getFullName } from '~/utils/character';
 import { Box, Center, HStack, Stack, Wrap, styled } from 'styled-system/jsx';
@@ -106,7 +101,7 @@ export function CharacterInfoDialog(
                             ).map((us) => {
                               const u = us[0];
                               return (
-                                <Text as="li" size="sm" key={u.id}>
+                                <Text as="li" textStyle="sm" key={u.id}>
                                   {getUnitName(u.name, lang)}{' '}
                                   {u.additionalInfo && (
                                     <Text as="span">
@@ -178,18 +173,16 @@ export function CharacterInfoDialog(
                 <LanguageToggle />
               </Center>
               <Stack gap="3" direction="row" width="full">
-                <Dialog.CloseTrigger asChild>
+                <Dialog.ActionTrigger asChild>
                   <Button variant="outline" width="full">
                     {t('dialog.close')}
                   </Button>
-                </Dialog.CloseTrigger>
+                </Dialog.ActionTrigger>
               </Stack>
             </Stack>
           )}
           <Dialog.CloseTrigger asChild position="absolute" top="2" right="2">
-            <IconButton aria-label="Close Dialog" variant="ghost" size="sm">
-              <FaXmark />
-            </IconButton>
+            <CloseButton />
           </Dialog.CloseTrigger>
         </Dialog.Content>
       </Dialog.Positioner>

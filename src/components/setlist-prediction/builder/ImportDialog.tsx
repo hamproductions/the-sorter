@@ -7,10 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useState, useRef, useMemo } from 'react';
 import { css } from 'styled-system/css';
 import { Box, Stack, Grid } from 'styled-system/jsx';
-import { Button } from '~/components/ui/styled/button';
-import { Text } from '~/components/ui/styled/text';
-import { Textarea } from '~/components/ui/styled/textarea';
-import { Input } from '~/components/ui/styled/input';
+import { Button, Text, Textarea, Input, Dialog } from '~/components/ui';
 import {
   importFromJSON,
   importFromFile,
@@ -27,15 +24,6 @@ import {
   usePerformanceSetlist
 } from '~/hooks/setlist-prediction/usePerformanceData';
 import { SetlistView } from '~/components/setlist-prediction/SetlistView';
-import {
-  Root as DialogRoot,
-  Backdrop as DialogBackdrop,
-  Positioner as DialogPositioner,
-  Content as DialogContent,
-  Title as DialogTitle,
-  Description as DialogDescription,
-  CloseTrigger as DialogCloseTrigger
-} from '~/components/ui/styled/dialog';
 
 export interface ImportDialogProps {
   open: boolean;
@@ -327,13 +315,13 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
   };
 
   return (
-    <DialogRoot
+    <Dialog.Root
       open={open}
       onOpenChange={(details: { open: boolean }) => onOpenChange(details.open)}
     >
-      <DialogBackdrop />
-      <DialogPositioner>
-        <DialogContent
+      <Dialog.Backdrop />
+      <Dialog.Positioner>
+        <Dialog.Content
           display="flex"
           flexDirection="column"
           maxW="1000px"
@@ -341,17 +329,17 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
           overflow="hidden"
         >
           <Stack flex={1} gap={4} minH={0} p={6} overflow="hidden">
-            <DialogTitle>
+            <Dialog.Title>
               {t('setlistPrediction.importSetlist', { defaultValue: 'Import Setlist' })}
-            </DialogTitle>
+            </Dialog.Title>
 
-            <DialogDescription>
+            <Dialog.Description>
               <Text fontSize="sm">
                 {t('setlistPrediction.importDescription', {
                   defaultValue: 'Import a setlist from text, JSON, or a file.'
                 })}
               </Text>
-            </DialogDescription>
+            </Dialog.Description>
 
             {/* Import Type Selector */}
             <Stack gap={2}>
@@ -576,9 +564,9 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
               mt={4}
               pt={4}
             >
-              <DialogCloseTrigger asChild>
+              <Dialog.ActionTrigger asChild>
                 <Button variant="outline">{t('common.cancel', { defaultValue: 'Cancel' })}</Button>
-              </DialogCloseTrigger>
+              </Dialog.ActionTrigger>
               <Button
                 onClick={() => {
                   if (importType === 'performance') {
@@ -601,8 +589,8 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
               </Button>
             </Box>
           </Stack>
-        </DialogContent>
-      </DialogPositioner>
-    </DialogRoot>
+        </Dialog.Content>
+      </Dialog.Positioner>
+    </Dialog.Root>
   );
 }

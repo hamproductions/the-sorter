@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Stack, Wrap } from 'styled-system/jsx';
-import { Kbd } from '~/components/ui/styled/kbd';
-import { Text } from '~/components/ui/styled/text';
+import { Kbd, Text } from '~/components/ui';
 
 interface KeyboardShortcutsProps {
   noTieMode: boolean;

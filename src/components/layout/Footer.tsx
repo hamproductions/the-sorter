@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import buildInfo from '../../../data/build-info.json';
-import { Link } from '../ui/link';
-import { Text } from '../ui/text';
+import { Link, Text } from '../ui';
 import { Version } from '../utils/Version';
 import { Stack, Wrap, HStack } from 'styled-system/jsx';
 

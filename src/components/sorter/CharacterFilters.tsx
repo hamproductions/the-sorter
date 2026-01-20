@@ -1,10 +1,7 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button } from '../ui/button';
-import { Group } from '../ui/styled/checkbox';
-import { Checkbox } from '../ui/checkbox';
-import { Text } from '../ui/text';
+import { Button, Checkbox, Text } from '../ui';
 
 import school from '../../../data/school.json';
 import series from '../../../data/series.json';
@@ -89,25 +86,29 @@ export function CharacterFilters({
             {t('settings.select_all')}
           </Button>
         </HStack>
-        <Group
+        <Checkbox.Group
           asChild
           defaultValue={[]}
           value={selectedSchools}
-          onValueChange={(school) => {
+          onValueChange={(value: string[]) => {
             if (!filters) return;
-            setFilters({ ...filters, school });
+            setFilters({ ...filters, school: value });
           }}
         >
           <Wrap>
             {DATA.school.map((s) => {
               return (
-                <Checkbox size="sm" key={s} value={s}>
-                  {getSchoolName(s, lang)}
-                </Checkbox>
+                <Checkbox.Root size="sm" key={s} value={s}>
+                  <Checkbox.HiddenInput />
+                  <Checkbox.Control>
+                    <Checkbox.Indicator />
+                  </Checkbox.Control>
+                  <Checkbox.Label>{getSchoolName(s, lang)}</Checkbox.Label>
+                </Checkbox.Root>
               );
             })}
           </Wrap>
-        </Group>
+        </Checkbox.Group>
       </Stack>
       <Stack>
         <HStack justifyContent="space-between">
@@ -116,25 +117,29 @@ export function CharacterFilters({
             {t('settings.select_all')}
           </Button>
         </HStack>
-        <Group
+        <Checkbox.Group
           asChild
           defaultValue={[]}
           value={selectedSeries}
-          onValueChange={(series) => {
+          onValueChange={(value: string[]) => {
             if (!filters) return;
-            setFilters({ ...filters, series });
+            setFilters({ ...filters, series: value });
           }}
         >
           <Wrap>
             {DATA.series.map((s) => {
               return (
-                <Checkbox size="sm" key={s} value={s}>
-                  {getSeriesName(s, lang)}
-                </Checkbox>
+                <Checkbox.Root size="sm" key={s} value={s}>
+                  <Checkbox.HiddenInput />
+                  <Checkbox.Control>
+                    <Checkbox.Indicator />
+                  </Checkbox.Control>
+                  <Checkbox.Label>{getSeriesName(s, lang)}</Checkbox.Label>
+                </Checkbox.Root>
               );
             })}
           </Wrap>
-        </Group>
+        </Checkbox.Group>
       </Stack>
       <Stack>
         <HStack justifyContent="space-between">
@@ -143,25 +148,29 @@ export function CharacterFilters({
             {t('settings.select_all')}
           </Button>
         </HStack>
-        <Group
+        <Checkbox.Group
           asChild
           defaultValue={[]}
           value={selectedUnits}
-          onValueChange={(units) => {
+          onValueChange={(value: string[]) => {
             if (!filters) return;
-            setFilters({ ...filters, units });
+            setFilters({ ...filters, units: value });
           }}
         >
           <Wrap>
             {units.map((s) => {
               return (
-                <Checkbox size="sm" key={s.id} value={s.id}>
-                  {getUnitName(s.name, lang)}
-                </Checkbox>
+                <Checkbox.Root size="sm" key={s.id} value={s.id}>
+                  <Checkbox.HiddenInput />
+                  <Checkbox.Control>
+                    <Checkbox.Indicator />
+                  </Checkbox.Control>
+                  <Checkbox.Label>{getUnitName(s.name, lang)}</Checkbox.Label>
+                </Checkbox.Root>
               );
             })}
           </Wrap>
-        </Group>
+        </Checkbox.Group>
       </Stack>
       <HStack justifyContent="center">
         <Button onClick={deselectAll}>{t('settings.deselect_all')}</Button>

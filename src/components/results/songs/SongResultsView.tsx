@@ -5,20 +5,22 @@ import { useTranslation } from 'react-i18next';
 
 import { uniq } from 'lodash-es';
 import { SongRankingTable } from './SongRankingTable';
-import { Tabs } from '~/components/ui/tabs';
-import { Accordion } from '~/components/ui/accordion';
+import {
+  Accordion,
+  Button,
+  FormLabel,
+  Heading,
+  Input,
+  Tabs,
+  type TabsValueChangeDetails,
+  Text,
+  Textarea
+} from '~/components/ui';
 import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
-import { FormLabel } from '~/components/ui/form-label';
-import { Heading } from '~/components/ui/heading';
-import { Input } from '~/components/ui/input';
-import { Textarea } from '~/components/ui/textarea';
 import { useToaster } from '~/context/ToasterContext';
 import { useLocalStorage } from '~/hooks/useLocalStorage';
 import type { WithRank } from '~/types';
-import { Text } from '~/components/ui/text';
 import type { Song } from '~/types/songs';
-import { Button } from '~/components/ui/button';
-import type { RootProps } from '~/components/ui/styled/tabs';
 import { useArtistsData } from '~/hooks/useArtistsData';
 import { useSeriesData } from '~/hooks/useSeriesData';
 
@@ -27,7 +29,7 @@ export function SongResultsView({
   songsData,
   order,
   ...props
-}: RootProps & {
+}: Tabs.RootProps & {
   titlePrefix?: string;
   songsData: Song[];
   order?: string[][];
@@ -51,27 +53,24 @@ export function SongResultsView({
   }, [currentTab, setCurrentTab, tabs]);
 
   const songs = useMemo(() => {
-    return (
-      order
-        ?.map((ids, idx, arr) => {
-          const startRank = arr
-            .slice(0, idx)
-            .reduce((p, c) => p + (Array.isArray(c) ? c.length : 1), 1);
-          if (Array.isArray(ids)) {
-            return ids
-              .map((id) => {
-                const song = songsData.find((s) => s.id === `${id}`);
-                return song ? { rank: startRank, ...song } : null;
-              })
-              .filter((d): d is WithRank<Song> => d !== null);
-          } else {
-            const chara = songsData.find((i) => i.id === ids);
-            if (!chara) return [];
-            return [{ rank: startRank, ...chara }];
-          }
-        })
-        .filter((c): c is WithRank<Song>[] => !!c) ?? []
-    ).flatMap((s) => s);
+    const mapped = (order ?? []).map((ids, idx, arr) => {
+      const startRank = arr
+        .slice(0, idx)
+        .reduce((p, c) => p + (Array.isArray(c) ? c.length : 1), 1);
+      if (Array.isArray(ids)) {
+        return ids
+          .map((id) => {
+            const song = songsData.find((s) => s.id === `${id}`);
+            return song ? { rank: startRank, ...song } : null;
+          })
+          .filter((d): d is WithRank<Song> => d !== null);
+      } else {
+        const chara = songsData.find((i) => i.id === ids);
+        if (!chara) return [];
+        return [{ rank: startRank, ...chara } as WithRank<Song>];
+      }
+    });
+    return mapped.flat();
   }, [order, songsData]);
 
   const makeScreenshot = async () => {
@@ -110,15 +109,15 @@ export function SongResultsView({
 
   const exportText = async () => {
     await navigator.clipboard.writeText(
-      order
-        ?.flatMap((item, idx) =>
+      (order ?? [])
+        .flatMap((item, idx) =>
           item.map((i) => {
             const s = songsData.find((s) => s.id === `${i}`);
             const artist = s?.artists.map((art) => artists.find((a) => a.id === art.id));
             return `${idx + 1}. ${s?.name} - ${artist?.[0]?.name ?? 'unknown'}`;
           })
         )
-        .join('\n') ?? ''
+        .join('\n')
     );
     toast?.({ description: t('toast.text_copied') });
   };
@@ -126,7 +125,7 @@ export function SongResultsView({
   const exportJSON = async () => {
     await navigator.clipboard.writeText(
       JSON.stringify(
-        order?.flatMap((item, idx) =>
+        (order ?? []).flatMap((item, idx) =>
           item.map((i) => {
             const s = songsData.find((s) => s.id === `${i}`);
             const artist = s?.artists.map((art) => artists.find((a) => a.id === art.id));
@@ -228,7 +227,7 @@ export function SongResultsView({
           lazyMount
           defaultValue="table"
           value={currentTab}
-          onValueChange={(d) => setCurrentTab(d.value as 'table')}
+          onValueChange={(d: TabsValueChangeDetails) => setCurrentTab(d.value as 'table')}
           {...props}
         >
           <Tabs.List>

@@ -1,8 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { FaCircleInfo } from 'react-icons/fa6';
 import { HStack } from 'styled-system/jsx';
-import { Text } from '~/components/ui/styled/text';
-import { Tooltip } from '~/components/ui/tooltip';
+import { Text, Tooltip } from '~/components/ui';
 
 interface ComparisonInfoProps {
   comparisonsCount: number;
@@ -22,18 +21,17 @@ export const ComparisonInfo = ({
       <Text>
         {t('sort.comparison_no', { count: `${isEstimatedCount ? '~' : ''}${comparisonsCount}` })}
       </Text>
-      <Tooltip.Root>
-        <Tooltip.Trigger>
-          <FaCircleInfo />
-        </Tooltip.Trigger>
-        <Tooltip.Positioner>
-          <Tooltip.Content>
+      <Tooltip
+        content={
+          <>
             ~{comparisonsCount} / {maxComparisons} {t('sort.comparisons')}
             <br />
             {t('sort.estimate_disclaimer')}
-          </Tooltip.Content>
-        </Tooltip.Positioner>
-      </Tooltip.Root>
+          </>
+        }
+      >
+        <FaCircleInfo />
+      </Tooltip>
     </HStack>
   );
 };

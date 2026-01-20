@@ -1,5 +1,5 @@
 import { CharacterIcon } from '../sorter/CharacterIcon';
-import { Text } from '../ui/text';
+import { Text } from '../ui';
 import { Box, Center, Stack, Wrap, styled } from 'styled-system/jsx';
 import { getPicUrl } from '~/utils/assets';
 

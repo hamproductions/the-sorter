@@ -1,9 +1,6 @@
 import { useEffect, type Dispatch, type SetStateAction, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button } from '../ui/button';
-import { Checkbox } from '../ui/checkbox';
-import { Group } from '../ui/styled/checkbox';
-import { Text } from '../ui/text';
+import { Button, Checkbox, Text } from '../ui';
 
 import songs from '../../../data/hasu-songs.json';
 
@@ -98,25 +95,29 @@ export function HasuSongFilters({
             {t('settings.select_all')}
           </Button>
         </HStack>
-        <Group
+        <Checkbox.Group
           asChild
           defaultValue={[]}
           value={filters?.generations}
-          onValueChange={(generations) => {
+          onValueChange={(value: string[]) => {
             if (!filters) return;
-            setFilters({ ...filters, generations });
+            setFilters({ ...filters, generations: value });
           }}
         >
           <Wrap>
             {DATA.generations.map((s) => {
               return (
-                <Checkbox size="sm" key={s} value={s}>
-                  {t(`settings.generation.${s}`)}
-                </Checkbox>
+                <Checkbox.Root size="sm" key={s} value={s}>
+                  <Checkbox.HiddenInput />
+                  <Checkbox.Control>
+                    <Checkbox.Indicator />
+                  </Checkbox.Control>
+                  <Checkbox.Label>{t(`settings.generation.${s}`)}</Checkbox.Label>
+                </Checkbox.Root>
               );
             })}
           </Wrap>
-        </Group>
+        </Checkbox.Group>
       </Stack>
       <Stack>
         <HStack justifyContent="space-between">
@@ -125,25 +126,29 @@ export function HasuSongFilters({
             {t('settings.select_all')}
           </Button>
         </HStack>
-        <Group
+        <Checkbox.Group
           asChild
           defaultValue={[]}
           value={filters?.types}
-          onValueChange={(types) => {
+          onValueChange={(value: string[]) => {
             if (!filters) return;
-            setFilters({ ...filters, types: types as ('original' | 'covers')[] });
+            setFilters({ ...filters, types: value as ('original' | 'covers')[] });
           }}
         >
           <Wrap>
             {DATA.types.map((s) => {
               return (
-                <Checkbox size="sm" key={s} value={s}>
-                  {t(`settings.type.${s}`)}
-                </Checkbox>
+                <Checkbox.Root size="sm" key={s} value={s}>
+                  <Checkbox.HiddenInput />
+                  <Checkbox.Control>
+                    <Checkbox.Indicator />
+                  </Checkbox.Control>
+                  <Checkbox.Label>{t(`settings.type.${s}`)}</Checkbox.Label>
+                </Checkbox.Root>
               );
             })}
           </Wrap>
-        </Group>
+        </Checkbox.Group>
       </Stack>
       <Stack>
         <HStack justifyContent="space-between">
@@ -152,25 +157,29 @@ export function HasuSongFilters({
             {t('settings.select_all')}
           </Button>
         </HStack>
-        <Group
+        <Checkbox.Group
           asChild
           defaultValue={[]}
           value={filters?.units}
-          onValueChange={(units) => {
+          onValueChange={(value: string[]) => {
             if (!filters) return;
-            setFilters({ ...filters, units });
+            setFilters({ ...filters, units: value });
           }}
         >
           <Wrap>
             {DATA.units.map((s) => {
               return (
-                <Checkbox size="sm" key={s} value={s}>
-                  {s}
-                </Checkbox>
+                <Checkbox.Root size="sm" key={s} value={s}>
+                  <Checkbox.HiddenInput />
+                  <Checkbox.Control>
+                    <Checkbox.Indicator />
+                  </Checkbox.Control>
+                  <Checkbox.Label>{s}</Checkbox.Label>
+                </Checkbox.Root>
               );
             })}
           </Wrap>
-        </Group>
+        </Checkbox.Group>
       </Stack>
       <HStack justifyContent="center">
         <Button onClick={deselectAll}>{t('settings.deselect_all')}</Button>

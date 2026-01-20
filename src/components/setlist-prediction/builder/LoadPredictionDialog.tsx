@@ -2,20 +2,10 @@ import { useTranslation } from 'react-i18next';
 import { useState, useMemo, useEffect } from 'react';
 import { css } from 'styled-system/css';
 import { Box, Stack, HStack } from 'styled-system/jsx';
-import { Button } from '~/components/ui/styled/button';
-import { Text } from '~/components/ui/styled/text';
+import { Button, Text, Dialog } from '~/components/ui';
 import { usePredictionStorage } from '~/hooks/setlist-prediction/usePredictionStorage';
 import { usePerformance, usePerformanceData } from '~/hooks/setlist-prediction/usePerformanceData';
 import type { SetlistPrediction } from '~/types/setlist-prediction';
-import {
-  Root as DialogRoot,
-  Backdrop as DialogBackdrop,
-  Positioner as DialogPositioner,
-  Content as DialogContent,
-  Title as DialogTitle,
-  Description as DialogDescription,
-  CloseTrigger as DialogCloseTrigger
-} from '~/components/ui/styled/dialog';
 
 // Props for the dialog. `performanceId` is optional — when provided the dialog
 // should only display predictions that belong to that performance. This allows
@@ -159,13 +149,13 @@ export function LoadPredictionDialog({
   };
 
   return (
-    <DialogRoot
+    <Dialog.Root
       open={open}
       onOpenChange={(details: { open: boolean }) => onOpenChange(details.open)}
     >
-      <DialogBackdrop />
-      <DialogPositioner>
-        <DialogContent
+      <Dialog.Backdrop />
+      <Dialog.Positioner>
+        <Dialog.Content
           display="flex"
           flexDirection="column"
           maxW="600px"
@@ -173,17 +163,17 @@ export function LoadPredictionDialog({
           overflow="hidden"
         >
           <Stack flex={1} gap={4} minH={0} p={6} overflow="hidden">
-            <DialogTitle>
+            <Dialog.Title>
               {t('setlistPrediction.loadPrediction', { defaultValue: 'Load Prediction' })}
-            </DialogTitle>
+            </Dialog.Title>
 
-            <DialogDescription>
+            <Dialog.Description>
               <Text fontSize="sm">
                 {t('setlistPrediction.loadPredictionDescription', {
                   defaultValue: 'Select a saved prediction to load into the builder.'
                 })}
               </Text>
-            </DialogDescription>
+            </Dialog.Description>
 
             <Box flex={1} minH={0} overflow="auto">
               <Stack gap={2}>
@@ -260,9 +250,9 @@ export function LoadPredictionDialog({
               mt={2}
               pt={4}
             >
-              <DialogCloseTrigger asChild>
+              <Dialog.ActionTrigger asChild>
                 <Button variant="outline">{t('common.cancel', { defaultValue: 'Cancel' })}</Button>
-              </DialogCloseTrigger>
+              </Dialog.ActionTrigger>
               {/* Only show Score button if the performance has an actual setlist */}
               {/* If not, display a disabled button with a message saying this performance hasn't happened yet */}
               {selectedPerformance?.hasSetlist && onSelectScorePrediction ? (
@@ -281,8 +271,8 @@ export function LoadPredictionDialog({
               </Button>
             </Box>
           </Stack>
-        </DialogContent>
-      </DialogPositioner>
-    </DialogRoot>
+        </Dialog.Content>
+      </Dialog.Positioner>
+    </Dialog.Root>
   );
 }

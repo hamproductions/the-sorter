@@ -48,7 +48,8 @@ export default [
   {
     rules: {
       '@pandacss/no-unsafe-token-fn-usage': 'off',
-      '@pandacss/no-hardcoded-color': 'off'
+      '@pandacss/no-hardcoded-color': 'off',
+      '@pandacss/no-config-function-in-source': 'off'
     }
   },
   {

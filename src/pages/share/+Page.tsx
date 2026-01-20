@@ -1,8 +1,7 @@
 import { Suspense, lazy } from 'react';
 import { useTranslation } from 'react-i18next';
 import { decompressFromEncodedURIComponent } from 'lz-string';
-import { Link } from '../../components/ui/link';
-import { Text } from '../../components/ui/text';
+import { Link, Text, Button } from '../../components/ui';
 import { useData } from '../../hooks/useData';
 import type { Character } from '../../types';
 import school from '../../../data/school.json';
@@ -12,8 +11,6 @@ import { Container, Stack } from 'styled-system/jsx';
 import { ResultsView } from '~/components/results/ResultsView';
 import { getFilterTitle } from '~/utils/filter';
 import { addPresetParams } from '~/utils/share';
-
-import { Button } from '~/components/ui/button';
 import { Metadata } from '~/components/layout/Metadata';
 import type { TierListSettings } from '~/components/results/TierList';
 import { useDialogData } from '~/hooks/useDialogData';
@@ -91,7 +88,7 @@ export function Page() {
                 charactersData={data}
                 isSeiyuu={seiyuu}
                 shareDisplayData={shareDisplayData}
-                onSelectCharacter={(c) => setShowCharacterInfo(c)}
+                onSelectCharacter={(c: Character) => setShowCharacterInfo(c)}
                 readOnly
                 w="full"
                 order={results}

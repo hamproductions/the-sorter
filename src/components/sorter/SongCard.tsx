@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Text } from '../ui/text';
+import { Text } from '../ui';
 import type { StackProps } from 'styled-system/jsx';
 import { Center, Stack } from 'styled-system/jsx';
 import type { Artist, Song } from '~/types/songs';

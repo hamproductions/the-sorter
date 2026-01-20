@@ -1,10 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { BiPlus, BiX } from 'react-icons/bi';
+import { BiPlus } from 'react-icons/bi';
 import { SongSearchPanel } from './SongSearchPanel';
 import { Stack, Box, HStack } from 'styled-system/jsx';
-import { Button } from '~/components/ui/styled/button';
-import { Text } from '~/components/ui/styled/text';
-import { Drawer } from '~/components/ui/drawer';
+import { Button, Text, Drawer, CloseButton } from '~/components/ui';
 
 interface AddItemDrawerProps {
   isOpen: boolean;
@@ -39,9 +37,7 @@ export function AddItemDrawer({
                 {t('setlistPrediction.addItem', { defaultValue: 'Add Item' })}
               </Drawer.Title>
               <Drawer.CloseTrigger asChild>
-                <Button variant="ghost" size="sm">
-                  <BiX size={20} />
-                </Button>
+                <CloseButton />
               </Drawer.CloseTrigger>
             </HStack>
 

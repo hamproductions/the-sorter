@@ -5,7 +5,7 @@ import type { HasuSongFilterType } from '../../../components/sorter/HasuSongFilt
 import { Stack } from 'styled-system/jsx';
 import { Metadata } from '~/components/layout/Metadata';
 import { useHasuSongData } from '~/hooks/useHasuSongData';
-import { Text } from '~/components/ui/text';
+import { Text } from '~/components/ui';
 import { useToaster } from '~/context/ToasterContext';
 import { useLocalStorage } from '~/hooks/useLocalStorage';
 import { hasFilter } from '~/utils/filter';

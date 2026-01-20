@@ -2,19 +2,8 @@ import { useTranslation } from 'react-i18next';
 import { useState, useMemo } from 'react';
 import { css } from 'styled-system/css';
 import { Box, HStack, Stack } from 'styled-system/jsx';
-import { Button } from '~/components/ui/styled/button';
-import { Text } from '~/components/ui/styled/text';
-import { Input } from '~/components/ui/styled/input';
+import { Button, Text, Input, Dialog } from '~/components/ui';
 import { usePerformanceData } from '~/hooks/setlist-prediction/usePerformanceData';
-import {
-  Root as DialogRoot,
-  Backdrop as DialogBackdrop,
-  Positioner as DialogPositioner,
-  Content as DialogContent,
-  Title as DialogTitle,
-  Description as DialogDescription,
-  CloseTrigger as DialogCloseTrigger
-} from '~/components/ui/styled/dialog';
 import type { CustomPerformance } from '~/types/setlist-prediction';
 
 export interface PerformancePickerDialogProps {
@@ -78,13 +67,13 @@ export function PerformancePickerDialog({
   };
 
   return (
-    <DialogRoot
+    <Dialog.Root
       open={open}
       onOpenChange={(details: { open: boolean }) => onOpenChange(details.open)}
     >
-      <DialogBackdrop />
-      <DialogPositioner>
-        <DialogContent
+      <Dialog.Backdrop />
+      <Dialog.Positioner>
+        <Dialog.Content
           display="flex"
           flexDirection="column"
           maxW="600px"
@@ -92,17 +81,17 @@ export function PerformancePickerDialog({
           overflow="hidden"
         >
           <Stack flex={1} gap={4} minH={0} p={6} overflow="hidden">
-            <DialogTitle>
+            <Dialog.Title>
               {t('setlistPrediction.changePerformance', { defaultValue: 'Change Performance' })}
-            </DialogTitle>
+            </Dialog.Title>
 
-            <DialogDescription>
+            <Dialog.Description>
               <Text fontSize="sm">
                 {t('setlistPrediction.changePerformanceDescription', {
                   defaultValue: 'Select a performance to assign to this prediction.'
                 })}
               </Text>
-            </DialogDescription>
+            </Dialog.Description>
 
             <Box borderRadius="md" borderWidth="1px" p={3}>
               <Text mb={2} fontSize="sm" fontWeight="medium">
@@ -208,16 +197,16 @@ export function PerformancePickerDialog({
               mt={2}
               pt={4}
             >
-              <DialogCloseTrigger asChild>
+              <Dialog.ActionTrigger asChild>
                 <Button variant="outline">{t('common.cancel', { defaultValue: 'Cancel' })}</Button>
-              </DialogCloseTrigger>
+              </Dialog.ActionTrigger>
               <Button onClick={handleConfirm} disabled={!selectedPerformanceId}>
                 {t('common.confirm', { defaultValue: 'Confirm' })}
               </Button>
             </Box>
           </Stack>
-        </DialogContent>
-      </DialogPositioner>
-    </DialogRoot>
+        </Dialog.Content>
+      </Dialog.Positioner>
+    </Dialog.Root>
   );
 }

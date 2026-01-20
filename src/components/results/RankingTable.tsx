@@ -1,7 +1,6 @@
 import groupBy from 'lodash-es/groupBy';
 import { useTranslation } from 'react-i18next';
-import { Table } from '../ui/table';
-import { Text } from '../ui/text';
+import { Table, Text } from '../ui';
 import { CharacterIcon } from '../sorter/CharacterIcon';
 import { SchoolBadge } from '../sorter/SchoolBadge';
 import { getPicUrl } from '~/utils/assets';
@@ -25,7 +24,7 @@ export function RankingTable({
 
   const lang = i18n.language;
   return (
-    <Table.Root size="sm">
+    <Table.Root>
       <Table.Head>
         <Table.Row>
           <Table.Header>{t('ranking')}</Table.Header>

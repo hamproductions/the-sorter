@@ -31,15 +31,10 @@ import { SongSearchPanel } from './SongSearchPanel';
 import { DraggableQuickAddItem } from './DraggableQuickAddItem';
 import { ImportDialog } from './ImportDialog';
 import { ExportShareTools } from './ExportShareTools';
-import { Drawer } from '~/components/ui/drawer';
-import { Menu } from '~/components/ui/menu';
+import { Drawer, Menu, Button, IconButton, Input, Text } from '~/components/ui';
 
 import { css } from 'styled-system/css';
 import { Box, Stack, HStack } from 'styled-system/jsx';
-import { Button } from '~/components/ui/styled/button';
-import { IconButton } from '~/components/ui/styled/icon-button';
-import { Input } from '~/components/ui/styled/input';
-import { Text } from '~/components/ui/styled/text';
 import type {
   SetlistPrediction,
   Performance,

@@ -7,9 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { BiTrash, BiStar } from 'react-icons/bi';
 import { MdEdit } from 'react-icons/md';
 import { Stack, Box, HStack } from 'styled-system/jsx';
-import { Text } from '~/components/ui/styled/text';
-import { Button } from '~/components/ui/styled/button';
-import { IconButton } from '~/components/ui/styled/icon-button';
+import { Text, Button, IconButton } from '~/components/ui';
 import { useSaveSlots } from '~/hooks/setlist-prediction/useSaveSlots';
 import { usePredictionStorage } from '~/hooks/setlist-prediction/usePredictionStorage';
 

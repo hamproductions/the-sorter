@@ -1,7 +1,7 @@
 import type { UniqueIdentifier } from '@dnd-kit/core';
 import { defaultAnimateLayoutChanges, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Text } from '../../ui/text';
+import { Text } from '../../ui';
 import { CharacterIcon } from '../../sorter/CharacterIcon';
 import { HStack, Stack, Wrap } from 'styled-system/jsx';
 import type { Locale } from '~/i18n';

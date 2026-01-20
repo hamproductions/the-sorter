@@ -1,12 +1,8 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaXmark } from 'react-icons/fa6';
 import { Box, HStack, Stack } from 'styled-system/jsx';
-import { Dialog } from '~/components/ui/dialog';
-import { IconButton } from '~/components/ui/icon-button';
-import { Input } from '~/components/ui/input';
-import { Text } from '~/components/ui/text';
+import { Dialog, CloseButton, Input, Text } from '~/components/ui';
 
 export function SortingPreviewDialog<T extends { id: string | number }>(
   props: Dialog.RootProps & {
@@ -110,9 +106,7 @@ export function SortingPreviewDialog<T extends { id: string | number }>(
             </Box>
           </Stack>
           <Dialog.CloseTrigger asChild position="absolute" top="2" right="2">
-            <IconButton aria-label="Close Dialog" variant="ghost" size="sm">
-              <FaXmark />
-            </IconButton>
+            <CloseButton />
           </Dialog.CloseTrigger>
         </Dialog.Content>
       </Dialog.Positioner>

@@ -1,9 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { FaXmark } from 'react-icons/fa6';
 import { Stack } from 'styled-system/jsx';
-import { Button } from '~/components/ui/button';
-import { Dialog } from '~/components/ui/dialog';
-import { IconButton } from '~/components/ui/icon-button';
+import { Button, Dialog, CloseButton } from '~/components/ui';
 
 const createConfirmDialog = (
   key: 'mid_sort_confirm' | 'ended_confirm' | 'new_session_confirm',
@@ -24,20 +21,18 @@ const createConfirmDialog = (
                 <Dialog.Description>{t(`dialog.${key}.description`)}</Dialog.Description>
               </Stack>
               <Stack gap="3" direction="row" width="full">
-                <Dialog.CloseTrigger asChild>
+                <Dialog.ActionTrigger asChild>
                   <Button variant="outline" flex={1}>
                     {t(cancelLabelKey)}
                   </Button>
-                </Dialog.CloseTrigger>
+                </Dialog.ActionTrigger>
                 <Button onClick={onConfirm} flex={1}>
                   {t(confirmLabelKey)}
                 </Button>
               </Stack>
             </Stack>
             <Dialog.CloseTrigger asChild position="absolute" top="2" right="2">
-              <IconButton aria-label="Close Dialog" variant="ghost" size="sm">
-                <FaXmark />
-              </IconButton>
+              <CloseButton />
             </Dialog.CloseTrigger>
           </Dialog.Content>
         </Dialog.Positioner>

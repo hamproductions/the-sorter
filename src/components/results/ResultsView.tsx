@@ -2,16 +2,18 @@ import { useEffect, useMemo, useState } from 'react';
 import { FaChevronDown, FaCopy, FaDownload, FaPencil, FaShare, FaXTwitter } from 'react-icons/fa6';
 
 import { useTranslation } from 'react-i18next';
-import { Accordion } from '../ui/accordion';
-import { Button } from '../ui/button';
-import { FormLabel } from '../ui/form-label';
-import { Heading } from '../ui/heading';
-import { Input } from '../ui/input';
+import {
+  Accordion,
+  Button,
+  FormLabel,
+  Heading,
+  Input,
+  Tabs,
+  type TabsValueChangeDetails,
+  Text,
+  Textarea
+} from '../ui';
 
-import { Tabs } from '../ui/tabs';
-import { Text } from '../ui/text';
-import { Textarea } from '../ui/textarea';
-import type { RootProps } from '../ui/styled/tabs';
 import { GridView } from './GridView';
 import { RankingTable } from './RankingTable';
 import { RankingView } from './RankingView';
@@ -42,7 +44,7 @@ export function ResultsView({
   onShareResults,
   onSelectCharacter,
   ...props
-}: RootProps & {
+}: Tabs.RootProps & {
   titlePrefix?: string;
   charactersData: Character[];
   order?: string[][];
@@ -146,8 +148,8 @@ export function ResultsView({
   };
 
   const getShareText = () => {
-    const seiyuuList = order
-      ?.flatMap((ids, idx) =>
+    const seiyuuList = (order ?? [])
+      .flatMap((ids, idx) =>
         ids.map((id) => {
           const character = getCharacterFromId(charactersData, id, isSeiyuu);
           if (!character) return;
@@ -287,7 +289,9 @@ export function ResultsView({
           lazyMount
           defaultValue="default"
           value={displayTab}
-          onValueChange={(d) => setCurrentTab(d.value as 'default' | 'table')}
+          onValueChange={(d: TabsValueChangeDetails) =>
+            setCurrentTab(d.value as 'default' | 'table')
+          }
           {...props}
         >
           {!displayCurrentTab && (

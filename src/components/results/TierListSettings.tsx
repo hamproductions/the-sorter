@@ -2,12 +2,15 @@ import { max, sortBy } from 'lodash-es';
 import { Fragment, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaPlus, FaTrash } from 'react-icons/fa6';
-import { Button } from '../ui/button';
-import { Checkbox } from '../ui/checkbox';
-import { IconButton } from '../ui/icon-button';
-import { Input } from '../ui/input';
-import { NumberInput } from '../ui/number-input';
-import { Text } from '../ui/text';
+import {
+  Button,
+  Checkbox,
+  IconButton,
+  Input,
+  NumberInput,
+  Text,
+  type CheckboxCheckedChangeDetails
+} from '../ui';
 import type { TierListSettings as TierListSettingsData } from './TierList';
 import { Grid, HStack, Stack, Wrap } from 'styled-system/jsx';
 
@@ -66,7 +69,7 @@ export function TierListSettings({
                 }
               />
               <HStack gap="1" flexDirection={{ base: 'column', md: 'row' }} w="full">
-                <NumberInput
+                <NumberInput.Root
                   disabled={index === 0}
                   value={(tierRanks[index - 1] ?? 0)?.toString()}
                   min={(tierRanks[index - 2] ?? 0) + 1}
@@ -79,9 +82,11 @@ export function TierListSettings({
                       )
                     })
                   }
-                ></NumberInput>
+                >
+                  <NumberInput.Input />
+                </NumberInput.Root>
                 <Text>-</Text>
-                <NumberInput
+                <NumberInput.Root
                   disabled={index === tierRanks.length - 1}
                   min={(tierRanks[index - 1] ?? 0) + 1}
                   value={tierRanks[index]?.toString()}
@@ -92,7 +97,9 @@ export function TierListSettings({
                       tierRanks: tierRanks.map((r, idx) => (idx === index ? Number(e.value) : r))
                     })
                   }
-                ></NumberInput>
+                >
+                  <NumberInput.Input />
+                </NumberInput.Root>
               </HStack>
               <IconButton
                 aria-label={t('results.settings.tier.delete_tier')}
@@ -126,45 +133,61 @@ export function TierListSettings({
         </Button>
       </Grid>
       <Wrap>
-        <Checkbox
+        <Checkbox.Root
           size="sm"
           checked={hideBottomTier}
-          onCheckedChange={({ checked }) =>
+          onCheckedChange={({ checked }: CheckboxCheckedChangeDetails) =>
             setSettings({ ...settings, hideBottomTier: checked === true })
           }
         >
-          {t('results.settings.tier.hide_bottom_tier')}
-        </Checkbox>
-        <Checkbox
+          <Checkbox.HiddenInput />
+          <Checkbox.Control>
+            <Checkbox.Indicator />
+          </Checkbox.Control>
+          <Checkbox.Label>{t('results.settings.tier.hide_bottom_tier')}</Checkbox.Label>
+        </Checkbox.Root>
+        <Checkbox.Root
           size="sm"
           checked={showRank}
-          onCheckedChange={({ checked }) =>
+          onCheckedChange={({ checked }: CheckboxCheckedChangeDetails) =>
             setSettings({ ...settings, showRank: checked === true })
           }
         >
-          {t('results.settings.tier.show_rank')}
-        </Checkbox>
-        <Checkbox
+          <Checkbox.HiddenInput />
+          <Checkbox.Control>
+            <Checkbox.Indicator />
+          </Checkbox.Control>
+          <Checkbox.Label>{t('results.settings.tier.show_rank')}</Checkbox.Label>
+        </Checkbox.Root>
+        <Checkbox.Root
           size="sm"
           checked={showName}
-          onCheckedChange={({ checked }) =>
+          onCheckedChange={({ checked }: CheckboxCheckedChangeDetails) =>
             setSettings({ ...settings, showName: checked === true })
           }
         >
-          {t('results.settings.tier.show_name')}
-        </Checkbox>
+          <Checkbox.HiddenInput />
+          <Checkbox.Control>
+            <Checkbox.Indicator />
+          </Checkbox.Control>
+          <Checkbox.Label>{t('results.settings.tier.show_name')}</Checkbox.Label>
+        </Checkbox.Root>
 
         {showName && (
-          <Checkbox
+          <Checkbox.Root
             size="sm"
             checked={showInfo}
             disabled={!showName}
-            onCheckedChange={({ checked }) =>
+            onCheckedChange={({ checked }: CheckboxCheckedChangeDetails) =>
               setSettings({ ...settings, showInfo: checked === true })
             }
           >
-            {t('results.settings.tier.show_info')}
-          </Checkbox>
+            <Checkbox.HiddenInput />
+            <Checkbox.Control>
+              <Checkbox.Indicator />
+            </Checkbox.Control>
+            <Checkbox.Label>{t('results.settings.tier.show_info')}</Checkbox.Label>
+          </Checkbox.Root>
         )}
       </Wrap>
     </Stack>

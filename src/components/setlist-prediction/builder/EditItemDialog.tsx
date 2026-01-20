@@ -7,20 +7,9 @@ import { useTranslation } from 'react-i18next';
 import { useState, useMemo } from 'react';
 import artistsData from '../../../../data/artists-info.json';
 import { getArtistName, getSongName } from '~/utils/names';
-import {
-  Root as DialogRoot,
-  Backdrop as DialogBackdrop,
-  Positioner as DialogPositioner,
-  Content as DialogContent,
-  Title as DialogTitle,
-  Description as DialogDescription,
-  CloseTrigger as DialogCloseTrigger
-} from '~/components/ui/styled/dialog';
+import { Dialog, Button, Input, Text } from '~/components/ui';
 import { css } from 'styled-system/css';
 import { Box, Stack, HStack } from 'styled-system/jsx';
-import { Button } from '~/components/ui/styled/button';
-import { Input } from '~/components/ui/styled/input';
-import { Text } from '~/components/ui/styled/text';
 import type { SetlistItem, SongSetlistItem, NonSongSetlistItem } from '~/types/setlist-prediction';
 import { isSongItem } from '~/types/setlist-prediction';
 import { useSongData } from '~/hooks/useSongData';
@@ -128,19 +117,19 @@ export function EditItemDialog({ open, onOpenChange, item, onSave }: EditItemDia
   }, [item, songData]);
 
   return (
-    <DialogRoot
+    <Dialog.Root
       open={open}
       onOpenChange={(details: { open: boolean }) => onOpenChange(details.open)}
     >
-      <DialogBackdrop />
-      <DialogPositioner>
-        <DialogContent maxW="600px">
+      <Dialog.Backdrop />
+      <Dialog.Positioner>
+        <Dialog.Content maxW="600px">
           <Stack gap={4} p={6}>
-            <DialogTitle>
+            <Dialog.Title>
               {t('setlistPrediction.editItem', { defaultValue: 'Edit Item' })}
-            </DialogTitle>
+            </Dialog.Title>
 
-            <DialogDescription>
+            <Dialog.Description>
               <Text color="fg.muted" fontSize="sm">
                 {isSongItem(item)
                   ? t('setlistPrediction.editItemDescription', {
@@ -150,7 +139,7 @@ export function EditItemDialog({ open, onOpenChange, item, onSave }: EditItemDia
                       defaultValue: 'Edit item details and add remarks.'
                     })}
               </Text>
-            </DialogDescription>
+            </Dialog.Description>
 
             <Stack gap={4}>
               {/* Current Song Display */}
@@ -290,16 +279,16 @@ export function EditItemDialog({ open, onOpenChange, item, onSave }: EditItemDia
 
             {/* Actions */}
             <HStack gap={2} justifyContent="flex-end" pt={2}>
-              <DialogCloseTrigger asChild>
+              <Dialog.ActionTrigger asChild>
                 <Button variant="outline" onClick={handleCancel}>
                   {t('common.cancel', { defaultValue: 'Cancel' })}
                 </Button>
-              </DialogCloseTrigger>
+              </Dialog.ActionTrigger>
               <Button onClick={handleSave}>{t('common.save', { defaultValue: 'Save' })}</Button>
             </HStack>
           </Stack>
-        </DialogContent>
-      </DialogPositioner>
-    </DialogRoot>
+        </Dialog.Content>
+      </Dialog.Positioner>
+    </Dialog.Root>
   );
 }

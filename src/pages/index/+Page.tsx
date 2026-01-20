@@ -6,11 +6,7 @@ import type { ShareDisplayData } from '../../components/results/ResultsView';
 import { CharacterCard } from '../../components/sorter/CharacterCard';
 import { ComparisonInfo } from '../../components/sorter/ComparisonInfo';
 import { KeyboardShortcuts } from '../../components/sorter/KeyboardShortcuts';
-import { Button } from '../../components/ui/button';
-import { Kbd } from '../../components/ui/kbd';
-import { Progress } from '../../components/ui/progress';
-import { Switch } from '../../components/ui/switch';
-import { Text } from '../../components/ui/text';
+import { Button, Kbd, Progress, Switch, Text } from '../../components/ui';
 import { useToaster } from '../../context/ToasterContext';
 import { useData } from '../../hooks/useData';
 import { useSortData } from '../../hooks/useSortData';
@@ -126,7 +122,10 @@ export function Page() {
   const shareResultsUrl = async (shareData: ShareDisplayData) => {
     if (!isValidFilter(filters)) return;
     const params = addPresetParams(new URLSearchParams(), filters, seiyuu);
-    params.append('data', await serializeData({ ...shareData, results: state?.arr ?? undefined }));
+    params.append(
+      'data',
+      await serializeData({ ...shareData, results: (state?.arr as string[][]) ?? undefined })
+    );
     const url = `${location.origin}${
       import.meta.env.PUBLIC_ENV__BASE_URL ?? ''
     }/share?${params.toString()}`;
@@ -211,20 +210,24 @@ export function Page() {
               )}
             </Suspense>
             <Wrap>
-              <Switch
+              <Switch.Root
                 checked={seiyuu}
                 disabled={isSorting}
-                onCheckedChange={(e) => setSeiyuu(e.checked)}
+                onCheckedChange={(details) => setSeiyuu(details.checked)}
               >
-                {t('settings.seiyuu')}
-              </Switch>
-              <Switch
+                <Switch.HiddenInput />
+                <Switch.Control />
+                <Switch.Label>{t('settings.seiyuu')}</Switch.Label>
+              </Switch.Root>
+              <Switch.Root
                 checked={noTieMode}
                 disabled={isSorting}
-                onCheckedChange={(e) => setNoTieMode(e.checked)}
+                onCheckedChange={(details) => setNoTieMode(details.checked)}
               >
-                {t('settings.no_tie_mode')}
-              </Switch>
+                <Switch.HiddenInput />
+                <Switch.Control />
+                <Switch.Label>{t('settings.no_tie_mode')}</Switch.Label>
+              </Switch.Root>
             </Wrap>
           </>
         )}
@@ -314,13 +317,11 @@ export function Page() {
                   isEstimatedCount={isEstimatedCount}
                   maxComparisons={maxComparisons}
                 />
-                <Progress
-                  translations={{ value: (details) => `${details.percent}%` }}
-                  value={progress}
-                  min={0}
-                  max={1}
-                  defaultValue={0}
-                />
+                <Progress.Root value={progress} min={0} max={1} defaultValue={0}>
+                  <Progress.Track>
+                    <Progress.Range />
+                  </Progress.Track>
+                </Progress.Root>
               </Stack>
             )}
             {state.arr && isEnded && (
@@ -329,7 +330,7 @@ export function Page() {
                   titlePrefix={titlePrefix}
                   charactersData={data}
                   isSeiyuu={seiyuu}
-                  onShareResults={(results) => void shareResultsUrl(results)}
+                  onShareResults={(results: ShareDisplayData) => void shareResultsUrl(results)}
                   onSelectCharacter={setShowCharacterInfo}
                   w="full"
                   order={state.arr}

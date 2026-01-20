@@ -1,5 +1,5 @@
 import { BUILD_TIMESTAMP, getVersionString, VERSION } from '../../version';
-import { Text } from '../ui/text';
+import { Text } from '../ui';
 
 interface VersionProps {
   /**

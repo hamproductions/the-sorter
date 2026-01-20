@@ -1,9 +1,6 @@
 import { useEffect, type Dispatch, type SetStateAction, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button } from '../ui/button';
-import { Checkbox } from '../ui/checkbox';
-import { Group } from '../ui/styled/checkbox';
-import { Text } from '../ui/text';
+import { Badge, Button, Checkbox, Text } from '../ui';
 
 import series from '../../../data/series-info.json';
 import artists from '../../../data/artists-info.json';
@@ -12,12 +9,12 @@ import discographies from '../../../data/discography-info.json';
 import songs from '../../../data/song-info.json';
 
 import { DualListSelector } from './DualListSelector';
-import { Badge } from '~/components/ui/badge';
 import { HStack, Stack, Wrap, Box } from 'styled-system/jsx';
 import { isValidSongFilter } from '~/utils/song-filter';
 import { getSeriesName, getSongName } from '~/utils/names';
 import { fuzzySearch, getSearchScore } from '~/utils/search';
 import { getAllCommaSeparated } from '~/utils/share';
+import type { Locale } from '~/i18n';
 
 export type SongFilterType = {
   series: string[];
@@ -332,28 +329,36 @@ export function SongFilters({
       {/* Series */}
       <Stack>
         {renderHeader(t('settings.series'), seriesCount, 'series', false)}
-        <Group
+        <Checkbox.Group
           asChild
           defaultValue={[]}
           value={filters?.series ?? []}
-          onValueChange={(series) => {
+          onValueChange={(value: string[]) => {
             if (!filters) return;
-            setFilters({ ...filters, series });
+            setFilters({ ...filters, series: value });
           }}
         >
           <Wrap>
             {series.map((s) => {
               return (
-                <Checkbox size="sm" key={s.id} value={String(s.id)}>
-                  {getSeriesName(s.name, _i18n.language as any)}
-                </Checkbox>
+                <Checkbox.Root size="sm" key={s.id} value={String(s.id)}>
+                  <Checkbox.HiddenInput />
+                  <Checkbox.Control>
+                    <Checkbox.Indicator />
+                  </Checkbox.Control>
+                  <Checkbox.Label>{getSeriesName(s.name, _i18n.language as Locale)}</Checkbox.Label>
+                </Checkbox.Root>
               );
             })}
-            <Checkbox size="sm" value="cross">
-              {t('settings.cross_series')}
-            </Checkbox>
+            <Checkbox.Root size="sm" value="cross">
+              <Checkbox.HiddenInput />
+              <Checkbox.Control>
+                <Checkbox.Indicator />
+              </Checkbox.Control>
+              <Checkbox.Label>{t('settings.cross_series')}</Checkbox.Label>
+            </Checkbox.Root>
           </Wrap>
-        </Group>
+        </Checkbox.Group>
       </Stack>
 
       <Box height="1px" bg="border.subtle" />
@@ -430,23 +435,27 @@ export function SongFilters({
       {/* Types */}
       <Stack>
         {renderHeader(t('settings.types'), typesCount, 'types', false)}
-        <Group
+        <Checkbox.Group
           asChild
           defaultValue={[]}
           value={filters?.types}
-          onValueChange={(types) => {
+          onValueChange={(value: string[]) => {
             if (!filters) return;
-            setFilters({ ...filters, types: types as ('group' | 'solo' | 'unit')[] });
+            setFilters({ ...filters, types: value as ('group' | 'solo' | 'unit')[] });
           }}
         >
           <Wrap>
             {FILTER_VALUES.types.map((type) => (
-              <Checkbox size="sm" key={type} value={type}>
-                {t(`settings.type.${type}`)}
-              </Checkbox>
+              <Checkbox.Root size="sm" key={type} value={type}>
+                <Checkbox.HiddenInput />
+                <Checkbox.Control>
+                  <Checkbox.Indicator />
+                </Checkbox.Control>
+                <Checkbox.Label>{t(`settings.type.${type}`)}</Checkbox.Label>
+              </Checkbox.Root>
             ))}
           </Wrap>
-        </Group>
+        </Checkbox.Group>
       </Stack>
 
       <Box height="1px" bg="border.subtle" />
@@ -454,23 +463,27 @@ export function SongFilters({
       {/* Years */}
       <Stack>
         {renderHeader(t('settings.years'), yearsCount, 'years', false)}
-        <Group
+        <Checkbox.Group
           asChild
           defaultValue={[]}
           value={filters?.years?.map(String) ?? []}
-          onValueChange={(years) => {
+          onValueChange={(value: string[]) => {
             if (!filters) return;
-            setFilters({ ...filters, years: years.map(Number) });
+            setFilters({ ...filters, years: value.map(Number) });
           }}
         >
           <Wrap>
             {years.map((year) => (
-              <Checkbox size="sm" key={year} value={String(year)}>
-                {year}
-              </Checkbox>
+              <Checkbox.Root size="sm" key={year} value={String(year)}>
+                <Checkbox.HiddenInput />
+                <Checkbox.Control>
+                  <Checkbox.Indicator />
+                </Checkbox.Control>
+                <Checkbox.Label>{year}</Checkbox.Label>
+              </Checkbox.Root>
             ))}
           </Wrap>
-        </Group>
+        </Checkbox.Group>
       </Stack>
 
       <Box height="1px" bg="border.subtle" />

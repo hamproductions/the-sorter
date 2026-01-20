@@ -1,5 +1,5 @@
 import { CharacterIcon } from '../sorter/CharacterIcon';
-import { Text } from '../ui/text';
+import { Text } from '../ui';
 import { HStack, Stack } from 'styled-system/jsx';
 
 import type { Locale } from '~/i18n';

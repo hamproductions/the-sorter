@@ -1,5 +1,4 @@
-import type { BadgeProps } from '../ui/badge';
-import { Badge } from '../ui/badge';
+import { Badge, type BadgeProps } from '../ui';
 import { useSeriesData } from '~/hooks/useSeriesData';
 import type { Locale } from '~/i18n';
 import type { Character } from '~/types';
