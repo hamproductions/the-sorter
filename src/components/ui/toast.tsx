@@ -60,10 +60,14 @@ export const Toaster = () => {
           >
             {toast.type === 'loading' ? <Spinner color="colorPalette.plain.fg" /> : <Indicator />}
 
-            <Stack gap="3" alignItems="start">
-              <Stack gap="1">
+            <Stack flex="1" gap="3" alignItems="start" width="full">
+              <Stack gap="1" width="full">
                 {toast.title && <Title>{toast.title}</Title>}
-                {toast.description && <Description>{toast.description}</Description>}
+                {toast.description && (
+                  <Description asChild={typeof toast.description !== 'string'}>
+                    {toast.description}
+                  </Description>
+                )}
               </Stack>
               {toast.action && <ActionTrigger>{toast.action.label}</ActionTrigger>}
             </Stack>
