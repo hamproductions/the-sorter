@@ -1,6 +1,6 @@
 import { defineSemanticTokens } from '@pandacss/dev';
 
-export const semanticColors = defineSemanticTokens.colors({
+export const colors = defineSemanticTokens.colors({
   canvas: { value: '{colors.gray.1}' },
   bg: {
     canvas: { value: '{colors.gray.1}' },

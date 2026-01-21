@@ -9,6 +9,7 @@ import { red } from './src/theme/colors/red';
 import { green } from './src/theme/colors/green';
 import { amber } from './src/theme/colors/amber';
 import { blue } from './src/theme/colors/blue';
+import presetPanda from '@pandacss/preset-panda';
 
 const config = defineConfig({
   preflight: true,
@@ -18,10 +19,7 @@ const config = defineConfig({
     cssVar: true
   },
 
-  presets: [
-    '@pandacss/preset-base',
-    '@pandacss/preset-panda',
-  ],
+  presets: ['@pandacss/preset-base', presetPanda],
 
   // Where to look for your css declarations
   include: ['./src/**/*.{js,jsx,ts,tsx,astro}'],
@@ -30,9 +28,9 @@ const config = defineConfig({
   exclude: [],
 
   globalCss: {
-    ...globalCss.extend,
+    ...globalCss,
     html: {
-      ...globalCss.extend.html,
+      ...globalCss.html,
       colorPalette: 'pink'
     }
   },
@@ -67,7 +65,7 @@ const config = defineConfig({
           red: red,
           green: green,
           amber: amber,
-          blue: blue,
+          blue: blue
         },
         radii: {
           l1: { value: '{radii.md}' },

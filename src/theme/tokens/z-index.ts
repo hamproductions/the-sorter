@@ -11,7 +11,7 @@ export const zIndex = defineTokens.zIndex({
     value: 10
   },
   dropdown: {
-    value: 1000
+    value: 1e3
   },
   sticky: {
     value: 1100

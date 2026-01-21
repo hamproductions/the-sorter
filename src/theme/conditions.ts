@@ -1,12 +1,18 @@
 export const conditions = {
   extend: {
+    collapsed: '&:is([aria-collapsed=true], [data-collapsed], [data-state="collapsed"])',
+    current: '&:is([data-current])',
+    hidden: '&:is([hidden])',
+    hover: ['@media (hover: hover) and (pointer: fine)', '&:is(:hover, [data-hover])'],
+    indeterminate:
+      '&:is(:indeterminate, [data-indeterminate], [aria-checked=mixed], [data-state=indeterminate])',
+    off: '&:is([data-state="off"])',
+    on: '&:is([data-state="on"])',
+    today: '&:is([data-today])',
+    underValue: '&:is([data-state="under-value"])',
+    active: '&:not(:disabled):is(:active, [data-active])',
+    dark: '.dark &',
     light: ':root &, .light &',
-    invalid: '&:is(:user-invalid, [data-invalid], [aria-invalid=true])',
-    hover: '&:not(:disabled):hover',
-    active: '&:not(:disabled):active',
-    checked:
-      '&:is(:checked, [data-checked], [data-state=checked], [aria-checked=true], [data-state=indeterminate])',
-    on: '&:is([data-state=on])',
-    pinned: '&:is([data-pinned])'
+    invalid: '&:is([aria-invalid])'
   }
-} as const;
+};

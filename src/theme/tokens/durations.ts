@@ -5,7 +5,7 @@ export const durations = defineTokens.durations({
   faster: { value: '100ms' },
   fast: { value: '150ms' },
   normal: { value: '200ms' },
-  slow: { value: '250ms' },
-  slower: { value: '300ms' },
-  slowest: { value: '400ms' }
+  slow: { value: '300ms' },
+  slower: { value: '400ms' },
+  slowest: { value: '500ms' }
 });

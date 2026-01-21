@@ -1,15 +1,8 @@
 import { type PartialTheme } from '@pandacss/types';
 import { keyframes as localKeyframes } from './keyframes';
 import { textStyles } from './text-styles';
-import { animationStyles } from './animation-styles';
-import { layerStyles as localLayerStyles } from './layer-styles';
-import { colors } from './tokens/colors';
-import { semanticColors } from './tokens/semantic-colors';
-import { shadows } from './tokens/shadows';
-import { durations } from './tokens/durations';
-import { zIndex } from './tokens/z-index';
-import { spacing } from './tokens/spacing';
-import { sizes } from './tokens/sizes';
+import { semanticTokens } from './semantic-tokens';
+import { tokens } from './tokens';
 
 export const theme: PartialTheme = {
   breakpoints: {
@@ -20,7 +13,6 @@ export const theme: PartialTheme = {
     '2xl': '1536px'
   },
   layerStyles: {
-    ...localLayerStyles,
     textStroke: {
       value: {
         //@ts-expect-error TODO: incompatible type
@@ -30,17 +22,8 @@ export const theme: PartialTheme = {
       }
     }
   },
-  tokens: {
-    colors,
-    durations,
-    zIndex,
-    spacing,
-    sizes
-  },
-  semanticTokens: {
-    shadows,
-    colors: semanticColors
-  },
+  tokens,
+  semanticTokens,
   keyframes: {
     ...localKeyframes,
     rainbowScroll: {
@@ -49,7 +32,6 @@ export const theme: PartialTheme = {
     }
   },
   textStyles,
-  animationStyles,
   recipes: {},
   slotRecipes: {}
 };
