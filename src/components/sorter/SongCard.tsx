@@ -104,47 +104,51 @@ export function SongCard({
       {...rest}
     >
       {/* <SchoolBadge character={character} locale={lang} /> */}
-      <Stack
-        position="relative"
-        flex={1}
-        alignItems="center"
-        w="full"
-        minH={{ base: 0, sm: '240px' }}
-        overflow="hidden"
-      >
-        <Center position="absolute" flex={1} w="full" h="full" overflow="hidden">
-          <Center w="full" maxW="full" h="full">
-            {showHeardle && (
-              <Heardle
-                song={song}
-                songInventory={songInventory}
-                attempts={attempts}
-                maxAttempts={maxAttempts}
-                guessHistory={guessHistory}
-                audioDuration={audioDuration}
-                onGuess={onGuess}
-                onPass={onPass}
-                onNoAudio={onNoAudio}
-              />
-            )}
-            {showInfo && song.musicVideo && (
-              <iframe
-                style={{ maxWidth: '100%' }}
-                height="240"
-                src={`https://www.youtube-nocookie.com/embed/${song.musicVideo.videoId}/?start=${song.musicVideo.videoOffset}&html5=1`}
-                title="YouTube video player"
-                //@ts-expect-error wtf
-                frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                referrerpolicy="strict-origin-when-cross-origin"
-                // oxlint-disable-next-line iframe-missing-sandbox shut up linter
-                sandbox="allow-scripts allow-same-origin"
-                allowfullscreen
-              ></iframe>
-            )}
+      {showHeardle && (
+        <Stack flex={1} alignItems="center" w="full">
+          <Heardle
+            song={song}
+            songInventory={songInventory}
+            attempts={attempts}
+            maxAttempts={maxAttempts}
+            guessHistory={guessHistory}
+            audioDuration={audioDuration}
+            onGuess={onGuess}
+            onPass={onPass}
+            onNoAudio={onNoAudio}
+          />
+        </Stack>
+      )}
+      {!showHeardle && (
+        <Stack
+          position="relative"
+          flex={1}
+          alignItems="center"
+          w="full"
+          minH={{ base: 0, sm: '240px' }}
+          overflow="hidden"
+        >
+          <Center position="absolute" flex={1} w="full" h="full" overflow="hidden">
+            <Center w="full" maxW="full" h="full">
+              {showInfo && song.musicVideo && (
+                <iframe
+                  style={{ maxWidth: '100%' }}
+                  height="240"
+                  src={`https://www.youtube-nocookie.com/embed/${song.musicVideo.videoId}/?start=${song.musicVideo.videoOffset}&html5=1`}
+                  title="YouTube video player"
+                  //@ts-expect-error wtf
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerpolicy="strict-origin-when-cross-origin"
+                  // oxlint-disable-next-line iframe-missing-sandbox shut up linter
+                  sandbox="allow-scripts allow-same-origin"
+                  allowfullscreen
+                ></iframe>
+              )}
+            </Center>
           </Center>
-        </Center>
-      </Stack>
+        </Stack>
+      )}
       <Stack gap={0} alignItems="center">
         <Text layerStyle="textStroke" color="var(--color)" fontSize="2xl" fontWeight="bold">
           {showInfo && getSongName(song.name, song.englishName, lang)}
