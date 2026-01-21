@@ -1,5 +1,6 @@
-import { Stack } from 'styled-system/jsx';
+import { Stack, type StackProps } from 'styled-system/jsx';
 import { css } from 'styled-system/css';
+import { forwardRef } from 'react';
 
 const rainbowTextStyle = css({
   color: 'transparent',
@@ -14,8 +15,8 @@ const rainbowTextStyle = css({
   animation: 'rainbowScroll 0.6s linear infinite'
 });
 
-export const TieToastContent = () => (
-  <Stack justifyContent="flex-end" minH="100px">
+export const TieToastContent = forwardRef<HTMLDivElement, StackProps>((props, ref) => (
+  <Stack ref={ref} justifyContent="flex-end" w="full" minH="100px" {...props}>
     <span className={rainbowTextStyle}>ヒトリダケナンテエラベナイヨー</span>
   </Stack>
-);
+));

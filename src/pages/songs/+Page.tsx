@@ -306,6 +306,7 @@ export function Page() {
                   maxComparisons={maxComparisons}
                 />
                 <Progress.Root value={progress} min={0} max={1} defaultValue={0}>
+                  <Progress.ValueText>{(progress * 100).toFixed(0)}%</Progress.ValueText>
                   <Progress.Track>
                     <Progress.Range />
                   </Progress.Track>
