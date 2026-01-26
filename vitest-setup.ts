@@ -1,6 +1,12 @@
 import '@testing-library/jest-dom/vitest';
 import 'vitest-localstorage-mock';
 import { cleanup, configure, screen } from '@testing-library/react';
+// ResizeObserver mock
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
 import { vi } from 'vitest';
 import './src/index.css';
 import { afterEach, beforeAll, beforeEach, onTestFailed } from 'vitest';
