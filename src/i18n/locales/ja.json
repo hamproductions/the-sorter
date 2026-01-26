@@ -1,5 +1,6 @@
 {
   "title": "{{ titlePrefix }}ランキング",
+  "meta_keywords": "ラブライブ！, Love Live!, μ's, ミューズ, Aqours, アクア, 虹ヶ咲学園スクールアイドル同好会, 虹ヶ咲, Liella!, リエラ, 蓮ノ空女学院スクールアイドルクラブ, 蓮ノ空, ソーター, 楽曲ソーター, キャラランキング, ティアリスト",
   "defaultTitlePrefix": "ラブライブ！シリーズ",
   "description": "ヒトリダケナンテエラベナイヨーの時に役に立てるかも",
   "site_name": "ラブライブ!ランキング",

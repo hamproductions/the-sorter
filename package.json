@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
-    "ci:build": "NODE_ENV=production vite build",
+    "build": "tsc && vite build && bun sitemap",
+    "ci:build": "NODE_ENV=production vite build && bun sitemap",
+    "sitemap": "bun scripts/generate-sitemap.ts",
     "type-check": "tsc",
     "check": "bun lint && bun type-check",
     "ci:check": "bun lint:ci && bun type-check",
