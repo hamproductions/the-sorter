@@ -25,6 +25,7 @@ import { isSongItem } from '~/types/setlist-prediction';
 import { generateSetlistId } from '~/utils/setlist-prediction/id';
 import { SetlistView } from '~/components/setlist-prediction/SetlistView';
 import { usePageContext } from 'vike-react/usePageContext';
+import { SITE_URL } from '~/utils/config';
 
 export function Page() {
   const { t } = useTranslation();
@@ -200,6 +201,7 @@ export function Page() {
       <Metadata
         title={`${t('setlistPrediction.markingMode', { defaultValue: 'Marking Mode' })} - ${prediction.name}`}
         helmet
+        canonical={`${SITE_URL}/setlist-prediction/marking`}
       />
 
       <Stack gap={4} w="full" maxW="6xl" mx="auto" p={4}>

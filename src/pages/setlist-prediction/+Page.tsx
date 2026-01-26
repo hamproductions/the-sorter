@@ -17,6 +17,7 @@ import type {
 } from '~/types/setlist-prediction';
 import { LoadPredictionDialog } from '~/components/setlist-prediction/builder/LoadPredictionDialog';
 import { usePredictionStorage } from '~/hooks/setlist-prediction/usePredictionStorage';
+import { SITE_URL } from '~/utils/config';
 
 type SortOption = 'date-asc' | 'date-desc' | 'name-asc' | 'name-desc' | 'upcoming-first';
 
@@ -158,11 +159,11 @@ export function Page() {
   return (
     <>
       <Metadata
-        title={t('setlistPrediction.title', { defaultValue: 'Setlist Prediction' })}
+        title={t('setlistPrediction.title')}
         helmet
+        canonical={`${SITE_URL}/setlist-prediction`}
       />
-
-      <Stack gap={4} alignItems="center" w="full" p={4}>
+      <Stack alignItems="center" w="full" p={4}>
         {/* Header with My Predictions button */}
         <HStack justifyContent="space-between" alignItems="flex-start" w="full" maxW="4xl">
           <Stack flex={1} gap={1}>

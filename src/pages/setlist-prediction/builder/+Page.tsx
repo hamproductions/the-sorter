@@ -17,6 +17,7 @@ import { LoadPredictionDialog } from '~/components/setlist-prediction/builder/Lo
 import { NewPredictionDialog } from '~/components/setlist-prediction/builder/NewPredictionDialog';
 import { PerformancePickerDialog } from '~/components/setlist-prediction/builder/PerformancePickerDialog';
 import type { SetlistPrediction, CustomPerformance } from '~/types/setlist-prediction';
+import { SITE_URL } from '~/utils/config';
 
 export function Page() {
   const { t } = useTranslation();
@@ -165,6 +166,7 @@ export function Page() {
             : t('setlistPrediction.builder', { defaultValue: 'Setlist Builder' })
         }
         helmet
+        canonical={`${SITE_URL}/setlist-prediction/builder`}
       />
 
       <Stack w="full" h="100vh" overflow="hidden">

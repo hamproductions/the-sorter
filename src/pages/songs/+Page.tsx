@@ -22,6 +22,7 @@ import { isValidSongFilter } from '~/utils/song-filter';
 import { addSongPresetParams, getAllCommaSeparated } from '~/utils/share';
 import { getSongName } from '~/utils/names';
 import type { Song } from '~/types/songs';
+import { SITE_URL } from '~/utils/config';
 
 const ConfirmMidSortDialog = lazy(() =>
   import('../../components/dialog/ConfirmDialog').then((m) => ({
@@ -189,7 +190,7 @@ export function Page() {
 
   return (
     <>
-      <Metadata title={title} helmet />
+      <Metadata title={title} helmet canonical={`${SITE_URL}/songs`} />
       <Stack alignItems="center" w="full">
         <Text fontSize="3xl" fontWeight="bold" textAlign="center">
           {title}

@@ -20,6 +20,8 @@ import { isValidSongFilter } from '~/utils/hasu-song-filter';
 import type { HasuSongFilterType } from '~/components/sorter/HasuSongFilters';
 import { addHasuSongPresetParams } from '~/utils/share';
 
+import { SITE_URL } from '~/utils/config';
+
 const ConfirmMidSortDialog = lazy(() =>
   import('../../components/dialog/ConfirmDialog').then((m) => ({
     default: m.ConfirmMidSortDialog
@@ -144,7 +146,7 @@ export function Page() {
 
   return (
     <>
-      <Metadata title={title} helmet />
+      <Metadata title={title} helmet canonical={`${SITE_URL}/hasu-music`} />
       <Stack alignItems="center" w="full">
         <Text fontSize="3xl" fontWeight="bold" textAlign="center">
           {title}

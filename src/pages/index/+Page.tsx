@@ -21,6 +21,7 @@ import { useDialogData } from '~/hooks/useDialogData';
 import { LoadingCharacterFilters } from '~/components/sorter/LoadingCharacterFilters';
 import { Metadata } from '~/components/layout/Metadata';
 import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
+import { SITE_URL } from '~/utils/config';
 
 const ResultsView = lazy(() =>
   import('../../components/results/ResultsView').then((m) => ({ default: m.ResultsView }))
@@ -194,7 +195,7 @@ export function Page() {
 
   return (
     <>
-      <Metadata title={title} helmet />
+      <Metadata title={title} helmet canonical={SITE_URL} />
       <Stack alignItems="center" w="full">
         <Text fontSize="3xl" fontWeight="bold" textAlign="center">
           {title}

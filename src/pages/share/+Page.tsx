@@ -14,6 +14,7 @@ import { addPresetParams } from '~/utils/share';
 import { Metadata } from '~/components/layout/Metadata';
 import type { TierListSettings } from '~/components/results/TierList';
 import { useDialogData } from '~/hooks/useDialogData';
+import { SITE_URL } from '~/utils/config';
 
 const CharacterInfoDialog = lazy(() =>
   import('../../components/dialog/CharacterInfoDialog').then((m) => ({
@@ -71,7 +72,7 @@ export function Page() {
 
   return (
     <>
-      <Metadata title={title} helmet />
+      <Metadata title={title} helmet canonical={`${SITE_URL}/share`} />
       <Container zIndex="1" flex={1} w="full" py={4} px={4}>
         <Stack alignItems="center" w="full">
           <Text fontSize="3xl" fontWeight="bold" textAlign="center">

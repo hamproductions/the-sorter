@@ -10,6 +10,7 @@ import { usePredictionStorage } from '~/hooks/setlist-prediction/usePredictionSt
 import { SetlistView } from '~/components/setlist-prediction/SetlistView';
 import { useToaster } from '~/context/ToasterContext';
 import type { SetlistPrediction } from '~/types/setlist-prediction';
+import { SITE_URL } from '~/utils/config';
 
 export function Page() {
   const { t } = useTranslation();
@@ -67,6 +68,7 @@ export function Page() {
         <Metadata
           title={t('setlistPrediction.sharedPrediction', { defaultValue: 'Shared Prediction' })}
           helmet
+          canonical={`${SITE_URL}/setlist-prediction/view`}
         />
         <Stack alignItems="center" w="full" p={8}>
           <Box borderRadius="lg" borderWidth="1px" p={8} textAlign="center" bgColor="bg.error">
@@ -88,6 +90,7 @@ export function Page() {
         <Metadata
           title={t('setlistPrediction.sharedPrediction', { defaultValue: 'Shared Prediction' })}
           helmet
+          canonical={`${SITE_URL}/setlist-prediction/view`}
         />
         <Stack alignItems="center" w="full" p={8}>
           <Text>{t('common.loading', { defaultValue: 'Loading...' })}</Text>
@@ -101,6 +104,7 @@ export function Page() {
       <Metadata
         title={`${prediction.name} - ${t('setlistPrediction.sharedPrediction', { defaultValue: 'Shared Prediction' })}`}
         helmet
+        canonical={`${SITE_URL}/setlist-prediction/view`}
       />
 
       <Stack gap={4} alignItems="center" w="full" p={4}>

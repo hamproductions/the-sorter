@@ -13,14 +13,6 @@ export const table = defineSlotRecipe({
     },
     cell: {
       textStyle: 'sm',
-      alignItems: 'center',
-      color: 'fg.muted',
-      shadowColor: 'border',
-      textAlign: 'start',
-      textOverflow: 'ellipsis',
-      boxShadow: 'inset 0 -1px 0 0 var(--shadow-color)',
-      overflow: 'hidden',
-      whiteSpace: 'nowrap',
       _pinned: {
         zIndex: 1,
         position: 'sticky',
@@ -28,21 +20,29 @@ export const table = defineSlotRecipe({
         bg: 'inherit',
         boxShadow: 'inset 0 -1px 0 0 var(--shadow-color)',
         overflow: 'unset'
-      }
+      },
+      alignItems: 'center',
+      color: 'fg.muted',
+      shadowColor: 'border',
+      textAlign: 'start',
+      textOverflow: 'ellipsis',
+      boxShadow: 'inset 0 -1px 0 0 var(--shadow-color)',
+      overflow: 'hidden',
+      whiteSpace: 'nowrap'
     },
     row: {
       _last: { '& td': { boxShadow: 'none' } }
     },
     header: {
-      shadowColor: 'border',
-      textAlign: 'left',
-      verticalAlign: 'middle',
-      boxShadow: 'inset 0 -1px 0 0 var(--shadow-color)',
       _pinned: {
         zIndex: 2,
         position: 'sticky',
         bg: 'inherit'
-      }
+      },
+      shadowColor: 'border',
+      textAlign: 'left',
+      verticalAlign: 'middle',
+      boxShadow: 'inset 0 -1px 0 0 var(--shadow-color)'
     },
     head: {
       textStyle: 'xs',

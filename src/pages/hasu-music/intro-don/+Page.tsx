@@ -12,6 +12,7 @@ import { hasFilter } from '~/utils/filter';
 import { matchSongFilter } from '~/utils/hasu-song-filter';
 import { getAudioUrl } from '~/utils/assets';
 import { detectSoundStart } from '~/utils/intro-don/detectSoundStart';
+import { SITE_URL } from '~/utils/config';
 
 const randomInt = (max: number) => Math.round(Math.random() * max);
 
@@ -53,7 +54,7 @@ export function Page() {
 
   return (
     <>
-      <Metadata title={title} helmet />
+      <Metadata title={title} helmet canonical={`${SITE_URL}/hasu-music/intro-don`} />
       <Stack alignItems="center" w="full">
         <Text fontSize="3xl" fontWeight="bold" textAlign="center">
           {title}
