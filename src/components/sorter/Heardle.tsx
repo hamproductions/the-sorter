@@ -219,13 +219,13 @@ export function Heardle({
       <HeardleAudioPlayer blobUrl={blobUrl} maxDuration={audioDuration} />
 
       {/* Song search */}
-      <Box maxH="200px" overflow="auto">
+      <Box maxH="360px" overflow="auto">
         <SongSearchPanel
           onAddSong={handleSongSelect}
           onAddCustomSong={undefined}
           hideTitle
           songInventory={songInventory}
-          maxH="180px"
+          maxH="340px"
         />
       </Box>
 

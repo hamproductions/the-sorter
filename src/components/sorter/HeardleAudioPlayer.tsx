@@ -25,14 +25,15 @@ export function HeardleAudioPlayer({ blobUrl, maxDuration }: HeardleAudioPlayerP
   // Effective duration is the minimum of actual audio length and max allowed duration
   const effectiveDuration = Math.min(duration, maxDuration);
 
-  // Reset state when blob URL changes
+  // Reset playback when blob URL or max duration changes (e.g. after a pass/skip)
   useEffect(() => {
     setCurrentTime(0);
     setIsPlaying(false);
     if (audioRef.current) {
+      audioRef.current.pause();
       audioRef.current.currentTime = 0;
     }
-  }, [blobUrl]);
+  }, [blobUrl, maxDuration]);
 
   // Handle audio metadata loaded
   const handleLoadedMetadata = useCallback(() => {

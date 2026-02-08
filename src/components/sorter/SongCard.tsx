@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Text } from '../ui/text';
 import type { StackProps } from 'styled-system/jsx';
-import { Center, Stack } from 'styled-system/jsx';
+import { Center, Box, Stack } from 'styled-system/jsx';
 import type { Artist, Song } from '~/types/songs';
 import { getSongColor } from '~/utils/song';
 import { getArtistName, getSongName } from '~/utils/names';
@@ -45,6 +45,8 @@ export interface SongCardProps extends StackProps {
   heardleMode?: boolean;
   /** Whether the song has been revealed (guessed correctly or auto-revealed) */
   isRevealed?: boolean;
+  /** Whether the song has failed (exhausted all guesses) */
+  isFailed?: boolean;
   /** Song inventory for Heardle search */
   songInventory?: Song[];
   /** Current attempt count for this song */
@@ -68,6 +70,7 @@ export function SongCard({
   artists: _artists,
   heardleMode,
   isRevealed,
+  isFailed,
   songInventory,
   attempts = 0,
   maxAttempts = 5,
@@ -78,7 +81,7 @@ export function SongCard({
   onNoAudio,
   ...rest
 }: SongCardProps) {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const artistsData = useArtistsData();
 
   const lang = i18n.language;
@@ -98,11 +101,31 @@ export function SongCard({
       w="full"
       p={2}
       py={4}
+      position="relative"
       backgroundColor={{ base: 'bg.default', _hover: 'bg.muted' }}
+      borderWidth={isFailed && heardleMode ? '2px' : undefined}
+      borderColor={isFailed && heardleMode ? 'red.300' : undefined}
       shadow="md"
       transition="background-color"
       {...rest}
     >
+      {isFailed && heardleMode && (
+        <Box
+          position="absolute"
+          top="2"
+          right="2"
+          bg="red.500"
+          color="white"
+          px="2"
+          py="1"
+          borderRadius="md"
+          fontSize="xs"
+          fontWeight="bold"
+          zIndex={1}
+        >
+          {t('heardle.failed_badge', { defaultValue: 'FAILED' })}
+        </Box>
+      )}
       {/* <SchoolBadge character={character} locale={lang} /> */}
       {showHeardle && (
         <Stack flex={1} alignItems="center" w="full">

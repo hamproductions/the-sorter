@@ -1,4 +1,4 @@
-import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { preload } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { FaShare } from 'react-icons/fa6';
@@ -67,6 +67,7 @@ export function Page() {
   // Heardle state management
   const {
     isSongRevealed,
+    isSongFailed,
     getAttemptCount,
     getGuessHistory,
     getAudioDuration,
@@ -146,21 +147,58 @@ export function Page() {
   const { left: leftItem, right: rightItem } =
     (state && getCurrentItem(state)) || ({} as { left: string[]; right: string[] });
 
-  const currentLeft = leftItem && listToSort.find((l) => l.id === leftItem[0]);
+  // Fall back to full songs array so failed heardle songs still render for the current comparison
+  const currentLeft =
+    leftItem && (listToSort.find((l) => l.id === leftItem[0]) ?? songs.find((l) => l.id === leftItem[0]));
   const artistLeft =
     currentLeft?.artists
       .map((i) => artists.find((a) => a.id === i.id))
       .filter((i) => i !== undefined) ?? [];
-  const currentRight = rightItem && listToSort.find((l) => l.id === rightItem[0]);
+  const currentRight =
+    rightItem && (listToSort.find((l) => l.id === rightItem[0]) ?? songs.find((l) => l.id === rightItem[0]));
   const artistRight =
     currentRight?.artists
       .map((i) => artists.find((a) => a.id === i.id))
       .filter((i) => i !== undefined) ?? [];
 
-  // Heardle mode state for current comparison
-  const isLeftRevealed = currentLeft ? isSongRevealed(currentLeft.id) : false;
-  const isRightRevealed = currentRight ? isSongRevealed(currentRight.id) : false;
-  const bothRevealed = !heardleMode || (isLeftRevealed && isRightRevealed);
+  // Heardle mode state for current comparison — failed songs are also treated as revealed
+  const isLeftRevealed = currentLeft ? isSongRevealed(currentLeft.id) || isSongFailed(currentLeft.id) : false;
+  const isRightRevealed = currentRight ? isSongRevealed(currentRight.id) || isSongFailed(currentRight.id) : false;
+  const isLeftFailed = currentLeft ? isSongFailed(currentLeft.id) : false;
+  const isRightFailed = currentRight ? isSongFailed(currentRight.id) : false;
+  const eitherFailed = heardleMode && (isLeftFailed || isRightFailed);
+  const bothRevealed = !heardleMode || (isLeftRevealed && isRightRevealed && !eitherFailed);
+
+  // Auto-skip future comparisons involving previously-failed songs
+  const prevCompRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!currentLeft || !currentRight || !heardleMode) return;
+    if (!state || state.status === 'end') return;
+
+    const compKey = `${currentLeft.id}-${currentRight.id}`;
+    if (compKey === prevCompRef.current) return; // Same comparison — don't auto-skip
+    prevCompRef.current = compKey;
+
+    const lf = isSongFailed(currentLeft.id);
+    const rf = isSongFailed(currentRight.id);
+    if (lf && rf) tie();
+    else if (lf) right();
+    else if (rf) left();
+  }, [currentLeft?.id, currentRight?.id, isSongFailed, heardleMode, state, left, right, tie]);
+
+  // Block arrow key shortcuts when a song has failed (handled by Continue button instead)
+  useEffect(() => {
+    if (!eitherFailed) return;
+    const interceptor = (e: KeyboardEvent) => {
+      if (['ArrowLeft', 'ArrowRight', 'ArrowDown'].includes(e.key)) {
+        e.stopImmediatePropagation();
+        e.preventDefault();
+      }
+    };
+    document.addEventListener('keydown', interceptor, { capture: true });
+    return () => document.removeEventListener('keydown', interceptor, { capture: true });
+  }, [eitherFailed]);
 
   // Get failed songs for results display
   const failedSongsForResults = useMemo(() => {
@@ -250,6 +288,7 @@ export function Page() {
     } else {
       // Reset Heardle session state when starting new sort
       resetSession();
+      prevCompRef.current = null;
       init();
     }
   };
@@ -263,6 +302,7 @@ export function Page() {
     } else {
       // Reset Heardle session state when clearing
       resetSession();
+      prevCompRef.current = null;
       clear();
     }
   };
@@ -348,6 +388,7 @@ export function Page() {
                           artists={artistLeft}
                           heardleMode={heardleMode}
                           isRevealed={isLeftRevealed}
+                          isFailed={isLeftFailed}
                           songInventory={listToSort}
                           attempts={getAttemptCount(currentLeft.id)}
                           maxAttempts={maxAttempts}
@@ -369,6 +410,7 @@ export function Page() {
                           artists={artistRight}
                           heardleMode={heardleMode}
                           isRevealed={isRightRevealed}
+                          isFailed={isRightFailed}
                           songInventory={listToSort}
                           attempts={getAttemptCount(currentRight.id)}
                           maxAttempts={maxAttempts}
@@ -386,7 +428,7 @@ export function Page() {
                     </HStack>
                   )}
                   {/* Show message when ranking is disabled in Heardle mode */}
-                  {heardleMode && !bothRevealed && (
+                  {heardleMode && !bothRevealed && !eitherFailed && (
                     <Text color="fg.muted" fontSize="sm" textAlign="center">
                       {t('heardle.guess_both_songs', {
                         defaultValue: 'Guess both songs to enable ranking'
@@ -411,6 +453,31 @@ export function Page() {
                       {t('sort.undo')}
                     </Button>
                   </HStack>
+                  {eitherFailed && (
+                    <Stack alignItems="center" w="full" gap={2}>
+                      <Text color="red.500" fontSize="sm" fontWeight="bold" textAlign="center">
+                        {isLeftFailed && isRightFailed
+                          ? t('heardle.both_failed', {
+                              defaultValue: 'Both songs failed! They will be tied.'
+                            })
+                          : t('heardle.song_failed', {
+                              defaultValue: 'Song failed! Click continue to move on.'
+                            })}
+                      </Text>
+                      <Button
+                        size={{ base: '2xl', md: 'lg' }}
+                        variant="solid"
+                        onClick={() => {
+                          if (isLeftFailed && isRightFailed) tie();
+                          else if (isLeftFailed) right();
+                          else left();
+                        }}
+                        flex={{ base: 1, md: 'unset' }}
+                      >
+                        {t('heardle.continue', { defaultValue: 'Continue' })}
+                      </Button>
+                    </Stack>
+                  )}
                   <KeyboardShortcuts noTieMode={noTieMode} />
                 </Stack>
                 <ComparisonInfo
@@ -448,6 +515,7 @@ export function Page() {
           onConfirm={() => {
             // Reset Heardle session when confirming dialog action
             resetSession();
+            prevCompRef.current = null;
             if (showConfirmDialog?.action === 'clear') {
               clear();
             } else {
@@ -468,6 +536,7 @@ export function Page() {
           onConfirm={() => {
             // User chose to accept the new link (reset current session and use new params)
             resetSession();
+            prevCompRef.current = null;
             clear();
             // We need to parse URL params and set them as filters
             const params = new URLSearchParams(location.search);
@@ -522,6 +591,7 @@ export function Page() {
           onConfirm={() => {
             // Reset Heardle session when confirming dialog action
             resetSession();
+            prevCompRef.current = null;
             if (showConfirmDialog?.action === 'clear') {
               clear();
             } else {
