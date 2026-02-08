@@ -70,7 +70,9 @@ export function HeardleAudioPlayer({ blobUrl, maxDuration }: HeardleAudioPlayerP
         audioRef.current.currentTime = 0;
         setCurrentTime(0);
       }
-      audioRef.current.play();
+      audioRef.current.play().catch(() => {
+        setIsPlaying(false);
+      });
       setIsPlaying(true);
     }
   }, [isPlaying, maxDuration]);

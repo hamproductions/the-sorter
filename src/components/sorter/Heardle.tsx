@@ -38,7 +38,10 @@ function useAudioBlobUrl(url: string | undefined): {
       })
       .then((blob) => {
         if (cancelled) return undefined;
-        objectUrl = URL.createObjectURL(blob);
+        // Re-create blob with explicit audio MIME type — Wikia CDN returns
+        // "application/ogg" which browsers may not recognise as playable audio.
+        const audioBlob = new Blob([blob], { type: 'audio/ogg' });
+        objectUrl = URL.createObjectURL(audioBlob);
         setBlobUrl(objectUrl);
         setLoading(false);
         return undefined;
