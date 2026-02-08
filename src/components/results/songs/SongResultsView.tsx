@@ -53,29 +53,33 @@ export function SongResultsView({
     }
   }, [currentTab, setCurrentTab, tabs]);
 
+  const failedSongIds = useMemo(
+    () => new Set(failedSongs?.map((s) => s.id) ?? []),
+    [failedSongs]
+  );
+
   const songs = useMemo(() => {
+    // Filter out failed songs from the order before computing ranks
+    const filteredOrder = order?.map((ids) =>
+      Array.isArray(ids) ? ids.filter((id) => !failedSongIds.has(`${id}`)) : failedSongIds.has(`${ids}`) ? [] : [ids]
+    ).filter((ids) => ids.length > 0);
+
     return (
-      order
+      filteredOrder
         ?.map((ids, idx, arr) => {
           const startRank = arr
             .slice(0, idx)
-            .reduce((p, c) => p + (Array.isArray(c) ? c.length : 1), 1);
-          if (Array.isArray(ids)) {
-            return ids
-              .map((id) => {
-                const song = songsData.find((s) => s.id === `${id}`);
-                return song ? { rank: startRank, ...song } : null;
-              })
-              .filter((d): d is WithRank<Song> => d !== null);
-          } else {
-            const chara = songsData.find((i) => i.id === ids);
-            if (!chara) return [];
-            return [{ rank: startRank, ...chara }];
-          }
+            .reduce((p, c) => p + c.length, 1);
+          return ids
+            .map((id) => {
+              const song = songsData.find((s) => s.id === `${id}`);
+              return song ? { rank: startRank, ...song } : null;
+            })
+            .filter((d): d is WithRank<Song> => d !== null);
         })
         .filter((c): c is WithRank<Song>[] => !!c) ?? []
     ).flatMap((s) => s);
-  }, [order, songsData]);
+  }, [order, songsData, failedSongIds]);
 
   const makeScreenshot = async () => {
     setShowRenderingCanvas(true);
@@ -112,8 +116,11 @@ export function SongResultsView({
   };
 
   const exportText = async () => {
+    const filteredOrder = order
+      ?.map((ids) => ids.filter((id) => !failedSongIds.has(`${id}`)))
+      .filter((ids) => ids.length > 0);
     await navigator.clipboard.writeText(
-      order
+      filteredOrder
         ?.flatMap((item, idx) =>
           item.map((i) => {
             const s = songsData.find((s) => s.id === `${i}`);
@@ -127,9 +134,12 @@ export function SongResultsView({
   };
 
   const exportJSON = async () => {
+    const filteredOrder = order
+      ?.map((ids) => ids.filter((id) => !failedSongIds.has(`${id}`)))
+      .filter((ids) => ids.length > 0);
     await navigator.clipboard.writeText(
       JSON.stringify(
-        order?.flatMap((item, idx) =>
+        filteredOrder?.flatMap((item, idx) =>
           item.map((i) => {
             const s = songsData.find((s) => s.id === `${i}`);
             const artist = s?.artists.map((art) => artists.find((a) => a.id === art.id));
