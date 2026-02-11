@@ -9,6 +9,11 @@ beforeAll(() => {
   // configure({
   //   asyncUtilTimeout: import.meta.env.CI === true ? undefined : 5000,
   // });
+  global.ResizeObserver = class ResizeObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
 });
 beforeEach(async () => {
   //@ts-expect-error will do later zzz
