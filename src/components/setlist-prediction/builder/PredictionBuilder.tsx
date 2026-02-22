@@ -494,6 +494,7 @@ export function PredictionBuilder({
     // Replace current prediction with imported one
     reorderItems(imported.setlist.items);
     updateMetadata({ name: imported.name });
+    setPredictionName(imported.name);
   };
 
   const moveItemUp = (index: number) => {
