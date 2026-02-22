@@ -31,3 +31,11 @@ export const getSongName = (
   if (locale === 'en' && englishName) return englishName;
   return name;
 };
+
+export function getFullPerformanceName(perf: {
+  tourName: string;
+  performanceName?: string;
+}): string {
+  if (!perf.performanceName) return perf.tourName;
+  return `${perf.tourName} - ${perf.performanceName}`;
+}

@@ -36,7 +36,7 @@ describe('export utilities', () => {
 
   const mockPerformance: Performance = {
     id: 'perf-1',
-    name: 'Test Performance',
+    tourName: 'Test Performance',
     date: '2023-01-01',
     venue: 'Test Venue',
     seriesIds: [],

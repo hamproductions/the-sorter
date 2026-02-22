@@ -12,11 +12,11 @@ vi.mock('~/hooks/setlist-prediction/usePerformanceData', () => ({
       performances: [
         {
           id: 'perf-1',
-          name: 'Test Performance',
+          tourName: 'Test Performance',
           date: '2025-01-01',
           seriesIds: ['series-1'],
           status: 'upcoming',
-          nameJa: 'Test Performance JA',
+          performanceName: 'Day 1',
           venue: 'Test Venue',
           description: 'Test Description',
           tags: ['Tag1'],
@@ -49,7 +49,7 @@ describe('Setlist Prediction Page', () => {
 
   it('Displays performances', async () => {
     const [{ findByText }] = await render(<Page />);
-    expect(await findByText('Test Performance JA')).toBeInTheDocument();
+    expect(await findByText('Day 1')).toBeInTheDocument();
     expect(await findByText(/Test Venue/)).toBeInTheDocument();
   });
 

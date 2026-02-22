@@ -16,6 +16,7 @@ import {
   usePerformance,
   usePerformanceSetlist
 } from '~/hooks/setlist-prediction/usePerformanceData';
+import { getFullPerformanceName } from '~/utils/names';
 import { parseActualSetlist } from '~/utils/setlist-prediction/import';
 import { calculateScore } from '~/utils/setlist-prediction/scoring';
 import type {
@@ -67,7 +68,7 @@ export function Page() {
   const actualPrediction = {
     id: '012938109283',
     setlist: actualSetlist,
-    name: performance ? performance.name : 'Actual Setlist'
+    name: performance ? getFullPerformanceName(performance) : 'Actual Setlist'
   } as SetlistPrediction;
 
   const handleParseActual = () => {
@@ -227,7 +228,8 @@ export function Page() {
           </Text>
           {performance && (
             <Text color="fg.muted" fontSize="sm">
-              {performance.name} • {new Date(performance.date).toLocaleDateString()}
+              {getFullPerformanceName(performance)} •{' '}
+              {new Date(performance.date).toLocaleDateString()}
             </Text>
           )}
         </Box>
@@ -305,7 +307,7 @@ export function Page() {
                   {t('setlistPrediction.actualSetlist', { defaultValue: 'Actual Setlist' })}
                 </Text>
                 <Text color="fg.muted" fontSize="md">
-                  {performance?.name || 'Actual Setlist'}
+                  {performance ? getFullPerformanceName(performance) : 'Actual Setlist'}
                 </Text>
                 <Text color="fg.muted" fontSize="sm">
                   {actualSetlist.items.filter((i) => i.type === 'song').length} songs

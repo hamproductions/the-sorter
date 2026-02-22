@@ -11,6 +11,7 @@ import { Button } from '~/components/ui/styled/button';
 import { Input } from '~/components/ui/styled/input';
 import { Text } from '~/components/ui/styled/text';
 import type { SetlistPrediction, Performance } from '~/types/setlist-prediction';
+import { getFullPerformanceName } from '~/utils/names';
 import {
   generateShareUrl,
   canShareUrl,
@@ -152,7 +153,7 @@ export function ExportShareTools({ prediction, performance }: ExportShareToolsPr
       let filename = 'setlist-prediction';
       if (performance) {
         const datePart = new Date(performance.date).toISOString().split('T')[0]; // YYYY-MM-DD
-        const namePart = performance.name
+        const namePart = getFullPerformanceName(performance)
           .replace(/[^a-zA-Z0-9-_]/g, '-')
           .replace(/-+/g, '-')
           .toLowerCase();

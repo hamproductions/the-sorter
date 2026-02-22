@@ -6,6 +6,7 @@ import { Button } from '~/components/ui/styled/button';
 import { Text } from '~/components/ui/styled/text';
 import { Input } from '~/components/ui/styled/input';
 import { usePerformanceData } from '~/hooks/setlist-prediction/usePerformanceData';
+import { getFullPerformanceName } from '~/utils/names';
 import {
   Root as DialogRoot,
   Backdrop as DialogBackdrop,
@@ -51,7 +52,9 @@ export function PerformancePickerDialog({
       const searchLower = search.toLowerCase();
       filtered = filtered.filter(
         (p) =>
-          p.name.toLowerCase().includes(searchLower) || p.venue?.toLowerCase().includes(searchLower)
+          p.tourName.toLowerCase().includes(searchLower) ||
+          p.performanceName?.toLowerCase().includes(searchLower) ||
+          p.venue?.toLowerCase().includes(searchLower)
       );
     }
 
@@ -189,7 +192,7 @@ export function PerformancePickerDialog({
                   >
                     <Stack gap={0.5}>
                       <Text fontSize="sm" fontWeight="medium">
-                        {perf.name}
+                        {getFullPerformanceName(perf)}
                       </Text>
                       <Text color="fg.muted" fontSize="xs">
                         {new Date(perf.date).toLocaleDateString()} • {perf.venue || 'TBA'}

@@ -242,3 +242,145 @@ describe('getSearchScore', () => {
     expect(getSearchScore(itemJp, 'Z')).toBe(0);
   });
 });
+
+describe('punctuation stripping', () => {
+  const goRestart: SearchableItem = {
+    id: 465,
+    name: 'Go!! リスタート',
+    phoneticName: 'ごーりすたーと',
+    englishName: 'Go!! Restart'
+  };
+
+  const startDreams: SearchableItem = {
+    id: 100,
+    name: 'START!! True dreams',
+    phoneticName: 'すたーとぅるーどりーむす',
+    englishName: 'START!! True dreams'
+  };
+
+  const kiraSensation: SearchableItem = {
+    id: 200,
+    name: 'KiRa-KiRa Sensation!',
+    phoneticName: 'きらきらせんせーしょん',
+    englishName: 'KiRa-KiRa Sensation!'
+  };
+
+  describe('fuzzySearch with punctuation', () => {
+    it('should match when query omits !! from song name', () => {
+      expect(fuzzySearch(goRestart, 'Go Restart')).toBe(true);
+      expect(fuzzySearch(startDreams, 'START True dreams')).toBe(true);
+    });
+
+    it('should match when query omits trailing !', () => {
+      expect(fuzzySearch(kiraSensation, 'KiRa-KiRa Sensation')).toBe(true);
+    });
+
+    it('should match when query omits hyphens', () => {
+      expect(fuzzySearch(kiraSensation, 'KiRaKiRa Sensation')).toBe(true);
+    });
+
+    it('should still match when query includes punctuation', () => {
+      expect(fuzzySearch(goRestart, 'Go!! Restart')).toBe(true);
+      expect(fuzzySearch(kiraSensation, 'KiRa-KiRa Sensation!')).toBe(true);
+    });
+  });
+
+  describe('getSearchScore with punctuation', () => {
+    it('should give high score for exact match ignoring punctuation', () => {
+      // "go!! restart" stripped = "go restart", query "go restart" stripped = "go restart"
+      // Exact match on stripped englishName → 95
+      expect(getSearchScore(goRestart, 'Go Restart')).toBe(95);
+    });
+
+    it('should give startsWith score when query is prefix ignoring punctuation', () => {
+      // "start!! true dreams" stripped → "start true dreams", query "start true" → startsWith on name → 90
+      expect(getSearchScore(startDreams, 'START True')).toBe(90);
+    });
+
+    it('should give contains score when query is substring ignoring punctuation', () => {
+      // "kira-kira sensation!" stripped → "kirakira sensation", contains "sensation" on name → 80
+      expect(getSearchScore(kiraSensation, 'Sensation')).toBe(80);
+    });
+  });
+});
+
+describe('search ranking', () => {
+  // Simulate the real scenario: multiple songs match, but exact/substring matches
+  // should rank higher than fuzzy Levenshtein matches
+  const luca: SearchableItem = {
+    id: 768,
+    name: 'ルカ',
+    phoneticName: 'るか',
+    englishName: 'Luca'
+  };
+
+  const luckyItem: SearchableItem = {
+    id: 10,
+    name: 'Lucky Star',
+    phoneticName: 'らっきーすたー',
+    englishName: 'Lucky Star'
+  };
+
+  const unrelatedFuzzy: SearchableItem = {
+    id: 5,
+    name: 'Luce',
+    phoneticName: 'るーちぇ',
+    englishName: 'Luce'
+  };
+
+  it('should rank exact englishName match above startsWith match', () => {
+    const lucaScore = getSearchScore(luca, 'luca');
+    const luckyScore = getSearchScore(luckyItem, 'luca');
+    expect(lucaScore).toBeGreaterThan(luckyScore);
+  });
+
+  it('should rank exact englishName match above fuzzy match', () => {
+    const lucaScore = getSearchScore(luca, 'luca');
+    const fuzyScore = getSearchScore(unrelatedFuzzy, 'luca');
+    expect(lucaScore).toBeGreaterThan(fuzyScore);
+  });
+
+  it('should sort items correctly when used as a comparator', () => {
+    const items = [unrelatedFuzzy, luckyItem, luca];
+    const sorted = items.toSorted((a, b) => getSearchScore(b, 'luca') - getSearchScore(a, 'luca'));
+    expect(sorted[0].id).toBe(luca.id);
+  });
+
+  it('should rank substring match above Levenshtein match', () => {
+    const snow: SearchableItem = {
+      id: 1,
+      name: 'Snow halation',
+      phoneticName: 'すのーはれーしょん',
+      englishName: 'Snow halation'
+    };
+    const show: SearchableItem = {
+      id: 2,
+      name: 'Show Time',
+      phoneticName: 'しょーたいむ',
+      englishName: 'Show Time'
+    };
+    // "snow" is a substring of "Snow halation" (score 85, startsWith on englishName)
+    // "snow" vs "Show Time" — Levenshtein "show time" vs "snow" = distance > 3, no match
+    const snowScore = getSearchScore(snow, 'snow');
+    const showScore = getSearchScore(show, 'snow');
+    expect(snowScore).toBeGreaterThan(showScore);
+  });
+
+  it('should rank Go!! Restart above fuzzy matches for "go restart"', () => {
+    const goRestart: SearchableItem = {
+      id: 465,
+      name: 'Go!! リスタート',
+      phoneticName: 'ごーりすたーと',
+      englishName: 'Go!! Restart'
+    };
+    const otherSong: SearchableItem = {
+      id: 10,
+      name: 'Gorgeous Party',
+      phoneticName: 'ごーじゃすぱーてぃー',
+      englishName: 'Gorgeous Party'
+    };
+    const goScore = getSearchScore(goRestart, 'go restart');
+    const otherScore = getSearchScore(otherSong, 'go restart');
+    expect(goScore).toBeGreaterThan(otherScore);
+  });
+});

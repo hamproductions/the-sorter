@@ -27,6 +27,7 @@ import {
   usePerformanceSetlist
 } from '~/hooks/setlist-prediction/usePerformanceData';
 import { SetlistView } from '~/components/setlist-prediction/SetlistView';
+import { getFullPerformanceName } from '~/utils/names';
 import {
   Root as DialogRoot,
   Backdrop as DialogBackdrop,
@@ -77,7 +78,7 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
       const searchLower = performanceSearch.toLowerCase();
       filtered = filtered.filter(
         (p) =>
-          p.name.toLowerCase().includes(searchLower) ||
+          p.tourName.toLowerCase().includes(searchLower) ||
           p.venue?.toLowerCase().includes(searchLower) ||
           p.description?.toLowerCase().includes(searchLower)
       );
@@ -309,7 +310,7 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
     const prediction: SetlistPrediction = {
       id: `pred-${Date.now()}`,
       performanceId,
-      name: `Imported from ${selectedPerformance?.name || 'Unknown'}`,
+      name: `Imported from ${selectedPerformance ? getFullPerformanceName(selectedPerformance) : 'Unknown'}`,
       setlist: {
         id: `setlist-${Date.now()}`,
         performanceId,
@@ -439,7 +440,7 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
                           >
                             <Stack gap={0.5}>
                               <Text fontSize="sm" fontWeight="medium">
-                                {perf.name}
+                                {getFullPerformanceName(perf)}
                               </Text>
                               <Text color="fg.muted" fontSize="xs">
                                 {new Date(perf.date).toLocaleDateString()} • {perf.venue} •{' '}
@@ -497,7 +498,7 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
                             prediction={{
                               id: 'temp',
                               performanceId: selectedPerf.id,
-                              name: selectedPerf.name,
+                              name: getFullPerformanceName(selectedPerf),
                               setlist: selectedSetlist,
                               createdAt: new Date().toISOString(),
                               updatedAt: new Date().toISOString()

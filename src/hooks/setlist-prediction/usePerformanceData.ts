@@ -146,10 +146,11 @@ export function useFilteredPerformances(filters: PerformanceFilters) {
       // Filter by search
       if (filters.search && filters.search.trim() !== '') {
         const searchLower = filters.search.toLowerCase();
-        const matchesName = perf.name.toLowerCase().includes(searchLower);
+        const matchesName = perf.tourName.toLowerCase().includes(searchLower);
+        const matchesPerformanceName = perf.performanceName?.toLowerCase().includes(searchLower);
         const matchesVenue = perf.venue?.toLowerCase().includes(searchLower);
 
-        if (!matchesName && !matchesVenue) {
+        if (!matchesName && !matchesPerformanceName && !matchesVenue) {
           return false;
         }
       }
@@ -181,7 +182,7 @@ export function usePerformanceSearch(query: string) {
   const [debouncedQuery, setDebouncedQuery] = useState(query);
 
   // Debounce search query
-  useMemo(() => {
+  useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedQuery(query);
     }, 300);
@@ -197,10 +198,11 @@ export function usePerformanceSearch(query: string) {
     const searchLower = debouncedQuery.toLowerCase();
 
     return performances.filter((perf) => {
-      const matchesName = perf.name.toLowerCase().includes(searchLower);
+      const matchesName = perf.tourName.toLowerCase().includes(searchLower);
+      const matchesPerformanceName = perf.performanceName?.toLowerCase().includes(searchLower);
       const matchesVenue = perf.venue?.toLowerCase().includes(searchLower);
 
-      return matchesName || matchesVenue;
+      return matchesName || matchesPerformanceName || matchesVenue;
     });
   }, [performances, debouncedQuery]);
 

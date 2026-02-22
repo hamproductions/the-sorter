@@ -9,6 +9,18 @@ export interface SearchableItem {
 }
 
 /**
+ * Strips punctuation while preserving letters (all scripts), numbers, and whitespace.
+ * Collapses resulting whitespace runs.
+ * e.g. "Go!! Restart" → "Go Restart", "KiRa-KiRa Sensation!" → "KiRaKiRa Sensation"
+ */
+function stripPunctuation(str: string): string {
+  return str
+    .replace(/[^\p{L}\p{N}\s]/gu, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
  * Checks if an item matches the search query using fuzzy matching for Japanese/Romaji.
  *
  * Logic adapted from SongSearchPanel.tsx
@@ -70,12 +82,19 @@ export function fuzzySearch(item: SearchableItem, query: string): boolean {
   const itemName = item.name.toLowerCase();
   const englishName = (item.englishName ?? '').toLowerCase();
 
+  // Punctuation-stripped versions for matching through !, ?, #, ☆, etc.
+  const strippedQ = stripPunctuation(q);
+  const strippedItemName = stripPunctuation(itemName);
+  const strippedEnglishName = stripPunctuation(englishName);
+
   // 1. Exact/Substring match (High priority)
   if (
     itemName.includes(q) ||
+    strippedItemName.includes(strippedQ) ||
     phoneticName.includes(queryHiragana) ||
     normalizedPhoneticRomaji.includes(normalizedQueryRomaji) ||
-    englishName.includes(q)
+    englishName.includes(q) ||
+    strippedEnglishName.includes(strippedQ)
   ) {
     return true;
   }
@@ -149,17 +168,22 @@ export function getSearchScore(item: SearchableItem, query: string): number {
   const phoneticRomaji = toRomaji(phoneticName);
   const normalizedPhoneticRomaji = phoneticRomaji.replace(/\s+/g, '');
 
+  // Punctuation-stripped versions
+  const strippedQ = stripPunctuation(q);
+  const strippedItemName = stripPunctuation(itemName);
+  const strippedEnglishName = stripPunctuation(englishName);
+
   // 1. Exact Name Matches
-  if (itemName === q) return 100;
-  if (englishName === q) return 95;
+  if (itemName === q || strippedItemName === strippedQ) return 100;
+  if (englishName === q || strippedEnglishName === strippedQ) return 95;
 
   // 2. Starts With Matches
-  if (itemName.startsWith(q)) return 90;
-  if (englishName.startsWith(q)) return 85;
+  if (itemName.startsWith(q) || strippedItemName.startsWith(strippedQ)) return 90;
+  if (englishName.startsWith(q) || strippedEnglishName.startsWith(strippedQ)) return 85;
 
   // 3. Contains Matches
-  if (itemName.includes(q)) return 80;
-  if (englishName.includes(q)) return 75;
+  if (itemName.includes(q) || strippedItemName.includes(strippedQ)) return 80;
+  if (englishName.includes(q) || strippedEnglishName.includes(strippedQ)) return 75;
 
   // 4. Phonetic/Romaji Matches
   // Exact phonetic

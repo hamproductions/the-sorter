@@ -16,7 +16,6 @@ import {
   Description as DialogDescription,
   CloseTrigger as DialogCloseTrigger
 } from '~/components/ui/styled/dialog';
-import { css } from 'styled-system/css';
 import { Box, Stack, HStack } from 'styled-system/jsx';
 import { Button } from '~/components/ui/styled/button';
 import { Input } from '~/components/ui/styled/input';
@@ -25,6 +24,7 @@ import type { SetlistItem, SongSetlistItem, NonSongSetlistItem } from '~/types/s
 import { isSongItem } from '~/types/setlist-prediction';
 import { useSongData } from '~/hooks/useSongData';
 import { getSongColor } from '~/utils/song';
+import { fuzzySearch, getSearchScore } from '~/utils/search';
 import type { Song } from '~/types';
 
 export interface EditItemDialogProps {
@@ -57,26 +57,21 @@ export function EditItemDialog({ open, onOpenChange, item, onSave }: EditItemDia
       return [];
     }
 
-    const query = searchQuery.toLowerCase();
     const songs = Array.isArray(songData) ? songData : [];
     return songs
-      .filter((song) => {
-        const s = song;
-        const searchText = `${s.name}`.toLowerCase();
-        return searchText.includes(query);
-      })
-      .slice(0, 20) // Limit results
+      .filter((song) => fuzzySearch(song, searchQuery))
+      .toSorted((a, b) => getSearchScore(b, searchQuery) - getSearchScore(a, searchQuery))
+      .slice(0, 20)
       .map((song) => {
-        const s = song;
-        const artistRef = s.artists?.[0];
+        const artistRef = song.artists?.[0];
         const artist = artistRef ? artistsData.find((a) => a.id === artistRef.id) : null;
 
         return {
-          id: s.id,
-          name: s.name,
-          englishName: s.englishName,
+          id: song.id,
+          name: song.name,
+          englishName: song.englishName,
           artist: artist ? getArtistName(artist.name, lang) : undefined,
-          color: getSongColor(s)
+          color: getSongColor(song)
         };
       });
   }, [songData, searchQuery, lang]);
@@ -124,8 +119,28 @@ export function EditItemDialog({ open, onOpenChange, item, onSave }: EditItemDia
 
     const songs = Array.isArray(songData) ? songData : [];
     const song = songs.find((s: Song) => s.id === item.songId);
-    return song?.name || `Song ${item.songId}`;
-  }, [item, songData]);
+    return song ? getSongName(song.name, song.englishName, lang) : `Song ${item.songId}`;
+  }, [item, songData, lang]);
+
+  // Get staged replacement song info
+  const stagedSong = useMemo(() => {
+    if (!selectedSongId || !isSongItem(item) || selectedSongId === item.songId) return null;
+
+    const songs = Array.isArray(songData) ? songData : [];
+    const song = songs.find((s: Song) => s.id === selectedSongId);
+    if (!song) return null;
+
+    const artistRef = song.artists?.[0];
+    const artist = artistRef ? artistsData.find((a) => a.id === artistRef.id) : null;
+
+    return {
+      id: song.id,
+      displayName: getSongName(song.name, song.englishName, lang),
+      japaneseName: lang === 'en' && song.englishName ? song.name : undefined,
+      artist: artist ? getArtistName(artist.name, lang) : undefined,
+      color: getSongColor(song)
+    };
+  }, [selectedSongId, item, songData, lang]);
 
   return (
     <DialogRoot
@@ -159,7 +174,9 @@ export function EditItemDialog({ open, onOpenChange, item, onSave }: EditItemDia
                   <Text mb={1} fontSize="sm" fontWeight="medium">
                     {t('setlistPrediction.currentSong', { defaultValue: 'Current Song' })}
                   </Text>
-                  <Text fontSize="sm">{currentSongName}</Text>
+                  <Text textDecoration={stagedSong ? 'line-through' : undefined} fontSize="sm">
+                    {currentSongName}
+                  </Text>
                 </Box>
               )}
 
@@ -195,75 +212,122 @@ export function EditItemDialog({ open, onOpenChange, item, onSave }: EditItemDia
                 </Box>
               )}
 
-              {/* Song Search (only for regular songs) */}
+              {/* Song Search / Staged Replacement (only for regular songs) */}
               {isSongItem(item) && !item.isCustomSong && (
                 <Box>
                   <Text mb={2} fontSize="sm" fontWeight="medium">
                     {t('setlistPrediction.changeSong', { defaultValue: 'Change Song' })}
                   </Text>
-                  <Input
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder={t('setlistPrediction.searchSongs', {
-                      defaultValue: 'Search songs or artists...'
-                    })}
-                    mb={2}
-                  />
 
-                  {searchQuery && (
+                  {stagedSong ? (
+                    /* Staged replacement preview — replaces the search input */
                     <Box
+                      borderColor="border.accent"
                       borderRadius="md"
-                      borderWidth="1px"
-                      maxH="200px"
-                      bgColor="bg.default"
-                      overflow="auto"
+                      borderWidth="2px"
+                      p={3}
+                      bgColor="bg.subtle"
                     >
-                      {filteredSongs.length === 0 ? (
-                        <Box p={3}>
-                          <Text color="fg.muted" fontSize="sm" textAlign="center">
-                            {t('setlistPrediction.noSongsFound', {
-                              defaultValue: 'No songs found'
-                            })}
+                      <HStack justifyContent="space-between" alignItems="flex-start">
+                        <Stack flex={1} gap={0.5}>
+                          <Text fontSize="sm" fontWeight="bold">
+                            {stagedSong.displayName}
                           </Text>
-                        </Box>
-                      ) : (
-                        <Stack gap={0}>
-                          {filteredSongs.map((song) => (
-                            <Box
-                              className={css({ '&[data-selected=true]': { bgColor: 'bg.subtle' } })}
-                              key={song.id}
-                              data-selected={selectedSongId === song.id}
-                              onClick={() => setSelectedSongId(song.id)}
-                              cursor="pointer"
-                              borderBottomWidth="1px"
-                              p={2}
-                              bgColor="bg.default"
-                              _hover={{ bgColor: 'bg.subtle' }}
+                          {stagedSong.japaneseName && (
+                            <Text color="fg.muted" fontSize="xs">
+                              {stagedSong.japaneseName}
+                            </Text>
+                          )}
+                          {stagedSong.artist && (
+                            <Text
+                              style={{ '--song-color': stagedSong.color } as React.CSSProperties}
+                              color="var(--song-color)"
+                              fontSize="xs"
                             >
-                              <Stack gap={0.5}>
-                                <Text fontSize="sm" fontWeight="medium">
-                                  {getSongName(song.name, song.englishName, lang)}
-                                </Text>
-                                {lang === 'en' && song.englishName && (
-                                  <Text color="fg.muted" fontSize="xs">
-                                    {song.name}
-                                  </Text>
-                                )}
-                                {song.artist && (
-                                  <Text
-                                    style={{ '--song-color': song.color } as React.CSSProperties}
-                                    color="var(--song-color)"
-                                    fontSize="xs"
-                                  >
-                                    {song.artist}
-                                  </Text>
-                                )}
-                              </Stack>
-                            </Box>
-                          ))}
+                              {stagedSong.artist}
+                            </Text>
+                          )}
                         </Stack>
-                      )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedSongId(item.songId);
+                            setSearchQuery('');
+                          }}
+                        >
+                          {t('common.clear', { defaultValue: 'Clear' })}
+                        </Button>
+                      </HStack>
                     </Box>
+                  ) : (
+                    /* Search input + results */
+                    <>
+                      <Input
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder={t('setlistPrediction.searchSongs', {
+                          defaultValue: 'Search songs or artists...'
+                        })}
+                        mb={2}
+                      />
+
+                      {searchQuery && (
+                        <Box
+                          borderRadius="md"
+                          borderWidth="1px"
+                          maxH="200px"
+                          bgColor="bg.default"
+                          overflow="auto"
+                        >
+                          {filteredSongs.length === 0 ? (
+                            <Box p={3}>
+                              <Text color="fg.muted" fontSize="sm" textAlign="center">
+                                {t('setlistPrediction.noSongsFound', {
+                                  defaultValue: 'No songs found'
+                                })}
+                              </Text>
+                            </Box>
+                          ) : (
+                            <Stack gap={0}>
+                              {filteredSongs.map((song) => (
+                                <Box
+                                  key={song.id}
+                                  onClick={() => setSelectedSongId(song.id)}
+                                  cursor="pointer"
+                                  borderBottomWidth="1px"
+                                  p={2}
+                                  bgColor="bg.default"
+                                  _hover={{ bgColor: 'bg.subtle' }}
+                                >
+                                  <Stack gap={0.5}>
+                                    <Text fontSize="sm" fontWeight="medium">
+                                      {getSongName(song.name, song.englishName, lang)}
+                                    </Text>
+                                    {lang === 'en' && song.englishName && (
+                                      <Text color="fg.muted" fontSize="xs">
+                                        {song.name}
+                                      </Text>
+                                    )}
+                                    {song.artist && (
+                                      <Text
+                                        style={
+                                          { '--song-color': song.color } as React.CSSProperties
+                                        }
+                                        color="var(--song-color)"
+                                        fontSize="xs"
+                                      >
+                                        {song.artist}
+                                      </Text>
+                                    )}
+                                  </Stack>
+                                </Box>
+                              ))}
+                            </Stack>
+                          )}
+                        </Box>
+                      )}
+                    </>
                   )}
                 </Box>
               )}

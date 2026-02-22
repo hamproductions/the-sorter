@@ -6,6 +6,7 @@ import { Button } from '~/components/ui/styled/button';
 import { Text } from '~/components/ui/styled/text';
 import { usePredictionStorage } from '~/hooks/setlist-prediction/usePredictionStorage';
 import { usePerformance, usePerformanceData } from '~/hooks/setlist-prediction/usePerformanceData';
+import { getFullPerformanceName } from '~/utils/names';
 import type { SetlistPrediction } from '~/types/setlist-prediction';
 import {
   Root as DialogRoot,
@@ -70,7 +71,7 @@ function PredictionItem({
             {performancesLoading ? (
               <Box borderRadius="sm" width="40%" height="10px" bgColor="bg.muted" />
             ) : performance ? (
-              performance.name
+              getFullPerformanceName(performance)
             ) : (
               'Custom Prediction'
             )}
