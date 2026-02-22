@@ -182,7 +182,7 @@ export function usePerformanceSearch(query: string) {
   const [debouncedQuery, setDebouncedQuery] = useState(query);
 
   // Debounce search query
-  useMemo(() => {
+  useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedQuery(query);
     }, 300);
