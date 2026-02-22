@@ -342,9 +342,7 @@ describe('search ranking', () => {
 
   it('should sort items correctly when used as a comparator', () => {
     const items = [unrelatedFuzzy, luckyItem, luca];
-    const sorted = items.toSorted(
-      (a, b) => getSearchScore(b, 'luca') - getSearchScore(a, 'luca')
-    );
+    const sorted = items.toSorted((a, b) => getSearchScore(b, 'luca') - getSearchScore(a, 'luca'));
     expect(sorted[0].id).toBe(luca.id);
   });
 

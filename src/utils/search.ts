@@ -14,7 +14,10 @@ export interface SearchableItem {
  * e.g. "Go!! Restart" → "Go Restart", "KiRa-KiRa Sensation!" → "KiRaKiRa Sensation"
  */
 function stripPunctuation(str: string): string {
-  return str.replace(/[^\p{L}\p{N}\s]/gu, '').replace(/\s+/g, ' ').trim();
+  return str
+    .replace(/[^\p{L}\p{N}\s]/gu, '')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 /**

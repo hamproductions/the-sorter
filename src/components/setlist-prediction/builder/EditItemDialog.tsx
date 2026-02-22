@@ -170,20 +170,11 @@ export function EditItemDialog({ open, onOpenChange, item, onSave }: EditItemDia
             <Stack gap={4}>
               {/* Current Song Display */}
               {isSongItem(item) && (
-                <Box
-                  borderRadius="md"
-                  borderWidth="1px"
-                  p={3}
-                  bgColor="bg.muted"
-                  opacity={stagedSong ? 0.5 : 1}
-                >
+                <Box borderRadius="md" borderWidth="1px" p={3} bgColor="bg.muted">
                   <Text mb={1} fontSize="sm" fontWeight="medium">
                     {t('setlistPrediction.currentSong', { defaultValue: 'Current Song' })}
                   </Text>
-                  <Text
-                    fontSize="sm"
-                    textDecoration={stagedSong ? 'line-through' : undefined}
-                  >
+                  <Text textDecoration={stagedSong ? 'line-through' : undefined} fontSize="sm">
                     {currentSongName}
                   </Text>
                 </Box>
@@ -231,14 +222,14 @@ export function EditItemDialog({ open, onOpenChange, item, onSave }: EditItemDia
                   {stagedSong ? (
                     /* Staged replacement preview — replaces the search input */
                     <Box
+                      borderColor="border.accent"
                       borderRadius="md"
                       borderWidth="2px"
-                      borderColor="border.accent"
                       p={3}
                       bgColor="bg.subtle"
                     >
                       <HStack justifyContent="space-between" alignItems="flex-start">
-                        <Stack gap={0.5} flex={1}>
+                        <Stack flex={1} gap={0.5}>
                           <Text fontSize="sm" fontWeight="bold">
                             {stagedSong.displayName}
                           </Text>
