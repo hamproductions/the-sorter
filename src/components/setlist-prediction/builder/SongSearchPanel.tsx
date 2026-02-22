@@ -10,7 +10,7 @@ import { MdArrowForward, MdDragIndicator } from 'react-icons/md';
 
 import artistsData from '../../../../data/artists-info.json';
 import { getArtistName, getSongName } from '~/utils/names';
-import { fuzzySearch } from '~/utils/search';
+import { fuzzySearch, getSearchScore } from '~/utils/search';
 import { css } from 'styled-system/css';
 import { Box, Stack, HStack } from 'styled-system/jsx';
 import { Input } from '~/components/ui/styled/input';
@@ -163,7 +163,7 @@ export function SongSearchPanel({
     const query = debouncedQuery.toLowerCase();
     const songs = Array.isArray(songData) ? songData : [];
 
-    // Step 1: Find songs that match by name
+    // Step 1: Find songs that match by name, sorted by relevance
     const directSongMatches = new Set<string>();
     const songMatchResults = songs
       .filter((song) => {
@@ -173,6 +173,7 @@ export function SongSearchPanel({
         }
         return matches;
       })
+      .toSorted((a, b) => getSearchScore(b, debouncedQuery) - getSearchScore(a, debouncedQuery))
       .slice(0, 50)
       .map((song) => {
         const artistRef = song.artists?.[0];
