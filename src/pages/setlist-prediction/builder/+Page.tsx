@@ -15,6 +15,7 @@ import { Menu } from '~/components/ui/menu';
 import { Metadata } from '~/components/layout/Metadata';
 import { usePerformance } from '~/hooks/setlist-prediction/usePerformanceData';
 import { usePredictionStorage } from '~/hooks/setlist-prediction/usePredictionStorage';
+import { getFullPerformanceName } from '~/utils/names';
 import { PredictionBuilder } from '~/components/setlist-prediction/builder/PredictionBuilder';
 import { LoadPredictionDialog } from '~/components/setlist-prediction/builder/LoadPredictionDialog';
 import { NewPredictionDialog } from '~/components/setlist-prediction/builder/NewPredictionDialog';
@@ -164,7 +165,7 @@ export function Page() {
       <Metadata
         title={
           performance
-            ? `${t('setlistPrediction.builder', { defaultValue: 'Builder' })} - ${performance.name}`
+            ? `${t('setlistPrediction.builder', { defaultValue: 'Builder' })} - ${getFullPerformanceName(performance)}`
             : t('setlistPrediction.builder', { defaultValue: 'Setlist Builder' })
         }
         helmet
@@ -193,7 +194,7 @@ export function Page() {
                       overflow="hidden"
                       whiteSpace="nowrap"
                     >
-                      {performance.name}
+                      {getFullPerformanceName(performance)}
                     </Text>
                     <Button
                       size="xs"

@@ -48,7 +48,7 @@ describe('LoadPredictionDialog', () => {
 
   const performanceWithSetlist: Performance = {
     id: 'perf-1',
-    name: 'Test Performance',
+    tourName: 'Test Performance',
     date: '2023-01-01',
     venue: 'Test Venue',
     seriesIds: [],
@@ -62,7 +62,7 @@ describe('LoadPredictionDialog', () => {
 
   const performanceWithoutSetlist: Performance = {
     id: 'perf-2',
-    name: 'Upcoming Performance',
+    tourName: 'Upcoming Performance',
     date: '2024-06-01',
     venue: 'Future Venue',
     seriesIds: [],

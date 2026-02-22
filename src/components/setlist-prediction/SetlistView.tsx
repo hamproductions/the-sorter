@@ -14,7 +14,7 @@ import { Link } from '~/components/ui/link';
 import type { SetlistItem, Performance, SetlistPrediction } from '~/types/setlist-prediction';
 import { useSongData } from '~/hooks/useSongData';
 import { getSongColor } from '~/utils/song';
-import { getSongName } from '~/utils/names';
+import { getSongName, getFullPerformanceName } from '~/utils/names';
 
 export interface SetlistViewProps {
   prediction: SetlistPrediction;
@@ -77,7 +77,7 @@ export function SetlistView({
             fontSize="xl"
             fontWeight="bold"
           >
-            {performance?.name ||
+            {(performance && getFullPerformanceName(performance)) ||
               prediction.customPerformance?.name ||
               prediction.name ||
               'Setlist Prediction'}

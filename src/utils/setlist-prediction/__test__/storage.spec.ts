@@ -100,7 +100,7 @@ describe('Storage Utilities', () => {
   describe('PerformanceCacheStorage', () => {
     const mockPerformance: Performance = {
       id: 'p1',
-      name: 'Test Performance',
+      tourName: 'Test Performance',
       date: '2023-01-01',
       seriesIds: [],
       artistIds: [],
@@ -119,10 +119,10 @@ describe('Storage Utilities', () => {
 
     it('updates existing performance', () => {
       PerformanceCacheStorage.add(mockPerformance);
-      const updated = { ...mockPerformance, name: 'Updated Name' };
+      const updated = { ...mockPerformance, tourName: 'Updated Name' };
       PerformanceCacheStorage.add(updated);
       const cached = PerformanceCacheStorage.get();
-      expect(cached[0].name).toBe('Updated Name');
+      expect(cached[0].tourName).toBe('Updated Name');
     });
 
     it('removes performance', () => {

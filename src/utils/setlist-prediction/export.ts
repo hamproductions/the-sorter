@@ -4,6 +4,7 @@
 
 import type { SetlistPrediction, Performance } from '~/types/setlist-prediction';
 import { isSongItem } from '~/types/setlist-prediction';
+import { getFullPerformanceName } from '~/utils/names';
 
 // ==================== JSON Export ====================
 
@@ -41,7 +42,7 @@ export function exportAsText(
 
   // Performance info
   if (performance) {
-    lines.push(`Performance: ${performance.name}`);
+    lines.push(`Performance: ${getFullPerformanceName(performance)}`);
     lines.push(`Date: ${performance.date}`);
     if (performance.venue) {
       lines.push(`Venue: ${performance.venue}`);
@@ -150,7 +151,7 @@ export function exportAsMarkdown(prediction: SetlistPrediction, performance?: Pe
 
   // Performance info
   if (performance) {
-    lines.push(`## ${performance.name}`);
+    lines.push(`## ${getFullPerformanceName(performance)}`);
     lines.push('');
     lines.push(`**Date:** ${performance.date}`);
     if (performance.venue) {

@@ -8,6 +8,7 @@ import { Metadata } from '~/components/layout/Metadata';
 import { decompressPrediction } from '~/utils/setlist-prediction/compression';
 import { usePerformance } from '~/hooks/setlist-prediction/usePerformanceData';
 import { usePredictionStorage } from '~/hooks/setlist-prediction/usePredictionStorage';
+import { getFullPerformanceName } from '~/utils/names';
 import { SetlistView } from '~/components/setlist-prediction/SetlistView';
 import { useToaster } from '~/context/ToasterContext';
 import type { SetlistPrediction } from '~/types/setlist-prediction';
@@ -114,7 +115,8 @@ export function Page() {
                 </Text>
                 {performance ? (
                   <Text color="fg.muted" fontSize="md">
-                    {performance.name} • {new Date(performance.date).toLocaleDateString()}
+                    {getFullPerformanceName(performance)} •{' '}
+                    {new Date(performance.date).toLocaleDateString()}
                   </Text>
                 ) : prediction.customPerformance ? (
                   <Text color="fg.muted" fontSize="md">

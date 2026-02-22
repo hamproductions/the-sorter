@@ -23,17 +23,6 @@ import { usePredictionStorage } from '~/hooks/setlist-prediction/usePredictionSt
 
 type SortOption = 'date-asc' | 'date-desc' | 'name-asc' | 'name-desc' | 'upcoming-first';
 
-// Extract tour name from performance name
-const getTourName = (perfName: string): string => {
-  // Remove patterns like " - XXX公演 (Day.X)" or " (Day.X)"
-  return perfName
-    .replace(/\s*-\s*.*公演\s*\(.*?\)$/g, '') // Remove " - XXX公演 (Day.X)"
-    .replace(/\s*\(Day\.\d+\)$/g, '') // Remove " (Day.X)"
-    .replace(/\s*\(.*?\)$/g, '') // Remove any trailing (...)
-    .replace(/\s*-\s*.*公演$/g, '') // Remove " - XXX公演"
-    .trim();
-};
-
 export function Page() {
   const { t } = useTranslation();
   const { predictions, deletePrediction } = usePredictionStorage();
@@ -112,10 +101,10 @@ export function Page() {
         return sorted.toSorted((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
       case 'name-asc':
-        return sorted.toSorted((a, b) => a.name.localeCompare(b.name));
+        return sorted.toSorted((a, b) => a.tourName.localeCompare(b.tourName));
 
       case 'name-desc':
-        return sorted.toSorted((a, b) => b.name.localeCompare(a.name));
+        return sorted.toSorted((a, b) => b.tourName.localeCompare(a.tourName));
 
       default:
         return sorted;
@@ -127,7 +116,7 @@ export function Page() {
     const tourGroups: Record<string, Performance[]> = {};
 
     sortedPerformances.forEach((perf) => {
-      const tourName = getTourName(perf.name);
+      const tourName = perf.tourName;
       if (!tourGroups[tourName]) {
         tourGroups[tourName] = [];
       }
@@ -354,8 +343,9 @@ export function Page() {
                           <HStack justifyContent="space-between" alignItems="center">
                             <Stack flex={1} gap={0.5}>
                               <Text fontSize="sm" fontWeight="medium">
-                                {performance.nameJa && performance.nameJa !== 'null'
-                                  ? performance.nameJa
+                                {performance.performanceName &&
+                                performance.performanceName !== 'null'
+                                  ? performance.performanceName
                                   : performance.description || 'Performance'}
                               </Text>
                               <Text color="fg.muted" fontSize="xs">

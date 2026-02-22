@@ -4,8 +4,8 @@
 
 export interface Performance {
   id: string;
-  name: string;
-  nameJa?: string;
+  tourName: string;
+  performanceName?: string;
   date: string; // ISO 8601
   venue?: string;
   venueJa?: string;
