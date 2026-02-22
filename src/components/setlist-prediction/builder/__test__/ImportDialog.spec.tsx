@@ -8,7 +8,7 @@ vi.mock('~/hooks/setlist-prediction/usePerformanceData', () => ({
     performances: [
       {
         id: 'current-perf',
-        name: 'Current Performance',
+        tourName: 'Current Performance',
         date: '2023-01-03',
         venue: 'Current Venue',
         seriesIds: ['series-1'],
@@ -16,7 +16,7 @@ vi.mock('~/hooks/setlist-prediction/usePerformanceData', () => ({
       },
       {
         id: 'perf-1',
-        name: 'Test Performance',
+        tourName: 'Test Performance',
         date: '2023-01-01',
         venue: 'Test Venue',
         seriesIds: ['series-1'],
@@ -24,7 +24,7 @@ vi.mock('~/hooks/setlist-prediction/usePerformanceData', () => ({
       },
       {
         id: 'perf-2',
-        name: 'Another Performance',
+        tourName: 'Another Performance',
         date: '2023-01-02',
         venue: 'Another Venue',
         seriesIds: ['series-1'],

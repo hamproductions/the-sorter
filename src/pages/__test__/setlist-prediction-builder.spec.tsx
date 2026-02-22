@@ -8,7 +8,7 @@ import { Page } from '../setlist-prediction/builder/+Page';
 vi.mock('~/hooks/setlist-prediction/usePerformanceData', () => ({
   usePerformance: () => ({
     id: 'perf-1',
-    name: 'Test Performance',
+    tourName: 'Test Performance',
     date: '2025-01-01',
     venue: 'Test Venue',
     seriesIds: ['series-1'],

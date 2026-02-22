@@ -21,7 +21,7 @@ const createMockSetlist = () => ({
 
 const createMockPerformance = () => ({
   id: 'perf-1',
-  name: 'Test Performance',
+  tourName: 'Test Performance',
   date: '2025-06-13',
   seriesIds: [],
   status: 'completed' as const,
