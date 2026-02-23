@@ -303,6 +303,61 @@ describe('useHeardleState', () => {
     });
   });
 
+  describe('clearAllHeardleState', () => {
+    it('should clear revealed songs (unlike resetSession)', () => {
+      const { result } = renderHook(() => useHeardleState());
+
+      act(() => {
+        result.current.makeGuess('song-1', 'song-1');
+      });
+
+      expect(result.current.isSongRevealed('song-1')).toBe(true);
+
+      act(() => {
+        result.current.clearAllHeardleState();
+      });
+
+      expect(result.current.isSongRevealed('song-1')).toBe(false);
+      expect(result.current.revealedSongIds.size).toBe(0);
+    });
+
+    it('should clear failed songs', () => {
+      const { result } = renderHook(() => useHeardleState());
+
+      // Fail a song
+      for (let i = 0; i < 5; i++) {
+        act(() => {
+          result.current.passGuess('song-1');
+        });
+      }
+
+      expect(result.current.failedSongIds.has('song-1')).toBe(true);
+
+      act(() => {
+        result.current.clearAllHeardleState();
+      });
+
+      expect(result.current.failedSongIds.size).toBe(0);
+    });
+
+    it('should clear current guesses', () => {
+      const { result } = renderHook(() => useHeardleState());
+
+      act(() => {
+        result.current.makeGuess('song-1', 'wrong');
+      });
+
+      expect(result.current.getAttemptCount('song-1')).toBe(1);
+
+      act(() => {
+        result.current.clearAllHeardleState();
+      });
+
+      expect(result.current.getAttemptCount('song-1')).toBe(0);
+      expect(result.current.getGuessHistory('song-1')).toEqual([]);
+    });
+  });
+
   describe('localStorage persistence', () => {
     it('should persist revealed songs across re-renders', () => {
       const { result, rerender } = renderHook(() => useHeardleState());
