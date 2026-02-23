@@ -47,14 +47,17 @@ export function HeardleAudioPlayer({
     }
   }, []);
 
+  // Small tolerance for floating point comparisons (startTime from sample detection has many decimals)
+  const EPSILON = 0.01;
+
   // Handle time update - enforce max duration relative to startTime
   const handleTimeUpdate = useCallback(() => {
     if (audioRef.current) {
-      const time = audioRef.current.currentTime;
+      const time = Math.max(audioRef.current.currentTime, startTime);
       setCurrentTime(time);
 
       // Stop playback when startTime + maxDuration is reached
-      if (time >= startTime + maxDuration) {
+      if (time >= startTime + maxDuration - EPSILON) {
         audioRef.current.pause();
         audioRef.current.currentTime = startTime + maxDuration;
         setCurrentTime(startTime + maxDuration);
@@ -71,8 +74,13 @@ export function HeardleAudioPlayer({
       audioRef.current.pause();
       setIsPlaying(false);
     } else {
-      // If at or past max duration, restart from startTime
-      if (audioRef.current.currentTime >= startTime + maxDuration) {
+      // If at or past max duration (with epsilon tolerance since startTime from
+      // sample detection produces high-precision floats that the browser's
+      // currentTime rounds down), or audio naturally ended, restart from startTime
+      if (
+        audioRef.current.currentTime >= startTime + maxDuration - EPSILON ||
+        audioRef.current.ended
+      ) {
         audioRef.current.currentTime = startTime;
         setCurrentTime(startTime);
       }
