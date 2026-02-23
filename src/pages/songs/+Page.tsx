@@ -74,7 +74,7 @@ export function Page() {
     makeGuess,
     passGuess,
     autoReveal,
-    resetSession,
+    clearAllHeardleState,
     failedSongIds,
     maxAttempts
   } = useHeardleState();
@@ -187,9 +187,9 @@ export function Page() {
     else if (rf) left();
   }, [currentLeft?.id, currentRight?.id, isSongFailed, heardleMode, state, left, right, tie]);
 
-  // Block arrow key shortcuts when a song has failed (handled by Continue button instead)
+  // Block arrow key shortcuts when songs aren't ready to be compared (not yet revealed or failed)
   useEffect(() => {
-    if (!eitherFailed) return;
+    if (bothRevealed) return;
     const interceptor = (e: KeyboardEvent) => {
       if (['ArrowLeft', 'ArrowRight', 'ArrowDown'].includes(e.key)) {
         e.stopImmediatePropagation();
@@ -198,7 +198,7 @@ export function Page() {
     };
     document.addEventListener('keydown', interceptor, { capture: true });
     return () => document.removeEventListener('keydown', interceptor, { capture: true });
-  }, [eitherFailed]);
+  }, [bothRevealed]);
 
   // Get failed songs for results display
   const failedSongsForResults = useMemo(() => {
@@ -287,7 +287,7 @@ export function Page() {
       });
     } else {
       // Reset Heardle session state when starting new sort
-      resetSession();
+      clearAllHeardleState();
       prevCompRef.current = null;
       init();
     }
@@ -301,7 +301,7 @@ export function Page() {
       });
     } else {
       // Reset Heardle session state when clearing
-      resetSession();
+      clearAllHeardleState();
       prevCompRef.current = null;
       clear();
     }
@@ -514,7 +514,7 @@ export function Page() {
           unmountOnExit
           onConfirm={() => {
             // Reset Heardle session when confirming dialog action
-            resetSession();
+            clearAllHeardleState();
             prevCompRef.current = null;
             if (showConfirmDialog?.action === 'clear') {
               clear();
@@ -535,7 +535,7 @@ export function Page() {
           unmountOnExit
           onConfirm={() => {
             // User chose to accept the new link (reset current session and use new params)
-            resetSession();
+            clearAllHeardleState();
             prevCompRef.current = null;
             clear();
             // We need to parse URL params and set them as filters
@@ -590,7 +590,7 @@ export function Page() {
           unmountOnExit
           onConfirm={() => {
             // Reset Heardle session when confirming dialog action
-            resetSession();
+            clearAllHeardleState();
             prevCompRef.current = null;
             if (showConfirmDialog?.action === 'clear') {
               clear();

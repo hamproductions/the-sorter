@@ -27,6 +27,13 @@ export function useHeardleState() {
     setCurrentGuesses({});
   }, [setFailedSongs, setCurrentGuesses]);
 
+  // Clear all heardle state (called when stopping a session entirely)
+  const clearAllHeardleState = useCallback(() => {
+    setRevealedSongs([]);
+    setFailedSongs([]);
+    setCurrentGuesses({});
+  }, [setRevealedSongs, setFailedSongs, setCurrentGuesses]);
+
   // Get audio duration for current attempt (0-indexed attempts -> 1s, 2s, 4s, 8s, 16s)
   const getAudioDuration = useCallback((attempts: number): number => {
     const index = Math.min(attempts, AUDIO_DURATIONS.length - 1);
@@ -185,6 +192,7 @@ export function useHeardleState() {
     passGuess,
     autoReveal,
     resetSession,
+    clearAllHeardleState,
 
     // Raw data for filtering
     failedSongIds,
