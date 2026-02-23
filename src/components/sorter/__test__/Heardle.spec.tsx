@@ -8,12 +8,19 @@ import { waitFor } from '@testing-library/react';
 vi.mock('../HeardleAudioPlayer', () => ({
   HeardleAudioPlayer: ({
     blobUrl,
-    maxDuration
+    maxDuration,
+    startTime
   }: {
     blobUrl: string | null;
     maxDuration: number;
+    startTime?: number;
   }) => (
-    <div data-testid="audio-player" data-blob={blobUrl} data-duration={maxDuration}>
+    <div
+      data-testid="audio-player"
+      data-blob={blobUrl}
+      data-duration={maxDuration}
+      data-start-time={startTime ?? 0}
+    >
       Audio Player
     </div>
   )
@@ -31,6 +38,12 @@ vi.mock('../../setlist-prediction/builder/SongSearchPanel', () => ({
       </button>
     </div>
   )
+}));
+
+// Mock detectSoundStartFromBlob
+const mockDetectSoundStart = vi.fn().mockResolvedValue(0);
+vi.mock('~/utils/intro-don/detectSoundStart', () => ({
+  detectSoundStartFromBlob: (...args: unknown[]) => mockDetectSoundStart(...args)
 }));
 
 // Create mock song objects
@@ -264,6 +277,18 @@ describe('Heardle', () => {
     await waitFor(() => {
       expect(queryByText('Wrong! Try again.')).not.toBeInTheDocument();
       expect(queryByText(/Song Two/)).not.toBeInTheDocument();
+    });
+  });
+
+  it('passes detected sound start offset as startTime to audio player', async () => {
+    mockDetectSoundStart.mockResolvedValue(1.5);
+
+    const [{ findByTestId }] = await render(<Heardle {...defaultProps} />);
+
+    const player = await findByTestId('audio-player');
+
+    await waitFor(() => {
+      expect(player).toHaveAttribute('data-start-time', '1.5');
     });
   });
 });

@@ -252,4 +252,41 @@ describe('HeardleAudioPlayer', () => {
     expect(pauseSpy).toHaveBeenCalled();
     expect(getByLabelText('Play')).toBeInTheDocument();
   });
+
+  it('with startTime, resets to startTime and shows adjusted time display', async () => {
+    const [{ container, getByText }] = await render(
+      <HeardleAudioPlayer blobUrl="blob:test/1" maxDuration={3} startTime={2} />
+    );
+
+    const audio = container.querySelector('audio')!;
+    setupAudioElement(audio, 30);
+
+    fireEvent.loadedMetadata(audio);
+
+    // effectiveDuration = min(30 - 2, 3) = 3
+    // Displayed elapsed = currentTime(2) - startTime(2) = 0
+    expect(getByText('0:00 / 0:03')).toBeInTheDocument();
+  });
+
+  it('with startTime, caps playback at startTime + maxDuration', async () => {
+    const [{ container, getByLabelText }, user] = await render(
+      <HeardleAudioPlayer blobUrl="blob:test/1" maxDuration={3} startTime={2} />
+    );
+
+    const audio = container.querySelector('audio')!;
+    const { pauseSpy } = setupAudioElement(audio, 30);
+
+    fireEvent.loadedMetadata(audio);
+
+    // Start playing
+    await user.click(getByLabelText('Play'));
+
+    // Simulate reaching startTime + maxDuration = 5
+    (audio as any).currentTime = 5;
+    fireEvent.timeUpdate(audio);
+
+    expect(pauseSpy).toHaveBeenCalled();
+    expect(getByLabelText('Play')).toBeInTheDocument();
+    expect((audio as any).currentTime).toBe(5);
+  });
 });

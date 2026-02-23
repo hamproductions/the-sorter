@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { FaXmark } from 'react-icons/fa6';
 import { Box, HStack, Stack } from 'styled-system/jsx';
 import type { Song } from '~/types/songs';
+import { detectSoundStartFromBlob } from '~/utils/intro-don/detectSoundStart';
 import { Button } from '../ui/button';
 import { Text } from '../ui/text';
 import { HeardleAudioPlayer } from './HeardleAudioPlayer';
@@ -13,16 +14,19 @@ function useAudioBlobUrl(url: string | undefined): {
   blobUrl: string | null;
   loading: boolean;
   error: boolean;
+  soundStart: number;
 } {
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [soundStart, setSoundStart] = useState(0);
 
   useEffect(() => {
     if (!url) {
       setBlobUrl(null);
       setLoading(false);
       setError(false);
+      setSoundStart(0);
       return;
     }
 
@@ -36,13 +40,28 @@ function useAudioBlobUrl(url: string | undefined): {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.blob();
       })
-      .then((blob) => {
+      .then(async (blob) => {
         if (cancelled) return undefined;
         // Re-create blob with explicit audio MIME type — Wikia CDN returns
         // "application/ogg" which browsers may not recognise as playable audio.
         const audioBlob = new Blob([blob], { type: 'audio/ogg' });
+
+        // Detect the first audible sound to skip leading silence
+        let offset = 0;
+        try {
+          const detected = await detectSoundStartFromBlob(audioBlob);
+          if (detected !== null) {
+            offset = detected;
+          }
+        } catch {
+          // Detection failed — fall back to 0
+        }
+
+        if (cancelled) return undefined;
+
         objectUrl = URL.createObjectURL(audioBlob);
         setBlobUrl(objectUrl);
+        setSoundStart(offset);
         setLoading(false);
         return undefined;
       })
@@ -61,7 +80,7 @@ function useAudioBlobUrl(url: string | undefined): {
     };
   }, [url]);
 
-  return { blobUrl, loading, error };
+  return { blobUrl, loading, error, soundStart };
 }
 
 // Guess indicator component (like Wordle boxes)
@@ -145,7 +164,7 @@ export function Heardle({
 }: HeardleProps) {
   const { t } = useTranslation();
 
-  const { blobUrl, loading, error } = useAudioBlobUrl(song.wikiAudioUrl);
+  const { blobUrl, loading, error, soundStart } = useAudioBlobUrl(song.wikiAudioUrl);
   const [selectedSong, setSelectedSong] = useState<{ id: string; name: string } | null>(null);
   const [showWrongFeedback, setShowWrongFeedback] = useState(false);
 
@@ -224,7 +243,7 @@ export function Heardle({
       </HStack>
 
       {/* Audio player with duration limit */}
-      <HeardleAudioPlayer blobUrl={blobUrl} maxDuration={audioDuration} />
+      <HeardleAudioPlayer blobUrl={blobUrl} maxDuration={audioDuration} startTime={soundStart} />
 
       {/* Song search */}
       <Box maxH="360px" overflow="auto">
