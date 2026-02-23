@@ -6,7 +6,13 @@ import { waitFor } from '@testing-library/react';
 
 // Mock HeardleAudioPlayer to isolate
 vi.mock('../HeardleAudioPlayer', () => ({
-  HeardleAudioPlayer: ({ blobUrl, maxDuration }: { blobUrl: string | null; maxDuration: number }) => (
+  HeardleAudioPlayer: ({
+    blobUrl,
+    maxDuration
+  }: {
+    blobUrl: string | null;
+    maxDuration: number;
+  }) => (
     <div data-testid="audio-player" data-blob={blobUrl} data-duration={maxDuration}>
       Audio Player
     </div>
@@ -106,9 +112,7 @@ describe('Heardle', () => {
   it('calls onNoAudio when song has no wikiAudioUrl', async () => {
     const onNoAudio = vi.fn();
 
-    await render(
-      <Heardle {...defaultProps} song={mockSongNoAudio} onNoAudio={onNoAudio} />
-    );
+    await render(<Heardle {...defaultProps} song={mockSongNoAudio} onNoAudio={onNoAudio} />);
 
     await waitFor(() => {
       expect(onNoAudio).toHaveBeenCalled();
@@ -116,9 +120,7 @@ describe('Heardle', () => {
   });
 
   it('shows "No audio available" text when song has no wikiAudioUrl', async () => {
-    const [{ getByText }] = await render(
-      <Heardle {...defaultProps} song={mockSongNoAudio} />
-    );
+    const [{ getByText }] = await render(<Heardle {...defaultProps} song={mockSongNoAudio} />);
 
     expect(getByText('No audio available - Song revealed!')).toBeInTheDocument();
   });
@@ -137,34 +139,18 @@ describe('Heardle', () => {
     });
   });
 
-  it('renders 5 guess indicator circles', async () => {
-    const [{ container }] = await render(<Heardle {...defaultProps} />);
-
-    await waitFor(() => {
-      // The HeardleGuessIndicator renders circles — look for the container with 5 child boxes
-      // Each circle is a Box with borderRadius="full", w="12px", h="12px"
-      const circles = container.querySelectorAll('[style*="border-radius"]');
-      // Filter to the small indicator circles (12px)
-      const indicatorCircles = Array.from(circles).filter(
-        (el) => (el as HTMLElement).style.width === '12px' || el.getAttribute('w') === '12px'
-      );
-      // Since styled-system generates class-based styles, count via the parent HStack children
-    });
-
-    // Alternative: just check the guess counter text is rendered
-    const [{ getByText: getByText2 }] = await render(
+  it('renders guess indicator and guess counter text', async () => {
+    const [{ getByText }] = await render(
       <Heardle {...defaultProps} attempts={0} maxAttempts={5} />
     );
 
     await waitFor(() => {
-      expect(getByText2('Guess 1/5')).toBeInTheDocument();
+      expect(getByText('Guess 1/5')).toBeInTheDocument();
     });
   });
 
   it('shows selected song name after selection from search panel', async () => {
-    const [{ findByTestId, findByText }, user] = await render(
-      <Heardle {...defaultProps} />
-    );
+    const [{ findByTestId, findByText }, user] = await render(<Heardle {...defaultProps} />);
 
     const selectBtn = await findByTestId('select-song-1');
     await user.click(selectBtn);
@@ -173,9 +159,7 @@ describe('Heardle', () => {
   });
 
   it('Submit Guess button disabled when no song selected, enabled after selection', async () => {
-    const [{ findByText, findByTestId }, user] = await render(
-      <Heardle {...defaultProps} />
-    );
+    const [{ findByText, findByTestId }, user] = await render(<Heardle {...defaultProps} />);
 
     const submitBtn = await findByText('Submit Guess');
     expect(submitBtn).toBeDisabled();
@@ -236,9 +220,7 @@ describe('Heardle', () => {
   it('calls onPass when Pass button clicked', async () => {
     const onPass = vi.fn();
 
-    const [{ findByText }, user] = await render(
-      <Heardle {...defaultProps} onPass={onPass} />
-    );
+    const [{ findByText }, user] = await render(<Heardle {...defaultProps} onPass={onPass} />);
 
     await user.click(await findByText('Pass (Skip)'));
 
@@ -257,11 +239,7 @@ describe('Heardle', () => {
 
   it('displays guess history entries', async () => {
     const [{ findByText }] = await render(
-      <Heardle
-        {...defaultProps}
-        guessHistory={['wrong', 'pass']}
-        attempts={2}
-      />
+      <Heardle {...defaultProps} guessHistory={['wrong', 'pass']} attempts={2} />
     );
 
     expect(await findByText('Wrong')).toBeInTheDocument();
@@ -281,9 +259,7 @@ describe('Heardle', () => {
 
     // Change the song prop
     const newSong = createMockSong({ id: 'song-3', name: 'New Song' });
-    rerender(
-      <Heardle {...defaultProps} song={newSong} />
-    );
+    rerender(<Heardle {...defaultProps} song={newSong} />);
 
     await waitFor(() => {
       expect(queryByText('Wrong! Try again.')).not.toBeInTheDocument();

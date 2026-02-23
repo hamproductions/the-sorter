@@ -4,6 +4,25 @@ import { render } from '../../../__test__/utils';
 import { HeardleAudioPlayer } from '../HeardleAudioPlayer';
 import { setupAudioElement } from '../../../__test__/utils/audio';
 
+/**
+ * Find the clickable progress bar element. styled-system uses class-based
+ * styles, so we locate it by structure: the Box that has an onClick handler
+ * and wraps the progress fill and the audio element is its sibling.
+ */
+function getProgressBar(container: HTMLElement): HTMLElement {
+  // The progress bar is the element with role-less click handler and
+  // overflow="hidden". We find it by looking for the inner progress fill
+  // (the Box with transition style) and getting its parent.
+  const fills = container.querySelectorAll('[style*="width"]');
+  for (const fill of fills) {
+    const parent = fill.parentElement;
+    if (parent && parent !== container) {
+      return parent;
+    }
+  }
+  throw new Error('Progress bar not found');
+}
+
 describe('HeardleAudioPlayer', () => {
   beforeEach(() => {
     // Stub HTMLMediaElement methods that jsdom doesn't implement.
@@ -13,29 +32,8 @@ describe('HeardleAudioPlayer', () => {
     HTMLMediaElement.prototype.pause = vi.fn();
   });
 
-  /**
-   * Find the clickable progress bar element. styled-system uses class-based
-   * styles, so we locate it by structure: the Box that has an onClick handler
-   * and wraps the progress fill and the audio element is its sibling.
-   */
-  function getProgressBar(container: HTMLElement): HTMLElement {
-    // The progress bar is the element with role-less click handler and
-    // overflow="hidden". We find it by looking for the inner progress fill
-    // (the Box with transition style) and getting its parent.
-    const fills = container.querySelectorAll('[style*="width"]');
-    for (const fill of fills) {
-      const parent = fill.parentElement;
-      if (parent && parent !== container) {
-        return parent;
-      }
-    }
-    throw new Error('Progress bar not found');
-  }
-
   it('shows "Loading audio..." when blobUrl is null', async () => {
-    const [{ getByText }] = await render(
-      <HeardleAudioPlayer blobUrl={null} maxDuration={5} />
-    );
+    const [{ getByText }] = await render(<HeardleAudioPlayer blobUrl={null} maxDuration={5} />);
 
     expect(getByText('Loading audio...')).toBeInTheDocument();
   });

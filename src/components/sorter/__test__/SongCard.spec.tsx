@@ -34,9 +34,7 @@ describe('SongCard', () => {
   it('renders song name and YouTube iframe in normal mode', async () => {
     const song = createMockSong();
 
-    const [{ getByText, container }] = await render(
-      <SongCard song={song} heardleMode={false} />
-    );
+    const [{ getByText, container }] = await render(<SongCard song={song} heardleMode={false} />);
 
     // In English mode, getSongName returns name (no englishName set)
     expect(getByText('Test Song')).toBeInTheDocument();
@@ -115,14 +113,7 @@ describe('SongCard', () => {
   it('shows red border and FAILED badge when isFailed=true in heardle mode', async () => {
     const song = createMockSong();
 
-    const [{ getByText }] = await render(
-      <SongCard
-        song={song}
-        heardleMode
-        isRevealed
-        isFailed
-      />
-    );
+    const [{ getByText }] = await render(<SongCard song={song} heardleMode isRevealed isFailed />);
 
     expect(getByText('FAILED')).toBeInTheDocument();
   });
@@ -130,13 +121,7 @@ describe('SongCard', () => {
   it('does not show FAILED badge when not in heardle mode even if isFailed=true', async () => {
     const song = createMockSong();
 
-    const [{ queryByText }] = await render(
-      <SongCard
-        song={song}
-        heardleMode={false}
-        isFailed
-      />
-    );
+    const [{ queryByText }] = await render(<SongCard song={song} heardleMode={false} isFailed />);
 
     expect(queryByText('FAILED')).not.toBeInTheDocument();
   });

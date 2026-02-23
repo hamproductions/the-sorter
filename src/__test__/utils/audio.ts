@@ -8,7 +8,7 @@ export function mockBlobUrls() {
   let lastUrl = '';
   let counter = 0;
 
-  const createObjectURL = vi.fn((blob: Blob) => {
+  const createObjectURL = vi.fn((_blob: Blob) => {
     counter++;
     lastUrl = `blob:test/${counter}`;
     return lastUrl;

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
-import { fireEvent, waitFor } from '@testing-library/react';
+import { fireEvent } from '@testing-library/react';
 import { render } from '../../__test__/utils';
 import { Page } from '../songs/+Page';
 
@@ -97,14 +97,15 @@ vi.mock('~/utils/preloading', () => ({
 // Mock SongCard to simplify
 vi.mock('~/components/sorter/SongCard', () => ({
   SongCard: (props: any) => (
-    <div
+    <button
+      type="button"
       data-testid={`song-card-${props.song?.id}`}
       data-revealed={props.isRevealed}
       data-failed={props.isFailed}
       onClick={props.onClick}
     >
       {props.song?.name}
-    </div>
+    </button>
   )
 }));
 
@@ -185,7 +186,11 @@ describe('Songs Page - Heardle Mode', () => {
     // We verify the default event is not prevented by checking the event
     // is not stopped (the mock useSongsSortData doesn't register keyboard
     // handlers, so we verify the page's blocking interceptor is absent).
-    const event = new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true, cancelable: true });
+    const event = new KeyboardEvent('keydown', {
+      key: 'ArrowLeft',
+      bubbles: true,
+      cancelable: true
+    });
     document.dispatchEvent(event);
 
     // If the interceptor were active, defaultPrevented would be true

@@ -94,34 +94,36 @@ export function SongCard({
 
   return (
     <Stack
-      style={{ ['--color' as 'color']: getSongColor(song) ?? undefined }}
+      style={{
+        ['--color' as 'color']: getSongColor(song) ?? undefined,
+        borderColor: isFailed && heardleMode ? 'var(--colors-red-300)' : undefined,
+        borderWidth: isFailed && heardleMode ? '2px' : undefined
+      }}
+      position="relative"
       gap={1}
       alignItems="center"
       rounded="l1"
       w="full"
       p={2}
       py={4}
-      position="relative"
       backgroundColor={{ base: 'bg.default', _hover: 'bg.muted' }}
-      borderWidth={isFailed && heardleMode ? '2px' : undefined}
-      borderColor={isFailed && heardleMode ? 'red.300' : undefined}
       shadow="md"
       transition="background-color"
       {...rest}
     >
       {isFailed && heardleMode && (
         <Box
+          zIndex={1}
           position="absolute"
           top="2"
           right="2"
-          bg="red.500"
-          color="white"
-          px="2"
-          py="1"
           borderRadius="md"
+          py="1"
+          px="2"
+          color="white"
           fontSize="xs"
           fontWeight="bold"
-          zIndex={1}
+          bg="red.500"
         >
           {t('heardle.failed_badge', { defaultValue: 'FAILED' })}
         </Box>

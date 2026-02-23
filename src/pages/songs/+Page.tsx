@@ -149,21 +149,27 @@ export function Page() {
 
   // Fall back to full songs array so failed heardle songs still render for the current comparison
   const currentLeft =
-    leftItem && (listToSort.find((l) => l.id === leftItem[0]) ?? songs.find((l) => l.id === leftItem[0]));
+    leftItem &&
+    (listToSort.find((l) => l.id === leftItem[0]) ?? songs.find((l) => l.id === leftItem[0]));
   const artistLeft =
     currentLeft?.artists
       .map((i) => artists.find((a) => a.id === i.id))
       .filter((i) => i !== undefined) ?? [];
   const currentRight =
-    rightItem && (listToSort.find((l) => l.id === rightItem[0]) ?? songs.find((l) => l.id === rightItem[0]));
+    rightItem &&
+    (listToSort.find((l) => l.id === rightItem[0]) ?? songs.find((l) => l.id === rightItem[0]));
   const artistRight =
     currentRight?.artists
       .map((i) => artists.find((a) => a.id === i.id))
       .filter((i) => i !== undefined) ?? [];
 
   // Heardle mode state for current comparison — failed songs are also treated as revealed
-  const isLeftRevealed = currentLeft ? isSongRevealed(currentLeft.id) || isSongFailed(currentLeft.id) : false;
-  const isRightRevealed = currentRight ? isSongRevealed(currentRight.id) || isSongFailed(currentRight.id) : false;
+  const isLeftRevealed = currentLeft
+    ? isSongRevealed(currentLeft.id) || isSongFailed(currentLeft.id)
+    : false;
+  const isRightRevealed = currentRight
+    ? isSongRevealed(currentRight.id) || isSongFailed(currentRight.id)
+    : false;
   const isLeftFailed = currentLeft ? isSongFailed(currentLeft.id) : false;
   const isRightFailed = currentRight ? isSongFailed(currentRight.id) : false;
   const eitherFailed = heardleMode && (isLeftFailed || isRightFailed);
@@ -185,7 +191,7 @@ export function Page() {
     if (lf && rf) tie();
     else if (lf) right();
     else if (rf) left();
-  }, [currentLeft?.id, currentRight?.id, isSongFailed, heardleMode, state, left, right, tie]);
+  }, [currentLeft, currentRight, isSongFailed, heardleMode, state, left, right, tie]);
 
   // Block arrow key shortcuts when songs aren't ready to be compared (not yet revealed or failed)
   useEffect(() => {
@@ -454,7 +460,7 @@ export function Page() {
                     </Button>
                   </HStack>
                   {eitherFailed && (
-                    <Stack alignItems="center" w="full" gap={2}>
+                    <Stack gap={2} alignItems="center" w="full">
                       <Text color="red.500" fontSize="sm" fontWeight="bold" textAlign="center">
                         {isLeftFailed && isRightFailed
                           ? t('heardle.both_failed', {

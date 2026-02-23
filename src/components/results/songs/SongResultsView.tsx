@@ -53,23 +53,24 @@ export function SongResultsView({
     }
   }, [currentTab, setCurrentTab, tabs]);
 
-  const failedSongIds = useMemo(
-    () => new Set(failedSongs?.map((s) => s.id) ?? []),
-    [failedSongs]
-  );
+  const failedSongIds = useMemo(() => new Set(failedSongs?.map((s) => s.id) ?? []), [failedSongs]);
 
   const songs = useMemo(() => {
     // Filter out failed songs from the order before computing ranks
-    const filteredOrder = order?.map((ids) =>
-      Array.isArray(ids) ? ids.filter((id) => !failedSongIds.has(`${id}`)) : failedSongIds.has(`${ids}`) ? [] : [ids]
-    ).filter((ids) => ids.length > 0);
+    const filteredOrder = order
+      ?.map((ids) =>
+        Array.isArray(ids)
+          ? ids.filter((id) => !failedSongIds.has(`${id}`))
+          : failedSongIds.has(`${ids}`)
+            ? []
+            : [ids]
+      )
+      .filter((ids) => ids.length > 0);
 
     return (
       filteredOrder
         ?.map((ids, idx, arr) => {
-          const startRank = arr
-            .slice(0, idx)
-            .reduce((p, c) => p + c.length, 1);
+          const startRank = arr.slice(0, idx).reduce((p, c) => p + c.length, 1);
           return ids
             .map((id) => {
               const song = songsData.find((s) => s.id === `${id}`);

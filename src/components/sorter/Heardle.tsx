@@ -91,12 +91,20 @@ function HeardleGuessIndicator({
         return (
           <Box
             key={i}
-            border={i === attempts ? '2px solid' : 'none'}
-            borderColor="accent.default"
+            style={{
+              border: i === attempts ? '2px solid var(--colors-accent-default)' : 'none',
+              backgroundColor:
+                bgColor === 'bg.subtle'
+                  ? 'var(--colors-bg-subtle)'
+                  : bgColor === 'red.500'
+                    ? 'var(--colors-red-500)'
+                    : bgColor === 'yellow.500'
+                      ? 'var(--colors-yellow-500)'
+                      : 'var(--colors-gray-500)'
+            }}
             borderRadius="full"
             w="12px"
             h="12px"
-            bg={bgColor}
           />
         );
       })}

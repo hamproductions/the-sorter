@@ -116,7 +116,10 @@ export function fuzzySearch(item: SearchableItem, query: string): boolean {
   // and 'normalizedQueryRomaji' for phonetic inputs
 
   // Check English Name
-  if (englishName && getLevenshteinDistance(englishName, q) <= maxDistanceForLength(englishName.length)) {
+  if (
+    englishName &&
+    getLevenshteinDistance(englishName, q) <= maxDistanceForLength(englishName.length)
+  ) {
     return true;
   }
 
