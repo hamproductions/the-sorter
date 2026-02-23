@@ -252,6 +252,7 @@ export function Heardle({
           onAddCustomSong={undefined}
           hideTitle
           songInventory={songInventory}
+          singleClickSelect
           maxH="340px"
         />
       </Box>

@@ -31,12 +31,14 @@ interface DraggableSongItemProps {
   };
   lang: string;
   onAddSong: (songId: string, songTitle: string) => void;
+  singleClickSelect?: boolean;
 }
 
 const DraggableSongItem = memo(function DraggableSongItem({
   song,
   lang,
-  onAddSong
+  onAddSong,
+  singleClickSelect
 }: DraggableSongItemProps) {
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, isDragging } = useDraggable({
     id: `search-${song.id}`,
@@ -53,6 +55,8 @@ const DraggableSongItem = memo(function DraggableSongItem({
       ref={setNodeRef}
       data-is-dragging={isDragging}
       onDoubleClick={() => onAddSong(song.id, song.name)}
+      onClick={singleClickSelect ? () => onAddSong(song.id, song.name) : undefined}
+      style={singleClickSelect ? { cursor: 'pointer' } : undefined}
       borderBottomWidth="1px"
       borderRadius="md"
       p={2}
@@ -138,6 +142,8 @@ export interface SongSearchPanelProps {
   hideTitle?: boolean;
   /** Optional custom song inventory to search within (for Heardle mode). If not provided, searches all songs. */
   songInventory?: Song[];
+  /** When true, a single click on a song row triggers onAddSong (instead of requiring double-click or arrow button) */
+  singleClickSelect?: boolean;
 }
 
 export function SongSearchPanel({
@@ -145,7 +151,8 @@ export function SongSearchPanel({
   onAddCustomSong,
   maxH = '400px',
   hideTitle = false,
-  songInventory
+  songInventory,
+  singleClickSelect
 }: SongSearchPanelProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
@@ -293,7 +300,13 @@ export function SongSearchPanel({
             {songMatches.length > 0 && (
               <>
                 {songMatches.map((song) => (
-                  <DraggableSongItem key={song.id} song={song} lang={lang} onAddSong={onAddSong} />
+                  <DraggableSongItem
+                    key={song.id}
+                    song={song}
+                    lang={lang}
+                    onAddSong={onAddSong}
+                    singleClickSelect={singleClickSelect}
+                  />
                 ))}
               </>
             )}
@@ -311,7 +324,13 @@ export function SongSearchPanel({
                   </Box>
                 )}
                 {artistMatches.map((song) => (
-                  <DraggableSongItem key={song.id} song={song} lang={lang} onAddSong={onAddSong} />
+                  <DraggableSongItem
+                    key={song.id}
+                    song={song}
+                    lang={lang}
+                    onAddSong={onAddSong}
+                    singleClickSelect={singleClickSelect}
+                  />
                 ))}
               </>
             )}
