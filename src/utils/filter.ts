@@ -6,7 +6,7 @@ import type { HasuSongFilterType } from '~/components/sorter/HasuSongFilters';
 
 export const hasFilter = (filters: FilterType | HasuSongFilterType) => {
   return Object.values(filters).some(
-    (a) => Object.values(a).length >= 0 && Object.values(a).some((a) => !!a)
+    (group) => Object.values(group).length >= 0 && Object.values(group).some((item) => !!item)
   );
 };
 

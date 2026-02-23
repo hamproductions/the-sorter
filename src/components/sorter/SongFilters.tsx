@@ -336,9 +336,9 @@ export function SongFilters({
           asChild
           defaultValue={[]}
           value={filters?.series ?? []}
-          onValueChange={(series) => {
+          onValueChange={(s) => {
             if (!filters) return;
-            setFilters({ ...filters, series });
+            setFilters({ ...filters, series: s });
           }}
         >
           <Wrap>
@@ -458,9 +458,9 @@ export function SongFilters({
           asChild
           defaultValue={[]}
           value={filters?.years?.map(String) ?? []}
-          onValueChange={(years) => {
+          onValueChange={(y) => {
             if (!filters) return;
-            setFilters({ ...filters, years: years.map(Number) });
+            setFilters({ ...filters, years: y.map(Number) });
           }}
         >
           <Wrap>

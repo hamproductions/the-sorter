@@ -26,7 +26,7 @@ import { Button } from '../../ui/button';
 import { SortableItem } from './SortableItem';
 import { HStack, Stack } from 'styled-system/jsx';
 import type { Character } from '~/types';
-import { stateToCharacterList } from '~/utils/character';
+import { getCastName, stateToCharacterList } from '~/utils/character';
 
 export function EditResultsModal(
   props: Dialog.RootProps & {
@@ -63,10 +63,13 @@ export function EditResultsModal(
 
   useEffect(() => {
     const ids = originalOrder.map((o) => o[0]).filter((i) => !!i);
+    let timeoutId: ReturnType<typeof setTimeout>;
+
     if (!rest.open) {
-      setTimeout(() => setItems([]), 200);
-      return;
+      timeoutId = setTimeout(() => setItems([]), 200);
+      return () => clearTimeout(timeoutId);
     }
+
     if (
       !order ||
       !isEqual(new Set(order.flatMap((o) => o)), new Set(originalOrder.flatMap((o) => o)))
@@ -76,6 +79,7 @@ export function EditResultsModal(
     } else {
       setItems(order.map((o) => o[0]).filter((i) => !!i));
     }
+    return () => clearTimeout(timeoutId);
   }, [order, originalOrder, rest.open, setOrder]);
 
   function handleDragStart(event: DragStartEvent) {
@@ -87,11 +91,11 @@ export function EditResultsModal(
     const { active, over } = event;
 
     if (active.id !== over?.id) {
-      setItems((items) => {
-        const oldIndex = items.indexOf(active.id);
-        const newIndex = over?.id ? items.indexOf(over.id) : undefined;
+      setItems((currentItems) => {
+        const oldIndex = currentItems.indexOf(active.id);
+        const newIndex = over?.id ? currentItems.indexOf(over.id) : undefined;
 
-        return arrayMove(items, oldIndex, newIndex ?? items.length);
+        return arrayMove(currentItems, oldIndex, newIndex ?? currentItems.length);
       });
     }
 
@@ -121,6 +125,11 @@ export function EditResultsModal(
               onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
             >
+              {import.meta.env.TEST && (
+                <div style={{ fontSize: 0 }}>
+                  {items.map((i) => getCastName(charactersMap[i]?.[0]?.casts?.[0], lang)).join(' ')}
+                </div>
+              )}
               <SortableContext items={items} strategy={verticalListSortingStrategy}>
                 <Stack maxH="80vh" overflowY="auto">
                   {items.map((item, idx) => (

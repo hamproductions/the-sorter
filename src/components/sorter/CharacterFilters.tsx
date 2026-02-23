@@ -93,9 +93,9 @@ export function CharacterFilters({
           asChild
           defaultValue={[]}
           value={selectedSchools}
-          onValueChange={(school) => {
+          onValueChange={(s) => {
             if (!filters) return;
-            setFilters({ ...filters, school });
+            setFilters({ ...filters, school: s });
           }}
         >
           <Wrap>
@@ -120,9 +120,9 @@ export function CharacterFilters({
           asChild
           defaultValue={[]}
           value={selectedSeries}
-          onValueChange={(series) => {
+          onValueChange={(s) => {
             if (!filters) return;
-            setFilters({ ...filters, series });
+            setFilters({ ...filters, series: s });
           }}
         >
           <Wrap>
@@ -147,9 +147,9 @@ export function CharacterFilters({
           asChild
           defaultValue={[]}
           value={selectedUnits}
-          onValueChange={(units) => {
+          onValueChange={(u) => {
             if (!filters) return;
-            setFilters({ ...filters, units });
+            setFilters({ ...filters, units: u });
           }}
         >
           <Wrap>

@@ -101,13 +101,13 @@ export function RankingTable({
                   fullName
                 ) : (
                   <Stack gap="1" alignItems="center" py="2">
-                    {casts?.map((c) => {
+                    {casts?.map((cast) => {
                       return (
-                        <Text key={c.seiyuu}>
-                          {getCastName(c, lang)}{' '}
-                          {c.note && (
+                        <Text key={cast.seiyuu}>
+                          {getCastName(cast, lang)}{' '}
+                          {cast.note && (
                             <Text as="span" fontSize="xs">
-                              ({c.note})
+                              ({cast.note})
                             </Text>
                           )}
                         </Text>

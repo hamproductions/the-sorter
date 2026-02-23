@@ -285,7 +285,7 @@ export function PredictionBuilder({
     // but setlist-drop-zone-end fills in the gap between the last item and the setlist-drop-zone
     if (overId === 'setlist-drop-zone-end' || overId === 'setlist-drop-zone') {
       // set overid to be the last item's id
-      const overId = prediction.setlist.items[prediction.setlist.items.length - 1]?.id;
+      const lastItemId = prediction.setlist.items[prediction.setlist.items.length - 1]?.id;
       if (activeData.type === 'search-result') {
         const songs = Array.isArray(songData) ? songData : [];
         const songId = activeData.songId as string;
@@ -301,7 +301,7 @@ export function PredictionBuilder({
 
         // render at bottom of last item
         return {
-          itemId: overId,
+          itemId: lastItemId,
           position: 'bottom' as const,
           draggedItem: tempItem,
           songDetails
@@ -321,7 +321,7 @@ export function PredictionBuilder({
 
         // render at bottom of last item
         return {
-          itemId: overId,
+          itemId: lastItemId,
           position: 'bottom' as const,
           draggedItem: tempItem,
           songDetails: undefined
@@ -406,12 +406,12 @@ export function PredictionBuilder({
         return;
       }
 
-      const activeData = active.data.current;
+      const currentActiveData = active.data.current;
       const overData = over.data.current;
 
       // Handle cross-list dragging (search to setlist)
-      if (activeData?.type === 'search-result') {
-        const { songId } = activeData;
+      if (currentActiveData?.type === 'search-result') {
+        const { songId } = currentActiveData;
         const currentItems = prediction.setlist.items;
         let insertPosition = currentItems.length;
 
@@ -429,8 +429,8 @@ export function PredictionBuilder({
       }
 
       // Handle quick-add items (MC/Encore/Other)
-      if (activeData?.type === 'quick-add-item') {
-        const { title, itemType } = activeData;
+      if (currentActiveData?.type === 'quick-add-item') {
+        const { title, itemType } = currentActiveData;
         const currentItems = prediction.setlist.items;
         let insertPosition = currentItems.length;
 
@@ -448,8 +448,8 @@ export function PredictionBuilder({
       }
 
       // Handle within-list reordering
-      if (activeData?.type === 'setlist-item' && overData?.type === 'setlist-item') {
-        const draggedItem = activeData.item;
+      if (currentActiveData?.type === 'setlist-item' && overData?.type === 'setlist-item') {
+        const draggedItem = currentActiveData.item;
         const currentItems = prediction.setlist.items;
         const activeIndex = currentItems.findIndex((item) => item.id === draggedItem.id);
         const overIndex = currentItems.findIndex((item) => item.id === over.id);
