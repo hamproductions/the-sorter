@@ -9,12 +9,26 @@ const mockSongs: Song[] = [
   {
     id: 'song-1',
     name: 'Test Song Alpha',
-    seriesIds: []
+    phoneticName: 'test song alpha',
+    seriesIds: [],
+    releasedOn: '2020-01-01',
+    musicVideo: { videoId: 'abc', videoOffset: 0 },
+    artists: [{ id: 'artist-1', variant: null }],
+    discographyIds: [],
+    englishName: 'Test Song Alpha',
+    wikiAudioUrl: ''
   },
   {
     id: 'song-2',
     name: 'Test Song Beta',
-    seriesIds: []
+    phoneticName: 'test song beta',
+    seriesIds: [],
+    releasedOn: '2020-01-01',
+    musicVideo: { videoId: 'def', videoOffset: 0 },
+    artists: [{ id: 'artist-1', variant: null }],
+    discographyIds: [],
+    englishName: 'Test Song Beta',
+    wikiAudioUrl: ''
   }
 ];
 
