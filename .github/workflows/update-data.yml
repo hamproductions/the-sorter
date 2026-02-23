@@ -37,6 +37,13 @@ jobs:
           git config --global user.email "ci@ham-san.net"
           git config --global user.name "HamBot CI"
 
+      - name: Bootstrap first-run data files
+        run: |
+          mkdir -p data/raw
+          if [ ! -f data/raw/music-types.json ]; then
+            echo "[]" > data/raw/music-types.json
+          fi
+
       - name: Run update pipeline
         run: |
           if grep -q "DATA_ONLY" scripts/internal/update.ts; then
