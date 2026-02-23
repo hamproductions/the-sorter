@@ -48,6 +48,22 @@ Sort your favorite seiyuu, characters inspired by charasort and more...
   - Hasu: https://www.lovelive-anime.jp/hasunosora/member/
   - Other Cast: Artist Picture/ random pic on Twitter
 
+## Automated Data Update
+
+This repository has a scheduled workflow at `.github/workflows/update-data.yml` that:
+
+1. Checks out this repository.
+2. Checks out `hamzaabamboo/ll-sorter-scripts` into `scripts/internal`.
+3. Runs `DATA_ONLY=1 bun scripts/internal/update.ts` (or data-only module commands as fallback).
+4. Builds the project.
+5. Commits and pushes changes to:
+   - `hamzaabamboo/ll-sorter-scripts` when `scripts/internal` changes.
+   - this repository when `data/` changes.
+
+Required secret:
+
+- `INTERNAL_REPO_TOKEN`: a token with read/write access to `hamzaabamboo/ll-sorter-scripts`.
+
 ## The Sorting Algorithm
 
 - The Sorting used Algorithm is based on Merge Sort, adapted to support manually doing the comparisons, support ties and undo-ing.

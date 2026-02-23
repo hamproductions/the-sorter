@@ -1,0 +1,74 @@
+name: Update Data
+
+on:
+  schedule:
+    - cron: '0 */12 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: update-data
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout the-sorter
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Checkout internal scripts repo
+        uses: actions/checkout@v4
+        with:
+          repository: hamzaabamboo/ll-sorter-scripts
+          ref: main
+          path: scripts/internal
+          token: ${{ secrets.INTERNAL_REPO_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Dependencies
+        uses: ./.github/composite-actions/setup
+
+      - name: Configure git
+        run: |
+          git config --global user.email "ci@ham-san.net"
+          git config --global user.name "HamBot CI"
+
+      - name: Run update pipeline
+        run: |
+          if grep -q "DATA_ONLY" scripts/internal/update.ts; then
+            DATA_ONLY=1 bun scripts/internal/update.ts
+            exit 0
+          fi
+          bun scripts/internal/fetch-artists.ts
+          bun scripts/internal/parse-character.ts
+          bun scripts/internal/parse-songs.ts
+          bun scripts/internal/fetch-english-titles.ts
+          bun scripts/internal/fetch-performances.ts
+          bun scripts/internal/build-performances.ts
+
+      - name: Build
+        run: PUBLIC_ENV__BASE_URL=/the-sorter bun run ci:build
+
+      - name: Commit and push internal scripts repo updates
+        run: |
+          if [ -z "$(git -C scripts/internal status --porcelain)" ]; then
+            echo "No updates in internal scripts repo"
+            exit 0
+          fi
+          git -C scripts/internal add -A
+          git -C scripts/internal commit -m "chore: automated update from the-sorter"
+          git -C scripts/internal push origin HEAD:main
+
+      - name: Commit and push data updates
+        run: |
+          if [ -z "$(git status --porcelain -- data)" ]; then
+            echo "No data updates in the-sorter repo"
+            exit 0
+          fi
+          git add data
+          git commit -m "chore(data): automated update"
+          git push origin HEAD:main
