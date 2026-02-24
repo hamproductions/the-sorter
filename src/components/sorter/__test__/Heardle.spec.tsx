@@ -3,6 +3,7 @@ import { render } from '../../../__test__/utils';
 import { Heardle } from '../Heardle';
 import type { Song } from '~/types/songs';
 import { waitFor } from '@testing-library/react';
+import { token } from 'styled-system/tokens';
 
 // Mock HeardleAudioPlayer to isolate
 vi.mock('../HeardleAudioPlayer', () => ({
@@ -152,13 +153,15 @@ describe('Heardle', () => {
     });
   });
 
-  it('renders guess indicator and guess counter text', async () => {
-    const [{ getByText }] = await render(
+  it('renders guess indicator boxes', async () => {
+    const [{ container }] = await render(
       <Heardle {...defaultProps} attempts={0} maxAttempts={5} />
     );
 
     await waitFor(() => {
-      expect(getByText('Guess 1/5')).toBeInTheDocument();
+      // Should render 5 indicator boxes
+      const indicators = container.querySelectorAll('[style*="background-color"]');
+      expect(indicators.length).toBe(5);
     });
   });
 
@@ -240,23 +243,34 @@ describe('Heardle', () => {
     expect(onPass).toHaveBeenCalled();
   });
 
-  it('shows guess counter text', async () => {
-    const [{ getByText }] = await render(
+  it('highlights current attempt indicator with accent border', async () => {
+    const [{ container }] = await render(
       <Heardle {...defaultProps} attempts={2} maxAttempts={5} />
     );
 
     await waitFor(() => {
-      expect(getByText('Guess 3/5')).toBeInTheDocument();
+      const indicators = container.querySelectorAll('[style*="background-color"]');
+      expect(indicators.length).toBe(5);
+      // The third box (index 2) should have the accent border
+      expect(indicators[2]).toHaveStyle(`border: 2px solid ${token('colors.accent.default')}`);
     });
   });
 
-  it('displays guess history entries', async () => {
-    const [{ findByText }] = await render(
+  it('displays guess history icons in indicator', async () => {
+    const [{ container }] = await render(
       <Heardle {...defaultProps} guessHistory={['wrong', 'pass']} attempts={2} />
     );
 
-    expect(await findByText('Wrong')).toBeInTheDocument();
-    expect(await findByText('Passed')).toBeInTheDocument();
+    await waitFor(() => {
+      const indicators = container.querySelectorAll('[style*="background-color"]');
+      // First indicator should be red (wrong guess)
+      expect(indicators[0]).toHaveStyle(`background-color: ${token('colors.red.9')}`);
+      // Second indicator should be yellow/amber (pass)
+      expect(indicators[1]).toHaveStyle('background-color: #d97706');
+      // Should contain SVG icons inside the used slots
+      expect(indicators[0].querySelector('svg')).toBeInTheDocument();
+      expect(indicators[1].querySelector('svg')).toBeInTheDocument();
+    });
   });
 
   it('resets selection and feedback when song prop changes', async () => {

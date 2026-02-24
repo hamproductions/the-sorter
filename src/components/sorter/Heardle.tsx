@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaXmark } from 'react-icons/fa6';
+import { FaXmark, FaForwardStep } from 'react-icons/fa6';
 import { Box, HStack, Stack } from 'styled-system/jsx';
+import { token } from 'styled-system/tokens';
 import type { Song } from '~/types/songs';
 import { detectSoundStartFromBlob } from '~/utils/intro-don/detectSoundStart';
 import { Button } from '../ui/button';
@@ -93,40 +94,48 @@ function HeardleGuessIndicator({
   maxAttempts: number;
   guessHistory: ('wrong' | 'pass')[];
 }) {
+  const { t } = useTranslation();
   return (
-    <HStack gap={1} justifyContent="center">
-      {Array.from({ length: maxAttempts }).map((_, i) => {
-        const historyItem = guessHistory[i];
-        let bgColor = 'bg.subtle';
-        if (historyItem === 'wrong') {
-          bgColor = 'red.500';
-        } else if (historyItem === 'pass') {
-          bgColor = 'yellow.500';
-        } else if (i < attempts) {
-          // Fallback for any used slot
-          bgColor = 'gray.500';
-        }
+    <HStack gap={2} justifyContent="center" alignItems="center">
+      <Text color="fg.muted" fontSize="xs" fontWeight="medium">
+        {t('heardle.guesses_label', { defaultValue: 'Guesses:' })}
+      </Text>
+      <HStack gap={1}>
+        {Array.from({ length: maxAttempts }).map((_, i) => {
+          const historyItem = guessHistory[i];
+          const isCurrent = i === attempts && !historyItem;
 
-        return (
-          <Box
-            key={i}
-            style={{
-              border: i === attempts ? '2px solid var(--colors-accent-default)' : 'none',
-              backgroundColor:
-                bgColor === 'bg.subtle'
-                  ? 'var(--colors-bg-subtle)'
-                  : bgColor === 'red.500'
-                    ? 'var(--colors-red-500)'
-                    : bgColor === 'yellow.500'
-                      ? 'var(--colors-yellow-500)'
-                      : 'var(--colors-gray-500)'
-            }}
-            borderRadius="full"
-            w="12px"
-            h="12px"
-          />
-        );
-      })}
+          const borderColor = isCurrent
+            ? token('colors.accent.default')
+            : historyItem
+              ? token('colors.fg.muted')
+              : token('colors.fg.muted');
+
+          return (
+            <Box
+              key={i}
+              style={{
+                border: `2px solid ${borderColor}`,
+                backgroundColor:
+                  historyItem === 'wrong'
+                    ? token('colors.red.9')
+                    : historyItem === 'pass'
+                      ? '#d97706'
+                      : 'transparent'
+              }}
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              borderRadius="md"
+              w="24px"
+              h="24px"
+            >
+              {historyItem === 'wrong' && <FaXmark size={14} color="red" />}
+              {historyItem === 'pass' && <FaForwardStep size={12} color="white" />}
+            </Box>
+          );
+        })}
+      </HStack>
     </HStack>
   );
 }
@@ -227,20 +236,11 @@ export function Heardle({
   return (
     <Stack gap={3} w="full" p={2}>
       {/* Attempt indicator */}
-      <HStack justifyContent="space-between" alignItems="center">
-        <HeardleGuessIndicator
-          attempts={attempts}
-          maxAttempts={maxAttempts}
-          guessHistory={guessHistory}
-        />
-        <Text fontSize="sm" fontWeight="medium">
-          {t('heardle.guess_counter', {
-            current: attempts + 1,
-            max: maxAttempts,
-            defaultValue: `Guess ${attempts + 1}/${maxAttempts}`
-          })}
-        </Text>
-      </HStack>
+      <HeardleGuessIndicator
+        attempts={attempts}
+        maxAttempts={maxAttempts}
+        guessHistory={guessHistory}
+      />
 
       {/* Audio player with duration limit */}
       <HeardleAudioPlayer blobUrl={blobUrl} maxDuration={audioDuration} startTime={soundStart} />
@@ -295,27 +295,6 @@ export function Heardle({
         <Text color="red.500" fontSize="sm" textAlign="center">
           {t('heardle.wrong_guess', { defaultValue: 'Wrong! Try again.' })}
         </Text>
-      )}
-
-      {/* Previous wrong guesses */}
-      {guessHistory.length > 0 && (
-        <Stack gap={1}>
-          {guessHistory.map((type, index) => (
-            <HStack key={index} gap={1} color="fg.muted" fontSize="xs">
-              {type === 'wrong' ? (
-                <>
-                  <FaXmark color="red" />
-                  <Text>{t('heardle.wrong_label', { defaultValue: 'Wrong' })}</Text>
-                </>
-              ) : (
-                <>
-                  <Text color="yellow.600">⏭</Text>
-                  <Text>{t('heardle.passed_label', { defaultValue: 'Passed' })}</Text>
-                </>
-              )}
-            </HStack>
-          ))}
-        </Stack>
       )}
     </Stack>
   );
