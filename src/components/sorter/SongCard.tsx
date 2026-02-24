@@ -186,6 +186,11 @@ export function SongCard({
         <Text fontSize="sm" textAlign="center">
           {showInfo && formatArtistsWithVariants(song.artists, artistsData, lang)}
         </Text>
+        {heardleMode && isRevealed && !song.wikiAudioUrl && (
+          <Text mt={1} color="fg.muted" fontSize="xs">
+            {t('heardle.no_audio_badge', { defaultValue: 'No audio available' })}
+          </Text>
+        )}
       </Stack>
     </Stack>
   );
