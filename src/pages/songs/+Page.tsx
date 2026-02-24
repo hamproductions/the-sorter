@@ -464,10 +464,12 @@ export function Page() {
                       <Text color="red.500" fontSize="sm" fontWeight="bold" textAlign="center">
                         {isLeftFailed && isRightFailed
                           ? t('heardle.both_failed', {
-                              defaultValue: 'Both songs failed! They will be tied.'
+                              defaultValue:
+                                'Both songs failed! They will both be removed from sorting.'
                             })
                           : t('heardle.song_failed', {
-                              defaultValue: 'Song failed! Click continue to move on.'
+                              defaultValue:
+                                'Song failed! The failed song will be removed from sorting.'
                             })}
                       </Text>
                       <Button

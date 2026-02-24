@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useLocalStorage } from './useLocalStorage';
 
 // Audio duration progression: 1s, 2s, 4s, 8s, 16s
@@ -92,75 +92,54 @@ export function useHeardleState() {
         return true;
       }
 
-      // Wrong guess - check current attempts and handle accordingly
-      const currentAttempts = currentGuesses?.[songId]?.attempts ?? 0;
-      const newAttempts = currentAttempts + 1;
-
-      // Check if this was the final attempt
-      if (newAttempts >= MAX_ATTEMPTS) {
-        // Add to failed songs
-        setFailedSongs((prev) => [...(prev ?? []), songId]);
-        // Clean up current guesses
-        setCurrentGuesses((prev) => {
-          const next = { ...prev };
-          delete next[songId];
-          return next;
-        });
-      } else {
-        // Increment attempts
-        setCurrentGuesses((prev) => {
-          const current = prev?.[songId] ?? { attempts: 0, guessHistory: [] };
-          return {
-            ...prev,
-            [songId]: {
-              attempts: current.attempts + 1,
-              guessHistory: [...current.guessHistory, 'wrong' as const]
-            }
-          };
-        });
-      }
+      // Wrong guess — increment attempts inside functional updater to avoid
+      // stale-closure issues with rapid interactions.
+      // Failure detection (attempts >= MAX_ATTEMPTS) is handled by a useEffect.
+      setCurrentGuesses((prev) => {
+        const current = prev?.[songId] ?? { attempts: 0, guessHistory: [] };
+        if (current.attempts >= MAX_ATTEMPTS) {
+          return prev;
+        }
+        return {
+          ...prev,
+          [songId]: {
+            attempts: current.attempts + 1,
+            guessHistory: [...current.guessHistory, 'wrong' as const]
+          }
+        };
+      });
 
       return false;
     },
-    [isSongRevealed, setRevealedSongs, setCurrentGuesses, setFailedSongs, currentGuesses]
+    [isSongRevealed, setRevealedSongs, setCurrentGuesses]
   );
 
   // Pass on a song (skip without guessing) - uses an attempt slot
   const passGuess = useCallback(
     (songId: string): void => {
-      // Already revealed or failed - shouldn't happen
+      // Best-effort guards using closure values; main protection is inside the updater
       if (isSongRevealed(songId) || isSongFailed(songId)) {
         return;
       }
 
-      const currentAttempts = currentGuesses?.[songId]?.attempts ?? 0;
-      const newAttempts = currentAttempts + 1;
-
-      // Check if this pass will max out attempts
-      if (newAttempts >= MAX_ATTEMPTS) {
-        // Add to failed songs
-        setFailedSongs((prev) => [...(prev ?? []), songId]);
-        // Clean up current guesses
-        setCurrentGuesses((prev) => {
-          const next = { ...prev };
-          delete next[songId];
-          return next;
-        });
-      } else {
-        // Increment attempts with pass
-        setCurrentGuesses((prev) => {
-          const current = prev?.[songId] ?? { attempts: 0, guessHistory: [] };
-          return {
-            ...prev,
-            [songId]: {
-              attempts: current.attempts + 1,
-              guessHistory: [...current.guessHistory, 'pass' as const]
-            }
-          };
-        });
-      }
+      // All logic inside the functional updater so rapid clicks always see
+      // the true current state via `prev`, avoiding stale-closure issues.
+      // Failure detection (attempts >= MAX_ATTEMPTS) is handled by a useEffect.
+      setCurrentGuesses((prev) => {
+        const current = prev?.[songId] ?? { attempts: 0, guessHistory: [] };
+        if (current.attempts >= MAX_ATTEMPTS) {
+          return prev; // Already at max, don't increment further
+        }
+        return {
+          ...prev,
+          [songId]: {
+            attempts: current.attempts + 1,
+            guessHistory: [...current.guessHistory, 'pass' as const]
+          }
+        };
+      });
     },
-    [isSongRevealed, isSongFailed, currentGuesses, setFailedSongs, setCurrentGuesses]
+    [isSongRevealed, isSongFailed, setCurrentGuesses]
   );
 
   // Auto-reveal a song (for songs with no audio)
@@ -172,6 +151,31 @@ export function useHeardleState() {
     },
     [isSongRevealed, setRevealedSongs]
   );
+
+  // Reactively detect songs that have reached MAX_ATTEMPTS and move them to failed.
+  // This decouples failure detection from passGuess/makeGuess so that rapid calls
+  // (which use stale closures for branching) still result in correct failure handling.
+  useEffect(() => {
+    if (!currentGuesses) return;
+    const failedEntries = Object.entries(currentGuesses).filter(
+      ([, state]) => state.attempts >= MAX_ATTEMPTS
+    );
+    if (failedEntries.length === 0) return;
+
+    for (const [songId] of failedEntries) {
+      setFailedSongs((prev) => {
+        if (prev?.includes(songId)) return prev;
+        return [...(prev ?? []), songId];
+      });
+    }
+    setCurrentGuesses((prev) => {
+      const next = { ...prev };
+      for (const [songId] of failedEntries) {
+        delete next[songId];
+      }
+      return next;
+    });
+  }, [currentGuesses, setFailedSongs, setCurrentGuesses]);
 
   // Get all failed song IDs
   const failedSongIds = useMemo(() => new Set(failedSongs ?? []), [failedSongs]);
