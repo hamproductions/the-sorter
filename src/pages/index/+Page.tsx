@@ -15,7 +15,7 @@ import { useToaster } from '../../context/ToasterContext';
 import { useData } from '../../hooks/useData';
 import { useSortData } from '../../hooks/useSortData';
 import type { Character } from '../../types';
-import { getCurrentItem } from '../../utils/sort';
+import { getCurrentItem, resumeSort } from '../../utils/sort';
 import { addPresetParams, serializeData } from '~/utils/share';
 import { getCastName, getFullName } from '~/utils/character';
 import { getNextItems } from '~/utils/preloading';
@@ -66,6 +66,12 @@ const SortingPreviewDialog = lazy(() =>
   }))
 );
 
+const ContinueSortingDialog = lazy(() =>
+  import('../../components/dialog/ContinueSortingDialog').then((m) => ({
+    default: m.ContinueSortingDialog
+  }))
+);
+
 export function Page() {
   const data = useData();
   const { toast } = useToaster();
@@ -90,12 +96,14 @@ export function Page() {
     setFilters,
     listToSort,
     listCount,
-    clear
+    clear,
+    loadResumeState
   } = useSortData();
   const [showConfirmDialog, setShowConfirmDialog] = useState<{
     type: 'mid-sort' | 'ended' | 'new-session' | 'preview';
     action: 'reset' | 'clear';
   }>();
+  const [showContinueDialog, setShowContinueDialog] = useState(false);
   const {
     data: showCharacterInfo,
     isOpen: isShowCharacterInfo,
@@ -193,6 +201,12 @@ export function Page() {
     }
   };
 
+  const handleContinue = (results: string[][]) => {
+    const resumedState = resumeSort(results);
+    loadResumeState(resumedState);
+    setShowContinueDialog(false);
+  };
+
   return (
     <>
       <Metadata title={title} helmet />
@@ -243,6 +257,11 @@ export function Page() {
           <Button onClick={() => void shareUrl()} variant="subtle">
             <FaShare /> {t('settings.share')}
           </Button>
+          {!isSorting && (
+            <Button variant="outline" onClick={() => setShowContinueDialog(true)}>
+              {t('dialog.continue_sorting')}
+            </Button>
+          )}
           <Button variant="solid" onClick={() => handleStart()}>
             {!isSorting ? t('sort.start') : t('sort.start_over')}
           </Button>
@@ -429,6 +448,17 @@ export function Page() {
           onOpenChange={({ open }) => {
             if (!open) {
               setShowConfirmDialog(undefined);
+            }
+          }}
+        />
+        <ContinueSortingDialog
+          open={showContinueDialog}
+          lazyMount
+          unmountOnExit
+          onContinue={handleContinue}
+          onOpenChange={({ open }) => {
+            if (!open) {
+              setShowContinueDialog(false);
             }
           }}
         />

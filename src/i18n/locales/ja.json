@@ -160,6 +160,13 @@
       "units": "ユニット",
       "school": "学校",
       "color_name": "色名"
+    },
+    "continue_sorting_dialog": {
+      "title": "仕分けを続ける",
+      "description": "以前の仕分け結果を貼り付けて、途中から再開します",
+      "placeholder": "結果を JSON 配列または改行区切りリストとして貼り付け：\n[[\"id1\"], [\"id2\"], [\"id3\"]]\nまたは\nid1\nid2\nid3",
+      "continue": "続ける",
+      "invalid_format": "形式が無効です。有効な JSON 配列または改行区切りリストを貼り付けてください。"
     }
   },
   "error_page": {

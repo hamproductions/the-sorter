@@ -158,6 +158,13 @@
       "units": "Units",
       "school": "School",
       "color_name": "Color Name"
+    },
+    "continue_sorting_dialog": {
+      "title": "Continue Sorting",
+      "description": "Paste your previous sorting results to continue from where you left off",
+      "placeholder": "Paste results as JSON array or newline-separated list:\n[[\"id1\"], [\"id2\"], [\"id3\"]]\nor\nid1\nid2\nid3",
+      "continue": "Continue",
+      "invalid_format": "Invalid format. Please paste a valid JSON array or newline-separated list."
     }
   },
   "share": {

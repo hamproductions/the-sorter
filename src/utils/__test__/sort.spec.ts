@@ -5,7 +5,8 @@ import {
   initSort,
   step,
   calculateMaxComparisons,
-  estimateComparisonsMade
+  estimateComparisonsMade,
+  resumeSort
 } from '../sort';
 
 const createNumberArray = (n = 10) =>
@@ -182,5 +183,42 @@ describe('Sorting', () => {
         prevCount = currentCount;
       }
     });
+  });
+});
+
+describe('resumeSort', () => {
+  it('resumes from flat results', () => {
+    const results = [['a'], ['b'], ['c'], ['d']];
+    const state = resumeSort(results);
+    expect(state.arr).toEqual(results);
+    expect(state.status).toBe('waiting');
+  });
+
+  it('resumes from results with ties', () => {
+    const results = [['a', 'b'], ['c'], ['d']];
+    const state = resumeSort(results);
+    expect(state.arr).toEqual(results);
+    expect(state.status).toBe('waiting');
+  });
+
+  it('can continue sorting after resume', () => {
+    const results = [['c'], ['a'], ['b'], ['d']];
+    let state = resumeSort(results);
+    
+    // Should be able to continue sorting
+    while (state.status !== 'end') {
+      const { left, right } = getCurrentItem(state) ?? {};
+      if (!left || !right) throw new Error('Invalid State');
+      const direction = left[0] < right[0] ? 'left' : 'right';
+      state = step(direction, state);
+    }
+    
+    expect(state.arr.filter((s) => s.length > 0)).toEqual([['a'], ['b'], ['c'], ['d']]);
+  });
+
+  it('handles empty arrays in results', () => {
+    const results = [['a'], [], ['b'], ['c']];
+    const state = resumeSort(results);
+    expect(state.arr).toEqual(results);
   });
 });
