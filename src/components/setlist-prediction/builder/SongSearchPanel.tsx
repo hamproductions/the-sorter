@@ -253,13 +253,15 @@ export function SongSearchPanel({
         </Text>
       )}
 
-      <Input
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        placeholder={t('setlistPrediction.searchSongs', {
-          defaultValue: 'Search songs or artists...'
-        })}
-      />
+      <Box flexShrink={0}>
+        <Input
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder={t('setlistPrediction.searchSongs', {
+            defaultValue: 'Search songs or artists...'
+          })}
+        />
+      </Box>
 
       {/* Search Results */}
       <Box style={{ maxHeight: maxH }} borderRadius="md" borderWidth="1px" overflow="auto">
