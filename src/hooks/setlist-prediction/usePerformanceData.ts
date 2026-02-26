@@ -123,9 +123,11 @@ export function useFilteredPerformances(filters: PerformanceFilters) {
         if (!hasMatchingSeries) return false;
       }
 
-      // Filter by status
+      // Filter by status (use date comparison to handle stale status data)
       if (filters.status.length > 0) {
-        if (!filters.status.includes(perf.status)) return false;
+        const isUpcoming = new Date(perf.date) >= new Date();
+        const effectiveStatus = isUpcoming ? 'upcoming' : 'completed';
+        if (!filters.status.includes(effectiveStatus)) return false;
       }
 
       // Filter by date range
