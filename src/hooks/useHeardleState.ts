@@ -11,21 +11,16 @@ interface GuessState {
 }
 
 export function useHeardleState() {
-  // Revealed songs persist forever (never have to guess again)
+  // Whole heardle reset on new session
+  // 1. Revealed songs (guessed correctly, i.e. you will have to re-heardle songs on new sessions)
+  // 2. Failed songs (used all attempts without correct guess, i.e. you will have to re-heardle songs on new sessions)
+  // 3. Current guesses (in-progress, i.e. you will have to re-heardle songs on new sessions)
   const [revealedSongs, setRevealedSongs] = useLocalStorage<string[]>('heardle-revealed-songs', []);
-
-  // Failed songs and current guesses reset on new session
   const [failedSongs, setFailedSongs] = useLocalStorage<string[]>('heardle-failed-songs', []);
   const [currentGuesses, setCurrentGuesses] = useLocalStorage<Record<string, GuessState>>(
     'heardle-current-guesses',
     {}
   );
-
-  // Reset session-scoped state (called when starting new sort session)
-  const resetSession = useCallback(() => {
-    setFailedSongs([]);
-    setCurrentGuesses({});
-  }, [setFailedSongs, setCurrentGuesses]);
 
   // Clear all heardle state (called when stopping a session entirely)
   const clearAllHeardleState = useCallback(() => {
@@ -195,7 +190,6 @@ export function useHeardleState() {
     makeGuess,
     passGuess,
     autoReveal,
-    resetSession,
     clearAllHeardleState,
 
     // Raw data for filtering

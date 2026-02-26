@@ -77,7 +77,6 @@ vi.mock('~/hooks/useHeardleState', () => ({
     makeGuess: vi.fn(),
     passGuess: vi.fn(),
     autoReveal: vi.fn(),
-    resetSession: vi.fn(),
     clearAllHeardleState: clearAllHeardleStateFn,
     failedSongIds: new Set<string>(),
     revealedSongIds: new Set<string>(),

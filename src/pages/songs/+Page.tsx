@@ -21,6 +21,7 @@ import { SongCard } from '~/components/sorter/SongCard';
 import { useSongsSortData } from '~/hooks/useSongsSortData';
 import { useHeardleState } from '~/hooks/useHeardleState';
 import { SongResultsView } from '~/components/results/songs/SongResultsView';
+import { HeardleStats } from '~/components/sorter/HeardleStats';
 import { useSongData } from '~/hooks/useSongData';
 import { useArtistsData } from '~/hooks/useArtistsData';
 import { isValidSongFilter } from '~/utils/song-filter';
@@ -76,6 +77,7 @@ export function Page() {
     autoReveal,
     clearAllHeardleState,
     failedSongIds,
+    revealedSongIds,
     maxAttempts
   } = useHeardleState();
 
@@ -210,6 +212,12 @@ export function Page() {
   const failedSongsForResults = useMemo(() => {
     return songs.filter((s) => failedSongIds.has(s.id));
   }, [songs, failedSongIds]);
+
+  // Count correctly guessed songs (revealed via heardle, excluding auto-revealed songs with no audio)
+  const heardleCorrectCount = useMemo(() => {
+    const fullPool = [...listToSort, ...failedSongsForResults];
+    return fullPool.filter((s) => revealedSongIds.has(s.id) && s.wikiAudioUrl).length;
+  }, [listToSort, failedSongsForResults, revealedSongIds]);
 
   // Heardle handlers for left song
   const handleLeftGuess = useCallback(
@@ -493,6 +501,13 @@ export function Page() {
                   isEstimatedCount={isEstimatedCount}
                   maxComparisons={maxComparisons}
                 />
+                {heardleMode && (
+                  <HeardleStats
+                    correctCount={heardleCorrectCount}
+                    failedSongs={failedSongsForResults}
+                    lang={i18n.language}
+                  />
+                )}
                 <Progress
                   translations={{ value: (details) => `${details.percent}%` }}
                   value={progress}

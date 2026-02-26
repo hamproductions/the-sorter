@@ -243,59 +243,6 @@ describe('useHeardleState', () => {
     });
   });
 
-  describe('resetSession', () => {
-    it('should clear failed songs', () => {
-      const { result } = renderHook(() => useHeardleState());
-
-      // Fail a song - each pass needs separate act() block
-      for (let i = 0; i < 5; i++) {
-        act(() => {
-          result.current.passGuess('song-1');
-        });
-      }
-
-      expect(result.current.failedSongIds.has('song-1')).toBe(true);
-
-      act(() => {
-        result.current.resetSession();
-      });
-
-      expect(result.current.failedSongIds.size).toBe(0);
-    });
-
-    it('should clear current guesses', () => {
-      const { result } = renderHook(() => useHeardleState());
-
-      act(() => {
-        result.current.makeGuess('song-1', 'wrong');
-      });
-
-      expect(result.current.getAttemptCount('song-1')).toBe(1);
-
-      act(() => {
-        result.current.resetSession();
-      });
-
-      expect(result.current.getAttemptCount('song-1')).toBe(0);
-    });
-
-    it('should NOT clear revealed songs', () => {
-      const { result } = renderHook(() => useHeardleState());
-
-      act(() => {
-        result.current.makeGuess('song-1', 'song-1');
-      });
-
-      expect(result.current.isSongRevealed('song-1')).toBe(true);
-
-      act(() => {
-        result.current.resetSession();
-      });
-
-      expect(result.current.isSongRevealed('song-1')).toBe(true);
-    });
-  });
-
   describe('maxAttempts', () => {
     it('should be 5', () => {
       const { result } = renderHook(() => useHeardleState());
@@ -304,7 +251,7 @@ describe('useHeardleState', () => {
   });
 
   describe('clearAllHeardleState', () => {
-    it('should clear revealed songs (unlike resetSession)', () => {
+    it('should clear revealed songs', () => {
       const { result } = renderHook(() => useHeardleState());
 
       act(() => {
