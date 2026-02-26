@@ -501,13 +501,6 @@ export function Page() {
                   isEstimatedCount={isEstimatedCount}
                   maxComparisons={maxComparisons}
                 />
-                {heardleMode && (
-                  <HeardleStats
-                    correctCount={heardleCorrectCount}
-                    failedSongs={failedSongsForResults}
-                    lang={i18n.language}
-                  />
-                )}
                 <Progress
                   translations={{ value: (details) => `${details.percent}%` }}
                   value={progress}
@@ -515,6 +508,13 @@ export function Page() {
                   max={1}
                   defaultValue={0}
                 />
+                {heardleMode && (
+                  <HeardleStats
+                    correctCount={heardleCorrectCount}
+                    failedSongs={failedSongsForResults}
+                    lang={i18n.language}
+                  />
+                )}
               </Stack>
             )}
             {state.arr && isEnded && (
