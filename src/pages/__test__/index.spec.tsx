@@ -82,7 +82,7 @@ describe('Home Page', () => {
         const [{ findByText, findByLabelText }, user] = await render(<Page />);
         await user.click(await findByLabelText('A・ZU・NA'));
         expect(await findByText('3 to be sorted')).toBeInTheDocument();
-        await user.click(await findByLabelText('Do you like seiyuu ? (Seiyuu Mode)'));
+        await user.click(await findByLabelText('Do you like seiyuu? (Seiyuu Mode)'));
         expect(await findByText('4 to be sorted')).toBeInTheDocument();
       });
 
