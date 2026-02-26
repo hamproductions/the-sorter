@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.18.2](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.18.1...v1.18.2) (2026-02-26)
+
+
+### Bug Fixes
+
+* change property names for mock performances in tests to reflect data model ([42d8154](https://github.com/Tanyawat-Arsaga/the-sorter/commit/42d8154cbf65bed4e32172a5fff229a8af4bffba))
+* **ci:** bootstrap raw data files for first run ([cae90e4](https://github.com/Tanyawat-Arsaga/the-sorter/commit/cae90e47831608873de8c7d56a4e2482534bb1fe))
+* lint ([d329fa2](https://github.com/Tanyawat-Arsaga/the-sorter/commit/d329fa282adc1252a86343b3f40b81db6192501e))
+* properly import setlist prediction name when importing ([0d3e499](https://github.com/Tanyawat-Arsaga/the-sorter/commit/0d3e499e00e483c49101690b155a44a691873cae))
+* search strip non english and non kana ([8df5d53](https://github.com/Tanyawat-Arsaga/the-sorter/commit/8df5d535bd01c55db4e3077a778b598c8d644901))
+* setlist date filter, i18n pluralization, and seiyuu label typo ([ec6d4df](https://github.com/Tanyawat-Arsaga/the-sorter/commit/ec6d4dfa09a417737c24ce99d7dac325c1a1d3f7))
+
+
+### Features
+
+* data model update for tour+performance name ([bde611b](https://github.com/Tanyawat-Arsaga/the-sorter/commit/bde611b998e6c751b2a8c033cf42ff24c6a7b485))
+* data update ([2713f88](https://github.com/Tanyawat-Arsaga/the-sorter/commit/2713f88340b79c8acc70478cec86fa4de7274f62))
+* data update ([82f081d](https://github.com/Tanyawat-Arsaga/the-sorter/commit/82f081d3723235ffc25b7b9505827303745c9a71))
+* sort searches by score, and add better search functionality to edit item dialogue for swapping out songs ([7ef449c](https://github.com/Tanyawat-Arsaga/the-sorter/commit/7ef449ce26663b673b7cfaf15673df9f5f348dd3))
+* update hasu song ([42cd80a](https://github.com/Tanyawat-Arsaga/the-sorter/commit/42cd80a33e52f786a9259555f92a65625a57bfaa))
+
+
+### Reverts
+
+* Revert "chore(data): automated update" ([88541f5](https://github.com/Tanyawat-Arsaga/the-sorter/commit/88541f5a8326759eadbb9f8819c27076f7cb03a4))
+
 ## [1.18.1](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.18.0...v1.18.1) (2026-01-26)
 
 # [1.18.0](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.17.2...v1.18.0) (2026-01-14)
