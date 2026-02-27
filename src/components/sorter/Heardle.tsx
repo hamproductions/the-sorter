@@ -215,9 +215,7 @@ export function Heardle({
   if (loading) {
     return (
       <Stack gap={2} alignItems="center" p={4}>
-        <Text color="fg.muted">
-          {t('heardle.loading_audio')}
-        </Text>
+        <Text color="fg.muted">{t('heardle.loading_audio')}</Text>
       </Stack>
     );
   }
@@ -226,9 +224,7 @@ export function Heardle({
   if (!song.wikiAudioUrl || error) {
     return (
       <Stack gap={2} alignItems="center" p={4}>
-        <Text color="fg.muted">
-          {t('heardle.no_audio')}
-        </Text>
+        <Text color="fg.muted">{t('heardle.no_audio')}</Text>
       </Stack>
     );
   }
