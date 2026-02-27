@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [1.19.0](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.18.2...v1.19.0) (2026-02-27)
+
+
+### Bug Fixes
+
+* add visible bounding box and allow clicks when focused for switches and checkboxes ([c41877d](https://github.com/Tanyawat-Arsaga/the-sorter/commit/c41877d4039cbd24f7c79111ed35f86c86ba8c72))
+* clamp times to fix playback bug ([2d3f387](https://github.com/Tanyawat-Arsaga/the-sorter/commit/2d3f3874e1413e2f8b8db0e088d7e35a79e2cf6f))
+* clear all heardle state when stopping session ([2282936](https://github.com/Tanyawat-Arsaga/the-sorter/commit/228293669211a849d7b101e55a4b4dde3cdb279c))
+* clear combobox after guess/pass, fix indicator color, auto-focus Continue when both songs done ([5db981a](https://github.com/Tanyawat-Arsaga/the-sorter/commit/5db981a3b1300200a50b8b6dd224ecbba87c31d7))
+* fix mock test songs missing fields ([87aecc3](https://github.com/Tanyawat-Arsaga/the-sorter/commit/87aecc3697c36f6177a371351597c1493ef69069))
+* fuzzy song search results sorted by levenshtein distance ([5ac79e6](https://github.com/Tanyawat-Arsaga/the-sorter/commit/5ac79e63748cdd82313c332511de5e29028edac7))
+* heardle song card size now unconstrained ([8bc849f](https://github.com/Tanyawat-Arsaga/the-sorter/commit/8bc849f9ff3e0eddc3a8490c95ec22406ebb94f5))
+* lint ([56f4225](https://github.com/Tanyawat-Arsaga/the-sorter/commit/56f422503a93b21d88a5e2c495410e933fa8f516))
+* lint ([b90cf78](https://github.com/Tanyawat-Arsaga/the-sorter/commit/b90cf78a8919653f75bf8b54dc8bcc6c51ea836a))
+* lint errors in Heardle and useSongsSortData ([50fa4ea](https://github.com/Tanyawat-Arsaga/the-sorter/commit/50fa4ea1ff081017f907a8559d3a5be2be86704e))
+* prevent search text input from shrinking when many results appear below ([099fab9](https://github.com/Tanyawat-Arsaga/the-sorter/commit/099fab90bcfcbf769ac9ff1e14822424c8008dfc))
+* rapid clicks stale guess count race condition fix + update tooltips for heardle failure ([aa6ba60](https://github.com/Tanyawat-Arsaga/the-sorter/commit/aa6ba601e80f1eb9504b74ca54341db18e75c093))
+* recreate blob type as audio ([f83c44d](https://github.com/Tanyawat-Arsaga/the-sorter/commit/f83c44db5023625e279d7e3a3a47fa8e5f44ef59))
+* remove heardle failed songs from song ranking results ([930bd79](https://github.com/Tanyawat-Arsaga/the-sorter/commit/930bd796d7cf0a226069d4fb9d1e3cb633c41a06))
+
+
+### Features
+
+* add a badge that shows when a song has no wiki audio link ([3324340](https://github.com/Tanyawat-Arsaga/the-sorter/commit/3324340add764221667563f9538cb60de8e18d89))
+* add LL wiki audio url to songs ([1b1400d](https://github.com/Tanyawat-Arsaga/the-sorter/commit/1b1400d741449acdb927ba1b6115e6837f8d59fd))
+* data update ([e3dfa11](https://github.com/Tanyawat-Arsaga/the-sorter/commit/e3dfa111b7d857cc50bffaf253f39998b542ed32))
+* fix Heardle combobox empty state, add stats to results, add song share page ([d94d9ba](https://github.com/Tanyawat-Arsaga/the-sorter/commit/d94d9bad64d3f193c566fca0f9646ce7c39a6d03))
+* force continue if failed heardle ([d45e26e](https://github.com/Tanyawat-Arsaga/the-sorter/commit/d45e26e524d765304c0ed29a96d5fc28b00f431c))
+* Heardle stats below comparison count ([aa1c987](https://github.com/Tanyawat-Arsaga/the-sorter/commit/aa1c987df5f245c2834356c03c8de4140c7e73e4))
+* replace SongSearchPanel with HeardleSongCombobox in Heardle and extract useSongSearch hook ([d377257](https://github.com/Tanyawat-Arsaga/the-sorter/commit/d3772579ab6f679696ab61c04a70571080048d7c))
+* single click to select songs from search for heardle ([45cda03](https://github.com/Tanyawat-Arsaga/the-sorter/commit/45cda033f511da536311de4722534f91a83b8f28))
+* song uses intro don tech to start at first sound above threshold ([f78ba63](https://github.com/Tanyawat-Arsaga/the-sorter/commit/f78ba6377fea3c062082a9182b19f843c3ba1005))
+
 ## [1.18.2](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.18.1...v1.18.2) (2026-02-26)
 
 
