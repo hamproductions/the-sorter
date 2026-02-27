@@ -27,7 +27,7 @@
     "select_all": "全部を選択する",
     "deselect_all": "クリアする",
     "no_tie_mode": "DD禁止モード",
-    "heardle_mode": "ハードルモード",
+    "heardle_mode": "イントロドンモード",
     "artists": "アーティスト",
     "generation": {
       "103": "103期",
@@ -62,16 +62,20 @@
     "continue": "続ける",
     "stats_correct": "{{correct}}/{{total}} ({{percent}}%) 正解",
     "failed_heading": "イントロドン失敗 ({{count}})",
-    "guesses_label": "推測:",
-    "loading_audio": "音声を読み込み中...",
-    "no_audio": "音声がありません — 曲が公開されました！",
-    "selected": "選択中:",
+    "guesses_label": "回答：",
+    "loading_audio": "音楽を読み込み中...",
+    "no_audio": "音楽がありません - 曲が公開されました！",
+    "search_placeholder": "曲名を入力して検索...",
+    "no_results": "曲が見つかりませんでした",
+    "selected": "選択中：",
     "submit_guess": "回答する",
     "pass": "パス（スキップ）",
-    "wrong_guess": "不正解！もう一度試してください。",
+    "wrong_guess": "不正解！もう一度。",
     "clear_selection": "選択を解除",
     "pause": "一時停止",
-    "play": "再生"
+    "play": "再生",
+    "failed_badge": "失敗",
+    "no_audio_badge": "音楽なし"
   },
   "sort": {
     "start": "開始",
@@ -285,6 +289,7 @@
     "presentMatches": "存在一致",
     "backToBuilder": "ビルダーに戻る",
     "calculateScore": "スコアを計算",
-    "startTyping": "曲名やアーティスト名を入力して検索..."
+    "startTyping": "曲名やアーティスト名を入力して検索...",
+    "showingResults": "{{count}}件を表示"
   }
 }

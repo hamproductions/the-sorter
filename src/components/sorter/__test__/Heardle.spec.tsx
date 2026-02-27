@@ -27,14 +27,14 @@ vi.mock('../HeardleAudioPlayer', () => ({
   )
 }));
 
-// Mock SongSearchPanel to expose clickable add buttons
-vi.mock('../../setlist-prediction/builder/SongSearchPanel', () => ({
-  SongSearchPanel: ({ onAddSong }: { onAddSong: (id: string, name: string) => void }) => (
+// Mock HeardleSongCombobox to expose clickable select buttons
+vi.mock('../HeardleSongCombobox', () => ({
+  HeardleSongCombobox: ({ onSelect }: { onSelect: (id: string, name: string) => void }) => (
     <div data-testid="song-search">
-      <button data-testid="select-song-1" onClick={() => onAddSong('song-1', 'Song One')}>
+      <button data-testid="select-song-1" onClick={() => onSelect('song-1', 'Song One')}>
         Select Song 1
       </button>
-      <button data-testid="select-song-2" onClick={() => onAddSong('song-2', 'Song Two')}>
+      <button data-testid="select-song-2" onClick={() => onSelect('song-2', 'Song Two')}>
         Select Song 2
       </button>
     </div>

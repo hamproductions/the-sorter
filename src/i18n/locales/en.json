@@ -67,13 +67,17 @@
     "guesses_label": "Guesses:",
     "loading_audio": "Loading audio...",
     "no_audio": "No audio available - Song revealed!",
+    "search_placeholder": "Type to search songs...",
+    "no_results": "No songs found",
     "selected": "Selected:",
     "submit_guess": "Submit Guess",
     "pass": "Pass (Skip)",
     "wrong_guess": "Wrong! Try again.",
     "clear_selection": "Clear selection",
     "pause": "Pause",
-    "play": "Play"
+    "play": "Play",
+    "failed_badge": "FAILED",
+    "no_audio_badge": "No audio available"
   },
   "sort": {
     "start": "Start",
@@ -155,11 +159,11 @@
   "dialog": {
     "ended_confirm": {
       "title": "Confirmation",
-      "description": "Your current sorting data will be lost, are you sure ?"
+      "description": "Your current sorting data will be lost, are you sure?"
     },
     "mid_sort_confirm": {
       "title": "Sorting in progress",
-      "description": "Your current sorting data will be lost, are you sure ?"
+      "description": "Your current sorting data will be lost, are you sure?"
     },
     "new_session_confirm": {
       "title": "Sorting in progress",
@@ -311,7 +315,8 @@
     "searchPerformances": "Search Performances",
     "sameTour": "Same Tour/Series",
     "allPerformances": "All Performances with Setlists",
-    "showingResults": "Showing {{count}} results",
+    "showingResults_one": "Showing {{count}} result",
+    "showingResults_other": "Showing {{count}} results",
     "exportingImage": "Exporting...",
     "imageDownloaded": "Image downloaded",
     "failedToExportImage": "Failed to export image",

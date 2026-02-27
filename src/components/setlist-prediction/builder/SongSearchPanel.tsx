@@ -4,20 +4,18 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { useState, useMemo, memo, useEffect } from 'react';
+import { useState, memo } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { MdArrowForward, MdDragIndicator } from 'react-icons/md';
 
-import artistsData from '../../../../data/artists-info.json';
-import { getArtistName, getSongName } from '~/utils/names';
-import { fuzzySearch, getSearchScore } from '~/utils/search';
+import { getSongName } from '~/utils/names';
 import { css } from 'styled-system/css';
 import { Box, Stack, HStack } from 'styled-system/jsx';
 import { Input } from '~/components/ui/styled/input';
 import { Button } from '~/components/ui/styled/button';
 import { Text } from '~/components/ui/styled/text';
 import { useSongData } from '~/hooks/useSongData';
-import { getSongColor } from '~/utils/song';
+import { useSongSearch } from '~/hooks/useSongSearch';
 import type { Song } from '~/types/songs';
 
 interface DraggableSongItemProps {
@@ -157,93 +155,9 @@ export function SongSearchPanel({
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const allSongData = useSongData();
-  // Use provided inventory or fall back to all songs
   const songData = songInventory ?? allSongData;
   const [searchQuery, setSearchQuery] = useState('');
-  const [debouncedQuery, setDebouncedQuery] = useState('');
-
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedQuery(searchQuery), 150);
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
-
-  // Filter songs based on search query (both by song name and artist name)
-  const { songMatches, artistMatches } = useMemo(() => {
-    if (!debouncedQuery.trim()) {
-      return { songMatches: [], artistMatches: [] };
-    }
-
-    const query = debouncedQuery.toLowerCase();
-    const songs = Array.isArray(songData) ? songData : [];
-
-    // Step 1: Find songs that match by name, sorted by relevance
-    const directSongMatches = new Set<string>();
-    const songMatchResults = songs
-      .filter((song) => {
-        const matches = fuzzySearch(song, debouncedQuery);
-        if (matches) {
-          directSongMatches.add(song.id);
-        }
-        return matches;
-      })
-      .toSorted((a, b) => getSearchScore(b, debouncedQuery) - getSearchScore(a, debouncedQuery))
-      .slice(0, 50)
-      .map((song) => {
-        const artistRef = song.artists?.[0];
-        const artist = artistRef ? artistsData.find((a) => a.id === artistRef.id) : null;
-
-        return {
-          id: song.id,
-          name: song.name,
-          englishName: song.englishName,
-          series: undefined,
-          seriesIds: song.seriesIds,
-          artist: artist ? getArtistName(artist.name, lang) : undefined,
-          color: getSongColor(song)
-        };
-      });
-
-    // Step 2: Find artists that match by name (Japanese or English)
-    const matchingArtists = artistsData.filter((artist) => {
-      const artistName = artist.name.toLowerCase();
-      const artistEnglishName = artist.englishName?.toLowerCase() ?? '';
-      return artistName.includes(query) || artistEnglishName.includes(query);
-    });
-
-    // Step 3: Find all songs by matching artists (excluding songs already in direct matches)
-    const artistMatchResults = songs
-      .filter((song) => {
-        // Skip if already in direct song matches
-        if (directSongMatches.has(song.id)) {
-          return false;
-        }
-
-        // Check if song has any of the matching artists
-        return song.artists?.some((artistRef) =>
-          matchingArtists.some((matchingArtist) => matchingArtist.id === artistRef.id)
-        );
-      })
-      .slice(0, 50)
-      .map((song) => {
-        const artistRef = song.artists?.[0];
-        const artist = artistRef ? artistsData.find((a) => a.id === artistRef.id) : null;
-
-        return {
-          id: song.id,
-          name: song.name,
-          englishName: song.englishName,
-          series: undefined,
-          seriesIds: song.seriesIds,
-          artist: artist ? getArtistName(artist.name, lang) : undefined,
-          color: getSongColor(song)
-        };
-      });
-
-    return {
-      songMatches: songMatchResults,
-      artistMatches: artistMatchResults
-    };
-  }, [songData, debouncedQuery, lang]);
+  const { songMatches, artistMatches } = useSongSearch(songData, searchQuery, lang);
 
   return (
     <Stack gap={3} h="full">

@@ -63,6 +63,8 @@ export interface SongCardProps extends StackProps {
   onPass?: () => void;
   /** Called when song has no audio */
   onNoAudio?: () => void;
+  /** Ref to forward to the Heardle search input */
+  heardleInputRef?: React.RefObject<HTMLInputElement | null>;
 }
 
 export function SongCard({
@@ -79,6 +81,7 @@ export function SongCard({
   onGuess,
   onPass,
   onNoAudio,
+  heardleInputRef,
   ...rest
 }: SongCardProps) {
   const { t, i18n } = useTranslation();
@@ -141,6 +144,7 @@ export function SongCard({
             onGuess={onGuess}
             onPass={onPass}
             onNoAudio={onNoAudio}
+            inputRef={heardleInputRef}
           />
         </Stack>
       )}

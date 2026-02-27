@@ -180,6 +180,10 @@ export function Page() {
   // Auto-skip future comparisons involving previously-failed songs
   const prevCompRef = useRef<string | null>(null);
 
+  // Refs for focusing heardle inputs
+  const leftInputRef = useRef<HTMLInputElement | null>(null);
+  const rightInputRef = useRef<HTMLInputElement | null>(null);
+
   useEffect(() => {
     if (!currentLeft || !currentRight || !heardleMode) return;
     if (!state || state.status === 'end') return;
@@ -207,6 +211,16 @@ export function Page() {
     document.addEventListener('keydown', interceptor, { capture: true });
     return () => document.removeEventListener('keydown', interceptor, { capture: true });
   }, [bothRevealed]);
+
+  // Auto-focus heardle inputs on new pair or after left reveal
+  useEffect(() => {
+    if (!heardleMode) return;
+    if (!isLeftRevealed) {
+      leftInputRef.current?.focus();
+    } else if (!isRightRevealed) {
+      rightInputRef.current?.focus();
+    }
+  }, [heardleMode, currentLeft?.id, currentRight?.id, isLeftRevealed, isRightRevealed]);
 
   // Get failed songs for results display
   const failedSongsForResults = useMemo(() => {
@@ -284,12 +298,19 @@ export function Page() {
     const nextItems = getNextItems(state);
     for (const item of nextItems) {
       const song = listToSort.find((l) => l.id === item);
-      const url =
-        song &&
-        `https://www.youtube-nocookie.com/embed/${song.musicVideo?.videoId}/?start=${song.musicVideo?.videoOffset}&html5=1`;
-      if (url) preload(url, { as: 'document' });
+      if (!song) continue;
+      if (heardleMode) {
+        if (song.wikiAudioUrl) {
+          fetch(song.wikiAudioUrl, { referrerPolicy: 'no-referrer' }).catch(() => {});
+        }
+      } else {
+        const url =
+          song.musicVideo &&
+          `https://www.youtube-nocookie.com/embed/${song.musicVideo.videoId}/?start=${song.musicVideo.videoOffset}&html5=1`;
+        if (url) preload(url, { as: 'document' });
+      }
     }
-  }, [state, listToSort]);
+  }, [state, listToSort, heardleMode]);
 
   const isSorting = !!state;
 
@@ -411,6 +432,7 @@ export function Page() {
                           onGuess={handleLeftGuess}
                           onPass={handleLeftPass}
                           onNoAudio={handleLeftNoAudio}
+                          heardleInputRef={leftInputRef}
                           flex={1}
                         />
                         <Box hideBelow="sm">
@@ -433,6 +455,7 @@ export function Page() {
                           onGuess={handleRightGuess}
                           onPass={handleRightPass}
                           onNoAudio={handleRightNoAudio}
+                          heardleInputRef={rightInputRef}
                           flex={1}
                         />
                         <Box hideBelow="sm">

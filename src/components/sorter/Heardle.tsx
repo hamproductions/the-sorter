@@ -5,10 +5,10 @@ import { Box, HStack, Stack } from 'styled-system/jsx';
 import { token } from 'styled-system/tokens';
 import type { Song } from '~/types/songs';
 import { detectSoundStartFromBlob } from '~/utils/intro-don/detectSoundStart';
-import { Button } from '../ui/button';
 import { Text } from '../ui/text';
+import { Button } from '../ui/button';
 import { HeardleAudioPlayer } from './HeardleAudioPlayer';
-import { SongSearchPanel } from '../setlist-prediction/builder/SongSearchPanel';
+import { HeardleSongCombobox } from './HeardleSongCombobox';
 
 // Hook to fetch audio and create blob URL
 function useAudioBlobUrl(url: string | undefined): {
@@ -105,11 +105,7 @@ function HeardleGuessIndicator({
           const historyItem = guessHistory[i];
           const isCurrent = i === attempts && !historyItem;
 
-          const borderColor = isCurrent
-            ? token('colors.accent.default')
-            : historyItem
-              ? token('colors.fg.muted')
-              : token('colors.fg.muted');
+          const borderColor = isCurrent ? token('colors.accent.default') : token('colors.fg.muted');
 
           return (
             <Box
@@ -158,6 +154,8 @@ export interface HeardleProps {
   onPass: () => void;
   /** Called when song has no audio and needs auto-reveal */
   onNoAudio: () => void;
+  /** Ref to focus the search input externally */
+  inputRef?: React.RefObject<HTMLInputElement | null>;
 }
 
 export function Heardle({
@@ -169,7 +167,8 @@ export function Heardle({
   audioDuration,
   onGuess,
   onPass,
-  onNoAudio
+  onNoAudio,
+  inputRef
 }: HeardleProps) {
   const { t } = useTranslation();
 
@@ -184,30 +183,26 @@ export function Heardle({
     }
   }, [song.wikiAudioUrl, error, onNoAudio]);
 
-  // Reset selection when song changes
+  // Reset on song change
   useEffect(() => {
-    setSelectedSong(null);
     setShowWrongFeedback(false);
+    setSelectedSong(null);
   }, [song.id]);
 
-  // Handle song selection from search
-  const handleSongSelect = useCallback((songId: string, songTitle: string) => {
-    setSelectedSong({ id: songId, name: songTitle });
+  const handleSelect = useCallback((songId: string, songName: string) => {
+    setSelectedSong({ id: songId, name: songName });
     setShowWrongFeedback(false);
   }, []);
 
-  // Handle guess submission
+  const clearSelection = useCallback(() => setSelectedSong(null), []);
+
   const handleSubmitGuess = useCallback(() => {
     if (!selectedSong) return;
-
-    // Check if correct
-    if (selectedSong.id === song.id) {
-      onGuess(selectedSong.id);
-    } else {
-      // Wrong guess - show feedback and trigger callback
+    const isWrong = selectedSong.id !== song.id;
+    onGuess(selectedSong.id);
+    setSelectedSong(null);
+    if (isWrong) {
       setShowWrongFeedback(true);
-      onGuess(selectedSong.id);
-      setSelectedSong(null);
     }
   }, [selectedSong, song.id, onGuess]);
 
@@ -231,54 +226,33 @@ export function Heardle({
 
   return (
     <Stack gap={3} w="full" p={2}>
-      {/* Attempt indicator */}
       <HeardleGuessIndicator
         attempts={attempts}
         maxAttempts={maxAttempts}
         guessHistory={guessHistory}
       />
 
-      {/* Audio player with duration limit */}
       <HeardleAudioPlayer blobUrl={blobUrl} maxDuration={audioDuration} startTime={soundStart} />
 
-      {/* Song search */}
-      <Box maxH="360px" overflow="auto">
-        <SongSearchPanel
-          onAddSong={handleSongSelect}
-          onAddCustomSong={undefined}
-          hideTitle
-          songInventory={songInventory}
-          singleClickSelect
-          maxH="340px"
-        />
-      </Box>
+      <HeardleSongCombobox
+        songInventory={songInventory}
+        onSelect={handleSelect}
+        inputRef={inputRef}
+      />
 
-      {/* Selected song display */}
       {selectedSong && (
-        <HStack
-          justifyContent="space-between"
-          alignItems="center"
-          borderRadius="md"
-          p={2}
-          bg="bg.subtle"
-        >
-          <Text fontSize="sm" fontWeight="medium">
+        <HStack justifyContent="space-between" w="full" px={1}>
+          <Text fontSize="sm">
             {t('heardle.selected')} {selectedSong.name}
           </Text>
-          <Button
-            size="xs"
-            variant="ghost"
-            onClick={() => setSelectedSong(null)}
-            aria-label={t('heardle.clear_selection')}
-          >
+          <Button size="xs" variant="ghost" onClick={clearSelection} aria-label={t('heardle.clear_selection')}>
             <FaXmark />
           </Button>
         </HStack>
       )}
 
-      {/* Action buttons */}
-      <HStack gap={2}>
-        <Button variant="solid" onClick={handleSubmitGuess} disabled={!selectedSong} flex={1}>
+      <HStack gap={2} w="full">
+        <Button disabled={!selectedSong} onClick={handleSubmitGuess} flex={1}>
           {t('heardle.submit_guess')}
         </Button>
         <Button variant="outline" onClick={onPass} flex={1}>
@@ -286,7 +260,6 @@ export function Heardle({
         </Button>
       </HStack>
 
-      {/* Wrong guess feedback */}
       {showWrongFeedback && (
         <Text color="red.500" fontSize="sm" textAlign="center">
           {t('heardle.wrong_guess')}
