@@ -1,4 +1,4 @@
-import { forwardRef } from 'react';
+import { forwardRef, type KeyboardEvent } from 'react';
 import * as StyledCheckbox from './styled/checkbox';
 
 export type CheckboxProps = StyledCheckbox.RootProps;
@@ -8,7 +8,13 @@ export const Checkbox = forwardRef<HTMLLabelElement, CheckboxProps>((props, ref)
 
   return (
     <StyledCheckbox.Root ref={ref} cursor="pointer" userSelect="none" {...rootProps}>
-      <StyledCheckbox.Control>
+      <StyledCheckbox.Control
+        _focusVisible={{
+          outlineOffset: '2px',
+          outline: '2px solid',
+          outlineColor: 'border.outline'
+        }}
+      >
         <StyledCheckbox.Indicator>
           <CheckIcon />
         </StyledCheckbox.Indicator>
@@ -17,7 +23,13 @@ export const Checkbox = forwardRef<HTMLLabelElement, CheckboxProps>((props, ref)
         </StyledCheckbox.Indicator>
       </StyledCheckbox.Control>
       {children && <StyledCheckbox.Label>{children}</StyledCheckbox.Label>}
-      <StyledCheckbox.HiddenInput />
+      <StyledCheckbox.HiddenInput
+        onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
+          if (e.key === 'Enter') {
+            e.currentTarget.click();
+          }
+        }}
+      />
     </StyledCheckbox.Root>
   );
 });

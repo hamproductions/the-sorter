@@ -249,7 +249,7 @@ describe('SongSearchPanel', () => {
       const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
       await user.type(searchInput, 'Snow');
 
-      expect(await screen.findByText('Showing 1 results')).toBeInTheDocument();
+      expect(await screen.findByText('Showing 1 result')).toBeInTheDocument();
     });
   });
 

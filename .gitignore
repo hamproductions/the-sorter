@@ -38,3 +38,5 @@ coverage*
 .release-it.json.cache
 
 .env
+
+dogfood-output

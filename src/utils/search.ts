@@ -62,6 +62,17 @@ export function getLevenshteinDistance(a: string, b: string): number {
 const MAX_LEVENSHTEIN_DISTANCE = 3;
 
 /**
+ * Returns the allowed Levenshtein distance based on string length.
+ * Short strings get a tighter threshold to avoid false positives.
+ */
+function maxDistanceForLength(len: number): number {
+  if (len <= 3) return 0;
+  if (len <= 5) return 1;
+  if (len <= 8) return 2;
+  return MAX_LEVENSHTEIN_DISTANCE;
+}
+
+/**
  * Checks if an item matches the search query using fuzzy matching for Japanese/Romaji.
  * Includes phonetic name check and Levenshtein distance for fuzzy matching.
  */
@@ -105,7 +116,10 @@ export function fuzzySearch(item: SearchableItem, query: string): boolean {
   // and 'normalizedQueryRomaji' for phonetic inputs
 
   // Check English Name
-  if (englishName && getLevenshteinDistance(englishName, q) <= MAX_LEVENSHTEIN_DISTANCE) {
+  if (
+    englishName &&
+    getLevenshteinDistance(englishName, q) <= maxDistanceForLength(englishName.length)
+  ) {
     return true;
   }
 
@@ -118,7 +132,7 @@ export function fuzzySearch(item: SearchableItem, query: string): boolean {
   if (
     normalizedPhoneticRomaji &&
     getLevenshteinDistance(normalizedPhoneticRomaji, normalizedQueryRomaji) <=
-      MAX_LEVENSHTEIN_DISTANCE
+      maxDistanceForLength(normalizedPhoneticRomaji.length)
   ) {
     return true;
   }
@@ -126,7 +140,7 @@ export function fuzzySearch(item: SearchableItem, query: string): boolean {
   // Also check direct Kana distance if user typed Kana
   if (
     phoneticName &&
-    getLevenshteinDistance(phoneticName, queryHiragana) <= MAX_LEVENSHTEIN_DISTANCE
+    getLevenshteinDistance(phoneticName, queryHiragana) <= maxDistanceForLength(phoneticName.length)
   ) {
     return true;
   }
@@ -202,19 +216,19 @@ export function getSearchScore(item: SearchableItem, query: string): number {
   // Check English Name
   if (englishName) {
     const dist = getLevenshteinDistance(englishName, q);
-    if (dist <= MAX_LEVENSHTEIN_DISTANCE) return 50 - dist;
+    if (dist <= maxDistanceForLength(englishName.length)) return 50 - dist;
   }
 
   // Check Phonetic Romaji
   if (normalizedPhoneticRomaji) {
     const dist = getLevenshteinDistance(normalizedPhoneticRomaji, normalizedQueryRomaji);
-    if (dist <= MAX_LEVENSHTEIN_DISTANCE) return 50 - dist;
+    if (dist <= maxDistanceForLength(normalizedPhoneticRomaji.length)) return 50 - dist;
   }
 
   // Check Direct Phonetic
   if (phoneticName) {
     const dist = getLevenshteinDistance(phoneticName, queryHiragana);
-    if (dist <= MAX_LEVENSHTEIN_DISTANCE) return 50 - dist;
+    if (dist <= maxDistanceForLength(phoneticName.length)) return 50 - dist;
   }
 
   return 0; // No match

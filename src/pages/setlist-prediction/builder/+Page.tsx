@@ -66,7 +66,6 @@ export function Page() {
     if (predictionIdParam) {
       const prediction = getPrediction(predictionIdParam);
       if (prediction) {
-        console.log('Loaded prediction for id param:', prediction);
         setCurrentPrediction(prediction);
         setCurrentPerformanceId(prediction.performanceId);
         setIsInitialized(true);
@@ -154,9 +153,6 @@ export function Page() {
     },
     [deletePrediction, currentPrediction]
   );
-  console.log('currentPerformanceId:', !currentPerformanceId);
-  console.log('currentPrediction:', currentPrediction);
-  console.log('customPerformance:', customPerformance);
 
   const showEmptyState = !currentPerformanceId && !currentPrediction && !customPerformance;
 

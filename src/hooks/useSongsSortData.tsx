@@ -13,18 +13,32 @@ import { getAssetUrl } from '~/utils/assets';
 import { TieToastContent } from '~/components/sorter/TieToastContent';
 import { token } from 'styled-system/tokens';
 
-export const useSongsSortData = () => {
+export const useSongsSortData = (
+  excludedSongIds?: Set<string>,
+  options?: { disableShortcutsRef?: { current: boolean } }
+) => {
   const { t } = useTranslation();
   const songs = useSongData();
   const [noTieMode, setNoTieMode] = useLocalStorage('dd-mode', false);
+  const [heardleMode, setHeardleMode] = useLocalStorage('heardle-mode', false);
   const [songFilters, setSongFilters] = useLocalStorage<SongFilterType>('song-filters', undefined);
+
+  // First apply song filters, then exclude failed songs (for Heardle mode)
   const listToSort = useMemo(() => {
-    return songs && songFilters && hasFilter(songFilters)
-      ? songs.filter((s) => {
-          return matchSongFilter(s, songFilters ?? {});
-        })
-      : songs;
-  }, [songs, songFilters]);
+    let filtered =
+      songs && songFilters && hasFilter(songFilters)
+        ? songs.filter((s) => {
+            return matchSongFilter(s, songFilters ?? {});
+          })
+        : songs;
+
+    // Exclude failed songs if provided
+    if (excludedSongIds && excludedSongIds.size > 0) {
+      filtered = filtered.filter((s) => !excludedSongIds.has(s.id));
+    }
+
+    return filtered;
+  }, [songs, songFilters, excludedSongIds]);
 
   const {
     init,
@@ -70,25 +84,27 @@ export const useSongsSortData = () => {
 
   useEffect(() => {
     const handleKeystroke = (e: KeyboardEvent) => {
-      if (state && state.status !== 'end') {
-        switch (e.key) {
-          case 'ArrowLeft':
-            left();
-            e.preventDefault();
-            break;
-          case 'ArrowRight':
-            right();
-            e.preventDefault();
-            break;
-          case 'ArrowDown':
-            handleTie();
-            e.preventDefault();
-            break;
-          case 'ArrowUp':
-            undo();
-            e.preventDefault();
-            break;
-        }
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      if (options?.disableShortcutsRef?.current) return;
+      if (!state || state.status === 'end') return;
+      switch (e.key) {
+        case 'ArrowLeft':
+          left();
+          e.preventDefault();
+          break;
+        case 'ArrowRight':
+          right();
+          e.preventDefault();
+          break;
+        case 'ArrowDown':
+          handleTie();
+          e.preventDefault();
+          break;
+        case 'ArrowUp':
+          undo();
+          e.preventDefault();
+          break;
       }
     };
     document.addEventListener('keydown', handleKeystroke);
@@ -96,11 +112,13 @@ export const useSongsSortData = () => {
     return () => {
       document.removeEventListener('keydown', handleKeystroke);
     };
-  }, [left, right, handleTie, undo, state]);
+  }, [left, right, handleTie, undo, state, options?.disableShortcutsRef]);
 
   return {
     noTieMode: noTieMode ?? false,
     setNoTieMode,
+    heardleMode: heardleMode ?? false,
+    setHeardleMode,
     init,
     left,
     right,

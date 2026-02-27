@@ -27,6 +27,7 @@
     "select_all": "全部を選択する",
     "deselect_all": "クリアする",
     "no_tie_mode": "DD禁止モード",
+    "heardle_mode": "イントロドンモード",
     "artists": "アーティスト",
     "generation": {
       "103": "103期",
@@ -53,6 +54,36 @@
     "global_logic": "フィルター全体の設定",
     "years": "発売年",
     "cross_series": "複数シリーズ"
+  },
+  "heardle": {
+    "guess_both_songs": "両方の曲を当ててからランキングできます",
+    "both_failed": "両方の曲が失敗しました！両方ともランキングから除外されます。",
+    "song_failed": "曲が失敗しました！失敗した曲はランキングから除外されます。",
+    "continue": "続ける",
+    "stats_correct": "{{correct}}/{{total}} ({{percent}}%) 正解",
+    "failed_heading": "イントロドン失敗 ({{count}})",
+    "guesses_label": "回答：",
+    "loading_audio": "音楽を読み込み中...",
+    "no_audio": "音楽がありません - 曲が公開されました！",
+    "search_placeholder": "曲名を入力して検索...",
+    "no_results": "曲が見つかりませんでした",
+    "selected": "選択中：",
+    "submit_guess": "回答する",
+    "pass": "パス（スキップ）",
+    "wrong_guess": "不正解！もう一度。",
+    "clear_selection": "選択を解除",
+    "pause": "一時停止",
+    "play": "再生",
+    "failed_badge": "失敗",
+    "no_audio_badge": "音楽なし",
+    "group_songs": "楽曲",
+    "group_by_artist": "アーティスト別",
+    "view_stats": "イントロドン統計を見る",
+    "stats_title": "イントロドン統計",
+    "tab_all": "すべて",
+    "tab_correct": "正解",
+    "tab_failed": "失敗",
+    "tab_passed": "パス"
   },
   "sort": {
     "start": "開始",
@@ -265,6 +296,8 @@
     "closeMatches": "近い一致",
     "presentMatches": "存在一致",
     "backToBuilder": "ビルダーに戻る",
-    "calculateScore": "スコアを計算"
+    "calculateScore": "スコアを計算",
+    "startTyping": "曲名やアーティスト名を入力して検索...",
+    "showingResults": "{{count}}件を表示"
   }
 }

@@ -29,6 +29,7 @@
     "select_all": "Select All",
     "deselect_all": "Deselect All",
     "no_tie_mode": "No DD Allowed Mode (Hard)",
+    "heardle_mode": "Heardle Mode",
     "generation": {
       "103": "103th",
       "104": "104th",
@@ -55,6 +56,36 @@
     "global_logic": "Global Filtering Logic",
     "years": "Years",
     "cross_series": "Multiple Series"
+  },
+  "heardle": {
+    "guess_both_songs": "Guess both songs to enable ranking",
+    "both_failed": "Both songs failed! They will both be removed from sorting.",
+    "song_failed": "Song failed! The failed song will be removed from sorting.",
+    "continue": "Continue",
+    "stats_correct": "{{correct}}/{{total}} ({{percent}}%) correct",
+    "failed_heading": "Heardle Failed ({{count}})",
+    "guesses_label": "Guesses:",
+    "loading_audio": "Loading audio...",
+    "no_audio": "No audio available - Song revealed!",
+    "search_placeholder": "Type to search songs...",
+    "no_results": "No songs found",
+    "selected": "Selected:",
+    "submit_guess": "Submit Guess",
+    "pass": "Pass (Skip)",
+    "wrong_guess": "Wrong! Try again.",
+    "clear_selection": "Clear selection",
+    "pause": "Pause",
+    "play": "Play",
+    "failed_badge": "FAILED",
+    "no_audio_badge": "No audio available",
+    "group_songs": "Songs",
+    "group_by_artist": "By Artist",
+    "view_stats": "View Heardle Stats",
+    "stats_title": "Heardle Stats",
+    "tab_all": "All",
+    "tab_correct": "Correct",
+    "tab_failed": "Failed",
+    "tab_passed": "Passed"
   },
   "sort": {
     "start": "Start",
@@ -136,11 +167,11 @@
   "dialog": {
     "ended_confirm": {
       "title": "Confirmation",
-      "description": "Your current sorting data will be lost, are you sure ?"
+      "description": "Your current sorting data will be lost, are you sure?"
     },
     "mid_sort_confirm": {
       "title": "Sorting in progress",
-      "description": "Your current sorting data will be lost, are you sure ?"
+      "description": "Your current sorting data will be lost, are you sure?"
     },
     "new_session_confirm": {
       "title": "Sorting in progress",
@@ -292,7 +323,8 @@
     "searchPerformances": "Search Performances",
     "sameTour": "Same Tour/Series",
     "allPerformances": "All Performances with Setlists",
-    "showingResults": "Showing {{count}} results",
+    "showingResults_one": "Showing {{count}} result",
+    "showingResults_other": "Showing {{count}} results",
     "exportingImage": "Exporting...",
     "imageDownloaded": "Image downloaded",
     "failedToExportImage": "Failed to export image",
