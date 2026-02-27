@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { decompressFromEncodedURIComponent } from 'lz-string';
 import { Link } from '~/components/ui/link';
@@ -39,10 +40,22 @@ export function Page() {
     years: params.getAll('years').map(Number)
   };
 
+  const failedSongs = useMemo(() => {
+    if (!guessResults) return undefined;
+    const failedIds = Object.entries(guessResults)
+      .filter(([, r]) => r.result === 'failed')
+      .map(([id]) => id);
+    if (failedIds.length === 0) return undefined;
+    return songs.filter((s) => failedIds.includes(s.id));
+  }, [guessResults, songs]);
+
   const title = t('title', { titlePrefix: t('songs') });
+  const hasData =
+    (results?.length > 0 || (failedSongs && failedSongs.length > 0)) && songs?.length > 0;
 
   const getSortUrl = () => {
     const p = addSongPresetParams(new URLSearchParams(), filters);
+    if (guessResults) p.append('heardle', 'true');
     return `/songs?${p.toString()}`;
   };
 
@@ -58,10 +71,11 @@ export function Page() {
           <Link href={getSortUrl()}>
             <Button>{t('share.create_your_own')}</Button>
           </Link>
-          {songs?.length > 0 && results?.length > 0 && (
+          {hasData && (
             <>
               <SongResultsView
                 songsData={songs}
+                failedSongs={failedSongs}
                 guessResults={guessResults}
                 maxAttempts={guessResults ? MAX_ATTEMPTS : undefined}
                 readOnly

@@ -113,6 +113,13 @@ export function Page() {
   }>();
 
   useEffect(() => {
+    if (state) return;
+    const params = new URLSearchParams(location.search);
+    if (params.get('heardle') === 'true' && !heardleMode) setHeardleMode(true);
+    if (params.get('noTie') === 'true' && !noTieMode) setNoTieMode(true);
+  }, []);
+
+  useEffect(() => {
     if (state && state.status !== 'end') {
       const params = new URLSearchParams(location.search);
       const hasFilterParams =
@@ -278,6 +285,8 @@ export function Page() {
   const shareUrl = async () => {
     if (!songFilters || !isValidSongFilter(songFilters)) return;
     const params = addSongPresetParams(new URLSearchParams(), songFilters);
+    if (heardleMode) params.append('heardle', 'true');
+    if (noTieMode) params.append('noTie', 'true');
     const url = `${location.origin}${location.pathname}?${params.toString()}`;
     try {
       await navigator.clipboard.writeText(url);
