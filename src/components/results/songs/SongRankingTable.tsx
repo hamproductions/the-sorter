@@ -7,7 +7,9 @@ import type { Artist, Song } from '~/types/songs';
 import { getSongColor } from '~/utils/song';
 import { useArtistsData } from '~/hooks/useArtistsData';
 import { SchoolBadge } from '~/components/sorter/SchoolBadge';
+import { MiniDots } from '~/components/sorter/MiniDots';
 import { getArtistName, getSongName } from '~/utils/names';
+import type { GuessResult } from '~/hooks/useHeardleState';
 
 function formatArtistsWithVariants(
   songArtists: Song['artists'],
@@ -42,10 +44,14 @@ function formatArtistsWithVariants(
 
 export function SongRankingTable({
   songs,
-  onSelectSong
+  onSelectSong,
+  guessResults,
+  maxAttempts
 }: {
   songs: WithRank<Song>[];
   onSelectSong?: (character: WithRank<Song>) => void;
+  guessResults?: Record<string, GuessResult>;
+  maxAttempts?: number;
 }) {
   const artists = useArtistsData();
   const { t, i18n } = useTranslation();
@@ -59,6 +65,9 @@ export function SongRankingTable({
           <Table.Header textAlign={'center'}>{t('ranking')}</Table.Header>
           <Table.Header textAlign={'center'}>{t('song-name')}</Table.Header>
           <Table.Header textAlign={'center'}>{t('artist')}</Table.Header>
+          {guessResults && (
+            <Table.Header textAlign={'center'}>{t('heardle.heardle_column')}</Table.Header>
+          )}
         </Table.Row>
       </Table.Head>
       <Table.Body>
@@ -88,6 +97,13 @@ export function SongRankingTable({
                   <Text>{formatArtistsWithVariants(songArtists, artists, lang)}</Text>
                 </Stack>
               </Table.Cell>
+              {guessResults && maxAttempts && (
+                <Table.Cell>
+                  {guessResults[c.id] && guessResults[c.id].result !== 'no-audio' && (
+                    <MiniDots result={guessResults[c.id]} maxAttempts={maxAttempts} />
+                  )}
+                </Table.Cell>
+              )}
             </Table.Row>
           );
         })}

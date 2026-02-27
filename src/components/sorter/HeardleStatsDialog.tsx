@@ -1,8 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaXmark } from 'react-icons/fa6';
-import { Box, HStack, Stack } from 'styled-system/jsx';
-import { token } from 'styled-system/tokens';
+import { HStack, Stack } from 'styled-system/jsx';
 import { Dialog } from '~/components/ui/dialog';
 import { Tabs } from '~/components/ui/tabs';
 import { Button } from '~/components/ui/button';
@@ -10,6 +9,7 @@ import { IconButton } from '~/components/ui/icon-button';
 import { Text } from '~/components/ui/text';
 import { getSongName } from '~/utils/names';
 import { getSongColor } from '~/utils/song';
+import { MiniDots } from './MiniDots';
 import type { Song } from '~/types/songs';
 import type { GuessResult } from '~/hooks/useHeardleState';
 
@@ -21,38 +21,6 @@ interface HeardleStatsDialogProps {
 }
 
 type TabValue = 'all' | 'correct' | 'failed' | 'passed';
-
-function MiniDots({ result, maxAttempts }: { result: GuessResult; maxAttempts: number }) {
-  return (
-    <HStack gap="1">
-      {Array.from({ length: maxAttempts }).map((_, i) => {
-        const historyItem = result.guessHistory[i];
-        const isCorrectSlot = i === result.attempts - 1 && result.result === 'correct';
-        let bg = 'transparent';
-        let border = `2px solid ${token('colors.border.default')}`;
-        if (isCorrectSlot) {
-          bg = '#16a34a';
-          border = '2px solid #16a34a';
-        } else if (historyItem === 'wrong') {
-          bg = token('colors.red.9');
-          border = `2px solid ${token('colors.red.9')}`;
-        } else if (historyItem === 'pass') {
-          bg = '#d97706';
-          border = '2px solid #d97706';
-        }
-        return (
-          <Box
-            key={i}
-            style={{ backgroundColor: bg, border }}
-            borderRadius="full"
-            w="8px"
-            h="8px"
-          />
-        );
-      })}
-    </HStack>
-  );
-}
 
 function SongRow({
   song,

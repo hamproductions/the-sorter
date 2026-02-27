@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { FaChevronDown, FaCopy, FaDownload } from 'react-icons/fa6';
+import { FaChevronDown, FaCopy, FaDownload, FaShare } from 'react-icons/fa6';
 
 import { useTranslation } from 'react-i18next';
 
@@ -21,19 +21,28 @@ import { Button } from '~/components/ui/button';
 import type { RootProps } from '~/components/ui/styled/tabs';
 import { useArtistsData } from '~/hooks/useArtistsData';
 import { useSeriesData } from '~/hooks/useSeriesData';
+import { HeardleStatsDialog } from '~/components/sorter/HeardleStatsDialog';
+import type { GuessResult } from '~/hooks/useHeardleState';
 
 export function SongResultsView({
   titlePrefix,
   songsData,
   order,
   failedSongs,
+  guessResults,
+  maxAttempts,
+  onShareResults,
+  readOnly,
   ...props
 }: RootProps & {
   titlePrefix?: string;
   songsData: Song[];
   order?: string[][];
-  /** Songs that failed in Heardle mode (couldn't guess within 5 attempts) */
   failedSongs?: Song[];
+  guessResults?: Record<string, GuessResult>;
+  maxAttempts?: number;
+  onShareResults?: () => void;
+  readOnly?: boolean;
 }) {
   const artists = useArtistsData();
   const seriesData = useSeriesData();
@@ -220,22 +229,29 @@ export function SongResultsView({
               </Accordion.ItemContent>
             </Accordion.Item>
           </Accordion.Root>
-          <HStack justifyContent="space-between" w="full">
-            <Wrap justifyContent="flex-end" w="full">
-              <Button variant="subtle" onClick={() => void exportJSON()}>
-                <FaCopy /> {t('results.export_json')}
-              </Button>
-              <Button variant="subtle" onClick={() => void exportText()}>
-                <FaCopy /> {t('results.copy_text')}
-              </Button>
-              <Button variant="subtle" onClick={() => void screenshot()}>
-                <FaCopy /> {t('results.copy')}
-              </Button>
-              <Button onClick={() => void download()}>
-                <FaDownload /> {t('results.download')}
-              </Button>
-            </Wrap>
-          </HStack>
+          {!readOnly && (
+            <HStack justifyContent="space-between" w="full">
+              <Wrap justifyContent="flex-end" w="full">
+                {onShareResults && (
+                  <Button variant="subtle" onClick={onShareResults}>
+                    <FaShare /> {t('results.share')}
+                  </Button>
+                )}
+                <Button variant="subtle" onClick={() => void exportJSON()}>
+                  <FaCopy /> {t('results.export_json')}
+                </Button>
+                <Button variant="subtle" onClick={() => void exportText()}>
+                  <FaCopy /> {t('results.copy_text')}
+                </Button>
+                <Button variant="subtle" onClick={() => void screenshot()}>
+                  <FaCopy /> {t('results.copy')}
+                </Button>
+                <Button onClick={() => void download()}>
+                  <FaDownload /> {t('results.download')}
+                </Button>
+              </Wrap>
+            </HStack>
+          )}
         </Stack>
 
         <Tabs.Root
@@ -255,21 +271,31 @@ export function SongResultsView({
           </Tabs.List>
           <Box w="full" p="4" overflowX="auto">
             <Tabs.Content value="table">
-              <SongRankingTable songs={songs} />
+              <SongRankingTable
+                songs={songs}
+                guessResults={guessResults}
+                maxAttempts={maxAttempts}
+              />
             </Tabs.Content>
           </Box>
         </Tabs.Root>
 
-        {/* Heardle Failed Section */}
+        {guessResults && Object.keys(guessResults).length > 0 && maxAttempts && (
+          <HeardleStatsDialog
+            guessResults={guessResults}
+            songs={songsData}
+            lang={_i18n.language}
+            maxAttempts={maxAttempts}
+          />
+        )}
+
         {failedSongs && failedSongs.length > 0 && (
           <Stack w="full" mt="8">
             <Heading color="red.500" fontSize="xl" fontWeight="bold">
-              {t('heardle.failed_section', { defaultValue: 'Heardle Failed' })}
+              {t('heardle.failed_section')}
             </Heading>
             <Text color="fg.muted" fontSize="sm">
-              {t('heardle.failed_description', {
-                defaultValue: "Songs you couldn't guess within 5 attempts"
-              })}
+              {t('heardle.failed_description', { count: maxAttempts ?? 5 })}
             </Text>
             <Box
               border="1px solid"

@@ -26,7 +26,7 @@ import { preloadAudioBlob } from '~/components/sorter/Heardle';
 import { useSongData } from '~/hooks/useSongData';
 import { useArtistsData } from '~/hooks/useArtistsData';
 import { isValidSongFilter } from '~/utils/song-filter';
-import { addSongPresetParams, getAllCommaSeparated } from '~/utils/share';
+import { addSongPresetParams, getAllCommaSeparated, serializeData } from '~/utils/share';
 import { getSongName } from '~/utils/names';
 import type { Song } from '~/types/songs';
 
@@ -285,6 +285,25 @@ export function Page() {
     } catch {}
   };
 
+  const shareResultsUrl = async () => {
+    if (!songFilters || !state?.arr) return;
+    const params = addSongPresetParams(new URLSearchParams(), songFilters);
+    params.append(
+      'data',
+      await serializeData({
+        results: state.arr,
+        guessResults: heardleMode ? guessResults : undefined
+      })
+    );
+    const url = `${location.origin}${
+      import.meta.env.PUBLIC_ENV__BASE_URL ?? ''
+    }/songs/share?${params.toString()}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast?.({ description: t('toast.url_copied') });
+    } catch {}
+  };
+
   // Preload Assets
   useEffect(() => {
     if (!state) return;
@@ -535,6 +554,9 @@ export function Page() {
                 <SongResultsView
                   songsData={songs}
                   failedSongs={heardleMode ? failedSongsForResults : undefined}
+                  guessResults={heardleMode ? guessResults : undefined}
+                  maxAttempts={heardleMode ? maxAttempts : undefined}
+                  onShareResults={() => void shareResultsUrl()}
                   w="full"
                   order={state.arr}
                 />

@@ -85,7 +85,10 @@
     "tab_all": "All",
     "tab_correct": "Correct",
     "tab_failed": "Failed",
-    "tab_passed": "Passed"
+    "tab_passed": "Passed",
+    "failed_section": "Heardle Failed",
+    "failed_description": "Songs you couldn't guess within {{count}} attempts",
+    "heardle_column": "Heardle"
   },
   "sort": {
     "start": "Start",

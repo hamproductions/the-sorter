@@ -83,7 +83,10 @@
     "tab_all": "すべて",
     "tab_correct": "正解",
     "tab_failed": "失敗",
-    "tab_passed": "パス"
+    "tab_passed": "パス",
+    "failed_section": "イントロドン失敗",
+    "failed_description": "{{count}}回以内に当てられなかった曲",
+    "heardle_column": "イントロドン"
   },
   "sort": {
     "start": "開始",

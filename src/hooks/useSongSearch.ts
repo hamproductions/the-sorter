@@ -32,12 +32,24 @@ export function useSongSearch(songs: Song[], query: string, lang: string) {
   }, [query]);
 
   const { songMatches, artistMatches } = useMemo(() => {
+    const list = Array.isArray(songs) ? songs : [];
+
     if (!debouncedQuery.trim()) {
-      return { songMatches: [] as SongSearchResult[], artistMatches: [] as SongSearchResult[] };
+      const allSongs: SongSearchResult[] = list.slice(0, 50).map((song) => {
+        const artistRef = song.artists?.[0];
+        const artist = artistRef ? artistsData.find((a) => a.id === artistRef.id) : null;
+        return {
+          id: song.id,
+          name: song.name,
+          englishName: song.englishName,
+          artist: artist ? getArtistName(artist.name, lang) : undefined,
+          color: getSongColor(song)
+        };
+      });
+      return { songMatches: allSongs, artistMatches: [] as SongSearchResult[] };
     }
 
     const q = debouncedQuery.toLowerCase();
-    const list = Array.isArray(songs) ? songs : [];
 
     const directSongIds = new Set<string>();
     const songMatchResults: SongSearchResult[] = list

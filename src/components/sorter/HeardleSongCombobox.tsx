@@ -106,7 +106,7 @@ export function HeardleSongCombobox({
         }
       }}
       positioning={{ sameWidth: true, strategy: 'fixed' }}
-      openOnClick={false}
+      openOnClick
     >
       <Combobox.Control>
         <Combobox.Input placeholder={t('heardle.search_placeholder')} asChild>
