@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FaPause, FaPlay } from 'react-icons/fa6';
 import { Box, HStack, Stack } from 'styled-system/jsx';
 import { Button } from '../ui/button';
@@ -22,6 +23,7 @@ export function HeardleAudioPlayer({
   maxDuration,
   startTime = 0
 }: HeardleAudioPlayerProps) {
+  const { t } = useTranslation();
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(startTime);
@@ -118,7 +120,7 @@ export function HeardleAudioPlayer({
   if (!blobUrl) {
     return (
       <Stack alignItems="center" p={4}>
-        <Text color="fg.muted">Loading audio...</Text>
+        <Text color="fg.muted">{t('heardle.loading_audio')}</Text>
       </Stack>
     );
   }
@@ -142,7 +144,7 @@ export function HeardleAudioPlayer({
           size="sm"
           variant="solid"
           onClick={togglePlay}
-          aria-label={isPlaying ? 'Pause' : 'Play'}
+          aria-label={isPlaying ? t('heardle.pause') : t('heardle.play')}
         >
           {isPlaying ? <FaPause /> : <FaPlay />}
         </Button>

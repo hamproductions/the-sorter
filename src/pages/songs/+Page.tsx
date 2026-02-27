@@ -444,9 +444,7 @@ export function Page() {
                   {/* Show message when ranking is disabled in Heardle mode */}
                   {heardleMode && !bothRevealed && !eitherFailed && (
                     <Text color="fg.muted" fontSize="sm" textAlign="center">
-                      {t('heardle.guess_both_songs', {
-                        defaultValue: 'Guess both songs to enable ranking'
-                      })}
+                      {t('heardle.guess_both_songs')}
                     </Text>
                   )}
                   <HStack justifyContent="center" w="full">
@@ -471,14 +469,8 @@ export function Page() {
                     <Stack gap={2} alignItems="center" w="full">
                       <Text color="red.500" fontSize="sm" fontWeight="bold" textAlign="center">
                         {isLeftFailed && isRightFailed
-                          ? t('heardle.both_failed', {
-                              defaultValue:
-                                'Both songs failed! They will both be removed from sorting.'
-                            })
-                          : t('heardle.song_failed', {
-                              defaultValue:
-                                'Song failed! The failed song will be removed from sorting.'
-                            })}
+                          ? t('heardle.both_failed')
+                          : t('heardle.song_failed')}
                       </Text>
                       <Button
                         size={{ base: '2xl', md: 'lg' }}
@@ -490,7 +482,7 @@ export function Page() {
                         }}
                         flex={{ base: 1, md: 'unset' }}
                       >
-                        {t('heardle.continue', { defaultValue: 'Continue' })}
+                        {t('heardle.continue')}
                       </Button>
                     </Stack>
                   )}

@@ -57,6 +57,24 @@
     "years": "Years",
     "cross_series": "Multiple Series"
   },
+  "heardle": {
+    "guess_both_songs": "Guess both songs to enable ranking",
+    "both_failed": "Both songs failed! They will both be removed from sorting.",
+    "song_failed": "Song failed! The failed song will be removed from sorting.",
+    "continue": "Continue",
+    "stats_correct": "{{correct}}/{{total}} ({{percent}}%) correct",
+    "failed_heading": "Heardle Failed ({{count}})",
+    "guesses_label": "Guesses:",
+    "loading_audio": "Loading audio...",
+    "no_audio": "No audio available - Song revealed!",
+    "selected": "Selected:",
+    "submit_guess": "Submit Guess",
+    "pass": "Pass (Skip)",
+    "wrong_guess": "Wrong! Try again.",
+    "clear_selection": "Clear selection",
+    "pause": "Pause",
+    "play": "Play"
+  },
   "sort": {
     "start": "Start",
     "start_over": "Start Over",

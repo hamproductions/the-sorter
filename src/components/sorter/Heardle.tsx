@@ -98,7 +98,7 @@ function HeardleGuessIndicator({
   return (
     <HStack gap={2} justifyContent="center" alignItems="center">
       <Text color="fg.muted" fontSize="xs" fontWeight="medium">
-        {t('heardle.guesses_label', { defaultValue: 'Guesses:' })}
+        {t('heardle.guesses_label')}
       </Text>
       <HStack gap={1}>
         {Array.from({ length: maxAttempts }).map((_, i) => {
@@ -216,7 +216,7 @@ export function Heardle({
     return (
       <Stack gap={2} alignItems="center" p={4}>
         <Text color="fg.muted">
-          {t('heardle.loading_audio', { defaultValue: 'Loading audio...' })}
+          {t('heardle.loading_audio')}
         </Text>
       </Stack>
     );
@@ -227,7 +227,7 @@ export function Heardle({
     return (
       <Stack gap={2} alignItems="center" p={4}>
         <Text color="fg.muted">
-          {t('heardle.no_audio', { defaultValue: 'No audio available - Song revealed!' })}
+          {t('heardle.no_audio')}
         </Text>
       </Stack>
     );
@@ -267,13 +267,13 @@ export function Heardle({
           bg="bg.subtle"
         >
           <Text fontSize="sm" fontWeight="medium">
-            {t('heardle.selected', { defaultValue: 'Selected:' })} {selectedSong.name}
+            {t('heardle.selected')} {selectedSong.name}
           </Text>
           <Button
             size="xs"
             variant="ghost"
             onClick={() => setSelectedSong(null)}
-            aria-label="Clear selection"
+            aria-label={t('heardle.clear_selection')}
           >
             <FaXmark />
           </Button>
@@ -283,17 +283,17 @@ export function Heardle({
       {/* Action buttons */}
       <HStack gap={2}>
         <Button variant="solid" onClick={handleSubmitGuess} disabled={!selectedSong} flex={1}>
-          {t('heardle.submit_guess', { defaultValue: 'Submit Guess' })}
+          {t('heardle.submit_guess')}
         </Button>
         <Button variant="outline" onClick={onPass} flex={1}>
-          {t('heardle.pass', { defaultValue: 'Pass (Skip)' })}
+          {t('heardle.pass')}
         </Button>
       </HStack>
 
       {/* Wrong guess feedback */}
       {showWrongFeedback && (
         <Text color="red.500" fontSize="sm" textAlign="center">
-          {t('heardle.wrong_guess', { defaultValue: 'Wrong! Try again.' })}
+          {t('heardle.wrong_guess')}
         </Text>
       )}
     </Stack>
