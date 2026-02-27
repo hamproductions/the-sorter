@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Stack } from 'styled-system/jsx';
+import { FaCheck, FaChevronDown } from 'react-icons/fa6';
+import { Stack } from 'styled-system/jsx';
 import { Combobox, createListCollection } from '~/components/ui/combobox';
-import { Text } from '../ui/text';
+import { IconButton } from '~/components/ui/icon-button';
+import { Input } from '~/components/ui/input';
 import { useSongSearch } from '~/hooks/useSongSearch';
 import { getSongName } from '~/utils/names';
 import type { Song } from '~/types/songs';
@@ -13,6 +15,32 @@ export interface HeardleSongComboboxProps {
   inputRef?: React.RefObject<HTMLInputElement | null>;
 }
 
+function SongItem({
+  item,
+  lang
+}: {
+  item: { value: string; label: string; englishName?: string; artist?: string; color: string };
+  lang: string;
+}) {
+  return (
+    <Combobox.Item key={item.value} item={item} h="auto" minH={10}>
+      <Combobox.ItemText>
+        <Stack gap={0} py={0.5}>
+          <span>{getSongName(item.label, item.englishName, lang)}</span>
+          {item.artist && (
+            <span style={{ fontSize: 'var(--font-sizes-xs)', color: item.color, fontWeight: 500 }}>
+              {item.artist}
+            </span>
+          )}
+        </Stack>
+      </Combobox.ItemText>
+      <Combobox.ItemIndicator>
+        <FaCheck />
+      </Combobox.ItemIndicator>
+    </Combobox.Item>
+  );
+}
+
 export function HeardleSongCombobox({
   songInventory,
   onSelect,
@@ -21,14 +49,40 @@ export function HeardleSongCombobox({
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const [inputValue, setInputValue] = useState('');
+  const emptyValue = useMemo(() => [] as string[], []);
 
-  const { items } = useSongSearch(songInventory, inputValue, lang);
+  const { songMatches, artistMatches, items } = useSongSearch(songInventory, inputValue, lang);
 
   const collection = useMemo(() => createListCollection({ items }), [items]);
+
+  const songItems = useMemo(
+    () =>
+      songMatches.map((r) => ({
+        value: r.id,
+        label: r.name,
+        englishName: r.englishName,
+        artist: r.artist,
+        color: r.color
+      })),
+    [songMatches]
+  );
+
+  const artistItems = useMemo(
+    () =>
+      artistMatches.map((r) => ({
+        value: r.id,
+        label: r.name,
+        englishName: r.englishName,
+        artist: r.artist,
+        color: r.color
+      })),
+    [artistMatches]
+  );
 
   return (
     <Combobox.Root
       collection={collection}
+      value={emptyValue}
       inputValue={inputValue}
       inputBehavior="none"
       onInputValueChange={({ inputValue: v }) => setInputValue(v)}
@@ -45,43 +99,33 @@ export function HeardleSongCombobox({
       openOnClick={false}
     >
       <Combobox.Control>
-        <Combobox.Input ref={inputRef} placeholder={t('heardle.search_placeholder')} />
+        <Combobox.Input placeholder={t('heardle.search_placeholder')} asChild>
+          <Input ref={inputRef} />
+        </Combobox.Input>
+        <Combobox.Trigger asChild>
+          <IconButton variant="link" aria-label="open" size="xs">
+            <FaChevronDown />
+          </IconButton>
+        </Combobox.Trigger>
       </Combobox.Control>
       <Combobox.Positioner>
         <Combobox.Content>
-          {items.length === 0 && inputValue.trim() !== '' && (
-            <Box p={3} textAlign="center">
-              <Text color="fg.muted" fontSize="sm">
-                {t('heardle.no_results')}
-              </Text>
-            </Box>
+          {songItems.length > 0 && (
+            <Combobox.ItemGroup>
+              <Combobox.ItemGroupLabel>{t('heardle.group_songs')}</Combobox.ItemGroupLabel>
+              {songItems.map((item) => (
+                <SongItem key={item.value} item={item} lang={lang} />
+              ))}
+            </Combobox.ItemGroup>
           )}
-          {items.map((item) => (
-            <Combobox.Item key={item.value} item={item}>
-              <Combobox.ItemText>
-                <Stack gap={0} py={0.5}>
-                  <Text fontSize="sm" fontWeight="medium">
-                    {getSongName(item.label, item.englishName, lang)}
-                  </Text>
-                  {lang === 'en' && item.englishName && (
-                    <Text color="fg.muted" fontSize="xs">
-                      {item.label}
-                    </Text>
-                  )}
-                  {item.artist && (
-                    <Text
-                      style={{ '--song-color': item.color } as React.CSSProperties}
-                      color="var(--song-color)"
-                      fontSize="xs"
-                      fontWeight="medium"
-                    >
-                      {item.artist}
-                    </Text>
-                  )}
-                </Stack>
-              </Combobox.ItemText>
-            </Combobox.Item>
-          ))}
+          {artistItems.length > 0 && (
+            <Combobox.ItemGroup>
+              <Combobox.ItemGroupLabel>{t('heardle.group_by_artist')}</Combobox.ItemGroupLabel>
+              {artistItems.map((item) => (
+                <SongItem key={item.value} item={item} lang={lang} />
+              ))}
+            </Combobox.ItemGroup>
+          )}
         </Combobox.Content>
       </Combobox.Positioner>
     </Combobox.Root>

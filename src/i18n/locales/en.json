@@ -77,7 +77,15 @@
     "pause": "Pause",
     "play": "Play",
     "failed_badge": "FAILED",
-    "no_audio_badge": "No audio available"
+    "no_audio_badge": "No audio available",
+    "group_songs": "Songs",
+    "group_by_artist": "By Artist",
+    "view_stats": "View Heardle Stats",
+    "stats_title": "Heardle Stats",
+    "tab_all": "All",
+    "tab_correct": "Correct",
+    "tab_failed": "Failed",
+    "tab_passed": "Passed"
   },
   "sort": {
     "start": "Start",

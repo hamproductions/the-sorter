@@ -1,12 +1,14 @@
 import { useTranslation } from 'react-i18next';
 import { Text } from '../ui/text';
 import type { StackProps } from 'styled-system/jsx';
-import { Center, Box, Stack } from 'styled-system/jsx';
+import { Center, Box, HStack, Stack } from 'styled-system/jsx';
+import { token } from 'styled-system/tokens';
 import type { Artist, Song } from '~/types/songs';
 import { getSongColor } from '~/utils/song';
 import { getArtistName, getSongName } from '~/utils/names';
 import { useArtistsData } from '~/hooks/useArtistsData';
 import { Heardle } from './Heardle';
+import type { GuessResult } from '~/hooks/useHeardleState';
 
 function formatArtistsWithVariants(
   songArtists: Song['artists'],
@@ -39,32 +41,54 @@ function formatArtistsWithVariants(
     .join(', ');
 }
 
+function MiniGuessIndicator({ result, maxAttempts }: { result: GuessResult; maxAttempts: number }) {
+  return (
+    <HStack gap="1">
+      {Array.from({ length: maxAttempts }).map((_, i) => {
+        const historyItem = result.guessHistory[i];
+        const isCorrectSlot = i === result.attempts - 1 && result.result === 'correct';
+        let bg = 'transparent';
+        let border = `2px solid ${token('colors.border.default')}`;
+        if (isCorrectSlot) {
+          bg = '#16a34a';
+          border = '2px solid #16a34a';
+        } else if (historyItem === 'wrong') {
+          bg = token('colors.red.9');
+          border = `2px solid ${token('colors.red.9')}`;
+        } else if (historyItem === 'pass') {
+          bg = '#d97706';
+          border = '2px solid #d97706';
+        }
+        return (
+          <Box
+            key={i}
+            style={{ backgroundColor: bg, border }}
+            borderRadius="full"
+            w="8px"
+            h="8px"
+          />
+        );
+      })}
+    </HStack>
+  );
+}
+
 export interface SongCardProps extends StackProps {
   song?: Song;
   artists?: Artist[];
   heardleMode?: boolean;
-  /** Whether the song has been revealed (guessed correctly or auto-revealed) */
   isRevealed?: boolean;
-  /** Whether the song has failed (exhausted all guesses) */
   isFailed?: boolean;
-  /** Song inventory for Heardle search */
   songInventory?: Song[];
-  /** Current attempt count for this song */
   attempts?: number;
-  /** Maximum attempts allowed */
   maxAttempts?: number;
-  /** Guess history for this song */
   guessHistory?: ('wrong' | 'pass')[];
-  /** Audio duration for current attempt */
   audioDuration?: number;
-  /** Called when user makes a guess */
   onGuess?: (guessedSongId: string) => void;
-  /** Called when user passes */
   onPass?: () => void;
-  /** Called when song has no audio */
   onNoAudio?: () => void;
-  /** Ref to forward to the Heardle search input */
   heardleInputRef?: React.RefObject<HTMLInputElement | null>;
+  guessResult?: GuessResult;
 }
 
 export function SongCard({
@@ -82,6 +106,7 @@ export function SongCard({
   onPass,
   onNoAudio,
   heardleInputRef,
+  guessResult,
   ...rest
 }: SongCardProps) {
   const { t, i18n } = useTranslation();
@@ -131,9 +156,18 @@ export function SongCard({
           {t('heardle.failed_badge', { defaultValue: 'FAILED' })}
         </Box>
       )}
+      {heardleMode &&
+        isRevealed &&
+        !isFailed &&
+        guessResult &&
+        guessResult.result !== 'no-audio' && (
+          <Box zIndex={1} position="absolute" top="2" right="2">
+            <MiniGuessIndicator result={guessResult} maxAttempts={maxAttempts} />
+          </Box>
+        )}
       {/* <SchoolBadge character={character} locale={lang} /> */}
       {showHeardle && (
-        <Stack flex={1} alignItems="center" w="full">
+        <Stack flex={1} justifyContent="center" alignItems="center" w="full">
           <Heardle
             song={song}
             songInventory={songInventory}

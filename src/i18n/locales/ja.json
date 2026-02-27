@@ -75,7 +75,15 @@
     "pause": "一時停止",
     "play": "再生",
     "failed_badge": "失敗",
-    "no_audio_badge": "音楽なし"
+    "no_audio_badge": "音楽なし",
+    "group_songs": "楽曲",
+    "group_by_artist": "アーティスト別",
+    "view_stats": "イントロドン統計を見る",
+    "stats_title": "イントロドン統計",
+    "tab_all": "すべて",
+    "tab_correct": "正解",
+    "tab_failed": "失敗",
+    "tab_passed": "パス"
   },
   "sort": {
     "start": "開始",

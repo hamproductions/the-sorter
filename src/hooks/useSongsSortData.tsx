@@ -13,7 +13,10 @@ import { getAssetUrl } from '~/utils/assets';
 import { TieToastContent } from '~/components/sorter/TieToastContent';
 import { token } from 'styled-system/tokens';
 
-export const useSongsSortData = (excludedSongIds?: Set<string>) => {
+export const useSongsSortData = (
+  excludedSongIds?: Set<string>,
+  options?: { disableShortcutsRef?: { current: boolean } }
+) => {
   const { t } = useTranslation();
   const songs = useSongData();
   const [noTieMode, setNoTieMode] = useLocalStorage('dd-mode', false);
@@ -81,25 +84,27 @@ export const useSongsSortData = (excludedSongIds?: Set<string>) => {
 
   useEffect(() => {
     const handleKeystroke = (e: KeyboardEvent) => {
-      if (state && state.status !== 'end') {
-        switch (e.key) {
-          case 'ArrowLeft':
-            left();
-            e.preventDefault();
-            break;
-          case 'ArrowRight':
-            right();
-            e.preventDefault();
-            break;
-          case 'ArrowDown':
-            handleTie();
-            e.preventDefault();
-            break;
-          case 'ArrowUp':
-            undo();
-            e.preventDefault();
-            break;
-        }
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      if (options?.disableShortcutsRef?.current) return;
+      if (!state || state.status === 'end') return;
+      switch (e.key) {
+        case 'ArrowLeft':
+          left();
+          e.preventDefault();
+          break;
+        case 'ArrowRight':
+          right();
+          e.preventDefault();
+          break;
+        case 'ArrowDown':
+          handleTie();
+          e.preventDefault();
+          break;
+        case 'ArrowUp':
+          undo();
+          e.preventDefault();
+          break;
       }
     };
     document.addEventListener('keydown', handleKeystroke);
@@ -107,7 +112,7 @@ export const useSongsSortData = (excludedSongIds?: Set<string>) => {
     return () => {
       document.removeEventListener('keydown', handleKeystroke);
     };
-  }, [left, right, handleTie, undo, state]);
+  }, [left, right, handleTie, undo, state, options?.disableShortcutsRef]);
 
   return {
     noTieMode: noTieMode ?? false,

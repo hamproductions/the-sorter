@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { render } from '../../../__test__/utils';
 import { HeardleStats } from '../HeardleStats';
 import type { Song } from '~/types/songs';
+import type { GuessResult } from '~/hooks/useHeardleState';
 
 const makeSong = (id: string, name: string, seriesId = 1): Song =>
   ({
@@ -18,93 +19,52 @@ const makeSong = (id: string, name: string, seriesId = 1): Song =>
   }) as Song;
 
 describe('HeardleStats', () => {
-  it('renders nothing when total is 0', async () => {
+  it('renders nothing when no guess results', async () => {
     const [{ queryByText }] = await render(
-      <HeardleStats correctCount={0} failedSongs={[]} lang="en" />
+      <HeardleStats guessResults={{}} songs={[]} lang="en" maxAttempts={5} />
     );
 
-    expect(queryByText(/correct/)).not.toBeInTheDocument();
-    expect(queryByText(/Heardle Failed/)).not.toBeInTheDocument();
+    expect(queryByText(/View Heardle Stats/)).not.toBeInTheDocument();
   });
 
-  it('shows correct count with no failed songs', async () => {
-    const [{ getByText, queryByText }] = await render(
-      <HeardleStats correctCount={5} failedSongs={[]} lang="en" />
-    );
-
-    expect(getByText('5/5 (100%) correct')).toBeInTheDocument();
-    expect(queryByText(/Heardle Failed/)).not.toBeInTheDocument();
-  });
-
-  it('shows correct stats with some failed songs', async () => {
-    const failed = [makeSong('s1', 'Song Alpha'), makeSong('s2', 'Song Beta')];
+  it('shows the stats button when there are results', async () => {
+    const songs = [makeSong('s1', 'Song Alpha')];
+    const guessResults: Record<string, GuessResult> = {
+      s1: { attempts: 2, result: 'correct', guessHistory: ['wrong'] }
+    };
     const [{ getByText }] = await render(
-      <HeardleStats correctCount={3} failedSongs={failed} lang="en" />
+      <HeardleStats guessResults={guessResults} songs={songs} lang="en" maxAttempts={5} />
     );
 
-    expect(getByText('3/5 (60%) correct')).toBeInTheDocument();
-    expect(getByText('Heardle Failed (2)')).toBeInTheDocument();
+    expect(getByText('View Heardle Stats')).toBeInTheDocument();
   });
 
-  it('lists all failed song names', async () => {
-    const failed = [
-      makeSong('s1', 'Song Alpha'),
-      makeSong('s2', 'Song Beta'),
-      makeSong('s3', 'Song Gamma')
-    ];
+  it('renders with failed results', async () => {
+    const songs = [makeSong('s1', 'Song Alpha'), makeSong('s2', 'Song Beta')];
+    const guessResults: Record<string, GuessResult> = {
+      s1: { attempts: 2, result: 'correct', guessHistory: ['wrong'] },
+      s2: {
+        attempts: 5,
+        result: 'failed',
+        guessHistory: ['wrong', 'wrong', 'pass', 'wrong', 'wrong']
+      }
+    };
     const [{ getByText }] = await render(
-      <HeardleStats correctCount={1} failedSongs={failed} lang="en" />
+      <HeardleStats guessResults={guessResults} songs={songs} lang="en" maxAttempts={5} />
     );
 
-    expect(getByText('Song Alpha')).toBeInTheDocument();
-    expect(getByText('Song Beta')).toBeInTheDocument();
-    expect(getByText('Song Gamma')).toBeInTheDocument();
+    expect(getByText('View Heardle Stats')).toBeInTheDocument();
   });
 
-  it('rounds percentage correctly', async () => {
-    const failed = [makeSong('s1', 'Song A')];
+  it('renders with no-audio results', async () => {
+    const songs = [makeSong('s1', 'Song Alpha')];
+    const guessResults: Record<string, GuessResult> = {
+      s1: { attempts: 0, result: 'no-audio', guessHistory: [] }
+    };
     const [{ getByText }] = await render(
-      <HeardleStats correctCount={2} failedSongs={failed} lang="en" />
+      <HeardleStats guessResults={guessResults} songs={songs} lang="en" maxAttempts={5} />
     );
 
-    // 2/3 = 66.666... -> 67%
-    expect(getByText('2/3 (67%) correct')).toBeInTheDocument();
-  });
-
-  it('shows 0% when all songs failed', async () => {
-    const failed = [makeSong('s1', 'Song A'), makeSong('s2', 'Song B')];
-    const [{ getByText }] = await render(
-      <HeardleStats correctCount={0} failedSongs={failed} lang="en" />
-    );
-
-    expect(getByText('0/2 (0%) correct')).toBeInTheDocument();
-  });
-
-  it('uses Japanese name when lang is ja', async () => {
-    const failed = [
-      {
-        ...makeSong('s1', '桜の歌'),
-        englishName: 'Sakura Song'
-      } as Song
-    ];
-    const [{ getByText }] = await render(
-      <HeardleStats correctCount={1} failedSongs={failed} lang="ja" />
-    );
-
-    expect(getByText('桜の歌')).toBeInTheDocument();
-  });
-
-  it('uses English name when lang is en', async () => {
-    const failed = [
-      {
-        ...makeSong('s1', '桜の歌'),
-        englishName: 'Sakura Song'
-      } as Song
-    ];
-    const [{ getByText }] = await render(
-      <HeardleStats correctCount={1} failedSongs={failed} lang="en" />
-    );
-
-    expect(getByText('Sakura Song')).toBeInTheDocument();
+    expect(getByText('View Heardle Stats')).toBeInTheDocument();
   });
 });

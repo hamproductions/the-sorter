@@ -80,6 +80,7 @@ vi.mock('~/hooks/useHeardleState', () => ({
     clearAllHeardleState: clearAllHeardleStateFn,
     failedSongIds: new Set<string>(),
     revealedSongIds: new Set<string>(),
+    guessResults: {} as Record<string, any>,
     maxAttempts: 5
   })
 }));
@@ -181,10 +182,6 @@ describe('Songs Page - Heardle Mode', () => {
 
     await render(<Page />);
 
-    // When both revealed, no capture-phase interceptor is registered.
-    // We verify the default event is not prevented by checking the event
-    // is not stopped (the mock useSongsSortData doesn't register keyboard
-    // handlers, so we verify the page's blocking interceptor is absent).
     const event = new KeyboardEvent('keydown', {
       key: 'ArrowLeft',
       bubbles: true,
@@ -192,7 +189,6 @@ describe('Songs Page - Heardle Mode', () => {
     });
     document.dispatchEvent(event);
 
-    // If the interceptor were active, defaultPrevented would be true
     expect(event.defaultPrevented).toBe(false);
   });
 

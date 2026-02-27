@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import { render } from '../../../__test__/utils';
-import { Heardle } from '../Heardle';
+import { Heardle, clearAudioCache } from '../Heardle';
 import type { Song } from '~/types/songs';
 import { waitFor } from '@testing-library/react';
 import { token } from 'styled-system/tokens';
@@ -72,15 +72,14 @@ describe('Heardle', () => {
 
   beforeEach(() => {
     vi.restoreAllMocks();
+    clearAudioCache();
 
-    // Mock successful fetch by default
     mockFetch = vi.fn().mockResolvedValue({
       ok: true,
       blob: () => Promise.resolve(new Blob(['audio'], { type: 'audio/ogg' }))
     });
     vi.stubGlobal('fetch', mockFetch);
 
-    // Mock URL.createObjectURL / revokeObjectURL without replacing the URL constructor
     URL.createObjectURL = vi.fn(() => 'blob:test/1');
     URL.revokeObjectURL = vi.fn();
   });

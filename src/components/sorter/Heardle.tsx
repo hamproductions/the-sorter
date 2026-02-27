@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaXmark, FaForwardStep } from 'react-icons/fa6';
 import { Box, HStack, Stack } from 'styled-system/jsx';
@@ -10,7 +10,63 @@ import { Button } from '../ui/button';
 import { HeardleAudioPlayer } from './HeardleAudioPlayer';
 import { HeardleSongCombobox } from './HeardleSongCombobox';
 
-// Hook to fetch audio and create blob URL
+interface CacheEntry {
+  blobUrl: string;
+  soundStart: number;
+}
+
+const MAX_CACHE_SIZE = 10;
+const audioBlobCache = new Map<string, CacheEntry>();
+const pendingFetches = new Map<string, Promise<CacheEntry | null>>();
+
+function evictOldest() {
+  while (audioBlobCache.size > MAX_CACHE_SIZE) {
+    const oldest = audioBlobCache.keys().next().value;
+    if (!oldest) break;
+    const entry = audioBlobCache.get(oldest);
+    if (entry) URL.revokeObjectURL(entry.blobUrl);
+    audioBlobCache.delete(oldest);
+  }
+}
+
+async function fetchAudioBlob(url: string): Promise<CacheEntry | null> {
+  try {
+    const res = await fetch(url, { referrerPolicy: 'no-referrer' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const blob = await res.blob();
+    const audioBlob = new Blob([blob], { type: 'audio/ogg' });
+    let offset = 0;
+    try {
+      const detected = await detectSoundStartFromBlob(audioBlob);
+      if (detected !== null) offset = detected;
+    } catch {}
+    const blobUrl = URL.createObjectURL(audioBlob);
+    const entry: CacheEntry = { blobUrl, soundStart: offset };
+    audioBlobCache.set(url, entry);
+    evictOldest();
+    return entry;
+  } catch (err) {
+    console.error('Failed to fetch audio:', err);
+    return null;
+  } finally {
+    pendingFetches.delete(url);
+  }
+}
+
+export function preloadAudioBlob(url: string): void {
+  if (audioBlobCache.has(url) || pendingFetches.has(url)) return;
+  const promise = fetchAudioBlob(url);
+  pendingFetches.set(url, promise);
+}
+
+export function clearAudioCache(): void {
+  for (const entry of audioBlobCache.values()) {
+    URL.revokeObjectURL(entry.blobUrl);
+  }
+  audioBlobCache.clear();
+  pendingFetches.clear();
+}
+
 function useAudioBlobUrl(url: string | undefined): {
   blobUrl: string | null;
   loading: boolean;
@@ -31,60 +87,45 @@ function useAudioBlobUrl(url: string | undefined): {
       return;
     }
 
+    const cached = audioBlobCache.get(url);
+    if (cached) {
+      setBlobUrl(cached.blobUrl);
+      setSoundStart(cached.soundStart);
+      setLoading(false);
+      setError(false);
+      return;
+    }
+
     let cancelled = false;
-    let objectUrl: string | null = null;
     setLoading(true);
     setError(false);
 
-    fetch(url, { referrerPolicy: 'no-referrer' })
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.blob();
-      })
-      .then(async (blob) => {
-        if (cancelled) return undefined;
-        // Re-create blob with explicit audio MIME type — Wikia CDN returns
-        // "application/ogg" which browsers may not recognise as playable audio.
-        const audioBlob = new Blob([blob], { type: 'audio/ogg' });
+    const existing = pendingFetches.get(url);
+    const promise = existing ?? fetchAudioBlob(url);
+    if (!existing) pendingFetches.set(url, promise);
 
-        // Detect the first audible sound to skip leading silence
-        let offset = 0;
-        try {
-          const detected = await detectSoundStartFromBlob(audioBlob);
-          if (detected !== null) {
-            offset = detected;
-          }
-        } catch {
-          // Detection failed — fall back to 0
-        }
-
-        if (cancelled) return undefined;
-
-        objectUrl = URL.createObjectURL(audioBlob);
-        setBlobUrl(objectUrl);
-        setSoundStart(offset);
+    void promise.then((entry) => {
+      if (cancelled) return undefined;
+      if (entry) {
+        setBlobUrl(entry.blobUrl);
+        setSoundStart(entry.soundStart);
         setLoading(false);
-        return undefined;
-      })
-      .catch((err) => {
-        console.error('Failed to fetch audio:', err);
-        if (!cancelled) {
-          setBlobUrl(null);
-          setLoading(false);
-          setError(true);
-        }
-      });
+      } else {
+        setBlobUrl(null);
+        setLoading(false);
+        setError(true);
+      }
+      return undefined;
+    });
 
     return () => {
       cancelled = true;
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
   }, [url]);
 
   return { blobUrl, loading, error, soundStart };
 }
 
-// Guess indicator component (like Wordle boxes)
 function HeardleGuessIndicator({
   attempts,
   maxAttempts,
@@ -138,23 +179,14 @@ function HeardleGuessIndicator({
 
 export interface HeardleProps {
   song: Song;
-  /** Song inventory for search (typically listToSort) */
   songInventory: Song[];
-  /** Current number of attempts (0-4, 5 means failed) */
   attempts: number;
-  /** Maximum attempts allowed */
   maxAttempts: number;
-  /** History of previous guesses */
   guessHistory: ('wrong' | 'pass')[];
-  /** Audio duration for current attempt in seconds */
   audioDuration: number;
-  /** Called when user makes a guess */
   onGuess: (guessedSongId: string) => void;
-  /** Called when user passes */
   onPass: () => void;
-  /** Called when song has no audio and needs auto-reveal */
   onNoAudio: () => void;
-  /** Ref to focus the search input externally */
   inputRef?: React.RefObject<HTMLInputElement | null>;
 }
 
@@ -175,26 +207,45 @@ export function Heardle({
   const { blobUrl, loading, error, soundStart } = useAudioBlobUrl(song.wikiAudioUrl);
   const [selectedSong, setSelectedSong] = useState<{ id: string; name: string } | null>(null);
   const [showWrongFeedback, setShowWrongFeedback] = useState(false);
+  const submitRef = useRef<HTMLButtonElement | null>(null);
 
-  // Auto-reveal songs without audio
   useEffect(() => {
     if (!song.wikiAudioUrl || error) {
       onNoAudio();
     }
   }, [song.wikiAudioUrl, error, onNoAudio]);
 
-  // Reset on song change
   useEffect(() => {
     setShowWrongFeedback(false);
     setSelectedSong(null);
   }, [song.id]);
+
+  const focusInput = useCallback(() => {
+    requestAnimationFrame(() => inputRef?.current?.focus());
+  }, [inputRef]);
 
   const handleSelect = useCallback((songId: string, songName: string) => {
     setSelectedSong({ id: songId, name: songName });
     setShowWrongFeedback(false);
   }, []);
 
-  const clearSelection = useCallback(() => setSelectedSong(null), []);
+  useEffect(() => {
+    if (!selectedSong) return;
+    let cancelled = false;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (!cancelled) submitRef.current?.focus();
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedSong]);
+
+  const clearSelection = useCallback(() => {
+    setSelectedSong(null);
+    focusInput();
+  }, [focusInput]);
 
   const handleSubmitGuess = useCallback(() => {
     if (!selectedSong) return;
@@ -203,10 +254,16 @@ export function Heardle({
     setSelectedSong(null);
     if (isWrong) {
       setShowWrongFeedback(true);
+      focusInput();
     }
-  }, [selectedSong, song.id, onGuess]);
+  }, [selectedSong, song.id, onGuess, focusInput]);
 
-  // Loading state
+  const handlePass = useCallback(() => {
+    onPass();
+    setShowWrongFeedback(false);
+    focusInput();
+  }, [onPass, focusInput]);
+
   if (loading) {
     return (
       <Stack gap={2} alignItems="center" p={4}>
@@ -215,7 +272,6 @@ export function Heardle({
     );
   }
 
-  // No audio available - should trigger auto-reveal
   if (!song.wikiAudioUrl || error) {
     return (
       <Stack gap={2} alignItems="center" p={4}>
@@ -225,37 +281,46 @@ export function Heardle({
   }
 
   return (
-    <Stack gap={3} w="full" p={2}>
+    <Stack gap={3} alignItems="center" w="full" maxW="md" p={2}>
       <HeardleGuessIndicator
         attempts={attempts}
         maxAttempts={maxAttempts}
         guessHistory={guessHistory}
       />
 
-      <HeardleAudioPlayer blobUrl={blobUrl} maxDuration={audioDuration} startTime={soundStart} />
+      <Box w="full">
+        <HeardleAudioPlayer blobUrl={blobUrl} maxDuration={audioDuration} startTime={soundStart} />
+      </Box>
 
-      <HeardleSongCombobox
-        songInventory={songInventory}
-        onSelect={handleSelect}
-        inputRef={inputRef}
-      />
+      <Box w="full">
+        <HeardleSongCombobox
+          songInventory={songInventory}
+          onSelect={handleSelect}
+          inputRef={inputRef}
+        />
+      </Box>
 
       {selectedSong && (
         <HStack justifyContent="space-between" w="full" px={1}>
           <Text fontSize="sm">
             {t('heardle.selected')} {selectedSong.name}
           </Text>
-          <Button size="xs" variant="ghost" onClick={clearSelection} aria-label={t('heardle.clear_selection')}>
+          <Button
+            size="xs"
+            variant="ghost"
+            onClick={clearSelection}
+            aria-label={t('heardle.clear_selection')}
+          >
             <FaXmark />
           </Button>
         </HStack>
       )}
 
       <HStack gap={2} w="full">
-        <Button disabled={!selectedSong} onClick={handleSubmitGuess} flex={1}>
+        <Button ref={submitRef} disabled={!selectedSong} onClick={handleSubmitGuess} flex={1}>
           {t('heardle.submit_guess')}
         </Button>
-        <Button variant="outline" onClick={onPass} flex={1}>
+        <Button variant="outline" onClick={handlePass} flex={1}>
           {t('heardle.pass')}
         </Button>
       </HStack>

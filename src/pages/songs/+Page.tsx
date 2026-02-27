@@ -22,6 +22,7 @@ import { useSongsSortData } from '~/hooks/useSongsSortData';
 import { useHeardleState } from '~/hooks/useHeardleState';
 import { SongResultsView } from '~/components/results/songs/SongResultsView';
 import { HeardleStats } from '~/components/sorter/HeardleStats';
+import { preloadAudioBlob } from '~/components/sorter/Heardle';
 import { useSongData } from '~/hooks/useSongData';
 import { useArtistsData } from '~/hooks/useArtistsData';
 import { isValidSongFilter } from '~/utils/song-filter';
@@ -77,10 +78,11 @@ export function Page() {
     autoReveal,
     clearAllHeardleState,
     failedSongIds,
-    revealedSongIds,
+    guessResults,
     maxAttempts
   } = useHeardleState();
 
+  const disableShortcutsRef = useRef(false);
   const {
     noTieMode,
     setNoTieMode,
@@ -102,7 +104,9 @@ export function Page() {
     listCount,
     clear,
     isEnded
-  } = useSongsSortData(failedSongIds.size > 0 ? failedSongIds : undefined);
+  } = useSongsSortData(failedSongIds.size > 0 ? failedSongIds : undefined, {
+    disableShortcutsRef
+  });
   const [showConfirmDialog, setShowConfirmDialog] = useState<{
     type: 'mid-sort' | 'ended' | 'preview' | 'new-session';
     action: 'reset' | 'clear';
@@ -176,6 +180,7 @@ export function Page() {
   const isRightFailed = currentRight ? isSongFailed(currentRight.id) : false;
   const eitherFailed = heardleMode && (isLeftFailed || isRightFailed);
   const bothRevealed = !heardleMode || (isLeftRevealed && isRightRevealed && !eitherFailed);
+  disableShortcutsRef.current = heardleMode && !bothRevealed;
 
   // Auto-skip future comparisons involving previously-failed songs
   const prevCompRef = useRef<string | null>(null);
@@ -199,19 +204,6 @@ export function Page() {
     else if (rf) left();
   }, [currentLeft, currentRight, isSongFailed, heardleMode, state, left, right, tie]);
 
-  // Block arrow key shortcuts when songs aren't ready to be compared (not yet revealed or failed)
-  useEffect(() => {
-    if (bothRevealed) return;
-    const interceptor = (e: KeyboardEvent) => {
-      if (['ArrowLeft', 'ArrowRight', 'ArrowDown'].includes(e.key)) {
-        e.stopImmediatePropagation();
-        e.preventDefault();
-      }
-    };
-    document.addEventListener('keydown', interceptor, { capture: true });
-    return () => document.removeEventListener('keydown', interceptor, { capture: true });
-  }, [bothRevealed]);
-
   // Auto-focus heardle inputs on new pair or after left reveal
   useEffect(() => {
     if (!heardleMode) return;
@@ -226,12 +218,6 @@ export function Page() {
   const failedSongsForResults = useMemo(() => {
     return songs.filter((s) => failedSongIds.has(s.id));
   }, [songs, failedSongIds]);
-
-  // Count correctly guessed songs (revealed via heardle, excluding auto-revealed songs with no audio)
-  const heardleCorrectCount = useMemo(() => {
-    const fullPool = [...listToSort, ...failedSongsForResults];
-    return fullPool.filter((s) => revealedSongIds.has(s.id) && s.wikiAudioUrl).length;
-  }, [listToSort, failedSongsForResults, revealedSongIds]);
 
   // Heardle handlers for left song
   const handleLeftGuess = useCallback(
@@ -301,7 +287,7 @@ export function Page() {
       if (!song) continue;
       if (heardleMode) {
         if (song.wikiAudioUrl) {
-          fetch(song.wikiAudioUrl, { referrerPolicy: 'no-referrer' }).catch(() => {});
+          preloadAudioBlob(song.wikiAudioUrl);
         }
       } else {
         const url =
@@ -406,7 +392,7 @@ export function Page() {
         {state && (
           <Stack alignItems="center" w="full">
             {state.status !== 'end' && (
-              <Stack w="full" h={{ base: '100vh', md: 'auto' }} p="4">
+              <Stack w="full" minH={{ base: '100vh', md: 'auto' }} p="4">
                 <Stack flex="1" alignItems="center" w="full">
                   {currentLeft && currentRight && (
                     <HStack
@@ -433,6 +419,7 @@ export function Page() {
                           onPass={handleLeftPass}
                           onNoAudio={handleLeftNoAudio}
                           heardleInputRef={leftInputRef}
+                          guessResult={guessResults[currentLeft.id]}
                           flex={1}
                         />
                         <Box hideBelow="sm">
@@ -456,6 +443,7 @@ export function Page() {
                           onPass={handleRightPass}
                           onNoAudio={handleRightNoAudio}
                           heardleInputRef={rightInputRef}
+                          guessResult={guessResults[currentRight.id]}
                           flex={1}
                         />
                         <Box hideBelow="sm">
@@ -470,31 +458,15 @@ export function Page() {
                       {t('heardle.guess_both_songs')}
                     </Text>
                   )}
-                  <HStack justifyContent="center" w="full">
-                    <Button
-                      size={{ base: '2xl', md: 'lg' }}
-                      onClick={() => tie()}
-                      disabled={noTieMode || !bothRevealed}
-                      flex={{ base: 1, md: 'unset' }}
-                    >
-                      {t('sort.tie')}
-                    </Button>
-                    <Button
-                      size={{ base: '2xl', md: 'lg' }}
-                      variant="subtle"
-                      onClick={() => undo()}
-                      flex={{ base: 1, md: 'unset' }}
-                    >
-                      {t('sort.undo')}
-                    </Button>
-                  </HStack>
                   {eitherFailed && (
-                    <Stack gap={2} alignItems="center" w="full">
-                      <Text color="red.500" fontSize="sm" fontWeight="bold" textAlign="center">
-                        {isLeftFailed && isRightFailed
-                          ? t('heardle.both_failed')
-                          : t('heardle.song_failed')}
-                      </Text>
+                    <Text color="red.500" fontSize="sm" fontWeight="bold" textAlign="center">
+                      {isLeftFailed && isRightFailed
+                        ? t('heardle.both_failed')
+                        : t('heardle.song_failed')}
+                    </Text>
+                  )}
+                  <HStack justifyContent="center" w="full">
+                    {eitherFailed ? (
                       <Button
                         size={{ base: '2xl', md: 'lg' }}
                         variant="solid"
@@ -507,8 +479,25 @@ export function Page() {
                       >
                         {t('heardle.continue')}
                       </Button>
-                    </Stack>
-                  )}
+                    ) : (
+                      <Button
+                        size={{ base: '2xl', md: 'lg' }}
+                        onClick={() => tie()}
+                        disabled={noTieMode || !bothRevealed}
+                        flex={{ base: 1, md: 'unset' }}
+                      >
+                        {t('sort.tie')}
+                      </Button>
+                    )}
+                    <Button
+                      size={{ base: '2xl', md: 'lg' }}
+                      variant="subtle"
+                      onClick={() => undo()}
+                      flex={{ base: 1, md: 'unset' }}
+                    >
+                      {t('sort.undo')}
+                    </Button>
+                  </HStack>
                   <KeyboardShortcuts noTieMode={noTieMode} />
                 </Stack>
                 <ComparisonInfo
@@ -523,14 +512,15 @@ export function Page() {
                   max={1}
                   defaultValue={0}
                 />
-                {heardleMode && (
-                  <HeardleStats
-                    correctCount={heardleCorrectCount}
-                    failedSongs={failedSongsForResults}
-                    lang={i18n.language}
-                  />
-                )}
               </Stack>
+            )}
+            {heardleMode && state.status !== 'end' && (
+              <HeardleStats
+                guessResults={guessResults}
+                songs={[...listToSort, ...failedSongsForResults]}
+                lang={i18n.language}
+                maxAttempts={maxAttempts}
+              />
             )}
             {state.arr && isEnded && (
               <Suspense>
