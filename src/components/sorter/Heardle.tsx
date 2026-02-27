@@ -8,7 +8,7 @@ import { detectSoundStartFromBlob } from '~/utils/intro-don/detectSoundStart';
 import { Text } from '../ui/text';
 import { Button } from '../ui/button';
 import { HeardleAudioPlayer } from './HeardleAudioPlayer';
-import { HeardleSongCombobox } from './HeardleSongCombobox';
+import { HeardleSongCombobox, type HeardleSongComboboxHandle } from './HeardleSongCombobox';
 
 interface CacheEntry {
   blobUrl: string;
@@ -146,7 +146,7 @@ function HeardleGuessIndicator({
           const historyItem = guessHistory[i];
           const isCurrent = i === attempts && !historyItem;
 
-          const borderColor = isCurrent ? token('colors.accent.default') : token('colors.fg.muted');
+          const borderColor = isCurrent ? token('colors.fg.default') : token('colors.fg.muted');
 
           return (
             <Box
@@ -208,6 +208,7 @@ export function Heardle({
   const [selectedSong, setSelectedSong] = useState<{ id: string; name: string } | null>(null);
   const [showWrongFeedback, setShowWrongFeedback] = useState(false);
   const submitRef = useRef<HTMLButtonElement | null>(null);
+  const comboboxRef = useRef<HeardleSongComboboxHandle | null>(null);
 
   useEffect(() => {
     if (!song.wikiAudioUrl || error) {
@@ -252,6 +253,7 @@ export function Heardle({
     const isWrong = selectedSong.id !== song.id;
     onGuess(selectedSong.id);
     setSelectedSong(null);
+    comboboxRef.current?.clearInput();
     if (isWrong) {
       setShowWrongFeedback(true);
       focusInput();
@@ -260,7 +262,9 @@ export function Heardle({
 
   const handlePass = useCallback(() => {
     onPass();
+    setSelectedSong(null);
     setShowWrongFeedback(false);
+    comboboxRef.current?.clearInput();
     focusInput();
   }, [onPass, focusInput]);
 
@@ -297,6 +301,7 @@ export function Heardle({
           songInventory={songInventory}
           onSelect={handleSelect}
           inputRef={inputRef}
+          comboboxRef={comboboxRef}
         />
       </Box>
 

@@ -188,6 +188,7 @@ export function Page() {
   // Refs for focusing heardle inputs
   const leftInputRef = useRef<HTMLInputElement | null>(null);
   const rightInputRef = useRef<HTMLInputElement | null>(null);
+  const continueRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     if (!currentLeft || !currentRight || !heardleMode) return;
@@ -213,6 +214,12 @@ export function Page() {
       rightInputRef.current?.focus();
     }
   }, [heardleMode, currentLeft?.id, currentRight?.id, isLeftRevealed, isRightRevealed]);
+
+  useEffect(() => {
+    if (eitherFailed && isLeftRevealed && isRightRevealed) {
+      requestAnimationFrame(() => continueRef.current?.focus());
+    }
+  }, [eitherFailed, isLeftRevealed, isRightRevealed]);
 
   // Get failed songs for results display
   const failedSongsForResults = useMemo(() => {
@@ -468,6 +475,7 @@ export function Page() {
                   <HStack justifyContent="center" w="full">
                     {eitherFailed ? (
                       <Button
+                        ref={continueRef}
                         size={{ base: '2xl', md: 'lg' }}
                         variant="solid"
                         onClick={() => {

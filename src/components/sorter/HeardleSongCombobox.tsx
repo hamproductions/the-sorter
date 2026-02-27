@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useImperativeHandle, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaCheck, FaChevronDown } from 'react-icons/fa6';
 import { Stack } from 'styled-system/jsx';
@@ -9,10 +9,15 @@ import { useSongSearch } from '~/hooks/useSongSearch';
 import { getSongName } from '~/utils/names';
 import type { Song } from '~/types/songs';
 
+export interface HeardleSongComboboxHandle {
+  clearInput: () => void;
+}
+
 export interface HeardleSongComboboxProps {
   songInventory: Song[];
   onSelect: (songId: string, songName: string) => void;
   inputRef?: React.RefObject<HTMLInputElement | null>;
+  comboboxRef?: React.Ref<HeardleSongComboboxHandle>;
 }
 
 function SongItem({
@@ -44,11 +49,16 @@ function SongItem({
 export function HeardleSongCombobox({
   songInventory,
   onSelect,
-  inputRef
+  inputRef,
+  comboboxRef
 }: HeardleSongComboboxProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const [inputValue, setInputValue] = useState('');
+
+  useImperativeHandle(comboboxRef, () => ({
+    clearInput: () => setInputValue('')
+  }));
   const emptyValue = useMemo(() => [] as string[], []);
 
   const { songMatches, artistMatches, items } = useSongSearch(songInventory, inputValue, lang);

@@ -242,7 +242,7 @@ describe('Heardle', () => {
     expect(onPass).toHaveBeenCalled();
   });
 
-  it('highlights current attempt indicator with accent border', async () => {
+  it('highlights current attempt indicator with fg.default border', async () => {
     const [{ container }] = await render(
       <Heardle {...defaultProps} attempts={2} maxAttempts={5} />
     );
@@ -250,8 +250,8 @@ describe('Heardle', () => {
     await waitFor(() => {
       const indicators = container.querySelectorAll('[style*="background-color"]');
       expect(indicators.length).toBe(5);
-      // The third box (index 2) should have the accent border
-      expect(indicators[2]).toHaveStyle(`border: 2px solid ${token('colors.accent.default')}`);
+      // The third box (index 2) should have the fg.default border
+      expect(indicators[2]).toHaveStyle(`border: 2px solid ${token('colors.fg.default')}`);
     });
   });
 
