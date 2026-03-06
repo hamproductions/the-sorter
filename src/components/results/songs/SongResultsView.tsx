@@ -244,7 +244,7 @@ export function SongResultsView({
               </Accordion.ItemContent>
             </Accordion.Item>
           </Accordion.Root>
-          {!readOnly && (
+          {!readOnly && currentTab !== 'performance-order' && (
             <HStack justifyContent="space-between" w="full">
               <Wrap justifyContent="flex-end" w="full">
                 {onShareResults && (
