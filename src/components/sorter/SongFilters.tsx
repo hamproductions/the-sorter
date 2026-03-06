@@ -548,7 +548,7 @@ export function SongFilters({
           <Stack>
             <HStack justifyContent="space-between" alignItems="center" h="8">
               <Text fontWeight="bold">
-                {t('settings.performances')} {performanceMeta ? '(1)' : ''}
+                {t('settings.performances')}
               </Text>
               {performanceMeta && onClearPerformance && (
                 <Button
@@ -562,7 +562,6 @@ export function SongFilters({
             </HStack>
             <Button variant="outline" size="sm" onClick={onOpenPerformancePicker} w="fit-content">
               {t('settings.performances')}
-              {performanceMeta && <Badge ml="2">1</Badge>}
             </Button>
             {performanceMeta && (
               <HStack gap="2" pt="2" flexWrap="wrap">
