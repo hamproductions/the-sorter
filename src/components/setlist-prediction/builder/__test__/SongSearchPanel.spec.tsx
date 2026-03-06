@@ -2,7 +2,7 @@ import '@testing-library/jest-dom/vitest';
 
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { SongSearchPanel } from '../SongSearchPanel';
-import { render, screen } from '~/__test__/utils';
+import { render, screen, waitFor } from '~/__test__/utils';
 
 // Mock the artists data with englishName fields
 vi.mock('../../../../data/artists-info.json', () => ({
@@ -133,7 +133,9 @@ describe('SongSearchPanel', () => {
       await user.type(searchInput, 'Snow');
 
       expect(await screen.findByText('Snow halation')).toBeInTheDocument();
-      expect(screen.queryByText('Aozora Jumping Heart')).toBeNull();
+      await waitFor(() => {
+        expect(screen.queryByText('Aozora Jumping Heart')).toBeNull();
+      });
     });
 
     it('shows multiple song matches', async () => {
@@ -183,7 +185,9 @@ describe('SongSearchPanel', () => {
       await user.type(searchInput, 'Aqours');
 
       expect(await screen.findByText('Aqours Pirate Desire')).toBeInTheDocument();
-      expect(screen.getByText('Songs by matching artists/groups')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Songs by matching artists/groups')).toBeInTheDocument();
+      });
     });
   });
 
@@ -211,7 +215,9 @@ describe('SongSearchPanel', () => {
       const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
       await user.type(searchInput, 'NonexistentSong123');
 
-      expect(screen.getByText('No songs found')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('No songs found')).toBeInTheDocument();
+      });
     });
 
     it('shows add custom song button when no results', async () => {
@@ -222,7 +228,9 @@ describe('SongSearchPanel', () => {
       const searchInput = await screen.findByPlaceholderText('Search songs or artists...');
       await user.type(searchInput, 'CustomSong');
 
-      expect(screen.getByText('Add "CustomSong" as custom song')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Add "CustomSong" as custom song')).toBeInTheDocument();
+      });
     });
 
     it('calls onAddCustomSong when add custom song button is clicked', async () => {
