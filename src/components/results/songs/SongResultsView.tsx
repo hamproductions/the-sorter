@@ -23,9 +23,13 @@ import { useArtistsData } from '~/hooks/useArtistsData';
 import { useSeriesData } from '~/hooks/useSeriesData';
 import { HeardleStatsDialog } from '~/components/sorter/HeardleStatsDialog';
 import type { GuessResult } from '~/hooks/useHeardleState';
+import type { PerformanceSortMeta } from '~/types/performance-sort';
+import { PerformanceOrderView } from './PerformanceOrderView';
+import { getFullPerformanceName } from '~/utils/names';
 
 export function SongResultsView({
   titlePrefix,
+  performanceMeta,
   songsData,
   order,
   failedSongs,
@@ -36,6 +40,7 @@ export function SongResultsView({
   ...props
 }: RootProps & {
   titlePrefix?: string;
+  performanceMeta?: PerformanceSortMeta;
   songsData: Song[];
   order?: string[][];
   failedSongs?: Song[];
@@ -49,12 +54,22 @@ export function SongResultsView({
   const { toast } = useToaster();
   const [title, setTitle] = useState<string>('My LoveLive! Song Ranking');
   const [description, setDescription] = useState<string>();
-  const [currentTab, setCurrentTab] = useLocalStorage<'table'>('songs-result-tab-v2', 'table');
+  const [currentTab, setCurrentTab] = useLocalStorage<string>('songs-result-tab-v2', 'table');
   const [timestamp, setTimestamp] = useState(new Date());
   const [showRenderingCanvas, setShowRenderingCanvas] = useState(false);
   const { t, i18n: _i18n } = useTranslation();
 
-  const tabs = useMemo(() => [{ id: 'table', label: t('results.table') }], [t]);
+  const effectiveTitlePrefix = performanceMeta
+    ? getFullPerformanceName(performanceMeta)
+    : titlePrefix;
+
+  const tabs = useMemo(() => {
+    const result = [{ id: 'table', label: t('results.table') }];
+    if (performanceMeta) {
+      result.push({ id: 'performance-order', label: t('results.performance_order') });
+    }
+    return result;
+  }, [t, performanceMeta]);
 
   useEffect(() => {
     if (!tabs.find((t) => t.id === currentTab)) {
@@ -172,7 +187,7 @@ export function SongResultsView({
       const blob = await makeScreenshot();
       if (!blob) return;
       const saveAs = (await import('file-saver')).saveAs;
-      saveAs(new File([blob], `${titlePrefix ?? 'll'}-sorted-${timestamp.valueOf()}.png`));
+      saveAs(new File([blob], `${effectiveTitlePrefix ?? 'll'}-sorted-${timestamp.valueOf()}.png`));
     } catch (error) {
       console.error(error);
     }
@@ -182,15 +197,15 @@ export function SongResultsView({
     const sortType = t('songs');
     const type = t('results.ranking');
     setTitle(
-      titlePrefix
-        ? t('results.results_title', { titlePrefix, sortType, type })
+      effectiveTitlePrefix
+        ? t('results.results_title', { titlePrefix: effectiveTitlePrefix, sortType, type })
         : t('results.default_results_title', {
-            titlePrefix,
+            titlePrefix: effectiveTitlePrefix,
             sortType,
             type
           })
     );
-  }, [titlePrefix, currentTab, t]);
+  }, [effectiveTitlePrefix, currentTab, t]);
   return (
     <>
       <Stack alignItems="center" w="full" textAlign="center">
@@ -229,7 +244,7 @@ export function SongResultsView({
               </Accordion.ItemContent>
             </Accordion.Item>
           </Accordion.Root>
-          {!readOnly && (
+          {!readOnly && currentTab !== 'performance-order' && (
             <HStack justifyContent="space-between" w="full">
               <Wrap justifyContent="flex-end" w="full">
                 {onShareResults && (
@@ -258,7 +273,7 @@ export function SongResultsView({
           lazyMount
           defaultValue="table"
           value={currentTab}
-          onValueChange={(d) => setCurrentTab(d.value as 'table')}
+          onValueChange={(d) => setCurrentTab(d.value)}
           {...props}
         >
           <Tabs.List>
@@ -277,6 +292,11 @@ export function SongResultsView({
                 maxAttempts={maxAttempts}
               />
             </Tabs.Content>
+            {performanceMeta && order && (
+              <Tabs.Content value="performance-order">
+                <PerformanceOrderView performanceMeta={performanceMeta} order={order} />
+              </Tabs.Content>
+            )}
           </Box>
         </Tabs.Root>
 

@@ -5,7 +5,7 @@
   "site_name": "LoveLive! Sorter",
   "seiyuu": "Seiyuu",
   "character": "Character",
-  "ranking": "No.",
+  "ranking": "Ranking No.",
   "save": "Save",
   "cancel": "Cancel",
   "hasu-songs": "Hasu no Sora Songs",
@@ -55,7 +55,9 @@
     "logic_or": "Match Any",
     "global_logic": "Global Filtering Logic",
     "years": "Years",
-    "cross_series": "Multiple Series"
+    "cross_series": "Multiple Series",
+    "performances": "Performances",
+    "clear_performance": "Clear"
   },
   "heardle": {
     "guess_both_songs": "Guess both songs to enable ranking",
@@ -124,6 +126,7 @@
     "download": "Download",
     "list": "List",
     "table": "Table",
+    "performance_order": "Performance Order",
     "grid": "Grid",
     "ranking": "Ranking",
     "tierlist": "Tierlist",
@@ -185,6 +188,14 @@
     "start_new_session": "Start New Session",
     "continue_sorting": "Continue Sorting",
     "close": "Close",
+    "performance_picker": {
+      "title": "Select Performance",
+      "description": "Choose a performance to sort its setlist songs.",
+      "search_placeholder": "Search by tour, performance, venue...",
+      "loading_setlist": "Loading setlist...",
+      "song_count": "{{count}} songs (deduplicated)",
+      "no_performances": "No performances with setlists found"
+    },
     "character_info": {
       "profile": "Profile",
       "birthday": "Birthday",
