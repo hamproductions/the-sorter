@@ -115,6 +115,7 @@ export function SongFilters({
         years: []
       };
     });
+    onClearPerformance?.();
   };
 
   const initFilters = useCallback(() => {

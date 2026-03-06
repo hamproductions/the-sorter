@@ -97,6 +97,17 @@ export function Page() {
   const [performanceSongIds, setPerformanceSongIds] = useLocalStorage<string[]>('perf-songs-ids');
   const [showPerformancePicker, setShowPerformancePicker] = useState(false);
 
+  // Clear stale old-format performance data (setlistOrder was string[], now SetlistOrderEntry[])
+  useEffect(() => {
+    if (
+      performanceMeta?.setlistOrder?.length &&
+      typeof performanceMeta.setlistOrder[0] === 'string'
+    ) {
+      setPerformanceMeta(undefined);
+      setPerformanceSongIds(undefined);
+    }
+  }, []);
+
   const isPerformanceMode = !!(performanceSongIds && performanceSongIds.length > 0);
 
   const disableShortcutsRef = useRef(false);

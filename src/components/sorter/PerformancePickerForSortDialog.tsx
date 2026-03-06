@@ -11,7 +11,6 @@ import {
 } from '~/hooks/setlist-prediction/usePerformanceData';
 import { getFullPerformanceName } from '~/utils/names';
 import { isSongItem } from '~/types/setlist-prediction';
-import type { SetlistItem } from '~/types/setlist-prediction';
 import {
   Root as DialogRoot,
   Backdrop as DialogBackdrop,
@@ -22,31 +21,37 @@ import {
   CloseTrigger as DialogCloseTrigger
 } from '~/components/ui/styled/dialog';
 import type { PerformanceSortMeta, SetlistOrderEntry } from '~/types/performance-sort';
+import type { PerformanceSetlist } from '~/types/setlist-prediction';
 
-function computeSetlistLabels(items: SetlistItem[]): SetlistOrderEntry[] {
-  // Find encore divider
-  const encoreDividerIndex = items.findIndex((item) => {
-    if (item.type === 'song') return false;
-    const title = 'title' in item ? item.title : '';
-    return title && (title.includes('━━ ENCORE ━━') || title.toUpperCase().includes('ENCORE'));
-  });
-
+function computeSetlistLabels(setlist: PerformanceSetlist): SetlistOrderEntry[] {
+  const { items, sections } = setlist;
   const entries: SetlistOrderEntry[] = [];
-  let mainCount = 0;
-  let encoreCount = 0;
+
+  // Build a map from item index to section type
+  const getSectionType = (index: number): string => {
+    for (const section of sections) {
+      if (index >= section.startIndex && index <= section.endIndex) {
+        return section.type ?? 'main';
+      }
+    }
+    return 'main';
+  };
+
+  // Count songs per section type
+  const songCountBySection: Record<string, number> = {};
 
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
     if (!isSongItem(item)) continue;
 
-    const isAfterEncore = encoreDividerIndex !== -1 && i > encoreDividerIndex;
+    const sectionType = getSectionType(i);
+    songCountBySection[sectionType] = (songCountBySection[sectionType] ?? 0) + 1;
+
     let label: string;
-    if (isAfterEncore) {
-      encoreCount++;
-      label = `EN${encoreCount.toString().padStart(2, '0')}`;
+    if (sectionType === 'encore') {
+      label = `EN${songCountBySection[sectionType].toString().padStart(2, '0')}`;
     } else {
-      mainCount++;
-      label = `M${mainCount.toString().padStart(2, '0')}`;
+      label = `M${songCountBySection[sectionType].toString().padStart(2, '0')}`;
     }
     entries.push({ songId: item.songId, label });
   }
@@ -95,7 +100,7 @@ export function PerformancePickerForSortDialog({
   // Compute deduplicated song IDs and full setlist order with M01/EN01 labels
   const setlistInfo = useMemo(() => {
     if (!setlist) return null;
-    const orderEntries = computeSetlistLabels(setlist.items);
+    const orderEntries = computeSetlistLabels(setlist);
     const uniqueSongIds = [...new Set(orderEntries.map((e) => e.songId))];
     return { uniqueSongIds, orderEntries };
   }, [setlist]);
