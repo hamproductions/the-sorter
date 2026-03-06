@@ -10,7 +10,7 @@ import {
   usePerformanceSetlist
 } from '~/hooks/setlist-prediction/usePerformanceData';
 import { getFullPerformanceName } from '~/utils/names';
-import { isSongItem } from '~/types/setlist-prediction';
+import { computeSetlistLabels } from '~/utils/performance-sort';
 import {
   Root as DialogRoot,
   Backdrop as DialogBackdrop,
@@ -20,44 +20,7 @@ import {
   Description as DialogDescription,
   CloseTrigger as DialogCloseTrigger
 } from '~/components/ui/styled/dialog';
-import type { PerformanceSortMeta, SetlistOrderEntry } from '~/types/performance-sort';
-import type { PerformanceSetlist } from '~/types/setlist-prediction';
-
-function computeSetlistLabels(setlist: PerformanceSetlist): SetlistOrderEntry[] {
-  const { items, sections } = setlist;
-  const entries: SetlistOrderEntry[] = [];
-
-  // Build a map from item index to section type
-  const getSectionType = (index: number): string => {
-    for (const section of sections) {
-      if (index >= section.startIndex && index <= section.endIndex) {
-        return section.type ?? 'main';
-      }
-    }
-    return 'main';
-  };
-
-  // Count songs per section type
-  const songCountBySection: Record<string, number> = {};
-
-  for (let i = 0; i < items.length; i++) {
-    const item = items[i];
-    if (!isSongItem(item)) continue;
-
-    const sectionType = getSectionType(i);
-    songCountBySection[sectionType] = (songCountBySection[sectionType] ?? 0) + 1;
-
-    let label: string;
-    if (sectionType === 'encore') {
-      label = `EN${songCountBySection[sectionType].toString().padStart(2, '0')}`;
-    } else {
-      label = `M${songCountBySection[sectionType].toString().padStart(2, '0')}`;
-    }
-    entries.push({ songId: item.songId, label });
-  }
-
-  return entries;
-}
+import type { PerformanceSortMeta } from '~/types/performance-sort';
 
 export interface PerformancePickerForSortDialogProps {
   open: boolean;
