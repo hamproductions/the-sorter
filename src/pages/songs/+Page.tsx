@@ -27,8 +27,10 @@ import { useSongData } from '~/hooks/useSongData';
 import { useArtistsData } from '~/hooks/useArtistsData';
 import { isValidSongFilter } from '~/utils/song-filter';
 import { addSongPresetParams, getAllCommaSeparated, serializeData } from '~/utils/share';
-import { getSongName } from '~/utils/names';
+import { getFullPerformanceName, getSongName } from '~/utils/names';
 import type { Song } from '~/types/songs';
+import type { PerformanceSortMeta } from '~/types/performance-sort';
+import { useLocalStorage } from '~/hooks/useLocalStorage';
 
 const ConfirmMidSortDialog = lazy(() =>
   import('../../components/dialog/ConfirmDialog').then((m) => ({
@@ -60,6 +62,12 @@ const SortingPreviewDialog = lazy(() =>
   }))
 );
 
+const PerformancePickerForSortDialog = lazy(() =>
+  import('../../components/sorter/PerformancePickerForSortDialog').then((m) => ({
+    default: m.PerformancePickerForSortDialog
+  }))
+);
+
 export function Page() {
   const songs = useSongData();
   const artists = useArtistsData();
@@ -81,6 +89,15 @@ export function Page() {
     guessResults,
     maxAttempts
   } = useHeardleState();
+
+  // Performance mode state
+  const [performanceMeta, setPerformanceMeta] = useLocalStorage<PerformanceSortMeta>(
+    'perf-songs-meta'
+  );
+  const [performanceSongIds, setPerformanceSongIds] = useLocalStorage<string[]>('perf-songs-ids');
+  const [showPerformancePicker, setShowPerformancePicker] = useState(false);
+
+  const isPerformanceMode = !!(performanceSongIds && performanceSongIds.length > 0);
 
   const disableShortcutsRef = useRef(false);
   const {
@@ -105,7 +122,9 @@ export function Page() {
     clear,
     isEnded
   } = useSongsSortData(failedSongIds.size > 0 ? failedSongIds : undefined, {
-    disableShortcutsRef
+    disableShortcutsRef,
+    performanceSongIds: isPerformanceMode ? performanceSongIds : undefined,
+    storagePrefix: isPerformanceMode ? 'perf-songs' : undefined
   });
   const [showConfirmDialog, setShowConfirmDialog] = useState<{
     type: 'mid-sort' | 'ended' | 'preview' | 'new-session';
@@ -363,6 +382,22 @@ export function Page() {
     }
   };
 
+  const handleSelectPerformance = (songIds: string[], meta: PerformanceSortMeta) => {
+    setPerformanceSongIds(songIds);
+    setPerformanceMeta(meta);
+  };
+
+  const clearPerformanceMode = () => {
+    setPerformanceMeta(undefined);
+    setPerformanceSongIds(undefined);
+    // Clear performance sort state from localStorage
+    for (const key of Object.keys(localStorage)) {
+      if (key.startsWith('perf-songs-')) {
+        localStorage.removeItem(key);
+      }
+    }
+  };
+
   return (
     <>
       <Metadata title={title} helmet />
@@ -373,14 +408,33 @@ export function Page() {
         <Text textAlign="center">{t('description')}</Text>
         {!isSorting && (
           <>
-            <Suspense fallback={<LoadingCharacterFilters />}>
-              {import.meta.env.SSR ? (
-                <LoadingCharacterFilters />
-              ) : (
-                <SongFilters filters={songFilters} setFilters={setSongFilters} />
-              )}
-            </Suspense>
+            {!isPerformanceMode && (
+              <Suspense fallback={<LoadingCharacterFilters />}>
+                {import.meta.env.SSR ? (
+                  <LoadingCharacterFilters />
+                ) : (
+                  <SongFilters filters={songFilters} setFilters={setSongFilters} />
+                )}
+              </Suspense>
+            )}
+            {isPerformanceMode && performanceMeta && (
+              <Wrap justifyContent="center" alignItems="center">
+                <Text fontSize="sm" fontWeight="bold">
+                  {getFullPerformanceName(performanceMeta)}
+                </Text>
+                <Button size="sm" variant="subtle" onClick={clearPerformanceMode}>
+                  {t('settings.clear_performance')}
+                </Button>
+              </Wrap>
+            )}
             <Wrap>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowPerformancePicker(true)}
+              >
+                {t('settings.performances')}
+              </Button>
               <Switch
                 checked={noTieMode}
                 disabled={isSorting}
@@ -562,6 +616,7 @@ export function Page() {
               <Suspense>
                 <SongResultsView
                   songsData={songs}
+                  performanceMeta={isPerformanceMode && performanceMeta ? performanceMeta : undefined}
                   failedSongs={heardleMode ? failedSongsForResults : undefined}
                   guessResults={heardleMode ? guessResults : undefined}
                   maxAttempts={heardleMode ? maxAttempts : undefined}
@@ -671,6 +726,11 @@ export function Page() {
               setShowConfirmDialog(undefined);
             }
           }}
+        />
+        <PerformancePickerForSortDialog
+          open={showPerformancePicker}
+          onOpenChange={({ open }) => setShowPerformancePicker(open)}
+          onSelectPerformance={handleSelectPerformance}
         />
       </Suspense>
     </>

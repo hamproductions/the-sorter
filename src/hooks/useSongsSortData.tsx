@@ -15,7 +15,11 @@ import { token } from 'styled-system/tokens';
 
 export const useSongsSortData = (
   excludedSongIds?: Set<string>,
-  options?: { disableShortcutsRef?: { current: boolean } }
+  options?: {
+    disableShortcutsRef?: { current: boolean };
+    performanceSongIds?: string[];
+    storagePrefix?: string;
+  }
 ) => {
   const { t } = useTranslation();
   const songs = useSongData();
@@ -25,12 +29,20 @@ export const useSongsSortData = (
 
   // First apply song filters, then exclude failed songs (for Heardle mode)
   const listToSort = useMemo(() => {
-    let filtered =
-      songs && songFilters && hasFilter(songFilters)
-        ? songs.filter((s) => {
-            return matchSongFilter(s, songFilters ?? {});
-          })
-        : songs;
+    let filtered: typeof songs;
+
+    // In performance mode, use the provided song IDs instead of filters
+    if (options?.performanceSongIds && options.performanceSongIds.length > 0) {
+      const perfIds = new Set(options.performanceSongIds);
+      filtered = songs.filter((s) => perfIds.has(s.id));
+    } else {
+      filtered =
+        songs && songFilters && hasFilter(songFilters)
+          ? songs.filter((s) => {
+              return matchSongFilter(s, songFilters ?? {});
+            })
+          : songs;
+    }
 
     // Exclude failed songs if provided
     if (excludedSongIds && excludedSongIds.size > 0) {
@@ -38,7 +50,7 @@ export const useSongsSortData = (
     }
 
     return filtered;
-  }, [songs, songFilters, excludedSongIds]);
+  }, [songs, songFilters, excludedSongIds, options?.performanceSongIds]);
 
   const {
     init,
@@ -55,7 +67,7 @@ export const useSongsSortData = (
     isEnded
   } = useSorter(
     listToSort.map((l) => l.id),
-    'songs'
+    options?.storagePrefix ?? 'songs'
   );
 
   const { toast } = useToaster();
