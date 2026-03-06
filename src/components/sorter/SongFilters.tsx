@@ -15,9 +15,10 @@ import { DualListSelector } from './DualListSelector';
 import { Badge } from '~/components/ui/badge';
 import { HStack, Stack, Wrap, Box } from 'styled-system/jsx';
 import { isValidSongFilter } from '~/utils/song-filter';
-import { getSeriesName, getSongName } from '~/utils/names';
+import { getFullPerformanceName, getSeriesName, getSongName } from '~/utils/names';
 import { fuzzySearch, getSearchScore } from '~/utils/search';
 import { getAllCommaSeparated } from '~/utils/share';
+import type { PerformanceSortMeta } from '~/types/performance-sort';
 
 export type SongFilterType = {
   series: string[];
@@ -66,10 +67,16 @@ const FILTER_VALUES = {
 
 export function SongFilters({
   filters,
-  setFilters
+  setFilters,
+  performanceMeta,
+  onOpenPerformancePicker,
+  onClearPerformance
 }: {
   filters: SongFilterType | null | undefined;
   setFilters: Dispatch<SetStateAction<SongFilterType | null | undefined>>;
+  performanceMeta?: PerformanceSortMeta | null;
+  onOpenPerformancePicker?: () => void;
+  onClearPerformance?: () => void;
 }) {
   const { t, i18n: _i18n } = useTranslation();
 
@@ -532,6 +539,41 @@ export function SongFilters({
           </HStack>
         )}
       </Stack>
+
+      {onOpenPerformancePicker && (
+        <>
+          <Box height="1px" bg="border.subtle" />
+
+          {/* Performances */}
+          <Stack>
+            <HStack justifyContent="space-between" alignItems="center" h="8">
+              <Text fontWeight="bold">
+                {t('settings.performances')} {performanceMeta ? '(1)' : ''}
+              </Text>
+              {performanceMeta && onClearPerformance && (
+                <Button
+                  size="xs"
+                  variant="outline"
+                  onClick={onClearPerformance}
+                >
+                  {t('settings.clear_performance')}
+                </Button>
+              )}
+            </HStack>
+            <Button variant="outline" size="sm" onClick={onOpenPerformancePicker} w="fit-content">
+              {t('settings.performances')}
+              {performanceMeta && <Badge ml="2">1</Badge>}
+            </Button>
+            {performanceMeta && (
+              <HStack gap="2" pt="2" flexWrap="wrap">
+                <Badge variant="subtle" size="sm">
+                  {getFullPerformanceName(performanceMeta)}
+                </Badge>
+              </HStack>
+            )}
+          </Stack>
+        </>
+      )}
 
       <HStack justifyContent="center">
         <Button onClick={deselectAll}>{t('settings.deselect_all')}</Button>

@@ -27,7 +27,7 @@ import { useSongData } from '~/hooks/useSongData';
 import { useArtistsData } from '~/hooks/useArtistsData';
 import { isValidSongFilter } from '~/utils/song-filter';
 import { addSongPresetParams, getAllCommaSeparated, serializeData } from '~/utils/share';
-import { getFullPerformanceName, getSongName } from '~/utils/names';
+import { getSongName } from '~/utils/names';
 import type { Song } from '~/types/songs';
 import type { PerformanceSortMeta } from '~/types/performance-sort';
 import { useLocalStorage } from '~/hooks/useLocalStorage';
@@ -408,33 +408,20 @@ export function Page() {
         <Text textAlign="center">{t('description')}</Text>
         {!isSorting && (
           <>
-            {!isPerformanceMode && (
-              <Suspense fallback={<LoadingCharacterFilters />}>
-                {import.meta.env.SSR ? (
-                  <LoadingCharacterFilters />
-                ) : (
-                  <SongFilters filters={songFilters} setFilters={setSongFilters} />
-                )}
-              </Suspense>
-            )}
-            {isPerformanceMode && performanceMeta && (
-              <Wrap justifyContent="center" alignItems="center">
-                <Text fontSize="sm" fontWeight="bold">
-                  {getFullPerformanceName(performanceMeta)}
-                </Text>
-                <Button size="sm" variant="subtle" onClick={clearPerformanceMode}>
-                  {t('settings.clear_performance')}
-                </Button>
-              </Wrap>
-            )}
+            <Suspense fallback={<LoadingCharacterFilters />}>
+              {import.meta.env.SSR ? (
+                <LoadingCharacterFilters />
+              ) : (
+                <SongFilters
+                  filters={songFilters}
+                  setFilters={setSongFilters}
+                  performanceMeta={performanceMeta}
+                  onOpenPerformancePicker={() => setShowPerformancePicker(true)}
+                  onClearPerformance={clearPerformanceMode}
+                />
+              )}
+            </Suspense>
             <Wrap>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowPerformancePicker(true)}
-              >
-                {t('settings.performances')}
-              </Button>
               <Switch
                 checked={noTieMode}
                 disabled={isSorting}

@@ -27,21 +27,19 @@ export const useSongsSortData = (
   const [heardleMode, setHeardleMode] = useLocalStorage('heardle-mode', false);
   const [songFilters, setSongFilters] = useLocalStorage<SongFilterType>('song-filters', undefined);
 
-  // First apply song filters, then exclude failed songs (for Heardle mode)
+  // Apply performance pre-filter, then song filters, then exclude failed songs
   const listToSort = useMemo(() => {
-    let filtered: typeof songs;
+    let filtered = songs;
 
-    // In performance mode, use the provided song IDs instead of filters
+    // In performance mode, narrow to the performance's setlist songs first
     if (options?.performanceSongIds && options.performanceSongIds.length > 0) {
       const perfIds = new Set(options.performanceSongIds);
-      filtered = songs.filter((s) => perfIds.has(s.id));
-    } else {
-      filtered =
-        songs && songFilters && hasFilter(songFilters)
-          ? songs.filter((s) => {
-              return matchSongFilter(s, songFilters ?? {});
-            })
-          : songs;
+      filtered = filtered.filter((s) => perfIds.has(s.id));
+    }
+
+    // Then apply song filters on top
+    if (songFilters && hasFilter(songFilters)) {
+      filtered = filtered.filter((s) => matchSongFilter(s, songFilters));
     }
 
     // Exclude failed songs if provided
