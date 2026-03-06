@@ -456,7 +456,7 @@ export function Page() {
           <Button onClick={() => void shareUrl()} variant="subtle">
             <FaShare /> {t('settings.share')}
           </Button>
-          <Button variant="solid" onClick={() => handleStart()}>
+          <Button variant="solid" onClick={() => handleStart()} disabled={!isSorting && listCount < 2}>
             {!isSorting ? t('sort.start') : t('sort.start_over')}
           </Button>
           {isSorting && (
