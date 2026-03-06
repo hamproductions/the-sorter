@@ -91,9 +91,8 @@ export function Page() {
   } = useHeardleState();
 
   // Performance mode state
-  const [performanceMeta, setPerformanceMeta] = useLocalStorage<PerformanceSortMeta>(
-    'perf-songs-meta'
-  );
+  const [performanceMeta, setPerformanceMeta] =
+    useLocalStorage<PerformanceSortMeta>('perf-songs-meta');
   const [performanceSongIds, setPerformanceSongIds] = useLocalStorage<string[]>('perf-songs-ids');
   const [showPerformancePicker, setShowPerformancePicker] = useState(false);
 
@@ -106,7 +105,8 @@ export function Page() {
       setPerformanceMeta(undefined);
       setPerformanceSongIds(undefined);
     }
-  }, []);
+    // oxlint-disable-next-line exhaustive-deps
+  }, [performanceMeta?.setlistOrder, setPerformanceMeta, setPerformanceSongIds]);
 
   const isPerformanceMode = !!(performanceSongIds && performanceSongIds.length > 0);
 
@@ -147,6 +147,7 @@ export function Page() {
     const params = new URLSearchParams(location.search);
     if (params.get('heardle') === 'true' && !heardleMode) setHeardleMode(true);
     if (params.get('noTie') === 'true' && !noTieMode) setNoTieMode(true);
+    // oxlint-disable-next-line exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -467,7 +468,11 @@ export function Page() {
           <Button onClick={() => void shareUrl()} variant="subtle">
             <FaShare /> {t('settings.share')}
           </Button>
-          <Button variant="solid" onClick={() => handleStart()} disabled={!isSorting && listCount < 2}>
+          <Button
+            variant="solid"
+            onClick={() => handleStart()}
+            disabled={!isSorting && listCount < 2}
+          >
             {!isSorting ? t('sort.start') : t('sort.start_over')}
           </Button>
           {isSorting && (
@@ -614,7 +619,9 @@ export function Page() {
               <Suspense>
                 <SongResultsView
                   songsData={songs}
-                  performanceMeta={isPerformanceMode && performanceMeta ? performanceMeta : undefined}
+                  performanceMeta={
+                    isPerformanceMode && performanceMeta ? performanceMeta : undefined
+                  }
                   failedSongs={heardleMode ? failedSongsForResults : undefined}
                   guessResults={heardleMode ? guessResults : undefined}
                   maxAttempts={heardleMode ? maxAttempts : undefined}

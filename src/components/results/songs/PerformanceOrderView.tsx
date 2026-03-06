@@ -118,7 +118,7 @@ export function PerformanceOrderView({
               borderBottomColor="var(--color)"
             >
               <Table.Cell textAlign="center">
-                <Text fontWeight="bold" fontSize="xs" fontFamily="mono">
+                <Text fontFamily="mono" fontSize="xs" fontWeight="bold">
                   {label}
                 </Text>
               </Table.Cell>
@@ -134,7 +134,7 @@ export function PerformanceOrderView({
                 </Stack>
               </Table.Cell>
               <Table.Cell textAlign="center">
-                <Text fontWeight="bold" style={{ color: rankColor }}>
+                <Text style={{ color: rankColor }} fontWeight="bold">
                   #{rank}
                 </Text>
               </Table.Cell>

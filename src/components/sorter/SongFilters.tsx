@@ -548,15 +548,9 @@ export function SongFilters({
           {/* Performances */}
           <Stack>
             <HStack justifyContent="space-between" alignItems="center" h="8">
-              <Text fontWeight="bold">
-                {t('settings.performances')}
-              </Text>
+              <Text fontWeight="bold">{t('settings.performances')}</Text>
               {performanceMeta && onClearPerformance && (
-                <Button
-                  size="xs"
-                  variant="outline"
-                  onClick={onClearPerformance}
-                >
+                <Button size="xs" variant="outline" onClick={onClearPerformance}>
                   {t('settings.clear_performance')}
                 </Button>
               )}

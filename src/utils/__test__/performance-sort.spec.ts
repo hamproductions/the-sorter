@@ -50,13 +50,7 @@ describe('computeSetlistLabels', () => {
 
   it('labels encore songs as EN01, EN02, ... after encore section boundary', () => {
     const setlist = makeSetlist(
-      [
-        makeSong('a', 0),
-        makeSong('b', 1),
-        makeSong('c', 2),
-        makeSong('d', 3),
-        makeSong('e', 4)
-      ],
+      [makeSong('a', 0), makeSong('b', 1), makeSong('c', 2), makeSong('d', 3), makeSong('e', 4)],
       [
         { name: 'Main', startIndex: 0, endIndex: 2, type: 'main' },
         { name: 'Encore', startIndex: 3, endIndex: 4, type: 'encore' }

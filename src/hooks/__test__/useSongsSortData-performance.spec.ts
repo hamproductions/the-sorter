@@ -72,7 +72,7 @@ vi.mock('~/utils/filter', () => ({
 
 let mockMatchResult = true;
 vi.mock('~/utils/song-filter', () => ({
-  matchSongFilter: (song: { seriesIds: string[] }) => {
+  matchSongFilter: (_song: { seriesIds: string[] }) => {
     if (typeof mockMatchResult === 'boolean') return mockMatchResult;
     return true;
   }
