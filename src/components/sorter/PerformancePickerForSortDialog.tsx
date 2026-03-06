@@ -11,6 +11,7 @@ import {
 } from '~/hooks/setlist-prediction/usePerformanceData';
 import { getFullPerformanceName } from '~/utils/names';
 import { isSongItem } from '~/types/setlist-prediction';
+import type { SetlistItem } from '~/types/setlist-prediction';
 import {
   Root as DialogRoot,
   Backdrop as DialogBackdrop,
@@ -20,7 +21,38 @@ import {
   Description as DialogDescription,
   CloseTrigger as DialogCloseTrigger
 } from '~/components/ui/styled/dialog';
-import type { PerformanceSortMeta } from '~/types/performance-sort';
+import type { PerformanceSortMeta, SetlistOrderEntry } from '~/types/performance-sort';
+
+function computeSetlistLabels(items: SetlistItem[]): SetlistOrderEntry[] {
+  // Find encore divider
+  const encoreDividerIndex = items.findIndex((item) => {
+    if (item.type === 'song') return false;
+    const title = 'title' in item ? item.title : '';
+    return title && (title.includes('━━ ENCORE ━━') || title.toUpperCase().includes('ENCORE'));
+  });
+
+  const entries: SetlistOrderEntry[] = [];
+  let mainCount = 0;
+  let encoreCount = 0;
+
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    if (!isSongItem(item)) continue;
+
+    const isAfterEncore = encoreDividerIndex !== -1 && i > encoreDividerIndex;
+    let label: string;
+    if (isAfterEncore) {
+      encoreCount++;
+      label = `EN${encoreCount.toString().padStart(2, '0')}`;
+    } else {
+      mainCount++;
+      label = `M${mainCount.toString().padStart(2, '0')}`;
+    }
+    entries.push({ songId: item.songId, label });
+  }
+
+  return entries;
+}
 
 export interface PerformancePickerForSortDialogProps {
   open: boolean;
@@ -60,13 +92,12 @@ export function PerformancePickerForSortDialog({
     return filtered;
   }, [performances, search]);
 
-  // Compute deduplicated song IDs and full setlist order when setlist is loaded
+  // Compute deduplicated song IDs and full setlist order with M01/EN01 labels
   const setlistInfo = useMemo(() => {
     if (!setlist) return null;
-    const songItems = setlist.items.filter(isSongItem);
-    const allSongIds = songItems.map((item) => item.songId);
-    const uniqueSongIds = [...new Set(allSongIds)];
-    return { uniqueSongIds, allSongIds };
+    const orderEntries = computeSetlistLabels(setlist.items);
+    const uniqueSongIds = [...new Set(orderEntries.map((e) => e.songId))];
+    return { uniqueSongIds, orderEntries };
   }, [setlist]);
 
   // Reset selection when dialog closes
@@ -87,7 +118,7 @@ export function PerformancePickerForSortDialog({
       performanceName: selectedPerformance.performanceName,
       date: selectedPerformance.date,
       venue: selectedPerformance.venue,
-      setlistOrder: setlistInfo.allSongIds
+      setlistOrder: setlistInfo.orderEntries
     };
     onSelectPerformance(setlistInfo.uniqueSongIds, meta);
     onOpenChange({ open: false });
