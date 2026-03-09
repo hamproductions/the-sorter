@@ -15,7 +15,11 @@ import { token } from 'styled-system/tokens';
 
 export const useSongsSortData = (
   excludedSongIds?: Set<string>,
-  options?: { disableShortcutsRef?: { current: boolean } }
+  options?: {
+    disableShortcutsRef?: { current: boolean };
+    performanceSongIds?: string[];
+    storagePrefix?: string;
+  }
 ) => {
   const { t } = useTranslation();
   const songs = useSongData();
@@ -23,14 +27,20 @@ export const useSongsSortData = (
   const [heardleMode, setHeardleMode] = useLocalStorage('heardle-mode', false);
   const [songFilters, setSongFilters] = useLocalStorage<SongFilterType>('song-filters', undefined);
 
-  // First apply song filters, then exclude failed songs (for Heardle mode)
+  // Apply performance pre-filter, then song filters, then exclude failed songs
   const listToSort = useMemo(() => {
-    let filtered =
-      songs && songFilters && hasFilter(songFilters)
-        ? songs.filter((s) => {
-            return matchSongFilter(s, songFilters ?? {});
-          })
-        : songs;
+    let filtered = songs;
+
+    // In performance mode, narrow to the performance's setlist songs first
+    if (options?.performanceSongIds && options.performanceSongIds.length > 0) {
+      const perfIds = new Set(options.performanceSongIds);
+      filtered = filtered.filter((s) => perfIds.has(s.id));
+    }
+
+    // Then apply song filters on top
+    if (songFilters && hasFilter(songFilters)) {
+      filtered = filtered.filter((s) => matchSongFilter(s, songFilters));
+    }
 
     // Exclude failed songs if provided
     if (excludedSongIds && excludedSongIds.size > 0) {
@@ -38,7 +48,7 @@ export const useSongsSortData = (
     }
 
     return filtered;
-  }, [songs, songFilters, excludedSongIds]);
+  }, [songs, songFilters, excludedSongIds, options?.performanceSongIds]);
 
   const {
     init,
@@ -55,7 +65,7 @@ export const useSongsSortData = (
     isEnded
   } = useSorter(
     listToSort.map((l) => l.id),
-    'songs'
+    options?.storagePrefix ?? 'songs'
   );
 
   const { toast } = useToaster();

@@ -5,7 +5,7 @@
   "site_name": "ラブライブ!ランキング",
   "seiyuu": "声優",
   "character": "キャラクター",
-  "ranking": "順位",
+  "ranking": "ランキング順位",
   "save": "保存",
   "cancel": "キャンセル",
   "hasu-songs": "蓮ノ空楽曲",
@@ -53,7 +53,9 @@
     "logic_or": "いずれか一致",
     "global_logic": "フィルター全体の設定",
     "years": "発売年",
-    "cross_series": "複数シリーズ"
+    "cross_series": "複数シリーズ",
+    "performances": "公演",
+    "clear_performance": "クリア"
   },
   "heardle": {
     "guess_both_songs": "両方の曲を当ててからランキングできます",
@@ -121,7 +123,8 @@
     "share": "リンクをシェア",
     "download": "ダウンロード",
     "list": "リスト",
-    "table": "表",
+    "table": "ランキング表",
+    "performance_order": "公演順",
     "grid": "グリッド",
     "ranking": "ランキング",
     "tierlist": "ティアリスト",
@@ -187,6 +190,14 @@
     "start_new_session": "新しいセッションを開始",
     "continue_sorting": "ランキングを続ける",
     "close": "閉じる",
+    "performance_picker": {
+      "title": "公演を選択",
+      "description": "セットリストの楽曲をランキングする公演を選んでください。",
+      "search_placeholder": "ツアー名、公演名、会場で検索...",
+      "loading_setlist": "セットリストを読み込み中...",
+      "song_count": "{{count}}曲（重複除外）",
+      "no_performances": "セットリストのある公演が見つかりません"
+    },
     "character_info": {
       "profile": "プロフィール",
       "birthday": "誕生日",

@@ -239,7 +239,7 @@ describe('Home Page', () => {
 
         // Switch to Table View
         await user.click(await findByText('Table'));
-        expect(await findByText('No.')).toBeInTheDocument();
+        expect(await findByText('Ranking No.')).toBeInTheDocument();
         expect(await findByText('Character')).toBeInTheDocument();
 
         // Switch to Grid View
