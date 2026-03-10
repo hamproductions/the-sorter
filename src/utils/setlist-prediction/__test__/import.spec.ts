@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { importFromJSON, importFromFile, importFromCSV, parseActualSetlist } from '../import';
+import {
+  importFromJSON,
+  importFromFile,
+  importFromCSV,
+  parseActualSetlist,
+  toActualSetlistItems
+} from '../import';
 
 describe('import utilities', () => {
   describe('importFromJSON', () => {
@@ -66,9 +72,36 @@ describe('import utilities', () => {
       expect(result.items.length).toBe(3);
     });
 
+    it('resolves known songs to song ids', () => {
+      const text = '1. Snow halation';
+      const result = parseActualSetlist(text);
+      expect(result.items[0].songId).toBe('3');
+    });
+
     it('handles empty input', () => {
       const result = parseActualSetlist('');
       expect(result.items.length).toBe(0);
+    });
+  });
+
+  describe('toActualSetlistItems', () => {
+    it('keeps unknown songs as custom songs', () => {
+      const items = toActualSetlistItems([
+        {
+          type: 'song',
+          title: 'Definitely Not A Real Song'
+        }
+      ]);
+
+      expect(items[0]).toMatchObject({
+        type: 'song',
+        isCustomSong: true,
+        customSongName: 'Definitely Not A Real Song'
+      });
+      if (items[0]?.type !== 'song') {
+        throw new Error('Expected a song item');
+      }
+      expect(items[0].songId).not.toBe('Definitely Not A Real Song');
     });
   });
 

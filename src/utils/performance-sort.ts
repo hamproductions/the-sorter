@@ -1,5 +1,6 @@
 import type { SetlistOrderEntry } from '~/types/performance-sort';
 import type { PerformanceSetlist } from '~/types/setlist-prediction';
+import type { Song } from '~/types/songs';
 import { isSongItem } from '~/types/setlist-prediction';
 
 export function computeSetlistLabels(setlist: PerformanceSetlist): SetlistOrderEntry[] {
@@ -34,4 +35,66 @@ export function computeSetlistLabels(setlist: PerformanceSetlist): SetlistOrderE
   }
 
   return entries;
+}
+
+function normalizeSongName(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s]/gu, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function createSongLookup(songs: Song[]) {
+  const lookup = new Map<string, string | null>();
+
+  for (const song of songs) {
+    for (const candidate of [song.name, song.englishName, song.phoneticName]) {
+      if (!candidate) continue;
+      const key = normalizeSongName(candidate);
+      if (!key) continue;
+
+      if (!lookup.has(key)) {
+        lookup.set(key, song.id);
+        continue;
+      }
+
+      if (lookup.get(key) !== song.id) {
+        lookup.set(key, null);
+      }
+    }
+  }
+
+  return lookup;
+}
+
+export function computeSortableSetlistLabels(
+  setlist: PerformanceSetlist,
+  songs: Song[]
+): SetlistOrderEntry[] {
+  const songLookup = createSongLookup(songs);
+  const songMap = new Map(songs.map((song) => [song.id, song]));
+
+  return computeSetlistLabels(setlist).flatMap((entry, index) => {
+    const item = setlist.items.filter(isSongItem)[index];
+    const customSongName = item?.customSongName?.trim();
+    const normalizedCustomSongName = customSongName ? normalizeSongName(customSongName) : '';
+    const resolvedSongId = normalizedCustomSongName
+      ? songLookup.get(normalizedCustomSongName) ?? undefined
+      : undefined;
+    const sourceSong = songMap.get(entry.songId);
+    const matchesSourceSong =
+      sourceSong &&
+      normalizedCustomSongName &&
+      [sourceSong.name, sourceSong.englishName, sourceSong.phoneticName]
+        .filter((name): name is string => Boolean(name))
+        .some((name) => normalizeSongName(name) === normalizedCustomSongName);
+    const songId = customSongName
+      ? resolvedSongId ?? (matchesSourceSong ? entry.songId : undefined)
+      : sourceSong?.id;
+
+    if (!songId) return [];
+
+    return [{ ...entry, songId }];
+  });
 }

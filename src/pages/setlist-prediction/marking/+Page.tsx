@@ -17,13 +17,9 @@ import {
   usePerformanceSetlist
 } from '~/hooks/setlist-prediction/usePerformanceData';
 import { getFullPerformanceName } from '~/utils/names';
-import { parseActualSetlist } from '~/utils/setlist-prediction/import';
+import { parseActualSetlist, toActualSetlistItems } from '~/utils/setlist-prediction/import';
 import { calculateScore } from '~/utils/setlist-prediction/scoring';
-import type {
-  PerformanceSetlist,
-  SetlistItemType,
-  SetlistPrediction
-} from '~/types/setlist-prediction';
+import type { PerformanceSetlist, SetlistPrediction } from '~/types/setlist-prediction';
 import { isSongItem } from '~/types/setlist-prediction';
 import { generateSetlistId } from '~/utils/setlist-prediction/id';
 import { SetlistView } from '~/components/setlist-prediction/SetlistView';
@@ -79,26 +75,7 @@ export function Page() {
       const actualSetlistData: PerformanceSetlist = {
         id: generateSetlistId(prediction!.performanceId),
         performanceId: prediction!.performanceId,
-        items: parsed.items.map((item, index) => {
-          const itemType = item.type as SetlistItemType;
-          if (itemType === 'song') {
-            return {
-              id: `actual-${index}`,
-              type: 'song' as const,
-              position: index,
-              songId: item.songId || item.title || '',
-              remarks: item.remarks
-            };
-          } else {
-            return {
-              id: `actual-${index}`,
-              type: itemType,
-              position: index,
-              title: item.title || '',
-              remarks: item.remarks
-            };
-          }
-        }),
+        items: toActualSetlistItems(parsed.items),
         sections: [],
         isActual: true
       };

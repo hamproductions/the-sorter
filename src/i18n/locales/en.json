@@ -193,6 +193,7 @@
       "description": "Choose a performance to sort its setlist songs.",
       "search_placeholder": "Search by tour, performance, venue...",
       "loading_setlist": "Loading setlist...",
+      "select_hint": "Select a performance to preview its setlist.",
       "song_count": "{{count}} songs (deduplicated)",
       "no_performances": "No performances with setlists found"
     },

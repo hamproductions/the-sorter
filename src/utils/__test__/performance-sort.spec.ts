@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { computeSetlistLabels } from '../performance-sort';
+import { computeSetlistLabels, computeSortableSetlistLabels } from '../performance-sort';
 import type { PerformanceSetlist, SetlistItem } from '~/types/setlist-prediction';
+import type { Song } from '~/types/songs';
 
 function makeSong(id: string, position: number): SetlistItem {
   return {
@@ -189,5 +190,58 @@ describe('computeSetlistLabels', () => {
     const result = computeSetlistLabels(setlist);
 
     expect(result).toEqual([]);
+  });
+});
+
+describe('computeSortableSetlistLabels', () => {
+  const songs = [
+    { id: '427', name: '繚乱！ビクトリーロード', englishName: 'Ryouran! Victory Road' },
+    { id: '428', name: 'Colorful Dreams! Colorful Smiles!', englishName: 'Colorful Dreams! Colorful Smiles!' },
+    { id: '820', name: '約束になれ僕らの歌', englishName: 'Yakusoku ni Nare Bokura no Uta' }
+  ] as Song[];
+
+  it('drops entries whose custom title does not resolve to a Love Live song', () => {
+    const setlist = makeSetlist(
+      [
+        {
+          id: 'item-0',
+          type: 'song',
+          position: 0,
+          songId: '428',
+          customSongName: 'Colorful Dreams! Colorful Smiles!'
+        } as SetlistItem,
+        {
+          id: 'item-1',
+          type: 'song',
+          position: 1,
+          songId: '89',
+          customSongName: '1000%SPARKING!'
+        } as SetlistItem
+      ],
+      [{ name: 'Main', startIndex: 0, endIndex: 1, type: 'main' }]
+    );
+
+    const result = computeSortableSetlistLabels(setlist, songs);
+
+    expect(result).toEqual([{ songId: '428', label: 'M01' }]);
+  });
+
+  it('re-resolves wrong song ids by custom song title', () => {
+    const setlist = makeSetlist(
+      [
+        {
+          id: 'item-0',
+          type: 'song',
+          position: 0,
+          songId: '15',
+          customSongName: '約束になれ僕らの歌'
+        } as SetlistItem
+      ],
+      [{ name: 'Main', startIndex: 0, endIndex: 0, type: 'main' }]
+    );
+
+    const result = computeSortableSetlistLabels(setlist, songs);
+
+    expect(result).toEqual([{ songId: '820', label: 'M01' }]);
   });
 });

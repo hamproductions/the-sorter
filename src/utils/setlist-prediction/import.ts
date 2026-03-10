@@ -2,6 +2,8 @@
  * Import utilities for setlist predictions
  */
 
+import { toHiragana, toRomaji } from 'wanakana';
+import songs from '../../../data/song-info.json';
 import { generateId, generateSetlistId, generateItemId } from './id';
 import { validatePrediction } from './validation';
 import type { SetlistPrediction, SetlistItem, SetlistItemType } from '~/types/setlist-prediction';
@@ -165,6 +167,48 @@ export interface ActualSetlistData {
   }[];
 }
 
+function normalizeSongKey(value: string): string {
+  const normalized = value
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s]/gu, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return normalized.replace(/\s+/g, '');
+}
+
+const songNameMap = songs.reduce(
+  (map, song) => {
+    const variants = [
+      song.name,
+      song.englishName,
+      song.phoneticName,
+      song.phoneticName ? toRomaji(song.phoneticName) : undefined,
+      song.englishName ? toRomaji(toHiragana(song.englishName, { passRomaji: false })) : undefined
+    ].filter((value): value is string => Boolean(value?.trim()));
+
+    for (const variant of variants) {
+      const key = normalizeSongKey(variant);
+      if (!key) continue;
+      if (!map.has(key)) {
+        map.set(key, song.id);
+        continue;
+      }
+      if (map.get(key) !== song.id) {
+        map.set(key, null);
+      }
+    }
+
+    return map;
+  },
+  new Map<string, string | null>()
+);
+
+function resolveSongId(title: string): string | undefined {
+  const resolved = songNameMap.get(normalizeSongKey(title));
+  return resolved ?? undefined;
+}
+
 export function parseActualSetlist(text: string): ActualSetlistData {
   const lines = text.split('\n').filter((line) => line.trim() !== '');
   const items: ActualSetlistData['items'] = [];
@@ -190,9 +234,11 @@ export function parseActualSetlist(text: string): ActualSetlistData {
           title: content.replace(/[[\]]/g, '')
         });
       } else {
+        const songId = resolveSongId(content);
         items.push({
           type: 'song',
-          title: content
+          title: content,
+          songId
         });
       }
       continue;
@@ -217,6 +263,42 @@ export function parseActualSetlist(text: string): ActualSetlistData {
   }
 
   return { items };
+}
+
+export function toActualSetlistItems(items: ActualSetlistData['items']): SetlistItem[] {
+  return items.map((item, index) => {
+    const itemType = item.type as SetlistItemType;
+
+    if (itemType === 'song') {
+      if (item.songId) {
+        return {
+          id: `actual-${index}`,
+          type: 'song',
+          position: index,
+          songId: item.songId,
+          remarks: item.remarks
+        };
+      }
+
+      return {
+        id: `actual-${index}`,
+        type: 'song',
+        position: index,
+        songId: `custom:${index}:${item.title || ''}`,
+        isCustomSong: true,
+        customSongName: item.title || '',
+        remarks: item.remarks
+      };
+    }
+
+    return {
+      id: `actual-${index}`,
+      type: itemType,
+      position: index,
+      title: item.title || '',
+      remarks: item.remarks
+    };
+  });
 }
 
 function inferItemType(text: string): string {

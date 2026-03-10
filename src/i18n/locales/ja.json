@@ -195,6 +195,7 @@
       "description": "セットリストの楽曲をランキングする公演を選んでください。",
       "search_placeholder": "ツアー名、公演名、会場で検索...",
       "loading_setlist": "セットリストを読み込み中...",
+      "select_hint": "公演を選択するとセットリストをプレビューできます。",
       "song_count": "{{count}}曲（重複除外）",
       "no_performances": "セットリストのある公演が見つかりません"
     },

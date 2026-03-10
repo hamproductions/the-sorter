@@ -555,8 +555,9 @@ export function SongFilters({
                 </Button>
               )}
             </HStack>
-            <Button variant="outline" size="sm" onClick={onOpenPerformancePicker} w="fit-content">
+            <Button variant="outline" size="sm" onClick={onOpenPerformancePicker}>
               {t('settings.performances')}
+              {performanceMeta && <Badge ml="2">1</Badge>}
             </Button>
             {performanceMeta && (
               <HStack gap="2" pt="2" flexWrap="wrap">
