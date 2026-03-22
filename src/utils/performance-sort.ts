@@ -80,7 +80,7 @@ export function computeSortableSetlistLabels(
     const customSongName = item?.customSongName?.trim();
     const normalizedCustomSongName = customSongName ? normalizeSongName(customSongName) : '';
     const resolvedSongId = normalizedCustomSongName
-      ? songLookup.get(normalizedCustomSongName) ?? undefined
+      ? (songLookup.get(normalizedCustomSongName) ?? undefined)
       : undefined;
     const sourceSong = songMap.get(entry.songId);
     const matchesSourceSong =
@@ -90,7 +90,7 @@ export function computeSortableSetlistLabels(
         .filter((name): name is string => Boolean(name))
         .some((name) => normalizeSongName(name) === normalizedCustomSongName);
     const songId = customSongName
-      ? resolvedSongId ?? (matchesSourceSong ? entry.songId : undefined)
+      ? (resolvedSongId ?? (matchesSourceSong ? entry.songId : undefined))
       : sourceSong?.id;
 
     if (!songId) return [];

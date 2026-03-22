@@ -1,5 +1,6 @@
+import type { Song } from '~/types/songs';
 import songData from '../../data/song-info.json';
 
 export const useSongData = () => {
-  return songData;
+  return songData as Song[];
 };

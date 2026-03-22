@@ -139,9 +139,9 @@ export function PerformancePickerForSortDialog({
 
             <Box
               display="grid"
-              gridTemplateColumns={{ base: '1fr', md: 'minmax(0, 1fr) minmax(0, 1fr)' }}
-              gap={4}
               flex={1}
+              gap={4}
+              gridTemplateColumns={{ base: '1fr', md: 'minmax(0, 1fr) minmax(0, 1fr)' }}
               minH={0}
             >
               <Box minH="240px" overflow="auto">
@@ -187,17 +187,17 @@ export function PerformancePickerForSortDialog({
               </Box>
 
               <Box
-                borderRadius="md"
-                borderWidth="1px"
-                bg="bg.subtle"
-                minH="240px"
-                overflow="hidden"
                 display="flex"
                 flexDirection="column"
+                borderRadius="md"
+                borderWidth="1px"
+                minH="240px"
+                bg="bg.subtle"
+                overflow="hidden"
               >
                 {selectedPerformance ? (
                   <>
-                    <Stack gap={1} p={3} borderBottomWidth="1px">
+                    <Stack gap={1} borderBottomWidth="1px" p={3}>
                       <Text fontSize="sm" fontWeight="medium">
                         {getFullPerformanceName(selectedPerformance)}
                       </Text>
@@ -214,7 +214,7 @@ export function PerformancePickerForSortDialog({
                       ) : null}
                     </Stack>
 
-                    <Stack gap={0} p={2} flex={1} minH={0} overflow="auto">
+                    <Stack flex={1} gap={0} minH={0} p={2} overflow="auto">
                       {previewEntries.map((entry) => (
                         <Box key={`${entry.label}-${entry.name}`} borderRadius="sm" p={2}>
                           <Text fontFamily="mono" fontSize="xs" fontWeight="bold">

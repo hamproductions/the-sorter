@@ -196,7 +196,11 @@ describe('computeSetlistLabels', () => {
 describe('computeSortableSetlistLabels', () => {
   const songs = [
     { id: '427', name: '繚乱！ビクトリーロード', englishName: 'Ryouran! Victory Road' },
-    { id: '428', name: 'Colorful Dreams! Colorful Smiles!', englishName: 'Colorful Dreams! Colorful Smiles!' },
+    {
+      id: '428',
+      name: 'Colorful Dreams! Colorful Smiles!',
+      englishName: 'Colorful Dreams! Colorful Smiles!'
+    },
     { id: '820', name: '約束になれ僕らの歌', englishName: 'Yakusoku ni Nare Bokura no Uta' }
   ] as Song[];
 

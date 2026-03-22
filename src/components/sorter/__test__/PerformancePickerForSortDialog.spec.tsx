@@ -44,11 +44,7 @@ vi.mock('~/hooks/useSongData', () => ({
 describe('PerformancePickerForSortDialog', () => {
   it('renders a stable selection summary before a performance is chosen', async () => {
     await render(
-      <PerformancePickerForSortDialog
-        open
-        onOpenChange={vi.fn()}
-        onSelectPerformance={vi.fn()}
-      />
+      <PerformancePickerForSortDialog open onOpenChange={vi.fn()} onSelectPerformance={vi.fn()} />
     );
 
     expect(screen.getByText('Select Performance')).toBeInTheDocument();
@@ -57,11 +53,7 @@ describe('PerformancePickerForSortDialog', () => {
 
   it('updates the summary after selecting a performance', async () => {
     await render(
-      <PerformancePickerForSortDialog
-        open
-        onOpenChange={vi.fn()}
-        onSelectPerformance={vi.fn()}
-      />
+      <PerformancePickerForSortDialog open onOpenChange={vi.fn()} onSelectPerformance={vi.fn()} />
     );
 
     await userEvent.setup().click(screen.getByText('Latest Live - Day 1'));
