@@ -89,7 +89,7 @@ export function SortableItem(props: {
             </Wrap>
             <CharacterIcon locale={locale} character={character} rounded="full" h="8" />
             {import.meta.env.TEST && (
-              <Box position="absolute" style={{ fontSize: 0, opacity: 0 }}>
+              <Box style={{ fontSize: 0, opacity: 0 }} position="absolute">
                 {isSeiyuu ? getCastName(casts[0], locale) : fullName}
               </Box>
             )}
