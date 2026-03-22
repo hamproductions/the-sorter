@@ -4,7 +4,7 @@ import type artistsData from '../../data/artists-info.json';
 
 export type Character = (typeof characterData)[0];
 
-export type Song = (typeof songData)[0];
+export type Song = (typeof songData)[0] & { wikiAudioUrl?: string };
 
 export type Artist = (typeof artistsData)[0];
 

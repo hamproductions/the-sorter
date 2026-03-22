@@ -64,8 +64,8 @@ export function EditResultsModal(
   useEffect(() => {
     const ids = originalOrder.map((o) => o[0]).filter((i) => !!i);
     if (!rest.open) {
-      setTimeout(() => setItems([]), 200);
-      return;
+      const timeoutId = setTimeout(() => setItems([]), 200);
+      return () => clearTimeout(timeoutId);
     }
     if (
       !order ||

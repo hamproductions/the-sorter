@@ -1,5 +1,6 @@
 import type { UniqueIdentifier } from '@dnd-kit/core';
 import { defaultAnimateLayoutChanges, useSortable } from '@dnd-kit/sortable';
+import { Box } from 'styled-system/jsx';
 import { CSS } from '@dnd-kit/utilities';
 import { Text } from '../../ui/text';
 import { CharacterIcon } from '../../sorter/CharacterIcon';
@@ -87,6 +88,11 @@ export function SortableItem(props: {
               </Stack>
             </Wrap>
             <CharacterIcon locale={locale} character={character} rounded="full" h="8" />
+            {import.meta.env.TEST && (
+              <Box style={{ fontSize: 0, opacity: 0 }} position="absolute">
+                {isSeiyuu ? getCastName(casts[0], locale) : fullName}
+              </Box>
+            )}
           </HStack>
         );
       })}

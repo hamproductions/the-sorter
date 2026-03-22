@@ -177,32 +177,29 @@ function normalizeSongKey(value: string): string {
   return normalized.replace(/\s+/g, '');
 }
 
-const songNameMap = songs.reduce(
-  (map, song) => {
-    const variants = [
-      song.name,
-      song.englishName,
-      song.phoneticName,
-      song.phoneticName ? toRomaji(song.phoneticName) : undefined,
-      song.englishName ? toRomaji(toHiragana(song.englishName, { passRomaji: false })) : undefined
-    ].filter((value): value is string => Boolean(value?.trim()));
+const songNameMap = songs.reduce((map, song) => {
+  const variants = [
+    song.name,
+    song.englishName,
+    song.phoneticName,
+    song.phoneticName ? toRomaji(song.phoneticName) : undefined,
+    song.englishName ? toRomaji(toHiragana(song.englishName, { passRomaji: false })) : undefined
+  ].filter((value): value is string => Boolean(value?.trim()));
 
-    for (const variant of variants) {
-      const key = normalizeSongKey(variant);
-      if (!key) continue;
-      if (!map.has(key)) {
-        map.set(key, song.id);
-        continue;
-      }
-      if (map.get(key) !== song.id) {
-        map.set(key, null);
-      }
+  for (const variant of variants) {
+    const key = normalizeSongKey(variant);
+    if (!key) continue;
+    if (!map.has(key)) {
+      map.set(key, song.id);
+      continue;
     }
+    if (map.get(key) !== song.id) {
+      map.set(key, null);
+    }
+  }
 
-    return map;
-  },
-  new Map<string, string | null>()
-);
+  return map;
+}, new Map<string, string | null>());
 
 function resolveSongId(title: string): string | undefined {
   const resolved = songNameMap.get(normalizeSongKey(title));
