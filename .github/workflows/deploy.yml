@@ -4,10 +4,14 @@ on:
   push:
     branches:
       - main
+  workflow_run:
+    workflows: ["Update Data"]
+    types: [completed]
 jobs:
   # Build job
   build:
     name: Build Project
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

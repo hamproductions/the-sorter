@@ -5,10 +5,14 @@ on:
     branches: [ "main" ]
   pull_request:
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Update Data"]
+    types: [completed]
 
 jobs:
   lint:
     name: Typecheck, Lint & Test
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
