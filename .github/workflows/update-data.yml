@@ -53,8 +53,8 @@ jobs:
           bun scripts/internal/fetch-artists.ts
           bun scripts/internal/parse-character.ts
           bun scripts/internal/parse-songs.ts
-          bun scripts/internal/fetch-wiki-audio-links.ts
           bun scripts/internal/fetch-english-titles.ts
+          bun scripts/internal/fetch-wiki-audio-links.ts
           bun scripts/internal/fetch-performances.ts
           bun scripts/internal/build-performances.ts
 
