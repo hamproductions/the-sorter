@@ -34,6 +34,12 @@ export const useSorter = <T>(items: T[], statePrefix?: string) => {
     setHistory(history);
   };
 
+  const loadResumeState = (state: SortState<T>) => {
+    setState(state);
+    setHistory([]);
+    setComparisonsCount(1);
+  };
+
   const stateRef = useRef(state);
   const historyRef = useRef(history);
   const comparisonsCountRef = useRef(comparisonsCount);
@@ -113,6 +119,7 @@ export const useSorter = <T>(items: T[], statePrefix?: string) => {
     isEnded,
     reset,
     loadState,
+    loadResumeState,
     clear
   };
 };

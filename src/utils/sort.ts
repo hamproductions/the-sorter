@@ -261,3 +261,39 @@ export const getCurrentItem = <T>(state: SortState<T>) => {
     right
   };
 };
+
+export const resumeSort = <I>(results: I[][]): SortState<I> => {
+  const filteredResults = results.filter((r) => r.length > 0);
+  if (filteredResults.length <= 1) {
+    return {
+      arr: results,
+      currentSize: 1,
+      leftStart: 0,
+      status: 'end'
+    };
+  }
+
+  const n = results.length;
+  const mid = Math.min(0 + 1 - 1, n - 1);
+  const end = Math.min(0 + 2 * 1 - 1, n - 1);
+
+  const leftArr = [results[0]];
+  const rightArr = [results[1]];
+
+  return {
+    arr: results,
+    currentSize: 1,
+    leftStart: 0,
+    status: 'waiting',
+    mergeState: {
+      start: 0,
+      mid,
+      end,
+      leftArr,
+      rightArr,
+      leftArrIdx: 0,
+      rightArrIdx: 0,
+      arrIdx: 0
+    }
+  };
+};
