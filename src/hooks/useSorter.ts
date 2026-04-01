@@ -91,7 +91,7 @@ export const useSorter = <T>(items: T[], statePrefix?: string) => {
     localStorage.removeItem('results-display-order');
   };
 
-  const progress = Math.min(1, estimatedProgress);
+  const progress = Math.max(0, Math.min(1, estimatedProgress));
   const isEnded = state?.status === 'end';
 
   const isEstimatedCount = comparisonsCount === undefined && state !== undefined;
