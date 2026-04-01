@@ -56,7 +56,7 @@ export const estimateComparisonsMade = <I>(state: SortState<I>, n: number): numb
 
   count += (mergeState?.leftArrIdx ?? 0) + (mergeState?.rightArrIdx ?? 0);
 
-  return count;
+  return Math.max(0, count);
 };
 
 export const initSort = <I>(arr: I[]): SortState<I> => {

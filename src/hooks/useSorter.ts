@@ -21,12 +21,15 @@ export const useSorter = <T>(items: T[], statePrefix?: string) => {
   useEffect(() => {
     if (
       (state && !state?.arr) ||
+      (state && state.arr.length !== items.length) ||
       (state?.arr[0] && !Array.isArray(state?.arr[0])) ||
       (history?.[0]?.arr[0] && !Array.isArray(history?.[0]?.arr[0]))
     ) {
-      localStorage.clear();
+      setHistory(undefined);
+      setState(undefined);
+      setComparisonsCount(undefined);
     }
-  }, [state, history]);
+  }, [state, history, items.length, setHistory, setState, setComparisonsCount]);
 
   const loadState = (stateData: { state: SortState<T>; history: SortState<T>[] }) => {
     const { state, history } = stateData;
@@ -80,9 +83,8 @@ export const useSorter = <T>(items: T[], statePrefix?: string) => {
   }, [setState, setHistory, setComparisonsCount]);
 
   const maxComparisons = calculateMaxComparisons(items.length);
-  const estimatedProgress = state
-    ? estimateComparisonsMade(state, items.length) / maxComparisons
-    : 0;
+  const estimatedProgress =
+    state && maxComparisons > 0 ? estimateComparisonsMade(state, items.length) / maxComparisons : 0;
 
   const clear = () => {
     setHistory(undefined);
