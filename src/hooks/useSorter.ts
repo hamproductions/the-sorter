@@ -52,13 +52,13 @@ export const useSorter = <T>(items: T[], statePrefix?: string) => {
         }
         setHistory(newHistory);
         const currentCount =
-          comparisonsCountRef.current ?? estimateComparisonsMade(currentState, items.length);
+          comparisonsCountRef.current ?? estimateComparisonsMade(currentState);
         setComparisonsCount(currentCount + 1);
         const nextStep = step(value, currentState);
         setState(nextStep);
       }
     },
-    [setHistory, setState, setComparisonsCount, items.length]
+    [setHistory, setState, setComparisonsCount]
   );
 
   const reset = useCallback(() => {
@@ -79,10 +79,9 @@ export const useSorter = <T>(items: T[], statePrefix?: string) => {
     }
   }, [setState, setHistory, setComparisonsCount]);
 
-  const maxComparisons = calculateMaxComparisons(items.length);
-  const estimatedProgress = state
-    ? estimateComparisonsMade(state, items.length) / maxComparisons
-    : 0;
+  const sortedN = state?.arr.length ?? items.length;
+  const maxComparisons = calculateMaxComparisons(sortedN);
+  const estimatedProgress = state ? estimateComparisonsMade(state) / maxComparisons : 0;
 
   const clear = () => {
     setHistory(undefined);
@@ -96,7 +95,7 @@ export const useSorter = <T>(items: T[], statePrefix?: string) => {
 
   const isEstimatedCount = comparisonsCount === undefined && state !== undefined;
   const actualComparisonsCount =
-    comparisonsCount ?? (state ? estimateComparisonsMade(state, items.length) : 0);
+    comparisonsCount ?? (state ? estimateComparisonsMade(state) : 0);
 
   return {
     state,

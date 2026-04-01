@@ -266,5 +266,69 @@ describe('useSorter', () => {
 
       expect(result.current.progress).toBe(1);
     });
+
+    it('progress stays in [0, 1] when items list shrinks mid-sort (heardle scenario)', () => {
+      const fullItems = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+      const prefix = 'test-heardle-shrink';
+      const { result, rerender } = renderHook(
+        ({ items }) => useSorter(items, prefix),
+        { initialProps: { items: fullItems } }
+      );
+
+      act(() => {
+        result.current.init();
+      });
+
+      for (let i = 0; i < 5; i++) {
+        act(() => {
+          result.current.left();
+        });
+      }
+
+      expect(result.current.progress).toBeGreaterThanOrEqual(0);
+      expect(result.current.progress).toBeLessThanOrEqual(1);
+
+      const reducedItems = ['a', 'b', 'c', 'd'];
+      rerender({ items: reducedItems });
+
+      expect(result.current.progress).toBeGreaterThanOrEqual(0);
+      expect(result.current.progress).toBeLessThanOrEqual(1);
+    });
+
+    it('maxComparisons uses sort state array length, not items prop length', () => {
+      const items = ['a', 'b', 'c', 'd', 'e', 'f'];
+      const prefix = 'test-heardle-max';
+      const { result, rerender } = renderHook(
+        ({ items }) => useSorter(items, prefix),
+        { initialProps: { items } }
+      );
+
+      act(() => {
+        result.current.init();
+      });
+
+      const originalMax = result.current.maxComparisons;
+
+      rerender({ items: ['a', 'b'] });
+
+      expect(result.current.maxComparisons).toBe(originalMax);
+    });
+
+    it('progress never goes negative during full sort run', () => {
+      const items = ['a', 'b', 'c', 'd', 'e'];
+      const { result } = renderHook(() => useSorter(items, 'test-no-negative'));
+
+      act(() => {
+        result.current.init();
+      });
+
+      while (result.current.state?.status !== 'end') {
+        expect(result.current.progress).toBeGreaterThanOrEqual(0);
+        expect(result.current.progress).toBeLessThanOrEqual(1);
+        act(() => {
+          result.current.left();
+        });
+      }
+    });
   });
 });

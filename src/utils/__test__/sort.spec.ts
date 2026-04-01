@@ -150,18 +150,18 @@ describe('Sorting', () => {
   describe('estimateComparisonsMade', () => {
     it('returns 0 at initial state', () => {
       const state = initSort(createNumberArray());
-      expect(estimateComparisonsMade(state, 10)).toBe(0);
+      expect(estimateComparisonsMade(state)).toBe(0);
     });
 
     it('increases after each step', () => {
       let state = initSort(createNumberArray());
-      const initial = estimateComparisonsMade(state, 10);
+      const initial = estimateComparisonsMade(state);
 
       state = step('left', state);
-      const afterOne = estimateComparisonsMade(state, 10);
+      const afterOne = estimateComparisonsMade(state);
 
       state = step('right', state);
-      const afterTwo = estimateComparisonsMade(state, 10);
+      const afterTwo = estimateComparisonsMade(state);
 
       expect(afterOne).toBeGreaterThan(initial);
       expect(afterTwo).toBeGreaterThan(afterOne);
@@ -169,7 +169,7 @@ describe('Sorting', () => {
 
     it('increases monotonically throughout sorting', () => {
       let state = initSort(shuffle(createNumberArray()));
-      let prevCount = estimateComparisonsMade(state, 10);
+      let prevCount = estimateComparisonsMade(state);
 
       while (state.status !== 'end') {
         const { left, right } = getCurrentItem(state) ?? {};
@@ -177,9 +177,50 @@ describe('Sorting', () => {
         const direction = left[0] < right[0] ? 'left' : 'right';
         state = step(direction, state);
 
-        const currentCount = estimateComparisonsMade(state, 10);
+        const currentCount = estimateComparisonsMade(state);
         expect(currentCount).toBeGreaterThanOrEqual(prevCount);
         prevCount = currentCount;
+      }
+    });
+
+    it('derives n from state.arr.length, not external parameter', () => {
+      const state = initSort(createNumberArray(20));
+      const stepped = step('left', step('left', step('left', state)));
+      const estimate = estimateComparisonsMade(stepped);
+      expect(estimate).toBeGreaterThan(0);
+      const max = calculateMaxComparisons(stepped.arr.length);
+      expect(estimate).toBeLessThanOrEqual(max);
+    });
+
+    it('never exceeds max comparisons for the same array size', () => {
+      for (const size of [5, 10, 20, 50]) {
+        let state = initSort(shuffle(createNumberArray(size)));
+        const max = calculateMaxComparisons(size);
+
+        while (state.status !== 'end') {
+          const estimate = estimateComparisonsMade(state);
+          expect(estimate).toBeLessThanOrEqual(max);
+          expect(estimate).toBeGreaterThanOrEqual(0);
+
+          const { left, right } = getCurrentItem(state) ?? {};
+          if (!left || !right) break;
+          state = step(left[0] < right[0] ? 'left' : 'right', state);
+        }
+      }
+    });
+
+    it('produces non-negative progress ratio throughout sorting', () => {
+      let state = initSort(shuffle(createNumberArray(15)));
+      const max = calculateMaxComparisons(state.arr.length);
+
+      while (state.status !== 'end') {
+        const progress = estimateComparisonsMade(state) / max;
+        expect(progress).toBeGreaterThanOrEqual(0);
+        expect(progress).toBeLessThanOrEqual(1.1);
+
+        const { left, right } = getCurrentItem(state) ?? {};
+        if (!left || !right) break;
+        state = step(left[0] < right[0] ? 'left' : 'right', state);
       }
     });
   });
