@@ -81,7 +81,8 @@ export const useSorter = <T>(items: T[], statePrefix?: string) => {
 
   const sortedN = state?.arr.length ?? items.length;
   const maxComparisons = calculateMaxComparisons(sortedN);
-  const estimatedProgress = state ? estimateComparisonsMade(state) / maxComparisons : 0;
+  const estimatedProgress =
+    state && maxComparisons > 0 ? estimateComparisonsMade(state) / maxComparisons : 0;
 
   const clear = () => {
     setHistory(undefined);

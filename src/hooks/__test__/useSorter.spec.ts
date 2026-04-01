@@ -331,4 +331,213 @@ describe('useSorter', () => {
       }
     });
   });
+
+  describe('heardle integration: items shrink mid-sort', () => {
+    it('progress does not jump backwards when items shrink', () => {
+      const fullItems = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
+      const prefix = 'test-heardle-no-jank';
+      const { result, rerender } = renderHook(
+        ({ items }) => useSorter(items, prefix),
+        { initialProps: { items: fullItems } }
+      );
+
+      act(() => {
+        result.current.init();
+      });
+
+      for (let i = 0; i < 8; i++) {
+        act(() => {
+          result.current.left();
+        });
+      }
+
+      const progressBeforeShrink = result.current.progress;
+
+      rerender({ items: fullItems.slice(0, 5) });
+
+      expect(result.current.progress).toBeGreaterThanOrEqual(progressBeforeShrink);
+      expect(result.current.progress).toBeLessThanOrEqual(1);
+    });
+
+    it('sorting can continue to completion after items shrink', () => {
+      const fullItems = ['a', 'b', 'c', 'd', 'e', 'f'];
+      const prefix = 'test-heardle-continue';
+      const { result, rerender } = renderHook(
+        ({ items }) => useSorter(items, prefix),
+        { initialProps: { items: fullItems } }
+      );
+
+      act(() => {
+        result.current.init();
+      });
+
+      for (let i = 0; i < 3; i++) {
+        act(() => {
+          result.current.left();
+        });
+      }
+
+      rerender({ items: ['a', 'b', 'c'] });
+
+      let iterations = 0;
+      while (result.current.state?.status !== 'end' && iterations < 100) {
+        expect(result.current.progress).toBeGreaterThanOrEqual(0);
+        expect(result.current.progress).toBeLessThanOrEqual(1);
+        act(() => {
+          result.current.left();
+        });
+        iterations++;
+      }
+
+      expect(result.current.state?.status).toBe('end');
+      expect(result.current.progress).toBe(1);
+    });
+
+    it('progress monotonically increases during sort even after repeated shrinks', () => {
+      const items = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+      const prefix = 'test-heardle-multi-shrink';
+      const { result, rerender } = renderHook(
+        ({ items }) => useSorter(items, prefix),
+        { initialProps: { items } }
+      );
+
+      act(() => {
+        result.current.init();
+      });
+
+      let prevProgress = result.current.progress;
+
+      for (let i = 0; i < 4; i++) {
+        act(() => {
+          result.current.left();
+        });
+        expect(result.current.progress).toBeGreaterThanOrEqual(prevProgress);
+        prevProgress = result.current.progress;
+      }
+
+      rerender({ items: items.slice(0, 6) });
+      expect(result.current.progress).toBeGreaterThanOrEqual(prevProgress);
+      prevProgress = result.current.progress;
+
+      for (let i = 0; i < 3; i++) {
+        act(() => {
+          result.current.left();
+        });
+        expect(result.current.progress).toBeGreaterThanOrEqual(prevProgress);
+        prevProgress = result.current.progress;
+      }
+
+      rerender({ items: items.slice(0, 3) });
+      expect(result.current.progress).toBeGreaterThanOrEqual(prevProgress);
+    });
+
+    it('comparisonsCount remains consistent after items shrink', () => {
+      const items = ['a', 'b', 'c', 'd', 'e'];
+      const prefix = 'test-heardle-count';
+      const { result, rerender } = renderHook(
+        ({ items }) => useSorter(items, prefix),
+        { initialProps: { items } }
+      );
+
+      act(() => {
+        result.current.init();
+      });
+
+      for (let i = 0; i < 3; i++) {
+        act(() => {
+          result.current.left();
+        });
+      }
+
+      const countBeforeShrink = result.current.comparisonsCount;
+
+      rerender({ items: ['a', 'b'] });
+
+      expect(result.current.comparisonsCount).toBe(countBeforeShrink);
+
+      act(() => {
+        result.current.left();
+      });
+
+      expect(result.current.comparisonsCount).toBe(countBeforeShrink + 1);
+    });
+
+    it('undo works correctly after items shrink', () => {
+      const items = ['a', 'b', 'c', 'd', 'e', 'f'];
+      const prefix = 'test-heardle-undo';
+      const { result, rerender } = renderHook(
+        ({ items }) => useSorter(items, prefix),
+        { initialProps: { items } }
+      );
+
+      act(() => {
+        result.current.init();
+      });
+
+      for (let i = 0; i < 4; i++) {
+        act(() => {
+          result.current.left();
+        });
+      }
+
+      rerender({ items: ['a', 'b', 'c'] });
+
+      const progressAfterShrink = result.current.progress;
+      expect(progressAfterShrink).toBeGreaterThanOrEqual(0);
+      expect(progressAfterShrink).toBeLessThanOrEqual(1);
+
+      act(() => {
+        result.current.undo();
+      });
+
+      expect(result.current.progress).toBeGreaterThanOrEqual(0);
+      expect(result.current.progress).toBeLessThanOrEqual(1);
+    });
+
+    it('items shrinking to 1 does not divide by zero', () => {
+      const items = ['a', 'b', 'c', 'd'];
+      const prefix = 'test-heardle-single';
+      const { result, rerender } = renderHook(
+        ({ items }) => useSorter(items, prefix),
+        { initialProps: { items } }
+      );
+
+      act(() => {
+        result.current.init();
+      });
+
+      act(() => {
+        result.current.left();
+      });
+
+      rerender({ items: ['a'] });
+
+      expect(result.current.progress).toBeGreaterThanOrEqual(0);
+      expect(result.current.progress).toBeLessThanOrEqual(1);
+      expect(Number.isFinite(result.current.progress)).toBe(true);
+    });
+
+    it('items shrinking to empty does not crash', () => {
+      const items = ['a', 'b', 'c'];
+      const prefix = 'test-heardle-empty';
+      const { result, rerender } = renderHook(
+        ({ items }) => useSorter(items, prefix),
+        { initialProps: { items } }
+      );
+
+      act(() => {
+        result.current.init();
+      });
+
+      act(() => {
+        result.current.left();
+      });
+
+      rerender({ items: [] });
+
+      expect(result.current.progress).toBeGreaterThanOrEqual(0);
+      expect(result.current.progress).toBeLessThanOrEqual(1);
+      expect(Number.isFinite(result.current.progress)).toBe(true);
+    });
+  });
 });
