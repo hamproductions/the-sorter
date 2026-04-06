@@ -61,7 +61,9 @@ export function TierListSettings({
                 onChange={(e) =>
                   setSettings({
                     ...settings,
-                    tiers: settings.tiers.map((t, idx) => (index === idx ? e.target.value : t))
+                    tiers: settings.tiers.map((tierValue, idx) =>
+                      index === idx ? e.target.value : tierValue
+                    )
                   })
                 }
               />

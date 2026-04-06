@@ -6,10 +6,10 @@ import { step, initSort, calculateMaxComparisons, estimateComparisonsMade } from
 import { useLocalStorage } from './useLocalStorage';
 
 export const useSorter = <T>(items: T[], statePrefix?: string) => {
-  const [state, setState] = useLocalStorage<SortState<T>>(
+  const [sortState, setSortState] = useLocalStorage<SortState<T>>(
     `${statePrefix ? statePrefix + '-' : ''}sort-state`
   );
-  const [history, setHistory] = useLocalStorage<SortState<T>[]>(
+  const [sortHistory, setSortHistory] = useLocalStorage<SortState<T>[]>(
     `${statePrefix ? statePrefix + '-' : ''}sort-state-history`,
     undefined
   );
@@ -20,26 +20,26 @@ export const useSorter = <T>(items: T[], statePrefix?: string) => {
 
   useEffect(() => {
     if (
-      (state && !state?.arr) ||
-      (state?.arr[0] && !Array.isArray(state?.arr[0])) ||
-      (history?.[0]?.arr[0] && !Array.isArray(history?.[0]?.arr[0]))
+      (sortState && !sortState?.arr) ||
+      (sortState?.arr[0] && !Array.isArray(sortState?.arr[0])) ||
+      (sortHistory?.[0]?.arr[0] && !Array.isArray(sortHistory?.[0]?.arr[0]))
     ) {
       localStorage.clear();
     }
-  }, [state, history]);
+  }, [sortState, sortHistory]);
 
   const loadState = (stateData: { state: SortState<T>; history: SortState<T>[] }) => {
     const { state, history } = stateData;
-    setState(state);
-    setHistory(history);
+    setSortState(state);
+    setSortHistory(history);
   };
 
-  const stateRef = useRef(state);
-  const historyRef = useRef(history);
+  const stateRef = useRef(sortState);
+  const historyRef = useRef(sortHistory);
   const comparisonsCountRef = useRef(comparisonsCount);
 
-  stateRef.current = state;
-  historyRef.current = history;
+  stateRef.current = sortState;
+  historyRef.current = sortHistory;
   comparisonsCountRef.current = comparisonsCount;
 
   const handleStep = useCallback(
@@ -50,57 +50,56 @@ export const useSorter = <T>(items: T[], statePrefix?: string) => {
         if (newHistory.length > 50) {
           newHistory = newHistory.slice(-50);
         }
-        setHistory(newHistory);
-        const currentCount =
-          comparisonsCountRef.current ?? estimateComparisonsMade(currentState);
+        setSortHistory(newHistory);
+        const currentCount = comparisonsCountRef.current ?? estimateComparisonsMade(currentState);
         setComparisonsCount(currentCount + 1);
         const nextStep = step(value, currentState);
-        setState(nextStep);
+        setSortState(nextStep);
       }
     },
-    [setHistory, setState, setComparisonsCount]
+    [setSortHistory, setSortState, setComparisonsCount]
   );
 
   const reset = useCallback(() => {
-    setState(initSort(shuffle(items)));
-    setHistory([]);
+    setSortState(initSort(shuffle(items)));
+    setSortHistory([]);
     setComparisonsCount(1);
     localStorage.removeItem('results-display-order');
-  }, [items, setState, setHistory, setComparisonsCount]);
+  }, [items, setSortState, setSortHistory, setComparisonsCount]);
 
   const handleUndo = useCallback(() => {
     const currentHistory = historyRef.current;
     if (!currentHistory || currentHistory?.length === 0) return;
     const previousState = currentHistory.at(-1);
     if (previousState) {
-      setState(previousState);
-      setHistory(currentHistory.slice(0, -1));
+      setSortState(previousState);
+      setSortHistory(currentHistory.slice(0, -1));
       setComparisonsCount(Math.max(0, (comparisonsCountRef.current ?? 1) - 1));
     }
-  }, [setState, setHistory, setComparisonsCount]);
+  }, [setSortState, setSortHistory, setComparisonsCount]);
 
-  const sortedN = state?.arr.length ?? items.length;
+  const sortedN = sortState?.arr.length ?? items.length;
   const maxComparisons = calculateMaxComparisons(sortedN);
   const estimatedProgress =
-    state && maxComparisons > 0 ? estimateComparisonsMade(state) / maxComparisons : 0;
+    sortState && maxComparisons > 0 ? estimateComparisonsMade(sortState) / maxComparisons : 0;
 
   const clear = () => {
-    setHistory(undefined);
-    setState(undefined);
+    setSortHistory(undefined);
+    setSortState(undefined);
     setComparisonsCount(undefined);
     localStorage.removeItem('results-display-order');
   };
 
   const progress = Math.max(0, Math.min(1, estimatedProgress));
-  const isEnded = state?.status === 'end';
+  const isEnded = sortState?.status === 'end';
 
-  const isEstimatedCount = comparisonsCount === undefined && state !== undefined;
+  const isEstimatedCount = comparisonsCount === undefined && sortState !== undefined;
   const actualComparisonsCount =
-    comparisonsCount ?? (state ? estimateComparisonsMade(state) : 0);
+    comparisonsCount ?? (sortState ? estimateComparisonsMade(sortState) : 0);
 
   return {
-    state,
-    history,
+    state: sortState,
+    history: sortHistory,
     comparisonsCount: actualComparisonsCount,
     isEstimatedCount,
     maxComparisons,

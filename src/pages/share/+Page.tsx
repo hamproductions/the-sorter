@@ -67,9 +67,9 @@ export function Page() {
   });
 
   const getShareUrl = () => {
-    const params = new URLSearchParams();
-    addPresetParams(params, filters, seiyuu);
-    return `/?${params.toString()}`;
+    const searchParams = new URLSearchParams();
+    addPresetParams(searchParams, filters, seiyuu);
+    return `/?${searchParams.toString()}`;
   };
 
   return (

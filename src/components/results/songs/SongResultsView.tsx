@@ -72,7 +72,7 @@ export function SongResultsView({
   }, [t, performanceMeta]);
 
   useEffect(() => {
-    if (!tabs.find((t) => t.id === currentTab)) {
+    if (!tabs.find((tab) => tab.id === currentTab)) {
       setCurrentTab('table');
     }
   }, [currentTab, setCurrentTab, tabs]);
@@ -148,9 +148,9 @@ export function SongResultsView({
       filteredOrder
         ?.flatMap((item, idx) =>
           item.map((i) => {
-            const s = songsData.find((s) => s.id === `${i}`);
-            const artist = s?.artists.map((art) => artists.find((a) => a.id === art.id));
-            return `${idx + 1}. ${s?.name} - ${artist?.[0]?.name ?? 'unknown'}`;
+            const song = songsData.find((s) => s.id === `${i}`);
+            const artist = song?.artists.map((art) => artists.find((a) => a.id === art.id));
+            return `${idx + 1}. ${song?.name} - ${artist?.[0]?.name ?? 'unknown'}`;
           })
         )
         .join('\n') ?? ''
@@ -166,12 +166,14 @@ export function SongResultsView({
       JSON.stringify(
         filteredOrder?.flatMap((item, idx) =>
           item.map((i) => {
-            const s = songsData.find((s) => s.id === `${i}`);
-            const artist = s?.artists.map((art) => artists.find((a) => a.id === art.id));
-            const series = uniq(s?.seriesIds).map((id) => seriesData.find((a) => a.id === `${id}`));
+            const song = songsData.find((s) => s.id === `${i}`);
+            const artist = song?.artists.map((art) => artists.find((a) => a.id === art.id));
+            const series = uniq(song?.seriesIds).map((id) =>
+              seriesData.find((a) => a.id === `${id}`)
+            );
             return {
               rank: idx + 1,
-              title: s?.name,
+              title: song?.name,
               series: series.map((a) => a?.name)?.join(', '),
               unit: artist?.map((a) => a?.name)?.join(', ')
             };

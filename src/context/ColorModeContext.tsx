@@ -1,5 +1,4 @@
-import type { ReactNode } from 'react';
-import { createContext, useContext, useEffect } from 'react';
+import React, { type ReactNode, createContext, useContext, useEffect } from 'react';
 import { useLocalStorage } from '~/hooks/useLocalStorage';
 
 type ColorModes = 'dark' | 'light';
@@ -27,6 +26,11 @@ export function ColorModeProvider({ children }: { children: ReactNode }) {
     }
   }, [colorMode, setColorMode]);
 
+  const contextValue = React.useMemo(
+    () => ({ colorMode, setColorMode }),
+    [colorMode, setColorMode]
+  );
+
   return (
     <>
       <script
@@ -43,9 +47,7 @@ export function ColorModeProvider({ children }: { children: ReactNode }) {
           `
         }}
       />
-      <ColorModeContext.Provider value={{ colorMode, setColorMode }}>
-        {children}
-      </ColorModeContext.Provider>
+      <ColorModeContext.Provider value={contextValue}>{children}</ColorModeContext.Provider>
     </>
   );
 }
