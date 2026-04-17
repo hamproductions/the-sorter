@@ -51,8 +51,7 @@ export const useSorter = <T>(items: T[], statePrefix?: string) => {
           newHistory = newHistory.slice(-50);
         }
         setHistory(newHistory);
-        const currentCount =
-          comparisonsCountRef.current ?? estimateComparisonsMade(currentState);
+        const currentCount = comparisonsCountRef.current ?? estimateComparisonsMade(currentState);
         setComparisonsCount(currentCount + 1);
         const nextStep = step(value, currentState);
         setState(nextStep);
@@ -95,8 +94,7 @@ export const useSorter = <T>(items: T[], statePrefix?: string) => {
   const isEnded = state?.status === 'end';
 
   const isEstimatedCount = comparisonsCount === undefined && state !== undefined;
-  const actualComparisonsCount =
-    comparisonsCount ?? (state ? estimateComparisonsMade(state) : 0);
+  const actualComparisonsCount = comparisonsCount ?? (state ? estimateComparisonsMade(state) : 0);
 
   return {
     state,

@@ -72,10 +72,7 @@ describe('Character Utils', () => {
         fullName: '錦上マイカ',
         englishName: 'Maika Kinjo',
         school: '蓮ノ空女学院',
-        units: [
-          { name: '蓮ノ空女学院スクールアイドルクラブ', id: '133', additionalInfo: '106期' },
-          { name: '蓮ノ空女学院スクールアイドルクラブ', id: '133', additionalInfo: '102〜106期生' }
-        ],
+        units: [{ name: '蓮ノ空女学院スクールアイドルクラブ', id: '133', additionalInfo: '106期' }],
         casts: [{ seiyuu: '星宮じゅりあ', englishName: 'Hoshimiya Juria' }]
       });
       expect(characterInfo.find((character) => character.id === '92')).toMatchObject({
@@ -83,21 +80,15 @@ describe('Character Utils', () => {
         fullName: '令沢葵',
         englishName: 'Aoi Reizawa',
         school: '蓮ノ空女学院',
-        units: [
-          { name: '蓮ノ空女学院スクールアイドルクラブ', id: '133', additionalInfo: '106期' },
-          { name: '蓮ノ空女学院スクールアイドルクラブ', id: '133', additionalInfo: '102〜106期生' }
-        ],
+        units: [{ name: '蓮ノ空女学院スクールアイドルクラブ', id: '133', additionalInfo: '106期' }],
         casts: [{ seiyuu: '朝陽花菜', englishName: 'Asahi Kana' }]
       });
       expect(characterInfo.find((character) => character.id === '93')).toMatchObject({
         id: '93',
         fullName: '柴輪みおん',
-        englishName: 'Mion Shibawa',
+        englishName: 'Mion Shinowa',
         school: '蓮ノ空女学院',
-        units: [
-          { name: '蓮ノ空女学院スクールアイドルクラブ', id: '133', additionalInfo: '106期' },
-          { name: '蓮ノ空女学院スクールアイドルクラブ', id: '133', additionalInfo: '102〜106期生' }
-        ],
+        units: [{ name: '蓮ノ空女学院スクールアイドルクラブ', id: '133', additionalInfo: '106期' }],
         casts: [{ seiyuu: '湯浅かなえ', englishName: 'Kanae Yuasa' }]
       });
     });
