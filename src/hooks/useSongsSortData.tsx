@@ -42,13 +42,17 @@ export const useSongsSortData = (
       filtered = filtered.filter((s) => matchSongFilter(s, songFilters));
     }
 
+    if (heardleMode) {
+      filtered = filtered.filter((s) => s.wikiAudioUrl);
+    }
+
     // Exclude failed songs if provided
     if (excludedSongIds && excludedSongIds.size > 0) {
       filtered = filtered.filter((s) => !excludedSongIds.has(s.id));
     }
 
     return filtered;
-  }, [songs, songFilters, excludedSongIds, options?.performanceSongIds]);
+  }, [songs, songFilters, excludedSongIds, options?.performanceSongIds, heardleMode]);
 
   const {
     init,
@@ -96,8 +100,13 @@ export const useSongsSortData = (
     const handleKeystroke = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA') return;
-      if (options?.disableShortcutsRef?.current) return;
       if (!state || state.status === 'end') return;
+      if (e.key === 'ArrowUp') {
+        undo();
+        e.preventDefault();
+        return;
+      }
+      if (options?.disableShortcutsRef?.current) return;
       switch (e.key) {
         case 'ArrowLeft':
           left();
@@ -109,10 +118,6 @@ export const useSongsSortData = (
           break;
         case 'ArrowDown':
           handleTie();
-          e.preventDefault();
-          break;
-        case 'ArrowUp':
-          undo();
           e.preventDefault();
           break;
       }

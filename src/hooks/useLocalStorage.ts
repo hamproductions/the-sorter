@@ -39,7 +39,9 @@ export const useLocalStorage = function <T>(
   initial: NullOrUndefinedAble<T> = undefined
 ): [NullOrUndefinedAble<T>, Dispatch<SetStateAction<NullOrUndefinedAble<T>>>] {
   const storage = useRef(new LocalStorage<T>(key));
-  const [data, setData] = useState<NullOrUndefinedAble<T>>(() => storage.current.value);
+  const [data, setData] = useState<NullOrUndefinedAble<T>>(
+    () => (typeof window !== 'undefined' ? storage.current.value : initial) ?? initial
+  );
 
   const setNewData: Dispatch<SetStateAction<NullOrUndefinedAble<T>>> = useCallback(
     (s: SetStateAction<NullOrUndefinedAble<T>>) => {

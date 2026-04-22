@@ -138,7 +138,7 @@ export function SongFilters({
       urlYears.length > 0
     ) {
       setFilters({
-        series: urlSeries.filter((s) => FILTER_VALUES.series.includes(s)),
+        series: urlSeries.filter((s) => FILTER_VALUES.series.includes(s) || s === 'cross'),
         artists: urlArtists.filter((s) => FILTER_VALUES.artists.includes(s)),
         types: urlTypes.filter((s) =>
           FILTER_VALUES.types.includes(s as 'group' | 'solo' | 'unit')
