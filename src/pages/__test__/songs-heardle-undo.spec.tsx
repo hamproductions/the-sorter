@@ -94,6 +94,11 @@ beforeAll(async () => {
 
 vi.setConfig({ testTimeout: 15000 });
 
+const getCurrentSongIds = () => {
+  const cards = document.querySelectorAll('[data-testid^="song-card-"]');
+  return Array.from(cards).map((c) => c.getAttribute('data-testid')?.replace('song-card-', ''));
+};
+
 describe('Songs Page - Heardle Undo Behavior', () => {
   beforeEach(() => {
     localStorage.clear();
@@ -108,11 +113,6 @@ describe('Songs Page - Heardle Undo Behavior', () => {
       expect(queryByText('Keyboard Shortcuts')).toBeInTheDocument();
     });
     return { container, user, getByText, queryByText, findByText };
-  };
-
-  const getCurrentSongIds = () => {
-    const cards = document.querySelectorAll('[data-testid^="song-card-"]');
-    return Array.from(cards).map((c) => c.getAttribute('data-testid')?.replace('song-card-', ''));
   };
 
   it('undo with empty history does nothing (no crash)', async () => {

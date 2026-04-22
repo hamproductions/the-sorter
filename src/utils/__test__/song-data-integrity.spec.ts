@@ -52,7 +52,7 @@ describe('Song Data Integrity', () => {
     const seen = new Map<string, string>();
     const dupes: string[] = [];
     for (const song of songInfo) {
-      const key = `${song.name}|${song.seriesIds.sort().join(',')}`;
+      const key = `${song.name}|${song.seriesIds.toSorted().join(',')}`;
       if (seen.has(key)) {
         dupes.push(`"${song.name}" duplicated: ids ${seen.get(key)} and ${song.id}`);
       }
@@ -67,7 +67,7 @@ describe('Song Data Integrity', () => {
       const url = (song as any).wikiAudioUrl;
       if (url && typeof url === 'string') {
         try {
-          new URL(url);
+          void new URL(url);
         } catch {
           invalid.push(`song ${song.id} (${song.name}) has invalid wikiAudioUrl: ${url}`);
         }
