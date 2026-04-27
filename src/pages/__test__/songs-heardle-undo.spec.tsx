@@ -45,11 +45,7 @@ vi.mock('~/components/sorter/Heardle', () => ({
       >
         Guess Correct
       </button>
-      <button
-        type="button"
-        data-testid={`pass-${props.song?.id}`}
-        onClick={() => props.onPass?.()}
-      >
+      <button type="button" data-testid={`pass-${props.song?.id}`} onClick={() => props.onPass?.()}>
         Pass
       </button>
     </div>

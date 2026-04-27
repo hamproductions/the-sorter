@@ -88,7 +88,7 @@ export function ResultsView({
   );
 
   useEffect(() => {
-    if (!tabs.find((t) => t.id === currentTab)) {
+    if (!tabs.find((tab) => tab.id === currentTab)) {
       setCurrentTab('default');
     }
   }, [currentTab, setCurrentTab, tabs]);
