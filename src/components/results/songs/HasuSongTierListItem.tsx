@@ -9,7 +9,7 @@ import type { HasuSong } from '~/types/songs';
 import { Text } from '~/components/ui/text';
 import { getHasuSongColor } from '~/utils/song';
 
-function _TierListItem({
+function TierListItemInner({
   song,
   locale: _locale,
   showInfo,
@@ -99,4 +99,4 @@ function _TierListItem({
   );
 }
 
-export const HasuSongTierListItem = memo(_TierListItem);
+export const HasuSongTierListItem = memo(TierListItemInner);
