@@ -9,7 +9,7 @@ import type { Character, WithRank } from '~/types';
 import { getCastName, getFullName } from '~/utils/character';
 import { token } from 'styled-system/tokens';
 
-function _TierListItem({
+function TierListItemInner({
   character,
   isSeiyuu,
   locale,
@@ -133,4 +133,4 @@ function _TierListItem({
   );
 }
 
-export const TierListItem = memo(_TierListItem);
+export const TierListItem = memo(TierListItemInner);

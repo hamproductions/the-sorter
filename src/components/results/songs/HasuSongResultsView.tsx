@@ -57,7 +57,7 @@ export function HasuSongResultsView({
   );
 
   useEffect(() => {
-    if (!tabs.find((t) => t.id === currentTab)) {
+    if (!tabs.find((tab) => tab.id === currentTab)) {
       setCurrentTab('grid');
     }
   }, [currentTab, setCurrentTab, tabs]);
@@ -125,7 +125,7 @@ export function HasuSongResultsView({
       order
         ?.flatMap((item, idx) =>
           item.map((i) => {
-            const s = songsData.find((s) => s.id === i);
+            const s = songsData.find((song) => song.id === i);
             return `${idx + 1}. ${s?.title} - ${s?.unit}`;
           })
         )
@@ -139,7 +139,7 @@ export function HasuSongResultsView({
       JSON.stringify(
         order?.flatMap((item, idx) =>
           item.map((i) => {
-            const s = songsData.find((s) => s.id === i);
+            const s = songsData.find((song) => song.id === i);
             return {
               rank: idx + 1,
               title: s?.title,
