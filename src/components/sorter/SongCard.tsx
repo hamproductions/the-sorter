@@ -199,13 +199,12 @@ export function SongCard({
                   height="240"
                   src={`https://www.youtube-nocookie.com/embed/${song.musicVideo.videoId}/?start=${song.musicVideo.videoOffset}&html5=1`}
                   title="YouTube video player"
-                  //@ts-expect-error wtf
-                  frameborder="0"
+                  frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  referrerpolicy="strict-origin-when-cross-origin"
+                  referrerPolicy="strict-origin-when-cross-origin"
                   // oxlint-disable-next-line iframe-missing-sandbox shut up linter
-                  sandbox="allow-scripts allow-same-origin"
-                  allowfullscreen
+                  sandbox="allow-scripts"
+                  allowFullScreen
                 ></iframe>
               )}
             </Center>
