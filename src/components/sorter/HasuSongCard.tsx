@@ -52,7 +52,7 @@ export function HasuSongCard({ song, ...rest }: { song?: HasuSong } & StackProps
         {song.title}
       </Text>
       <Text fontSize="sm">{song.unit}</Text>
-      <audio src={getAudioUrl(`${song.id}`)} controls preload="auto" />
+      <audio src={getAudioUrl(`${song.id}`)} controls preload="auto" aria-label="Audio player" />
     </Stack>
   );
 }

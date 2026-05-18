@@ -230,6 +230,7 @@ export function ResultsView({
                         <FormLabel htmlFor="title">{t('results.title')}</FormLabel>
                         <Input
                           id="title"
+                          aria-label={t('results.title')}
                           value={title}
                           onChange={(e) => setTitle(e.target.value)}
                         />

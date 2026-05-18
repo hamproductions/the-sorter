@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   compressPrediction,
   decompressPrediction,
@@ -87,7 +87,9 @@ describe('Compression', () => {
   });
 
   it('handles invalid compressed data', () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     expect(() => decompressPrediction('invalid-data')).toThrow();
+    consoleErrorSpy.mockRestore();
   });
 });
 
