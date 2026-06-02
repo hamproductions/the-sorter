@@ -189,13 +189,15 @@
     "continue_sorting": "Continue Sorting",
     "close": "Close",
     "performance_picker": {
-      "title": "Select Performance",
-      "description": "Choose a performance to sort its setlist songs.",
+      "title": "Select Performances",
+      "description": "Choose performances to sort their setlist songs.",
       "search_placeholder": "Search by tour, performance, venue...",
       "loading_setlist": "Loading setlist...",
-      "select_hint": "Select a performance to preview its setlist.",
+      "select_hint": "Select performances to preview their setlist songs.",
       "song_count": "{{count}} songs (deduplicated)",
-      "no_performances": "No performances with setlists found"
+      "no_performances": "No performances with setlists found",
+      "show_details": "Show details",
+      "hide_details": "Hide details"
     },
     "character_info": {
       "profile": "Profile",

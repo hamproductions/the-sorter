@@ -1,13 +1,18 @@
 export interface SetlistOrderEntry {
   songId: string;
-  label: string; // e.g. "M01", "EN01"
+  label: string;
+  performanceId?: string;
+  performanceName?: string;
+  date?: string;
 }
 
 export interface PerformanceSortMeta {
-  performanceId: string;
+  performanceId?: string;
+  performanceIds?: string[];
   tourName: string;
   performanceName?: string;
-  date: string;
+  selectionLabel?: string;
+  date?: string;
   venue?: string;
-  setlistOrder: SetlistOrderEntry[]; // full ordered entries (with duplicates) for Performance Order view
+  setlistOrder: SetlistOrderEntry[];
 }

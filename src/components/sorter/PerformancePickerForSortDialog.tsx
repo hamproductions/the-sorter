@@ -1,13 +1,13 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useMemo, useEffect } from 'react';
-import { css } from 'styled-system/css';
-import { Box, Stack } from 'styled-system/jsx';
+import { Box, HStack, Stack } from 'styled-system/jsx';
 import { Button } from '~/components/ui/styled/button';
 import { Text } from '~/components/ui/styled/text';
 import { Input } from '~/components/ui/styled/input';
+import { Checkbox } from '~/components/ui/checkbox';
 import {
   usePerformanceData,
-  usePerformanceSetlist
+  usePerformanceSetlists
 } from '~/hooks/setlist-prediction/usePerformanceData';
 import { useSongData } from '~/hooks/useSongData';
 import { getFullPerformanceName, getSongName } from '~/utils/names';
@@ -22,11 +22,48 @@ import {
   CloseTrigger as DialogCloseTrigger
 } from '~/components/ui/styled/dialog';
 import type { PerformanceSortMeta } from '~/types/performance-sort';
+import type { Performance } from '~/types/setlist-prediction';
 
 export interface PerformancePickerForSortDialogProps {
   open: boolean;
   onOpenChange: (details: { open: boolean }) => void;
   onSelectPerformance: (songIds: string[], meta: PerformanceSortMeta) => void;
+}
+
+function getLegName(performance: Performance): string {
+  const name = performance.performanceName?.trim();
+  if (!name) return performance.tourName;
+
+  const withoutSuffix = name
+    .replace(/\s*[(（][^()（）]*[)）]\s*$/u, '')
+    .replace(/\s*(?:Day\.?\s*\d+|DAY\s*\d+)$/u, '')
+    .trim();
+
+  return withoutSuffix || name;
+}
+
+function getSelectionLabel(performances: Performance[]): string {
+  if (performances.length === 0) return '';
+  if (performances.length === 1) return getFullPerformanceName(performances[0]);
+
+  const tourNames = new Set(performances.map((performance) => performance.tourName));
+  if (tourNames.size === 1) {
+    const tourName = performances[0].tourName;
+    const legNames = new Set(performances.map(getLegName));
+    if (legNames.size === 1) {
+      const legName = [...legNames][0];
+      if (legName !== tourName) {
+        return `${tourName} - ${legName} (${performances.length} performances)`;
+      }
+    }
+    return `${tourName} (${performances.length} performances)`;
+  }
+
+  return `${performances.length} performances`;
+}
+
+function getPerformanceRowName(performance: Performance): string {
+  return performance.performanceName?.trim() || performance.tourName;
 }
 
 export function PerformancePickerForSortDialog({
@@ -38,10 +75,12 @@ export function PerformancePickerForSortDialog({
   const { performances, loading: performancesLoading } = usePerformanceData();
   const songs = useSongData();
 
-  const [selectedPerformanceId, setSelectedPerformanceId] = useState<string | undefined>();
+  const [selectedPerformanceIds, setSelectedPerformanceIds] = useState<string[]>([]);
+  const [expandedTourNames, setExpandedTourNames] = useState<string[]>([]);
   const [search, setSearch] = useState('');
 
-  const { setlist, loading: setlistLoading } = usePerformanceSetlist(selectedPerformanceId);
+  const { setlistsByPerformanceId, loading: setlistsLoading } =
+    usePerformanceSetlists(selectedPerformanceIds);
 
   const filteredPerformances = useMemo(() => {
     let filtered = performances.filter((p) => p.hasSetlist === true);
@@ -56,25 +95,73 @@ export function PerformancePickerForSortDialog({
       );
     }
 
-    // Group by tourName, most recent first
     filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     return filtered;
   }, [performances, search]);
 
-  // Compute deduplicated song IDs and full setlist order with M01/EN01 labels
+  const performanceGroups = useMemo(() => {
+    const groups = new Map<
+      string,
+      {
+        tourName: string;
+        performances: Performance[];
+        legs: Map<string, Performance[]>;
+      }
+    >();
+
+    for (const performance of filteredPerformances) {
+      let group = groups.get(performance.tourName);
+      if (!group) {
+        group = {
+          tourName: performance.tourName,
+          performances: [],
+          legs: new Map()
+        };
+        groups.set(performance.tourName, group);
+      }
+
+      const legName = getLegName(performance);
+      const leg = group.legs.get(legName) ?? [];
+      leg.push(performance);
+      group.legs.set(legName, leg);
+      group.performances.push(performance);
+    }
+
+    return [...groups.values()];
+  }, [filteredPerformances]);
+
+  const selectedPerformances = useMemo(() => {
+    const selectedIds = new Set(selectedPerformanceIds);
+    return performances
+      .filter((performance) => selectedIds.has(performance.id))
+      .toSorted((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  }, [performances, selectedPerformanceIds]);
+
   const setlistInfo = useMemo(() => {
-    if (!setlist) return null;
-    const orderEntries = computeSortableSetlistLabels(setlist, songs);
-    const uniqueSongIds = [...new Set(orderEntries.map((e) => e.songId))];
+    const orderEntries = selectedPerformances.flatMap((performance) => {
+      const setlist = setlistsByPerformanceId.get(performance.id);
+      if (!setlist) return [];
+
+      return computeSortableSetlistLabels(setlist, songs).map((entry) => ({
+        ...entry,
+        label:
+          selectedPerformances.length > 1
+            ? `${performance.performanceName ?? performance.tourName} ${entry.label}`
+            : entry.label,
+        performanceId: performance.id,
+        performanceName: performance.performanceName ?? performance.tourName,
+        date: performance.date
+      }));
+    });
+    const uniqueSongIds = [...new Set(orderEntries.map((entry) => entry.songId))];
     return { uniqueSongIds, orderEntries };
-  }, [setlist, songs]);
+  }, [selectedPerformances, setlistsByPerformanceId, songs]);
 
   const songMap = useMemo(() => new Map(songs.map((song) => [song.id, song])), [songs]);
+  const isSearching = search.trim().length > 0;
 
   const previewEntries = useMemo(() => {
-    if (!setlistInfo) return [];
-
     return setlistInfo.orderEntries
       .map((entry) => {
         const song = songMap.get(entry.songId);
@@ -86,26 +173,63 @@ export function PerformancePickerForSortDialog({
         };
       })
       .filter((entry): entry is NonNullable<typeof entry> => entry !== null);
-  }, [setlistInfo, songMap, i18n.language]);
+  }, [setlistInfo.orderEntries, songMap, i18n.language]);
 
-  // Reset selection when dialog closes
+  const selectedIds = useMemo(() => new Set(selectedPerformanceIds), [selectedPerformanceIds]);
+  const selectionLabel = getSelectionLabel(selectedPerformances);
+
   useEffect(() => {
     if (!open) {
-      setSelectedPerformanceId(undefined);
+      setSelectedPerformanceIds([]);
+      setExpandedTourNames([]);
       setSearch('');
     }
   }, [open]);
 
-  const selectedPerformance = performances.find((p) => p.id === selectedPerformanceId);
+  const toggleExpandedTour = (tourName: string) => {
+    setExpandedTourNames((current) =>
+      current.includes(tourName)
+        ? current.filter((name) => name !== tourName)
+        : [...current, tourName]
+    );
+  };
+
+  const togglePerformanceIds = (ids: string[]) => {
+    setSelectedPerformanceIds((current) => {
+      const next = new Set(current);
+      const shouldRemove = ids.every((id) => next.has(id));
+
+      for (const id of ids) {
+        if (shouldRemove) {
+          next.delete(id);
+        } else {
+          next.add(id);
+        }
+      }
+
+      return [...next];
+    });
+  };
+
+  const getChecked = (ids: string[]) => {
+    const selectedCount = ids.filter((id) => selectedIds.has(id)).length;
+    if (selectedCount === 0) return false;
+    if (selectedCount === ids.length) return true;
+    return 'indeterminate';
+  };
 
   const handleConfirm = () => {
-    if (!selectedPerformance || !setlistInfo) return;
+    if (selectedPerformances.length === 0 || setlistInfo.uniqueSongIds.length === 0) return;
+    const firstPerformance = selectedPerformances[0];
     const meta: PerformanceSortMeta = {
-      performanceId: selectedPerformance.id,
-      tourName: selectedPerformance.tourName,
-      performanceName: selectedPerformance.performanceName,
-      date: selectedPerformance.date,
-      venue: selectedPerformance.venue,
+      performanceId: selectedPerformances.length === 1 ? selectedPerformances[0].id : undefined,
+      performanceIds: selectedPerformances.map((performance) => performance.id),
+      tourName: firstPerformance.tourName,
+      performanceName:
+        selectedPerformances.length === 1 ? firstPerformance.performanceName : selectionLabel,
+      selectionLabel,
+      date: firstPerformance.date,
+      venue: selectedPerformances.length === 1 ? firstPerformance.venue : undefined,
       setlistOrder: setlistInfo.orderEntries
     };
     onSelectPerformance(setlistInfo.uniqueSongIds, meta);
@@ -149,39 +273,107 @@ export function PerformancePickerForSortDialog({
                   <Text color="fg.muted" textAlign="center">
                     {t('common.loading')}
                   </Text>
-                ) : filteredPerformances.length === 0 ? (
+                ) : performanceGroups.length === 0 ? (
                   <Text color="fg.muted" textAlign="center">
                     {t('dialog.performance_picker.no_performances')}
                   </Text>
                 ) : (
-                  <Stack gap={2}>
-                    {filteredPerformances.map((perf) => (
-                      <Box
-                        className={css({
-                          '&[data-selected=true]': {
-                            borderColor: 'border.accent',
-                            bgColor: 'bg.emphasized'
-                          }
-                        })}
-                        key={perf.id}
-                        data-selected={selectedPerformanceId === perf.id}
-                        onClick={() => setSelectedPerformanceId(perf.id)}
-                        cursor="pointer"
-                        borderRadius="md"
-                        borderWidth="1px"
-                        p={3}
-                        _hover={{ bgColor: 'bg.subtle' }}
-                      >
-                        <Stack gap={0.5}>
-                          <Text fontSize="sm" fontWeight="medium">
-                            {getFullPerformanceName(perf)}
-                          </Text>
-                          <Text color="fg.muted" fontSize="xs">
-                            {new Date(perf.date).toLocaleDateString()} • {perf.venue || 'TBA'}
-                          </Text>
-                        </Stack>
-                      </Box>
-                    ))}
+                  <Stack gap={3}>
+                    {performanceGroups.map((group) => {
+                      const groupIds = group.performances.map((performance) => performance.id);
+                      const legs = [...group.legs.entries()];
+                      const isExpanded = isSearching || expandedTourNames.includes(group.tourName);
+
+                      return (
+                        <Box key={group.tourName} borderRadius="md" borderWidth="1px" p={3}>
+                          <Stack gap={2}>
+                            <HStack gap={3} justifyContent="space-between" alignItems="flex-start">
+                              <Checkbox
+                                checked={getChecked(groupIds)}
+                                onCheckedChange={() => togglePerformanceIds(groupIds)}
+                                aria-label={group.tourName}
+                              >
+                                <HStack gap={2} alignItems="baseline">
+                                  <Text fontSize="sm" fontWeight="bold">
+                                    {group.tourName}
+                                  </Text>
+                                  <Text color="fg.muted" fontSize="xs">
+                                    {group.performances.length}
+                                  </Text>
+                                </HStack>
+                              </Checkbox>
+                              {!isSearching && (
+                                <Button
+                                  size="xs"
+                                  variant="outline"
+                                  onClick={() => toggleExpandedTour(group.tourName)}
+                                >
+                                  {isExpanded
+                                    ? t('dialog.performance_picker.hide_details')
+                                    : t('dialog.performance_picker.show_details')}
+                                </Button>
+                              )}
+                            </HStack>
+
+                            {isExpanded && (
+                              <Stack gap={1} pl={4}>
+                                {legs.map(([legName, legPerformances]) => {
+                                  const legIds = legPerformances.map(
+                                    (performance) => performance.id
+                                  );
+                                  const showLeg =
+                                    legPerformances.length > 1 && legName !== group.tourName;
+                                  const performanceRows = legPerformances.map((performance) => (
+                                    <Checkbox
+                                      key={performance.id}
+                                      size="sm"
+                                      checked={selectedIds.has(performance.id)}
+                                      onCheckedChange={() => togglePerformanceIds([performance.id])}
+                                      aria-label={getFullPerformanceName(performance)}
+                                    >
+                                      <Stack gap={0}>
+                                        <Text fontSize="sm">
+                                          {getPerformanceRowName(performance)}
+                                        </Text>
+                                        <Text color="fg.muted" fontSize="xs">
+                                          {new Date(performance.date).toLocaleDateString()} •{' '}
+                                          {performance.venue || 'TBA'}
+                                        </Text>
+                                      </Stack>
+                                    </Checkbox>
+                                  ));
+
+                                  return (
+                                    <Stack key={legName} gap={1}>
+                                      {showLeg && (
+                                        <Checkbox
+                                          size="sm"
+                                          checked={getChecked(legIds)}
+                                          onCheckedChange={() => togglePerformanceIds(legIds)}
+                                          aria-label={`${group.tourName} - ${legName}`}
+                                        >
+                                          <Text fontSize="sm" fontWeight="medium">
+                                            {legName}
+                                          </Text>
+                                        </Checkbox>
+                                      )}
+
+                                      {showLeg ? (
+                                        <Stack gap={1} pl={4}>
+                                          {performanceRows}
+                                        </Stack>
+                                      ) : (
+                                        <Stack gap={1}>{performanceRows}</Stack>
+                                      )}
+                                    </Stack>
+                                  );
+                                })}
+                              </Stack>
+                            )}
+                          </Stack>
+                        </Box>
+                      );
+                    })}
                   </Stack>
                 )}
               </Box>
@@ -195,23 +387,23 @@ export function PerformancePickerForSortDialog({
                 bg="bg.subtle"
                 overflow="hidden"
               >
-                {selectedPerformance ? (
+                {selectedPerformances.length > 0 ? (
                   <>
                     <Stack gap={1} borderBottomWidth="1px" p={3}>
                       <Text fontSize="sm" fontWeight="medium">
-                        {getFullPerformanceName(selectedPerformance)}
+                        {selectionLabel}
                       </Text>
-                      {setlistLoading ? (
+                      {setlistsLoading ? (
                         <Text color="fg.muted" fontSize="xs">
                           {t('dialog.performance_picker.loading_setlist')}
                         </Text>
-                      ) : setlistInfo ? (
+                      ) : (
                         <Text color="fg.muted" fontSize="xs">
                           {t('dialog.performance_picker.song_count', {
                             count: setlistInfo.uniqueSongIds.length
                           })}
                         </Text>
-                      ) : null}
+                      )}
                     </Stack>
 
                     <Stack flex={1} gap={0} minH={0} p={2} overflow="auto">
@@ -248,7 +440,11 @@ export function PerformancePickerForSortDialog({
               </DialogCloseTrigger>
               <Button
                 onClick={handleConfirm}
-                disabled={!selectedPerformance || !setlistInfo || setlistLoading}
+                disabled={
+                  selectedPerformances.length === 0 ||
+                  setlistsLoading ||
+                  setlistInfo.uniqueSongIds.length === 0
+                }
               >
                 {t('common.confirm')}
               </Button>

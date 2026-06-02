@@ -112,6 +112,64 @@ export function usePerformanceSetlist(performanceId: string | undefined) {
   return { setlist, loading, error };
 }
 
+export function usePerformanceSetlists(performanceIds: string[]) {
+  const idsKey = performanceIds.join('\0');
+  const [setlistsByPerformanceId, setSetlistsByPerformanceId] = useState<
+    Map<string, PerformanceSetlist>
+  >(new Map());
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const ids = idsKey ? idsKey.split('\0') : [];
+
+    if (ids.length === 0) {
+      setSetlistsByPerformanceId(new Map());
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
+    if (cachedSetlists && ids.every((id) => cachedSetlists?.[id])) {
+      setSetlistsByPerformanceId(new Map(ids.map((id) => [id, cachedSetlists![id]])));
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    loadAllSetlists()
+      .then((allSetlists) => {
+        const found = new Map<string, PerformanceSetlist>();
+        const missing: string[] = [];
+
+        for (const id of ids) {
+          const setlist = allSetlists[id];
+          if (setlist) {
+            found.set(id, setlist);
+          } else {
+            missing.push(id);
+          }
+        }
+
+        setSetlistsByPerformanceId(found);
+        if (missing.length > 0) {
+          setError(new Error(`Setlists not found for performances ${missing.join(', ')}`));
+        }
+        return allSetlists;
+      })
+      .catch((err) => {
+        console.error(`Failed to load setlists for performances ${ids.join(', ')}:`, err);
+        setError(err instanceof Error ? err : new Error(String(err)));
+      })
+      .finally(() => setLoading(false));
+  }, [idsKey]);
+
+  return { setlistsByPerformanceId, loading, error };
+}
+
 export function useFilteredPerformances(filters: PerformanceFilters) {
   const { performances } = usePerformanceData();
 

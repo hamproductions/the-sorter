@@ -35,7 +35,9 @@ export const getSongName = (
 export function getFullPerformanceName(perf: {
   tourName: string;
   performanceName?: string;
+  selectionLabel?: string;
 }): string {
+  if (perf.selectionLabel) return perf.selectionLabel;
   if (!perf.performanceName) return perf.tourName;
   return `${perf.tourName} - ${perf.performanceName}`;
 }

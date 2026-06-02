@@ -134,7 +134,9 @@ describe('Heardle Audio Coverage', () => {
 
   it('reports audio coverage stats', () => {
     const coverage = (songsWithAudio.length / songInfo.length) * 100;
-    console.log(`Audio coverage: ${songsWithAudio.length}/${songInfo.length} (${coverage.toFixed(1)}%)`);
+    console.log(
+      `Audio coverage: ${songsWithAudio.length}/${songInfo.length} (${coverage.toFixed(1)}%)`
+    );
     console.log(`Missing audio: ${songsWithoutAudio.length} songs`);
     expect(coverage).toBeGreaterThan(90);
   });
@@ -151,13 +153,17 @@ describe('Heardle Audio Coverage', () => {
 
   for (const series of seriesInfo) {
     const sid = Number(series.id);
-    const seriesSongs = songInfo.filter((s) => s.seriesIds.includes(sid) && s.seriesIds.length === 1);
+    const seriesSongs = songInfo.filter(
+      (s) => s.seriesIds.includes(sid) && s.seriesIds.length === 1
+    );
     const withAudio = seriesSongs.filter((s) => (s as any).wikiAudioUrl);
 
     it(`series "${series.name}" audio coverage`, () => {
       if (seriesSongs.length === 0) return;
       const pct = (withAudio.length / seriesSongs.length) * 100;
-      console.log(`  ${series.name}: ${withAudio.length}/${seriesSongs.length} (${pct.toFixed(1)}%)`);
+      console.log(
+        `  ${series.name}: ${withAudio.length}/${seriesSongs.length} (${pct.toFixed(1)}%)`
+      );
       expect(pct).toBeGreaterThan(50);
     });
   }
