@@ -26,7 +26,13 @@ import { preloadAudioBlob } from '~/components/sorter/Heardle';
 import { useSongData } from '~/hooks/useSongData';
 import { useArtistsData } from '~/hooks/useArtistsData';
 import { isValidSongFilter } from '~/utils/song-filter';
-import { addSongPresetParams, getAllCommaSeparated, serializeData } from '~/utils/share';
+import {
+  addSongPerformanceParams,
+  addSongPresetParams,
+  getAllCommaSeparated,
+  getSongPerformanceParams,
+  serializeData
+} from '~/utils/share';
 import { getSongName } from '~/utils/names';
 import type { Song } from '~/types/songs';
 import type { PerformanceSortMeta } from '~/types/performance-sort';
@@ -147,6 +153,11 @@ export function Page() {
     const params = new URLSearchParams(location.search);
     if (params.get('heardle') === 'true' && !heardleMode) setHeardleMode(true);
     if (params.get('noTie') === 'true' && !noTieMode) setNoTieMode(true);
+    const performanceParams = getSongPerformanceParams(params);
+    if (performanceParams) {
+      setPerformanceSongIds(performanceParams.songIds);
+      setPerformanceMeta(performanceParams.meta);
+    }
     // oxlint-disable-next-line exhaustive-deps
   }, []);
 
@@ -316,6 +327,7 @@ export function Page() {
   const shareUrl = async () => {
     if (!songFilters || !isValidSongFilter(songFilters)) return;
     const params = addSongPresetParams(new URLSearchParams(), songFilters);
+    addSongPerformanceParams(params, performanceSongIds, performanceMeta);
     if (heardleMode) params.append('heardle', 'true');
     if (noTieMode) params.append('noTie', 'true');
     const url = `${location.origin}${location.pathname}?${params.toString()}`;
@@ -328,11 +340,13 @@ export function Page() {
   const shareResultsUrl = async () => {
     if (!songFilters || !state?.arr) return;
     const params = addSongPresetParams(new URLSearchParams(), songFilters);
+    addSongPerformanceParams(params, performanceSongIds, performanceMeta);
     params.append(
       'data',
       await serializeData({
         results: state.arr,
-        guessResults: heardleMode ? guessResults : undefined
+        guessResults: heardleMode ? guessResults : undefined,
+        performanceMeta: isPerformanceMode ? performanceMeta : undefined
       })
     );
     const url = `${location.origin}${

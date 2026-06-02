@@ -8,8 +8,14 @@ import { SongResultsView } from '~/components/results/songs/SongResultsView';
 import { Button } from '~/components/ui/button';
 import { Metadata } from '~/components/layout/Metadata';
 import { useSongData } from '~/hooks/useSongData';
-import { addSongPresetParams } from '~/utils/share';
+import {
+  addSongPerformanceParams,
+  addSongPresetParams,
+  getAllCommaSeparated,
+  getSongPerformanceParams
+} from '~/utils/share';
 import type { GuessResult } from '~/hooks/useHeardleState';
+import type { PerformanceSortMeta } from '~/types/performance-sort';
 
 const MAX_ATTEMPTS = 5;
 
@@ -22,23 +28,27 @@ export function Page() {
 
   const {
     results,
-    guessResults
+    guessResults,
+    performanceMeta
   }: {
     results: string[][];
     guessResults?: Record<string, GuessResult>;
+    performanceMeta?: PerformanceSortMeta;
   } =
     JSON.parse(urlData !== null ? (decompressFromEncodedURIComponent(urlData) ?? '{}') : '{}') ??
     {};
 
   const filters = {
-    series: params.getAll('series'),
-    artists: params.getAll('artists'),
-    types: params.getAll('types') as ('group' | 'solo' | 'unit')[],
-    characters: params.getAll('characters').map(Number),
-    discographies: params.getAll('discographies').map(Number),
-    songs: params.getAll('songs').map(Number),
-    years: params.getAll('years').map(Number)
+    series: getAllCommaSeparated(params, 'series'),
+    artists: getAllCommaSeparated(params, 'artists'),
+    types: getAllCommaSeparated(params, 'types') as ('group' | 'solo' | 'unit')[],
+    characters: getAllCommaSeparated(params, 'characters').map(Number),
+    discographies: getAllCommaSeparated(params, 'discographies').map(Number),
+    songs: getAllCommaSeparated(params, 'songs').map(Number),
+    years: getAllCommaSeparated(params, 'years').map(Number)
   };
+  const performanceParams = getSongPerformanceParams(params);
+  const displayPerformanceMeta = performanceMeta ?? performanceParams?.meta;
 
   const failedSongs = useMemo(() => {
     if (!guessResults) return undefined;
@@ -55,6 +65,7 @@ export function Page() {
 
   const getSortUrl = () => {
     const p = addSongPresetParams(new URLSearchParams(), filters);
+    addSongPerformanceParams(p, performanceParams?.songIds, displayPerformanceMeta);
     if (guessResults) p.append('heardle', 'true');
     return `/songs?${p.toString()}`;
   };
@@ -75,6 +86,7 @@ export function Page() {
             <>
               <SongResultsView
                 songsData={songs}
+                performanceMeta={displayPerformanceMeta}
                 failedSongs={failedSongs}
                 guessResults={guessResults}
                 maxAttempts={guessResults ? MAX_ATTEMPTS : undefined}
