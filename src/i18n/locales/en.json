@@ -195,6 +195,7 @@
       "loading_setlist": "Loading setlist...",
       "select_hint": "Select performances to preview their setlist songs.",
       "song_count": "{{count}} songs (deduplicated)",
+      "no_songs": "No sortable songs found for this selection.",
       "no_performances": "No performances with setlists found",
       "show_details": "Show details",
       "hide_details": "Hide details"

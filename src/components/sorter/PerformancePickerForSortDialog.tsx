@@ -178,6 +178,7 @@ export function PerformancePickerForSortDialog({
 
   const selectedIds = useMemo(() => new Set(selectedPerformanceIds), [selectedPerformanceIds]);
   const selectionLabel = getSelectionLabel(selectedPerformances);
+  const hasPreviewSongs = previewEntries.length > 0;
 
   useEffect(() => {
     if (!open) {
@@ -220,7 +221,7 @@ export function PerformancePickerForSortDialog({
   };
 
   const handleConfirm = () => {
-    if (selectedPerformances.length === 0 || setlistInfo.uniqueSongIds.length === 0) return;
+    if (selectedPerformances.length === 0 || setlistsLoading || !hasPreviewSongs) return;
     const firstPerformance = selectedPerformances[0];
     const meta: PerformanceSortMeta = {
       performanceId: selectedPerformances.length === 1 ? selectedPerformances[0].id : undefined,
@@ -240,15 +241,24 @@ export function PerformancePickerForSortDialog({
   return (
     <DialogRoot open={open} onOpenChange={onOpenChange}>
       <DialogBackdrop />
-      <DialogPositioner>
+      <DialogPositioner
+        display="flex"
+        inset={0}
+        position="fixed"
+        justifyContent="center"
+        alignItems="center"
+        p={4}
+        overflow="clip"
+      >
         <DialogContent
           display="flex"
           flexDirection="column"
           maxW="960px"
+          h="80vh"
           maxH="80vh"
-          overflow="hidden"
+          overflow="clip"
         >
-          <Stack flex={1} gap={4} minH={0} p={6} overflow="hidden">
+          <Stack flex={1} gap={4} minH={0} p={6} overflow="clip">
             <DialogTitle>{t('dialog.performance_picker.title')}</DialogTitle>
             <DialogDescription>
               <Text fontSize="sm">{t('dialog.performance_picker.description')}</Text>
@@ -267,9 +277,11 @@ export function PerformancePickerForSortDialog({
               flex={1}
               gap={4}
               gridTemplateColumns={{ base: '1fr', md: 'minmax(0, 1fr) minmax(0, 1fr)' }}
+              gridAutoRows="minmax(0, 1fr)"
               minH={0}
+              overflow="clip"
             >
-              <Box minH="240px" overflow="auto">
+              <Box minH={0} overscrollBehavior="contain" overflow="auto">
                 {performancesLoading ? (
                   <Text color="fg.muted" textAlign="center">
                     {t('common.loading')}
@@ -408,9 +420,9 @@ export function PerformancePickerForSortDialog({
                 flexDirection="column"
                 borderRadius="md"
                 borderWidth="1px"
-                minH="240px"
+                minH={0}
                 bg="bg.subtle"
-                overflow="hidden"
+                overflow="clip"
               >
                 {selectedPerformances.length > 0 ? (
                   <>
@@ -431,15 +443,36 @@ export function PerformancePickerForSortDialog({
                       )}
                     </Stack>
 
-                    <Stack flex={1} gap={0} minH={0} p={2} overflow="auto">
-                      {previewEntries.map((entry) => (
-                        <Box key={`${entry.label}-${entry.name}`} borderRadius="sm" p={2}>
-                          <Text fontFamily="mono" fontSize="xs" fontWeight="bold">
-                            {entry.label}
+                    <Stack
+                      flex={1}
+                      gap={0}
+                      minH={0}
+                      p={2}
+                      overscrollBehavior="contain"
+                      overflow="auto"
+                    >
+                      {setlistsLoading ? (
+                        <Box p={2}>
+                          <Text color="fg.muted" fontSize="sm">
+                            {t('dialog.performance_picker.loading_setlist')}
                           </Text>
-                          <Text fontSize="sm">{entry.name}</Text>
                         </Box>
-                      ))}
+                      ) : hasPreviewSongs ? (
+                        previewEntries.map((entry) => (
+                          <Box key={`${entry.label}-${entry.name}`} borderRadius="sm" p={2}>
+                            <Text fontFamily="mono" fontSize="xs" fontWeight="bold">
+                              {entry.label}
+                            </Text>
+                            <Text fontSize="sm">{entry.name}</Text>
+                          </Box>
+                        ))
+                      ) : (
+                        <Box p={2}>
+                          <Text color="fg.muted" fontSize="sm">
+                            {t('dialog.performance_picker.no_songs')}
+                          </Text>
+                        </Box>
+                      )}
                     </Stack>
                   </>
                 ) : (
@@ -465,11 +498,7 @@ export function PerformancePickerForSortDialog({
               </DialogCloseTrigger>
               <Button
                 onClick={handleConfirm}
-                disabled={
-                  selectedPerformances.length === 0 ||
-                  setlistsLoading ||
-                  setlistInfo.uniqueSongIds.length === 0
-                }
+                disabled={selectedPerformances.length === 0 || setlistsLoading || !hasPreviewSongs}
               >
                 {t('common.confirm')}
               </Button>
