@@ -12,7 +12,7 @@ import {
 } from '~/hooks/setlist-prediction/usePerformanceData';
 import { useSongData } from '~/hooks/useSongData';
 import { getFullPerformanceName, getSongName } from '~/utils/names';
-import { computeSortableSetlistLabels } from '~/utils/performance-sort';
+import { buildPerformanceSortSelection, getPerformanceLegName } from '~/utils/performance-sort';
 import {
   Root as DialogRoot,
   Backdrop as DialogBackdrop,
@@ -29,38 +29,6 @@ export interface PerformancePickerForSortDialogProps {
   open: boolean;
   onOpenChange: (details: { open: boolean }) => void;
   onSelectPerformance: (songIds: string[], meta: PerformanceSortMeta) => void;
-}
-
-function getLegName(performance: Performance): string {
-  const name = performance.performanceName?.trim();
-  if (!name) return performance.tourName;
-
-  const withoutSuffix = name
-    .replace(/\s*[(（][^()（）]*[)）]\s*$/u, '')
-    .replace(/\s*(?:Day\.?\s*\d+|DAY\s*\d+)$/u, '')
-    .trim();
-
-  return withoutSuffix || name;
-}
-
-function getSelectionLabel(performances: Performance[]): string {
-  if (performances.length === 0) return '';
-  if (performances.length === 1) return getFullPerformanceName(performances[0]);
-
-  const tourNames = new Set(performances.map((performance) => performance.tourName));
-  if (tourNames.size === 1) {
-    const tourName = performances[0].tourName;
-    const legNames = new Set(performances.map(getLegName));
-    if (legNames.size === 1) {
-      const legName = [...legNames][0];
-      if (legName !== tourName) {
-        return `${tourName} - ${legName} (${performances.length} performances)`;
-      }
-    }
-    return `${tourName} (${performances.length} performances)`;
-  }
-
-  return `${performances.length} performances`;
 }
 
 function getPerformanceRowName(performance: Performance): string {
@@ -122,7 +90,7 @@ export function PerformancePickerForSortDialog({
         groups.set(performance.tourName, group);
       }
 
-      const legName = getLegName(performance);
+      const legName = getPerformanceLegName(performance);
       const leg = group.legs.get(legName) ?? [];
       leg.push(performance);
       group.legs.set(legName, leg);
@@ -139,31 +107,22 @@ export function PerformancePickerForSortDialog({
       .toSorted((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }, [performances, selectedPerformanceIds]);
 
-  const setlistInfo = useMemo(() => {
-    const orderEntries = selectedPerformances.flatMap((performance) => {
-      const setlist = setlistsByPerformanceId.get(performance.id);
-      if (!setlist) return [];
-
-      return computeSortableSetlistLabels(setlist, songs).map((entry) => ({
-        ...entry,
-        label:
-          selectedPerformances.length > 1
-            ? `${performance.performanceName ?? performance.tourName} ${entry.label}`
-            : entry.label,
-        performanceId: performance.id,
-        performanceName: performance.performanceName ?? performance.tourName,
-        date: performance.date
-      }));
-    });
-    const uniqueSongIds = [...new Set(orderEntries.map((entry) => entry.songId))];
-    return { uniqueSongIds, orderEntries };
-  }, [selectedPerformances, setlistsByPerformanceId, songs]);
+  const performanceSelection = useMemo(
+    () =>
+      buildPerformanceSortSelection(
+        selectedPerformanceIds,
+        performances,
+        setlistsByPerformanceId,
+        songs
+      ),
+    [selectedPerformanceIds, performances, setlistsByPerformanceId, songs]
+  );
 
   const songMap = useMemo(() => new Map(songs.map((song) => [song.id, song])), [songs]);
   const isSearching = search.trim().length > 0;
 
   const previewEntries = useMemo(() => {
-    return setlistInfo.orderEntries
+    return (performanceSelection?.meta.setlistOrder ?? [])
       .map((entry) => {
         const song = songMap.get(entry.songId);
         if (!song) return null;
@@ -174,10 +133,10 @@ export function PerformancePickerForSortDialog({
         };
       })
       .filter((entry): entry is NonNullable<typeof entry> => entry !== null);
-  }, [setlistInfo.orderEntries, songMap, i18n.language]);
+  }, [performanceSelection?.meta.setlistOrder, songMap, i18n.language]);
 
   const selectedIds = useMemo(() => new Set(selectedPerformanceIds), [selectedPerformanceIds]);
-  const selectionLabel = getSelectionLabel(selectedPerformances);
+  const selectionLabel = performanceSelection?.meta.selectionLabel ?? '';
   const hasPreviewSongs = previewEntries.length > 0;
 
   useEffect(() => {
@@ -222,19 +181,8 @@ export function PerformancePickerForSortDialog({
 
   const handleConfirm = () => {
     if (selectedPerformances.length === 0 || setlistsLoading || !hasPreviewSongs) return;
-    const firstPerformance = selectedPerformances[0];
-    const meta: PerformanceSortMeta = {
-      performanceId: selectedPerformances.length === 1 ? selectedPerformances[0].id : undefined,
-      performanceIds: selectedPerformances.map((performance) => performance.id),
-      tourName: firstPerformance.tourName,
-      performanceName:
-        selectedPerformances.length === 1 ? firstPerformance.performanceName : selectionLabel,
-      selectionLabel,
-      date: firstPerformance.date,
-      venue: selectedPerformances.length === 1 ? firstPerformance.venue : undefined,
-      setlistOrder: setlistInfo.orderEntries
-    };
-    onSelectPerformance(setlistInfo.uniqueSongIds, meta);
+    if (!performanceSelection) return;
+    onSelectPerformance(performanceSelection.songIds, performanceSelection.meta);
     onOpenChange({ open: false });
   };
 
@@ -437,7 +385,7 @@ export function PerformancePickerForSortDialog({
                       ) : (
                         <Text color="fg.muted" fontSize="xs">
                           {t('dialog.performance_picker.song_count', {
-                            count: setlistInfo.uniqueSongIds.length
+                            count: performanceSelection?.songIds.length ?? 0
                           })}
                         </Text>
                       )}

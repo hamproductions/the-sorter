@@ -36,7 +36,9 @@ import {
 import { getSongName } from '~/utils/names';
 import type { Song } from '~/types/songs';
 import type { PerformanceSortMeta } from '~/types/performance-sort';
+import type { Performance, PerformanceSetlist } from '~/types/setlist-prediction';
 import { useLocalStorage } from '~/hooks/useLocalStorage';
+import { buildPerformanceSortSelection } from '~/utils/performance-sort';
 
 const ConfirmMidSortDialog = lazy(() =>
   import('../../components/dialog/ConfirmDialog').then((m) => ({
@@ -150,14 +152,54 @@ export function Page() {
 
   useEffect(() => {
     if (state) return;
+    let cancelled = false;
     const params = new URLSearchParams(location.search);
     if (params.get('heardle') === 'true' && !heardleMode) setHeardleMode(true);
     if (params.get('noTie') === 'true' && !noTieMode) setNoTieMode(true);
     const performanceParams = getSongPerformanceParams(params);
     if (performanceParams) {
-      setPerformanceSongIds(performanceParams.songIds);
-      setPerformanceMeta(performanceParams.meta);
+      const restoreLegacySongParams = () => {
+        if (!performanceParams.songIds?.length) return;
+        setPerformanceSongIds(performanceParams.songIds);
+        setPerformanceMeta(performanceParams.meta);
+      };
+
+      if (performanceParams.performanceIds.length > 0) {
+        Promise.all([
+          import('../../../data/performance-info.json'),
+          import('../../../data/performance-setlists.json')
+        ])
+          .then(([performanceData, setlistsData]) => {
+            if (cancelled) return undefined;
+            const setlists = setlistsData.default as unknown as Record<string, PerformanceSetlist>;
+            const setlistsByPerformanceId = new Map(
+              performanceParams.performanceIds.flatMap((id) => {
+                const setlist = setlists[id];
+                return setlist ? ([[id, setlist]] as const) : [];
+              })
+            );
+            const selection = buildPerformanceSortSelection(
+              performanceParams.performanceIds,
+              performanceData.default as unknown as Performance[],
+              setlistsByPerformanceId,
+              songs
+            );
+            if (selection) {
+              setPerformanceSongIds(selection.songIds);
+              setPerformanceMeta(selection.meta);
+            } else {
+              restoreLegacySongParams();
+            }
+            return undefined;
+          })
+          .catch(restoreLegacySongParams);
+      } else {
+        restoreLegacySongParams();
+      }
     }
+    return () => {
+      cancelled = true;
+    };
     // oxlint-disable-next-line exhaustive-deps
   }, []);
 
@@ -327,7 +369,7 @@ export function Page() {
   const shareUrl = async () => {
     if (!songFilters || !isValidSongFilter(songFilters)) return;
     const params = addSongPresetParams(new URLSearchParams(), songFilters);
-    addSongPerformanceParams(params, performanceSongIds, performanceMeta);
+    addSongPerformanceParams(params, performanceMeta);
     if (heardleMode) params.append('heardle', 'true');
     if (noTieMode) params.append('noTie', 'true');
     const url = `${location.origin}${location.pathname}?${params.toString()}`;
@@ -340,7 +382,7 @@ export function Page() {
   const shareResultsUrl = async () => {
     if (!songFilters || !state?.arr) return;
     const params = addSongPresetParams(new URLSearchParams(), songFilters);
-    addSongPerformanceParams(params, performanceSongIds, performanceMeta);
+    addSongPerformanceParams(params, performanceMeta);
     params.append(
       'data',
       await serializeData({

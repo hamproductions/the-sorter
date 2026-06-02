@@ -1,7 +1,9 @@
 import type { SetlistOrderEntry } from '~/types/performance-sort';
-import type { PerformanceSetlist } from '~/types/setlist-prediction';
+import type { PerformanceSortMeta } from '~/types/performance-sort';
+import type { Performance, PerformanceSetlist } from '~/types/setlist-prediction';
 import type { Song } from '~/types/songs';
 import { isSongItem } from '~/types/setlist-prediction';
+import { getFullPerformanceName } from './names';
 
 export function computeSetlistLabels(setlist: PerformanceSetlist): SetlistOrderEntry[] {
   const { items, sections } = setlist;
@@ -97,4 +99,85 @@ export function computeSortableSetlistLabels(
 
     return [{ ...entry, songId }];
   });
+}
+
+export function getPerformanceLegName(performance: Performance): string {
+  const name = performance.performanceName?.trim();
+  if (!name) return performance.tourName;
+
+  const withoutSuffix = name
+    .replace(/\s*[(（][^()（）]*[)）]\s*$/u, '')
+    .replace(/\s*(?:Day\.?\s*\d+|DAY\s*\d+)$/u, '')
+    .trim();
+
+  return withoutSuffix || name;
+}
+
+export function getPerformanceSelectionLabel(performances: Performance[]): string {
+  if (performances.length === 0) return '';
+  if (performances.length === 1) return getFullPerformanceName(performances[0]);
+
+  const tourNames = new Set(performances.map((performance) => performance.tourName));
+  if (tourNames.size === 1) {
+    const tourName = performances[0].tourName;
+    const legNames = new Set(performances.map(getPerformanceLegName));
+    if (legNames.size === 1) {
+      const legName = [...legNames][0];
+      if (legName !== tourName) {
+        return `${tourName} - ${legName} (${performances.length} performances)`;
+      }
+    }
+    return `${tourName} (${performances.length} performances)`;
+  }
+
+  return `${performances.length} performances`;
+}
+
+export function buildPerformanceSortSelection(
+  performanceIds: string[],
+  performances: Performance[],
+  setlistsByPerformanceId: Map<string, PerformanceSetlist>,
+  songs: Song[]
+): { songIds: string[]; meta: PerformanceSortMeta } | undefined {
+  const selectedIds = new Set(performanceIds);
+  const selectedPerformances = performances
+    .filter((performance) => selectedIds.has(performance.id))
+    .toSorted((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+  if (selectedPerformances.length === 0) return undefined;
+
+  const orderEntries = selectedPerformances.flatMap((performance) => {
+    const setlist = setlistsByPerformanceId.get(performance.id);
+    if (!setlist) return [];
+
+    return computeSortableSetlistLabels(setlist, songs).map((entry) => ({
+      ...entry,
+      label:
+        selectedPerformances.length > 1
+          ? `${performance.performanceName ?? performance.tourName} ${entry.label}`
+          : entry.label,
+      performanceId: performance.id,
+      performanceName: performance.performanceName ?? performance.tourName,
+      date: performance.date
+    }));
+  });
+  const uniqueSongIds = [...new Set(orderEntries.map((entry) => entry.songId))];
+  if (uniqueSongIds.length === 0) return undefined;
+
+  const firstPerformance = selectedPerformances[0];
+  const selectionLabel = getPerformanceSelectionLabel(selectedPerformances);
+  return {
+    songIds: uniqueSongIds,
+    meta: {
+      performanceId: selectedPerformances.length === 1 ? selectedPerformances[0].id : undefined,
+      performanceIds: selectedPerformances.map((performance) => performance.id),
+      tourName: firstPerformance.tourName,
+      performanceName:
+        selectedPerformances.length === 1 ? firstPerformance.performanceName : selectionLabel,
+      selectionLabel,
+      date: firstPerformance.date,
+      venue: selectedPerformances.length === 1 ? firstPerformance.venue : undefined,
+      setlistOrder: orderEntries
+    }
+  };
 }

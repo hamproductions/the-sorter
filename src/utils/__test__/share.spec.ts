@@ -46,19 +46,36 @@ describe('Share Utils', () => {
   });
 
   describe('song performance params', () => {
-    it('round-trips selected performance songs and label', () => {
-      const params = addSongPerformanceParams(new URLSearchParams(), ['691', '831'], {
+    it('round-trips selected performances by id and label', () => {
+      const params = addSongPerformanceParams(new URLSearchParams(), {
         performanceIds: ['750', '736'],
         tourName: 'unused',
         selectionLabel: 'Two performances',
         setlistOrder: []
       });
 
-      expect(params.toString()).toEqual(
+      expect(params.toString()).toEqual('performanceIds=750%2C736');
+      expect(getSongPerformanceParams(params)).toEqual({
+        performanceIds: ['750', '736'],
+        meta: {
+          performanceId: undefined,
+          performanceIds: ['750', '736'],
+          tourName: 'Performances',
+          performanceName: undefined,
+          selectionLabel: 'Performances',
+          setlistOrder: []
+        }
+      });
+    });
+
+    it('reads legacy performance song and label params', () => {
+      const params = new URLSearchParams(
         'performanceSongs=691%2C831&performanceIds=750%2C736&performanceLabel=Two+performances'
       );
+
       expect(getSongPerformanceParams(params)).toEqual({
         songIds: ['691', '831'],
+        performanceIds: ['750', '736'],
         meta: {
           performanceId: undefined,
           performanceIds: ['750', '736'],

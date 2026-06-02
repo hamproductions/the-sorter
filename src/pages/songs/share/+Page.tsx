@@ -65,7 +65,7 @@ export function Page() {
 
   const getSortUrl = () => {
     const p = addSongPresetParams(new URLSearchParams(), filters);
-    addSongPerformanceParams(p, performanceParams?.songIds, displayPerformanceMeta);
+    addSongPerformanceParams(p, displayPerformanceMeta);
     if (guessResults) p.append('heardle', 'true');
     return `/songs?${p.toString()}`;
   };

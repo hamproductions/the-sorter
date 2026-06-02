@@ -64,21 +64,14 @@ export const addSongPresetParams = (params: URLSearchParams, filters: SongFilter
 
 export const addSongPerformanceParams = (
   params: URLSearchParams,
-  performanceSongIds: string[] | null | undefined,
   performanceMeta: PerformanceSortMeta | null | undefined
 ) => {
-  if (!performanceSongIds?.length || !performanceMeta) return params;
+  if (!performanceMeta) return params;
 
-  params.append('performanceSongs', performanceSongIds.join(','));
   if (performanceMeta.performanceIds?.length) {
     params.append('performanceIds', performanceMeta.performanceIds.join(','));
   } else if (performanceMeta.performanceId) {
     params.append('performanceIds', performanceMeta.performanceId);
-  }
-  const label =
-    performanceMeta.selectionLabel ?? performanceMeta.performanceName ?? performanceMeta.tourName;
-  if (label) {
-    params.append('performanceLabel', label);
   }
 
   return params;
@@ -86,9 +79,9 @@ export const addSongPerformanceParams = (
 
 export const getSongPerformanceParams = (params: URLSearchParams) => {
   const songIds = getAllCommaSeparated(params, 'performanceSongs');
-  if (songIds.length === 0) return undefined;
-
   const performanceIds = getAllCommaSeparated(params, 'performanceIds');
+  if (songIds.length === 0 && performanceIds.length === 0) return undefined;
+
   const label = params.get('performanceLabel') ?? 'Performances';
   const meta: PerformanceSortMeta = {
     performanceId: performanceIds.length === 1 ? performanceIds[0] : undefined,
@@ -99,5 +92,9 @@ export const getSongPerformanceParams = (params: URLSearchParams) => {
     setlistOrder: []
   };
 
-  return { songIds, meta };
+  return {
+    songIds: songIds.length > 0 ? songIds : undefined,
+    performanceIds,
+    meta
+  };
 };
