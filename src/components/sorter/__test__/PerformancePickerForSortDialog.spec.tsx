@@ -123,7 +123,7 @@ describe('PerformancePickerForSortDialog', () => {
       <PerformancePickerForSortDialog open onOpenChange={vi.fn()} onSelectPerformance={vi.fn()} />
     );
 
-    await user.click(screen.getAllByText('Show details')[0]);
+    await user.click(screen.getAllByLabelText('Show details')[0]);
     await user.click(screen.getByLabelText('Latest Live - Day 1'));
 
     expect(await screen.findByText('2 songs (deduplicated)')).toBeInTheDocument();
@@ -139,7 +139,7 @@ describe('PerformancePickerForSortDialog', () => {
     expect(screen.getByLabelText('Latest Live')).toBeInTheDocument();
     expect(screen.queryByLabelText('Latest Live - Day 1')).not.toBeInTheDocument();
 
-    await user.click(screen.getAllByText('Show details')[0]);
+    await user.click(screen.getAllByLabelText('Show details')[0]);
 
     expect(screen.getByLabelText('Latest Live - Day 1')).toBeInTheDocument();
     expect(screen.getByText('Day 1')).toBeInTheDocument();
@@ -159,7 +159,7 @@ describe('PerformancePickerForSortDialog', () => {
       />
     );
 
-    await user.click(screen.getAllByText('Show details')[0]);
+    await user.click(screen.getAllByLabelText('Show details')[0]);
     await user.click(screen.getByLabelText('Latest Live - Day 1'));
     await user.click(screen.getByLabelText('Latest Live - Day 2'));
 
@@ -189,7 +189,7 @@ describe('PerformancePickerForSortDialog', () => {
       />
     );
 
-    await user.click(screen.getAllByText('Show details')[1]);
+    await user.click(screen.getAllByLabelText('Show details')[1]);
     await user.click(screen.getByLabelText('Tour Live - Osaka'));
     await user.click(screen.getByText('Confirm'));
 

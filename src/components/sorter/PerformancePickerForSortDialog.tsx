@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useMemo, useEffect } from 'react';
+import { BiChevronDown, BiChevronUp } from 'react-icons/bi';
 import { Box, HStack, Stack } from 'styled-system/jsx';
 import { Button } from '~/components/ui/styled/button';
 import { Text } from '~/components/ui/styled/text';
@@ -287,30 +288,54 @@ export function PerformancePickerForSortDialog({
                       return (
                         <Box key={group.tourName} borderRadius="md" borderWidth="1px" p={3}>
                           <Stack gap={2}>
-                            <HStack gap={3} justifyContent="space-between" alignItems="flex-start">
+                            <HStack gap={2} justifyContent="space-between" alignItems="flex-start">
                               <Checkbox
                                 checked={getChecked(groupIds)}
                                 onCheckedChange={() => togglePerformanceIds(groupIds)}
                                 aria-label={group.tourName}
+                                flex={1}
+                                minW={0}
                               >
-                                <HStack gap={2} alignItems="baseline">
-                                  <Text fontSize="sm" fontWeight="bold">
+                                <HStack gap={2} alignItems="baseline" minW={0}>
+                                  <Text
+                                    minW={0}
+                                    fontSize="sm"
+                                    fontWeight="bold"
+                                    lineHeight="1.45"
+                                    overflowWrap="anywhere"
+                                  >
                                     {group.tourName}
                                   </Text>
-                                  <Text color="fg.muted" fontSize="xs">
+                                  <Text flexShrink={0} color="fg.muted" fontSize="xs">
                                     {group.performances.length}
                                   </Text>
                                 </HStack>
                               </Checkbox>
                               {!isSearching && (
                                 <Button
-                                  size="xs"
+                                  aria-label={
+                                    isExpanded
+                                      ? t('dialog.performance_picker.hide_details')
+                                      : t('dialog.performance_picker.show_details')
+                                  }
+                                  title={
+                                    isExpanded
+                                      ? t('dialog.performance_picker.hide_details')
+                                      : t('dialog.performance_picker.show_details')
+                                  }
                                   variant="outline"
                                   onClick={() => toggleExpandedTour(group.tourName)}
+                                  flexShrink={0}
+                                  w={9}
+                                  minW={9}
+                                  h={9}
+                                  p={0}
                                 >
-                                  {isExpanded
-                                    ? t('dialog.performance_picker.hide_details')
-                                    : t('dialog.performance_picker.show_details')}
+                                  {isExpanded ? (
+                                    <BiChevronUp size={22} />
+                                  ) : (
+                                    <BiChevronDown size={22} />
+                                  )}
                                 </Button>
                               )}
                             </HStack>

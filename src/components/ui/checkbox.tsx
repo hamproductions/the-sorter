@@ -9,6 +9,7 @@ export const Checkbox = forwardRef<HTMLLabelElement, CheckboxProps>((props, ref)
   return (
     <StyledCheckbox.Root ref={ref} cursor="pointer" userSelect="none" {...rootProps}>
       <StyledCheckbox.Control
+        flexShrink={0}
         _focusVisible={{
           outlineOffset: '2px',
           outline: '2px solid',
