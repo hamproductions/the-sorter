@@ -24,11 +24,9 @@ interface CharacterGridSelectorProps {
 
 /** Emblem icon with a portrait-art fallback for characters that have no icon. */
 function CharacterTileImage({ character, locale }: { character: Character; locale: Locale }) {
+  // Tiles are keyed by character id, so a given instance never switches
+  // characters — once an emblem 404s the fallback should stick for its lifetime.
   const [iconError, setIconError] = useState(false);
-
-  useEffect(() => {
-    setIconError(false);
-  }, [character.id]);
 
   const fullName = getFullName(character, locale);
 
@@ -37,6 +35,7 @@ function CharacterTileImage({ character, locale }: { character: Character; local
       <styled.img
         src={getPicUrl(character.id, 'icons')}
         alt={`${fullName} Icon`}
+        loading="lazy"
         onError={() => setIconError(true)}
         maxW="70%"
         maxH="70%"
@@ -51,6 +50,7 @@ function CharacterTileImage({ character, locale }: { character: Character; local
     <styled.img
       src={getPicUrl(character.id, 'character')}
       alt={fullName}
+      loading="lazy"
       w="full"
       h="full"
       objectFit="cover"
@@ -113,6 +113,14 @@ export function CharacterGridSelector({
       ),
     [characters]
   );
+
+  // If the active franchise tab disappears (e.g. the series filter changes while
+  // the dialog is open), fall back to "All" so the grid never goes empty.
+  useEffect(() => {
+    if (selectedCategory !== 'ALL' && !availableSeries.some((s) => s.id === selectedCategory)) {
+      setSelectedCategory('ALL');
+    }
+  }, [availableSeries, selectedCategory]);
 
   // Group by series (canonical order), honoring the active franchise tab.
   const groups = useMemo(() => {
