@@ -417,7 +417,7 @@ export function SongFilters({
             }}
           />
 
-          <Text fontSize="sm" color="fg.muted">
+          <Text color="fg.muted" fontSize="sm">
             {t('settings.character_solo_hint')}
           </Text>
 

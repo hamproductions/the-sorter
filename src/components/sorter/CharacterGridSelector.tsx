@@ -37,9 +37,9 @@ function CharacterTileImage({ character, locale }: { character: Character; local
         alt={`${fullName} Icon`}
         loading="lazy"
         onError={() => setIconError(true)}
+        objectFit="contain"
         maxW="70%"
         maxH="70%"
-        objectFit="contain"
       />
     );
   }
@@ -51,10 +51,10 @@ function CharacterTileImage({ character, locale }: { character: Character; local
       src={getPicUrl(character.id, 'character')}
       alt={fullName}
       loading="lazy"
+      objectPosition="center top"
+      objectFit="cover"
       w="full"
       h="full"
-      objectFit="cover"
-      objectPosition="center top"
     />
   );
 }
@@ -86,7 +86,9 @@ export function CharacterGridSelector({
   };
 
   const toggle = (id: number) => {
-    setTempSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
+    setTempSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
   };
 
   const filtered = useMemo(() => {
@@ -107,10 +109,7 @@ export function CharacterGridSelector({
   // Series that actually have characters available — drives the tab list.
   // Based on the unfiltered `characters` so tabs stay stable while searching.
   const availableSeries = useMemo(
-    () =>
-      seriesInfo.filter((s) =>
-        characters.some((c) => String(c.seriesId) === String(s.id))
-      ),
+    () => seriesInfo.filter((s) => characters.some((c) => String(c.seriesId) === String(s.id))),
     [characters]
   );
 
@@ -183,12 +182,12 @@ export function CharacterGridSelector({
                     size="xs"
                     variant={selectedCategory === s.id ? 'subtle' : 'outline'}
                     onClick={() => setSelectedCategory(s.id)}
-                    flexShrink="0"
                     style={{
                       borderColor: s.color,
                       backgroundColor: selectedCategory === s.id ? s.color : undefined,
                       color: selectedCategory === s.id ? 'white' : s.color
                     }}
+                    flexShrink="0"
                   >
                     {s.name}
                   </Button>
@@ -196,7 +195,7 @@ export function CharacterGridSelector({
               </HStack>
             )}
 
-            <Box flex="1" overflowY="auto" mx="-2" px="2">
+            <Box flex="1" mx="-2" px="2" overflowY="auto">
               {groups.length === 0 ? (
                 <Text py="4" color="fg.muted" textAlign="center">
                   {t('common.no_items')}
@@ -205,9 +204,17 @@ export function CharacterGridSelector({
                 <Stack gap="6">
                   {groups.map((group) => (
                     <Stack key={group.id} gap="3">
-                      <HStack gap="2" alignItems="center" position="sticky" top="0" bg="bg.canvas" py="1" zIndex="1">
-                        <Box w="1" h="5" rounded="full" style={{ backgroundColor: group.color }} />
-                        <Text fontWeight="bold" style={{ color: group.color }}>
+                      <HStack
+                        zIndex="1"
+                        position="sticky"
+                        top="0"
+                        gap="2"
+                        alignItems="center"
+                        py="1"
+                        bg="bg.canvas"
+                      >
+                        <Box style={{ backgroundColor: group.color }} rounded="full" w="1" h="5" />
+                        <Text style={{ color: group.color }} fontWeight="bold">
                           {group.name}
                         </Text>
                       </HStack>
@@ -222,42 +229,42 @@ export function CharacterGridSelector({
                               type="button"
                               onClick={() => toggle(id)}
                               aria-pressed={isSelected}
-                              cursor="pointer"
-                              display="flex"
-                              flexDirection="column"
-                              gap="2"
-                              p="2"
-                              rounded="l2"
-                              borderWidth="2px"
-                              transition="all 0.15s"
-                              alignItems="center"
-                              textAlign="center"
-                              bg="bg.canvas"
                               style={{
                                 borderColor: isSelected ? color : 'transparent',
                                 boxShadow: isSelected ? `0 0 0 1px ${color}` : undefined
                               }}
+                              cursor="pointer"
+                              display="flex"
+                              gap="2"
+                              flexDirection="column"
+                              alignItems="center"
+                              rounded="l2"
+                              borderWidth="2px"
+                              p="2"
+                              textAlign="center"
+                              bg="bg.canvas"
+                              transition="all 0.15s"
                               _hover={{ bg: 'bg.subtle' }}
                             >
                               <Center
                                 position="relative"
-                                w="full"
                                 aspectRatio="1"
                                 rounded="l1"
+                                w="full"
                                 bg="bg.muted"
                                 overflow="hidden"
                               >
                                 <CharacterTileImage character={c} locale={locale} />
                                 {isSelected && (
                                   <Center
+                                    style={{ backgroundColor: color }}
                                     position="absolute"
                                     top="1"
                                     right="1"
+                                    rounded="full"
                                     w="6"
                                     h="6"
-                                    rounded="full"
                                     color="white"
-                                    style={{ backgroundColor: color }}
                                   >
                                     <LuCheck />
                                   </Center>
@@ -265,16 +272,16 @@ export function CharacterGridSelector({
                               </Center>
                               <Stack gap="0.5" alignItems="center" w="full">
                                 <Text
-                                  fontWeight="bold"
+                                  maxW="full"
                                   fontSize="sm"
+                                  fontWeight="bold"
                                   textAlign="center"
                                   truncate
-                                  maxW="full"
                                 >
                                   {getFullName(c, locale)}
                                 </Text>
                                 {c.casts?.[0] && (
-                                  <Text fontSize="xs" color="fg.muted" textAlign="center">
+                                  <Text color="fg.muted" fontSize="xs" textAlign="center">
                                     {getCastName(c.casts[0], locale)}
                                   </Text>
                                 )}
