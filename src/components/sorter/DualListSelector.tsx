@@ -1,7 +1,6 @@
-import { useRef, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuArrowRight, LuArrowLeft, LuChevronsRight, LuChevronsLeft } from 'react-icons/lu';
-import { useVirtualizer } from '@tanstack/react-virtual';
 import { Dialog } from '~/components/ui/dialog';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
@@ -32,6 +31,39 @@ interface DualListSelectorProps {
   getSearchScore?: (item: Item, query: string) => number;
 }
 
+// A single selectable row. Lists are small enough (<= ~900 items, usually far
+// fewer after filtering) that plain rendering is smooth — virtualization was
+// removed because TanStack Virtual's ResizeObserver races Ark's dialog sizing
+// and intermittently renders the list blank.
+function ItemRow({
+  item,
+  side,
+  onClick
+}: {
+  item: Item;
+  side: 'available' | 'selected';
+  onClick: () => void;
+}) {
+  return (
+    <HStack
+      onClick={onClick}
+      style={{ borderLeft: item.color ? `4px solid ${item.color}` : undefined }}
+      cursor="pointer"
+      justifyContent="space-between"
+      minH="10"
+      py="2"
+      px="2"
+      _hover={{ bg: 'bg.subtle' }}
+    >
+      {side === 'selected' && <LuArrowLeft />}
+      <Text truncate lineClamp={1}>
+        {item.name}
+      </Text>
+      {side === 'available' && <LuArrowRight />}
+    </HStack>
+  );
+}
+
 export function DualListSelector({
   title,
   triggerLabel,
@@ -47,9 +79,6 @@ export function DualListSelector({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [tempSelectedIds, setTempSelectedIds] = useState<(string | number)[]>([]);
-
-  const availableListRef = useRef<HTMLDivElement>(null);
-  const selectedListRef = useRef<HTMLDivElement>(null);
 
   const handleOpen = () => {
     setTempSelectedIds([...selectedIds]);
@@ -86,13 +115,10 @@ export function DualListSelector({
     });
 
     // Sort by search score if applicable
-    // Sort by search score if applicable
     if (searchQuery && getSearchScore) {
-      filtered.sort((a, b) => {
-        const scoreA = getSearchScore(a, searchQuery);
-        const scoreB = getSearchScore(b, searchQuery);
-        return scoreB - scoreA;
-      });
+      return filtered.toSorted(
+        (a, b) => getSearchScore(b, searchQuery) - getSearchScore(a, searchQuery)
+      );
     }
 
     return filtered;
@@ -101,20 +127,6 @@ export function DualListSelector({
   const selectedItemsList = useMemo(() => {
     return items.filter((item) => tempSelectedIds.includes(item.id));
   }, [items, tempSelectedIds]);
-
-  const rowVirtualizerAvailable = useVirtualizer({
-    count: availableItems.length,
-    getScrollElement: () => availableListRef.current,
-    estimateSize: () => 40,
-    overscan: 20
-  });
-
-  const rowVirtualizerSelected = useVirtualizer({
-    count: selectedItemsList.length,
-    getScrollElement: () => selectedListRef.current,
-    estimateSize: () => 40,
-    overscan: 20
-  });
 
   const addAll = () => {
     const idsToAdd = availableItems.map((i) => i.id);
@@ -194,7 +206,6 @@ export function DualListSelector({
                 )}
 
                 <Box
-                  ref={availableListRef}
                   flex="1"
                   borderColor="border.subtle"
                   borderRadius="md"
@@ -207,49 +218,14 @@ export function DualListSelector({
                       {t('common.no_items')}
                     </Text>
                   ) : (
-                    <div
-                      style={{
-                        height: `${rowVirtualizerAvailable.getTotalSize()}px`,
-                        width: '100%',
-                        position: 'relative'
-                      }}
-                    >
-                      {rowVirtualizerAvailable.getVirtualItems().map((virtualRow) => {
-                        const item = availableItems[virtualRow.index];
-                        return (
-                          <div
-                            key={item.id}
-                            style={{
-                              position: 'absolute',
-                              top: 0,
-                              left: 0,
-                              width: '100%',
-                              transform: `translateY(${virtualRow.start}px)`
-                            }}
-                          >
-                            <HStack
-                              onClick={() => addItem(item.id)}
-                              ref={rowVirtualizerAvailable.measureElement}
-                              data-index={virtualRow.index}
-                              style={{
-                                borderLeft: item.color ? `4px solid ${item.color}` : undefined
-                              }}
-                              cursor="pointer"
-                              justifyContent="space-between"
-                              minH="10"
-                              py="2"
-                              px="2"
-                              _hover={{ bg: 'bg.subtle' }}
-                            >
-                              <Text truncate lineClamp={1}>
-                                {item.name}
-                              </Text>
-                              <LuArrowRight />
-                            </HStack>
-                          </div>
-                        );
-                      })}
-                    </div>
+                    availableItems.map((item) => (
+                      <ItemRow
+                        key={item.id}
+                        item={item}
+                        side="available"
+                        onClick={() => addItem(item.id)}
+                      />
+                    ))
                   )}
                 </Box>
               </Stack>
@@ -287,61 +263,20 @@ export function DualListSelector({
                     {tempSelectedIds.length}
                   </Badge>
                 </HStack>
-                <Box
-                  ref={selectedListRef}
-                  flex="1"
-                  borderRadius="md"
-                  borderWidth="1px"
-                  overflowY="auto"
-                >
+                <Box flex="1" borderRadius="md" borderWidth="1px" overflowY="auto">
                   {selectedItemsList.length === 0 ? (
                     <Text py="4" color="fg.muted" textAlign="center">
                       {t('common.no_selection')}
                     </Text>
                   ) : (
-                    <div
-                      style={{
-                        height: `${rowVirtualizerSelected.getTotalSize()}px`,
-                        width: '100%',
-                        position: 'relative'
-                      }}
-                    >
-                      {rowVirtualizerSelected.getVirtualItems().map((virtualRow) => {
-                        const item = selectedItemsList[virtualRow.index];
-                        return (
-                          <div
-                            key={item.id}
-                            style={{
-                              position: 'absolute',
-                              top: 0,
-                              left: 0,
-                              width: '100%',
-                              transform: `translateY(${virtualRow.start}px)`
-                            }}
-                          >
-                            <HStack
-                              onClick={() => removeItem(item.id)}
-                              ref={rowVirtualizerSelected.measureElement}
-                              data-index={virtualRow.index}
-                              style={{
-                                borderLeft: item.color ? `4px solid ${item.color}` : undefined
-                              }}
-                              cursor="pointer"
-                              justifyContent="space-between"
-                              minH="10"
-                              py="2"
-                              px="2"
-                              _hover={{ bg: 'bg.subtle' }}
-                            >
-                              <LuArrowLeft />
-                              <Text truncate lineClamp={1}>
-                                {item.name}
-                              </Text>
-                            </HStack>
-                          </div>
-                        );
-                      })}
-                    </div>
+                    selectedItemsList.map((item) => (
+                      <ItemRow
+                        key={item.id}
+                        item={item}
+                        side="selected"
+                        onClick={() => removeItem(item.id)}
+                      />
+                    ))
                   )}
                 </Box>
               </Stack>
