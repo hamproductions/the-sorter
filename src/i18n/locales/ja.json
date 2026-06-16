@@ -47,6 +47,7 @@
       "105ver": "105期 ver."
     },
     "characters": "キャラクター",
+    "character_solo_hint": "ヒント：種別→ソロ曲も選ぶと、キャラのソロ曲だけを並び替えできます。",
     "discographies": "ディスコグラフィ",
     "songs": "楽曲",
     "logic_and": "すべて一致",

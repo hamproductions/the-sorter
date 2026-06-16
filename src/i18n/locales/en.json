@@ -49,6 +49,7 @@
       "solo": "Solo"
     },
     "characters": "Characters",
+    "character_solo_hint": "Tip: also enable Type → Solo to sort only a character's solo songs.",
     "discographies": "Discographies",
     "songs": "Songs",
     "logic_and": "Match All",

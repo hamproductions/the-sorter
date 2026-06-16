@@ -12,6 +12,7 @@ import discographies from '../../../data/discography-info.json';
 import songs from '../../../data/song-info.json';
 
 import { DualListSelector } from './DualListSelector';
+import { CharacterGridSelector } from './CharacterGridSelector';
 import { Badge } from '~/components/ui/badge';
 import { HStack, Stack, Wrap, Box } from 'styled-system/jsx';
 import { isValidSongFilter } from '~/utils/song-filter';
@@ -405,17 +406,20 @@ export function SongFilters({
         <Stack flex="1" gap="4" minW="300px">
           {renderHeader(t('settings.characters'), charactersCount, 'characters', true)}
 
-          <DualListSelector
+          <CharacterGridSelector
             title={t('settings.characters')}
             triggerLabel={t('settings.characters')}
-            items={characterItems}
+            characters={filteredCharacters}
             selectedIds={filters?.characters ?? []}
             onSelectionChange={(ids) => {
               if (!filters) return;
-              setFilters({ ...filters, characters: ids.map(Number) });
+              setFilters({ ...filters, characters: ids });
             }}
-            categories={categories}
           />
+
+          <Text color="fg.muted" fontSize="sm">
+            {t('settings.character_solo_hint')}
+          </Text>
 
           {filters?.characters && filters.characters.length > 0 && (
             <HStack gap="2" pt="2" flexWrap="wrap">

@@ -33,6 +33,7 @@ void i18n.use(initReactI18next).init({
         'settings.types': 'Types',
         'settings.artists': 'Artists',
         'settings.characters': 'Characters',
+        'settings.character_solo_hint': 'Tip: enable Type → Solo for solo songs only.',
         'settings.discographies': 'Discographies',
         'settings.songs': 'Songs',
         'settings.select_all': 'Select All',
@@ -71,6 +72,17 @@ describe('SongFilters Component', () => {
     expect(screen.getAllByText('Characters')[0]).toBeInTheDocument();
     expect(screen.getAllByText('Discographies')[0]).toBeInTheDocument();
     expect(screen.getAllByText('Songs')[0]).toBeInTheDocument();
+  });
+
+  it('guides users to the character + solo type combo', () => {
+    const setFilters = vi.fn();
+    render(
+      <I18nextProvider i18n={i18n}>
+        <SongFilters filters={mockFilters} setFilters={setFilters} />
+      </I18nextProvider>
+    );
+
+    expect(screen.getByText('Tip: enable Type → Solo for solo songs only.')).toBeInTheDocument();
   });
 
   it('toggles Series selection', async () => {
