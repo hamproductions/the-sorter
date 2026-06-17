@@ -16,6 +16,8 @@ export interface Performance {
   // Data source
   source?: 'llfans' | 'custom';
   llfansId?: string;
+  eventId?: string; // LLFans tour id; ll-fans.jp/data/event/{eventId}?concert={concertId}&performance={id}
+  concertId?: string; // LLFans concert id
   createdBy?: string; // Phase 2
   isPublic?: boolean;
 
