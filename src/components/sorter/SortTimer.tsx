@@ -20,21 +20,14 @@ export const SortTimer = ({ timing, frozen }: SortTimerProps) => {
   const { t } = useTranslation();
   const [now, setNow] = useState(() => Date.now());
 
-  const startedAt = timing?.startedAt;
-
   useEffect(() => {
-    if (startedAt === undefined || frozen) return;
-    let timeoutId: ReturnType<typeof setTimeout>;
-    // Re-align each tick to the next whole-second boundary relative to startedAt
-    // so timer jitter never pushes two updates into the same second (4 -> 6 skip).
-    const tick = () => {
-      setNow(Date.now());
-      const msIntoSecond = (Date.now() - startedAt) % 1000;
-      timeoutId = setTimeout(tick, 1000 - msIntoSecond);
-    };
-    tick();
-    return () => clearTimeout(timeoutId);
-  }, [startedAt, frozen]);
+    if (!timing || frozen) return;
+    // Elapsed is always derived from the start timestamp (below), so this interval
+    // is just a re-render pulse — its cadence doesn't affect accuracy. Tick 4x per
+    // second so every whole-second boundary is caught and the display never skips.
+    const id = setInterval(() => setNow(Date.now()), 250);
+    return () => clearInterval(id);
+  }, [timing, frozen]);
 
   if (!timing) return null;
 
