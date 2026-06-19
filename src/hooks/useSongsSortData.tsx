@@ -74,8 +74,16 @@ export const useSongsSortData = (
   );
 
   // Background timer: track how long each comparison and the whole session takes.
-  const { timing, stats, startTimer, clearTimer, recordTick, removeLastTick, markEnded } =
-    useSongSortTimer(options?.storagePrefix ?? 'songs');
+  const {
+    timing,
+    stats,
+    getElapsedMs,
+    startTimer,
+    clearTimer,
+    recordTick,
+    removeLastTick,
+    markEnded
+  } = useSongSortTimer(options?.storagePrefix ?? 'songs');
 
   const timedInit = useCallback(() => {
     startTimer();
@@ -187,6 +195,7 @@ export const useSongsSortData = (
     listCount: listToSort.length,
     clear: timedClear,
     timing,
-    timingStats: stats
+    timingStats: stats,
+    getElapsedMs
   };
 };

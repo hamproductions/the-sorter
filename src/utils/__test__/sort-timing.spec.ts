@@ -75,8 +75,13 @@ describe('formatElapsed', () => {
 });
 
 describe('createTimingData', () => {
-  it('initializes with the given timestamp and empty durations', () => {
+  it('initializes with the given timestamp and a zeroed active clock', () => {
     const data = createTimingData(1000);
-    expect(data).toEqual({ startedAt: 1000, lastTickAt: 1000, durations: [] });
+    expect(data).toEqual({
+      startedAt: 1000,
+      durations: [],
+      accumulatedActiveMs: 0,
+      lastTickActiveMs: 0
+    });
   });
 });

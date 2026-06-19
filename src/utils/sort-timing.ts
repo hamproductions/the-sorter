@@ -1,19 +1,23 @@
 /**
  * Timing model for a song ranking session.
  *
- * `durations` holds the wall-clock time (ms) the user spent on each individual
- * comparison decision. The sum of `durations` equals the total active time from
- * the first comparison to the most recent one (each entry is the gap between two
- * consecutive decisions), so it doubles as the "total time to complete".
+ * All timing is measured in *active* time — time the tab is foregrounded. Time
+ * spent with the tab hidden is excluded (the stopwatch pauses on
+ * `visibilitychange` and resumes when the tab is visible again).
+ *
+ * `durations` holds the active time (ms) spent on each individual comparison.
+ * Its sum equals the total active time to complete the ranking.
  */
 export interface SortTimingData {
-  /** Epoch ms when the session started (first comparison shown). */
+  /** Wall-clock epoch ms when the session started (display reference only). */
   startedAt: number;
-  /** Epoch ms of the most recent recorded decision (or `startedAt` if none yet). */
-  lastTickAt: number;
-  /** Per-comparison durations in ms, in decision order. */
+  /** Per-comparison active durations in ms, in decision order. */
   durations: number[];
-  /** Epoch ms when the sort reached its end state. */
+  /** Active ms accrued up to the last fold (a decision or a pause). */
+  accumulatedActiveMs: number;
+  /** Active ms at the last recorded decision (for per-comparison diffing). */
+  lastTickActiveMs: number;
+  /** Wall-clock epoch ms when the sort reached its end state. */
   endedAt?: number;
 }
 
@@ -34,8 +38,9 @@ export interface SortTimingStats {
 
 export const createTimingData = (now: number): SortTimingData => ({
   startedAt: now,
-  lastTickAt: now,
-  durations: []
+  durations: [],
+  accumulatedActiveMs: 0,
+  lastTickActiveMs: 0
 });
 
 export const computeTimingStats = (durations: number[]): SortTimingStats | undefined => {

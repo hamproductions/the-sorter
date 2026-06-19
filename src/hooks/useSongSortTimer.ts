@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useLocalStorage } from './useLocalStorage';
 import {
   computeTimingStats,
@@ -7,60 +7,130 @@ import {
   type SortTimingStats
 } from '../utils/sort-timing';
 
+const isVisible = () => typeof document === 'undefined' || document.visibilityState === 'visible';
+
 /**
- * Tracks per-comparison and total wall-clock timing for a song ranking session.
+ * Tracks per-comparison and total timing for a song ranking session, counting
+ * only *active* (foregrounded) time.
  *
- * State is persisted to localStorage (keyed by `storagePrefix`) so timing
- * survives reloads mid-session, mirroring how the sort state itself is stored.
+ * Implements a pausable stopwatch via the Page Visibility API: `accumulatedActiveMs`
+ * holds folded active time, and `runningSinceRef` marks the start of the current
+ * running segment (null while the tab is hidden). When the tab is hidden the
+ * running segment is folded into the accumulator and the clock pauses; when it
+ * becomes visible again the clock resumes. Persisted to localStorage (keyed by
+ * `storagePrefix`) so timing survives reloads mid-session.
  */
 export const useSongSortTimer = (storagePrefix = 'songs') => {
   const [timing, setTiming] = useLocalStorage<SortTimingData>(`${storagePrefix}-sort-timing`);
 
+  const timingRef = useRef(timing);
+  timingRef.current = timing;
+
+  // Wall-clock ms when the current active segment began; null while paused/hidden.
+  // In-memory only — never persisted, so closed-tab time can't be counted on reload.
+  const runningSinceRef = useRef<number | null>(null);
+
+  const commit = useCallback(
+    (next: SortTimingData | undefined) => {
+      timingRef.current = next;
+      setTiming(next);
+    },
+    [setTiming]
+  );
+
+  // Total active ms as of `now`, including the current running segment.
+  const activeElapsed = useCallback((now: number) => {
+    const t = timingRef.current;
+    if (!t) return 0;
+    if (t.endedAt) return t.accumulatedActiveMs;
+    const running = runningSinceRef.current;
+    return t.accumulatedActiveMs + (running != null ? Math.max(0, now - running) : 0);
+  }, []);
+
+  const getElapsedMs = useCallback(() => activeElapsed(Date.now()), [activeElapsed]);
+
   const startTimer = useCallback(() => {
-    setTiming(createTimingData(Date.now()));
-  }, [setTiming]);
+    const now = Date.now();
+    runningSinceRef.current = isVisible() ? now : null;
+    commit(createTimingData(now));
+  }, [commit]);
 
   const clearTimer = useCallback(() => {
-    setTiming(undefined);
-  }, [setTiming]);
+    runningSinceRef.current = null;
+    commit(undefined);
+  }, [commit]);
 
-  // Record the elapsed time since the previous decision as one comparison duration.
+  // Record the active time spent on this comparison, then re-baseline the clock.
   const recordTick = useCallback(() => {
-    setTiming((prev) => {
-      const now = Date.now();
-      const base = prev ?? createTimingData(now);
-      const duration = Math.max(0, now - base.lastTickAt);
-      return {
-        ...base,
-        lastTickAt: now,
-        durations: [...base.durations, duration],
-        // Reaching this point again means the user resumed sorting after an end.
-        endedAt: undefined
-      };
+    const now = Date.now();
+    const base = timingRef.current ?? createTimingData(now);
+    const active = activeElapsed(now);
+    const duration = Math.max(0, active - base.lastTickActiveMs);
+    runningSinceRef.current = isVisible() ? now : null;
+    commit({
+      ...base,
+      durations: [...base.durations, duration],
+      accumulatedActiveMs: active,
+      lastTickActiveMs: active,
+      endedAt: undefined
     });
-  }, [setTiming]);
+  }, [activeElapsed, commit]);
 
-  // Undo: drop the most recent comparison and rewind the tick cursor.
+  // Undo: drop the last comparison and rewind the clock to that decision point.
   const removeLastTick = useCallback(() => {
-    setTiming((prev) => {
-      if (!prev || prev.durations.length === 0) return prev;
-      const lastDuration = prev.durations[prev.durations.length - 1];
-      return {
-        ...prev,
-        lastTickAt: Math.max(prev.startedAt, prev.lastTickAt - lastDuration),
-        durations: prev.durations.slice(0, -1),
-        endedAt: undefined
-      };
+    const base = timingRef.current;
+    if (!base || base.durations.length === 0) return;
+    const durations = base.durations.slice(0, -1);
+    const activeAtPrev = durations.reduce((sum, d) => sum + d, 0);
+    runningSinceRef.current = isVisible() ? Date.now() : null;
+    commit({
+      ...base,
+      durations,
+      accumulatedActiveMs: activeAtPrev,
+      lastTickActiveMs: activeAtPrev,
+      endedAt: undefined
     });
-  }, [setTiming]);
+  }, [commit]);
 
   const markEnded = useCallback(() => {
-    setTiming((prev) => {
-      if (!prev || prev.endedAt) return prev;
-      // Final decision time is the true completion moment.
-      return { ...prev, endedAt: prev.lastTickAt };
-    });
-  }, [setTiming]);
+    const base = timingRef.current;
+    if (!base || base.endedAt) return;
+    runningSinceRef.current = null;
+    commit({ ...base, accumulatedActiveMs: base.lastTickActiveMs, endedAt: Date.now() });
+  }, [commit]);
+
+  // Re-baseline the running segment on mount (e.g. after a reload) so time spent
+  // with the page closed is never counted.
+  useEffect(() => {
+    const base = timingRef.current;
+    if (base && !base.endedAt) {
+      runningSinceRef.current = isVisible() ? Date.now() : null;
+    }
+    // oxlint-disable-next-line exhaustive-deps
+  }, []);
+
+  // Pause on hidden (fold running segment), resume on visible.
+  useEffect(() => {
+    const handleVisibility = () => {
+      const base = timingRef.current;
+      if (!base || base.endedAt) return;
+      const now = Date.now();
+      if (document.visibilityState === 'hidden') {
+        const running = runningSinceRef.current;
+        if (running != null) {
+          runningSinceRef.current = null;
+          commit({
+            ...base,
+            accumulatedActiveMs: base.accumulatedActiveMs + Math.max(0, now - running)
+          });
+        }
+      } else if (runningSinceRef.current == null) {
+        runningSinceRef.current = now;
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [commit]);
 
   const stats: SortTimingStats | undefined = useMemo(
     () => (timing ? computeTimingStats(timing.durations) : undefined),
@@ -70,6 +140,7 @@ export const useSongSortTimer = (storagePrefix = 'songs') => {
   return {
     timing: timing ?? undefined,
     stats,
+    getElapsedMs,
     startTimer,
     clearTimer,
     recordTick,

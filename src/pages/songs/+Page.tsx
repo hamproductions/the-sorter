@@ -142,7 +142,8 @@ export function Page() {
     clear,
     isEnded,
     timing,
-    timingStats
+    timingStats,
+    getElapsedMs
   } = useSongsSortData(failedSongIds.size > 0 ? failedSongIds : undefined, {
     disableShortcutsRef,
     performanceSongIds: isPerformanceMode ? performanceSongIds : undefined,
@@ -657,7 +658,7 @@ export function Page() {
                   isEstimatedCount={isEstimatedCount}
                   maxComparisons={maxComparisons}
                 />
-                <SortTimer timing={timing} frozen={isEnded} />
+                <SortTimer active={!!timing} getElapsedMs={getElapsedMs} frozen={isEnded} />
                 <Progress
                   translations={{ value: (details) => `${details.percent}%` }}
                   value={progress}
