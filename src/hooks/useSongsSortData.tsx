@@ -60,6 +60,7 @@ export const useSongsSortData = (
     left,
     right,
     state,
+    history,
     comparisonsCount,
     isEstimatedCount,
     maxComparisons,
@@ -106,9 +107,12 @@ export const useSongsSortData = (
   }, [recordTick, right]);
 
   const timedUndo = useCallback(() => {
-    removeLastTick();
+    // Only drop a timing entry when undo will actually rewind a comparison. Once
+    // useSorter's history cap (50) is exhausted, undo() no-ops; popping a duration
+    // anyway would desync the timer from the sorter and corrupt the results stats.
+    if (history && history.length > 0) removeLastTick();
     undo();
-  }, [removeLastTick, undo]);
+  }, [history, removeLastTick, undo]);
 
   // Freeze the timer once the sort completes.
   useEffect(() => {
