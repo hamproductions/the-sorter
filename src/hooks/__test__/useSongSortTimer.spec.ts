@@ -82,7 +82,7 @@ describe('useSongSortTimer', () => {
     expect(frozen).toBe(4000);
   });
 
-  it('rewinds the clock on undo', () => {
+  it('drops the comparison from per-comparison stats on undo but keeps it in the total', () => {
     const { result } = renderHook(() => useSongSortTimer('test'));
 
     act(() => result.current.startTimer());
@@ -92,6 +92,32 @@ describe('useSongSortTimer', () => {
     act(() => result.current.recordTick());
     act(() => result.current.removeLastTick());
 
+    // The undone comparison is gone from durations (per-comparison stats stay clean)...
     expect(result.current.timing?.durations).toEqual([2000]);
+    // ...but the total/live clock is not rewound — the 3s still counts.
+    expect(result.current.getElapsedMs()).toBe(5000);
+  });
+
+  it('includes undone time in the final total while excluding it from per-comparison stats', () => {
+    const { result } = renderHook(() => useSongSortTimer('test'));
+
+    act(() => result.current.startTimer());
+    act(() => advance(2000)); // comparison 1: 2s
+    act(() => result.current.recordTick());
+    act(() => advance(3000)); // comparison 2: 3s (will be undone)
+    act(() => result.current.recordTick());
+    act(() => result.current.removeLastTick()); // undo comparison 2
+    act(() => advance(4000)); // re-decide comparison 2: 4s
+    act(() => result.current.recordTick());
+    act(() => result.current.markEnded());
+
+    const stats = result.current.stats!;
+    // Per-comparison stats only cover standing comparisons (2s + the 4s redo).
+    expect(result.current.timing?.durations).toEqual([2000, 4000]);
+    expect(stats.comparisons).toBe(2);
+    expect(stats.fastestMs).toBe(2000);
+    expect(stats.slowestMs).toBe(4000);
+    // Total includes the undone 3s: 2 + 3 + 4 = 9s of active time.
+    expect(stats.totalMs).toBe(9000);
   });
 });

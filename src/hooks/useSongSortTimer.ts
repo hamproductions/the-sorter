@@ -76,20 +76,13 @@ export const useSongSortTimer = (storagePrefix = 'songs') => {
     });
   }, [activeElapsed, commit]);
 
-  // Undo: drop the last comparison and rewind the clock to that decision point.
+  // Undo: drop the last comparison from the per-comparison stats, but keep the
+  // accumulated clock and running segment so the undone time still counts toward
+  // the total. The next decision re-times the comparison from the last tick.
   const removeLastTick = useCallback(() => {
     const base = timingRef.current;
     if (!base || base.durations.length === 0) return;
-    const durations = base.durations.slice(0, -1);
-    const activeAtPrev = durations.reduce((sum, d) => sum + d, 0);
-    runningSinceRef.current = isVisible() ? Date.now() : null;
-    commit({
-      ...base,
-      durations,
-      accumulatedActiveMs: activeAtPrev,
-      lastTickActiveMs: activeAtPrev,
-      endedAt: undefined
-    });
+    commit({ ...base, durations: base.durations.slice(0, -1), endedAt: undefined });
   }, [commit]);
 
   const markEnded = useCallback(() => {
@@ -132,10 +125,13 @@ export const useSongSortTimer = (storagePrefix = 'songs') => {
     return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, [commit]);
 
-  const stats: SortTimingStats | undefined = useMemo(
-    () => (timing ? computeTimingStats(timing.durations) : undefined),
-    [timing]
-  );
+  // Per-comparison stats come from the standing durations; the total is the
+  // monotonic accumulated clock so it includes time spent on undone comparisons.
+  const stats: SortTimingStats | undefined = useMemo(() => {
+    if (!timing) return undefined;
+    const s = computeTimingStats(timing.durations);
+    return s ? { ...s, totalMs: timing.accumulatedActiveMs } : undefined;
+  }, [timing]);
 
   return {
     timing: timing ?? undefined,

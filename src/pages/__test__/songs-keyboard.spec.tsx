@@ -100,10 +100,15 @@ describe('Songs Page - Keyboard Shortcuts (integration)', () => {
     });
   });
 
+  // The live timer is intentionally monotonic — undo does not rewind it (total
+  // time includes undone comparisons), so strip the volatile "Elapsed" value when
+  // asserting that the sort *content* reverts.
+  const stripTimer = (t: string | null) => t?.replace(/Elapsed: [0-9hms ]+s/g, 'Elapsed:');
+
   it('ArrowUp undoes (content reverts)', async () => {
     const [container, user] = await startSort();
 
-    const getContent = () => container.container.textContent;
+    const getContent = () => stripTimer(container.container.textContent);
     const textBefore = getContent();
 
     await user.keyboard('[ArrowLeft]');
@@ -120,14 +125,14 @@ describe('Songs Page - Keyboard Shortcuts (integration)', () => {
 
   it('arrow keys ignored when INPUT is focused', async () => {
     const [container, user] = await startSort();
-    const textBefore = container.container.textContent;
+    const textBefore = stripTimer(container.container.textContent);
 
     const input = document.createElement('input');
     document.body.appendChild(input);
     input.focus();
 
     await user.keyboard('[ArrowLeft]');
-    expect(container.container.textContent).toBe(textBefore);
+    expect(stripTimer(container.container.textContent)).toBe(textBefore);
 
     document.body.removeChild(input);
   });

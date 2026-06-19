@@ -5,15 +5,17 @@
  * spent with the tab hidden is excluded (the stopwatch pauses on
  * `visibilitychange` and resumes when the tab is visible again).
  *
- * `durations` holds the active time (ms) spent on each individual comparison.
- * Its sum equals the total active time to complete the ranking.
+ * `durations` holds the active time (ms) spent on each *standing* comparison
+ * (undo pops the last entry). `accumulatedActiveMs` is the monotonic total active
+ * time — undo does not rewind it — so it includes time spent on comparisons that
+ * were later undone, and can exceed the sum of `durations`.
  */
 export interface SortTimingData {
   /** Wall-clock epoch ms when the session started (display reference only). */
   startedAt: number;
-  /** Per-comparison active durations in ms, in decision order. */
+  /** Per-comparison active durations in ms for standing comparisons, in order. */
   durations: number[];
-  /** Active ms accrued up to the last fold (a decision or a pause). */
+  /** Monotonic total active ms; not rewound by undo (includes undone time). */
   accumulatedActiveMs: number;
   /** Active ms at the last recorded decision (for per-comparison diffing). */
   lastTickActiveMs: number;
@@ -22,9 +24,10 @@ export interface SortTimingData {
 }
 
 export interface SortTimingStats {
-  /** Total active time in ms (sum of all comparison durations). */
+  /** Total active time in ms. Includes time spent on undone comparisons, so it
+   * is sourced from the monotonic clock and may exceed the sum of durations. */
   totalMs: number;
-  /** Number of comparisons timed. */
+  /** Number of standing (counted) comparisons. */
   comparisons: number;
   /** Mean time per comparison in ms. */
   averageMs: number;
@@ -50,8 +53,7 @@ export const computeTimingStats = (durations: number[]): SortTimingStats | undef
   const comparisons = durations.length;
   const sorted = durations.toSorted((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);
-  const medianMs =
-    sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
+  const medianMs = sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
 
   return {
     totalMs,
