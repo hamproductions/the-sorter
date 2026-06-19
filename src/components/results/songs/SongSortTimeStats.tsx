@@ -28,13 +28,13 @@ export const SongSortTimeStats = ({ stats }: SongSortTimeStatsProps) => {
 
   return (
     <Stack w="full" mt="4">
-      <HStack justifyContent="center" gap="2">
+      <HStack gap="2" justifyContent="center">
         <FaStopwatch />
         <Heading fontSize="xl" fontWeight="bold">
           {t('results.timing.heading')}
         </Heading>
       </HStack>
-      <Grid columns={{ base: 2, md: 3 }} gap="3" w="full">
+      <Grid gap="3" w="full" columns={{ base: 2, md: 3 }}>
         {items.map((item) => (
           <Box
             key={item.label}
@@ -42,10 +42,10 @@ export const SongSortTimeStats = ({ stats }: SongSortTimeStatsProps) => {
             borderColor="border.subtle"
             borderRadius="md"
             p="3"
-            bg="bg.subtle"
             textAlign="center"
+            bg="bg.subtle"
           >
-            <Text fontSize="sm" color="fg.muted">
+            <Text color="fg.muted" fontSize="sm">
               {item.label}
             </Text>
             <Text fontSize="lg" fontWeight="bold">

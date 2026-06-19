@@ -3,6 +3,11 @@ import { waitFor } from '@testing-library/react';
 import { render } from '../../__test__/utils';
 import { Page } from '../songs/+Page';
 
+// The live timer is intentionally monotonic — undo does not rewind it (total
+// time includes undone comparisons), so strip the volatile "Elapsed" value when
+// asserting that the sort *content* reverts.
+const stripTimer = (t: string | null) => t?.replace(/Elapsed: [0-9hms ]+s/g, 'Elapsed:');
+
 const makeSong = (id: string, name: string) => ({
   id,
   name,
@@ -99,11 +104,6 @@ describe('Songs Page - Keyboard Shortcuts (integration)', () => {
       expect(container.container.textContent).not.toBe(textBefore);
     });
   });
-
-  // The live timer is intentionally monotonic — undo does not rewind it (total
-  // time includes undone comparisons), so strip the volatile "Elapsed" value when
-  // asserting that the sort *content* reverts.
-  const stripTimer = (t: string | null) => t?.replace(/Elapsed: [0-9hms ]+s/g, 'Elapsed:');
 
   it('ArrowUp undoes (content reverts)', async () => {
     const [container, user] = await startSort();
