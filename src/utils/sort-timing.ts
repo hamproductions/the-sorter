@@ -81,3 +81,25 @@ export const formatDuration = (ms: number): string => {
   }
   return `${minutes}m ${seconds}s`;
 };
+
+/**
+ * Format a duration in ms using whole-second precision (no tenths).
+ * Used for the live running timer, which ticks once per second.
+ * Examples: 950 -> "0s", 12300 -> "12s", 83000 -> "1m 23s".
+ */
+export const formatElapsed = (ms: number): string => {
+  if (!Number.isFinite(ms) || ms < 0) return '0s';
+
+  const totalWholeSeconds = Math.floor(ms / 1000);
+  const hours = Math.floor(totalWholeSeconds / 3600);
+  const minutes = Math.floor((totalWholeSeconds % 3600) / 60);
+  const seconds = totalWholeSeconds % 60;
+
+  if (hours > 0) {
+    return `${hours}h ${minutes}m ${seconds}s`;
+  }
+  if (minutes > 0) {
+    return `${minutes}m ${seconds}s`;
+  }
+  return `${seconds}s`;
+};

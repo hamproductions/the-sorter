@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { FaStopwatch } from 'react-icons/fa6';
 import { HStack } from 'styled-system/jsx';
 import { Text } from '~/components/ui/styled/text';
-import { formatDuration } from '~/utils/sort-timing';
+import { formatElapsed } from '~/utils/sort-timing';
 import type { SortTimingData } from '~/utils/sort-timing';
 
 interface SortTimerProps {
@@ -35,7 +35,7 @@ export const SortTimer = ({ timing, frozen }: SortTimerProps) => {
     <HStack gap="1" justifyContent="center" color="fg.muted">
       <FaStopwatch />
       <Text>
-        {t('sort.elapsed_time')}: {formatDuration(elapsed)}
+        {t('sort.elapsed_time')}: {formatElapsed(elapsed)}
       </Text>
     </HStack>
   );

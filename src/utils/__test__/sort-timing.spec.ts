@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { computeTimingStats, createTimingData, formatDuration } from '../sort-timing';
+import {
+  computeTimingStats,
+  createTimingData,
+  formatDuration,
+  formatElapsed
+} from '../sort-timing';
 
 describe('computeTimingStats', () => {
   it('returns undefined for empty input', () => {
@@ -48,6 +53,24 @@ describe('formatDuration', () => {
   it('handles invalid input gracefully', () => {
     expect(formatDuration(-5)).toBe('0.0s');
     expect(formatDuration(Number.NaN)).toBe('0.0s');
+  });
+});
+
+describe('formatElapsed', () => {
+  it('uses whole seconds with no tenths under a minute', () => {
+    expect(formatElapsed(950)).toBe('0s');
+    expect(formatElapsed(12300)).toBe('12s');
+    expect(formatElapsed(12999)).toBe('12s');
+  });
+
+  it('formats minute- and hour-scale durations', () => {
+    expect(formatElapsed(83000)).toBe('1m 23s');
+    expect(formatElapsed(3723000)).toBe('1h 2m 3s');
+  });
+
+  it('handles invalid input gracefully', () => {
+    expect(formatElapsed(-5)).toBe('0s');
+    expect(formatElapsed(Number.NaN)).toBe('0s');
   });
 });
 
