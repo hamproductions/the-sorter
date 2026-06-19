@@ -105,6 +105,7 @@
     "pick_right": "Pick Right",
     "comparison_no": "Comparison No. {{ count }}",
     "comparisons": "comparisons",
+    "elapsed_time": "Elapsed",
     "estimate_disclaimer": "Estimate based on worst case. Usually fewer.",
     "preview": "Preview",
     "preview_title": "Sorting Preview",
@@ -134,6 +135,15 @@
     "results_title": "{{ titlePrefix }} {{ sortType }} {{ type }}",
     "default_results_title": "LoveLive! {{ sortType }} {{ type }}",
     "generated_at": "Generated at",
+    "timing": {
+      "heading": "Session Time",
+      "total": "Total time",
+      "comparisons": "Comparisons",
+      "average": "Avg / comparison",
+      "median": "Median / comparison",
+      "fastest": "Fastest",
+      "slowest": "Slowest"
+    },
     "tier": "Tier List",
     "edit": "Edit Results (Experimental)",
     "share_text": {

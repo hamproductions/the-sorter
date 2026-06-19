@@ -103,6 +103,7 @@
     "pick_right": "右を選択する",
     "comparison_no": "第{{ count }}回目",
     "comparisons": "回",
+    "elapsed_time": "経過時間",
     "estimate_disclaimer": "最悪ケースの予測です。通常はもっと少なくなります。",
     "preview": "プレビュー",
     "preview_title": "ソートプレビュー",
@@ -132,6 +133,15 @@
     "results_title": "{{ titlePrefix }}　{{ sortType }}{{ type }}",
     "default_results_title": "ラブライブ！シリーズ　{{ sortType }}{{ type }}",
     "generated_at": "作成日",
+    "timing": {
+      "heading": "所要時間",
+      "total": "合計時間",
+      "comparisons": "比較回数",
+      "average": "平均（1比較あたり）",
+      "median": "中央値（1比較あたり）",
+      "fastest": "最速",
+      "slowest": "最遅"
+    },
     "tier": "ティアリスト",
     "edit": " 結果を修正する（未完成）",
     "share_text": {
