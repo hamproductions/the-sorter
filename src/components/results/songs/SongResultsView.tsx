@@ -25,7 +25,9 @@ import { HeardleStatsDialog } from '~/components/sorter/HeardleStatsDialog';
 import type { GuessResult } from '~/hooks/useHeardleState';
 import type { PerformanceSortMeta } from '~/types/performance-sort';
 import { PerformanceOrderView } from './PerformanceOrderView';
+import { SongSortTimeStats } from './SongSortTimeStats';
 import { getFullPerformanceName } from '~/utils/names';
+import type { SortTimingStats } from '~/utils/sort-timing';
 
 export function SongResultsView({
   titlePrefix,
@@ -35,6 +37,7 @@ export function SongResultsView({
   failedSongs,
   guessResults,
   maxAttempts,
+  timingStats,
   onShareResults,
   readOnly,
   ...props
@@ -46,6 +49,7 @@ export function SongResultsView({
   failedSongs?: Song[];
   guessResults?: Record<string, GuessResult>;
   maxAttempts?: number;
+  timingStats?: SortTimingStats;
   onShareResults?: () => void;
   readOnly?: boolean;
 }) {
@@ -212,6 +216,8 @@ export function SongResultsView({
         <Heading fontSize="2xl" fontWeight="bold">
           {t('results.sort_results')}
         </Heading>
+
+        {timingStats && <SongSortTimeStats stats={timingStats} />}
 
         <Stack w="full">
           <Accordion.Root size="md" collapsible>

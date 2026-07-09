@@ -60,7 +60,10 @@ vi.mock('~/hooks/useSongsSortData', () => ({
     songFilters: {},
     setSongFilters: vi.fn(),
     clear: clearFn,
-    isEnded: false
+    isEnded: false,
+    timing: undefined,
+    timingStats: undefined,
+    getElapsedMs: () => 0
   })
 }));
 
