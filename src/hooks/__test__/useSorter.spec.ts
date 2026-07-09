@@ -270,8 +270,8 @@ describe('useSorter', () => {
     it('progress stays in [0, 1] when items list shrinks mid-sort (heardle scenario)', () => {
       const fullItems = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
       const prefix = 'test-heardle-shrink';
-      const { result, rerender } = renderHook(({ items }) => useSorter(items, prefix), {
-        initialProps: { items: fullItems }
+      const { result, rerender } = renderHook(({ testItems }: { testItems: string[] }) => useSorter(testItems, prefix), {
+        initialProps: { testItems: fullItems }
       });
 
       act(() => {
@@ -288,7 +288,7 @@ describe('useSorter', () => {
       expect(result.current.progress).toBeLessThanOrEqual(1);
 
       const reducedItems = ['a', 'b', 'c', 'd'];
-      rerender({ items: reducedItems });
+      rerender({ testItems: reducedItems });
 
       expect(result.current.progress).toBeGreaterThanOrEqual(0);
       expect(result.current.progress).toBeLessThanOrEqual(1);
@@ -297,8 +297,8 @@ describe('useSorter', () => {
     it('maxComparisons uses sort state array length, not items prop length', () => {
       const items = ['a', 'b', 'c', 'd', 'e', 'f'];
       const prefix = 'test-heardle-max';
-      const { result, rerender } = renderHook(({ items }) => useSorter(items, prefix), {
-        initialProps: { items }
+      const { result, rerender } = renderHook(({ testItems }: { testItems: string[] }) => useSorter(testItems, prefix), {
+        initialProps: { testItems: items }
       });
 
       act(() => {
@@ -307,7 +307,7 @@ describe('useSorter', () => {
 
       const originalMax = result.current.maxComparisons;
 
-      rerender({ items: ['a', 'b'] });
+      rerender({ testItems: ['a', 'b'] });
 
       expect(result.current.maxComparisons).toBe(originalMax);
     });
@@ -334,8 +334,8 @@ describe('useSorter', () => {
     it('progress does not jump backwards when items shrink', () => {
       const fullItems = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
       const prefix = 'test-heardle-no-jank';
-      const { result, rerender } = renderHook(({ items }) => useSorter(items, prefix), {
-        initialProps: { items: fullItems }
+      const { result, rerender } = renderHook(({ testItems }: { testItems: string[] }) => useSorter(testItems, prefix), {
+        initialProps: { testItems: fullItems }
       });
 
       act(() => {
@@ -350,7 +350,7 @@ describe('useSorter', () => {
 
       const progressBeforeShrink = result.current.progress;
 
-      rerender({ items: fullItems.slice(0, 5) });
+      rerender({ testItems: fullItems.slice(0, 5) });
 
       expect(result.current.progress).toBeGreaterThanOrEqual(progressBeforeShrink);
       expect(result.current.progress).toBeLessThanOrEqual(1);
@@ -359,8 +359,8 @@ describe('useSorter', () => {
     it('sorting can continue to completion after items shrink', () => {
       const fullItems = ['a', 'b', 'c', 'd', 'e', 'f'];
       const prefix = 'test-heardle-continue';
-      const { result, rerender } = renderHook(({ items }) => useSorter(items, prefix), {
-        initialProps: { items: fullItems }
+      const { result, rerender } = renderHook(({ testItems }: { testItems: string[] }) => useSorter(testItems, prefix), {
+        initialProps: { testItems: fullItems }
       });
 
       act(() => {
@@ -373,7 +373,7 @@ describe('useSorter', () => {
         });
       }
 
-      rerender({ items: ['a', 'b', 'c'] });
+      rerender({ testItems: ['a', 'b', 'c'] });
 
       let iterations = 0;
       while (result.current.state?.status !== 'end' && iterations < 100) {
@@ -392,8 +392,8 @@ describe('useSorter', () => {
     it('progress monotonically increases during sort even after repeated shrinks', () => {
       const items = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
       const prefix = 'test-heardle-multi-shrink';
-      const { result, rerender } = renderHook(({ items }) => useSorter(items, prefix), {
-        initialProps: { items }
+      const { result, rerender } = renderHook(({ testItems }: { testItems: string[] }) => useSorter(testItems, prefix), {
+        initialProps: { testItems: items }
       });
 
       act(() => {
@@ -410,7 +410,7 @@ describe('useSorter', () => {
         prevProgress = result.current.progress;
       }
 
-      rerender({ items: items.slice(0, 6) });
+      rerender({ testItems: items.slice(0, 6) });
       expect(result.current.progress).toBeGreaterThanOrEqual(prevProgress);
       prevProgress = result.current.progress;
 
@@ -422,15 +422,15 @@ describe('useSorter', () => {
         prevProgress = result.current.progress;
       }
 
-      rerender({ items: items.slice(0, 3) });
+      rerender({ testItems: items.slice(0, 3) });
       expect(result.current.progress).toBeGreaterThanOrEqual(prevProgress);
     });
 
     it('comparisonsCount remains consistent after items shrink', () => {
       const items = ['a', 'b', 'c', 'd', 'e'];
       const prefix = 'test-heardle-count';
-      const { result, rerender } = renderHook(({ items }) => useSorter(items, prefix), {
-        initialProps: { items }
+      const { result, rerender } = renderHook(({ testItems }: { testItems: string[] }) => useSorter(testItems, prefix), {
+        initialProps: { testItems: items }
       });
 
       act(() => {
@@ -445,7 +445,7 @@ describe('useSorter', () => {
 
       const countBeforeShrink = result.current.comparisonsCount;
 
-      rerender({ items: ['a', 'b'] });
+      rerender({ testItems: ['a', 'b'] });
 
       expect(result.current.comparisonsCount).toBe(countBeforeShrink);
 
@@ -459,8 +459,8 @@ describe('useSorter', () => {
     it('undo works correctly after items shrink', () => {
       const items = ['a', 'b', 'c', 'd', 'e', 'f'];
       const prefix = 'test-heardle-undo';
-      const { result, rerender } = renderHook(({ items }) => useSorter(items, prefix), {
-        initialProps: { items }
+      const { result, rerender } = renderHook(({ testItems }: { testItems: string[] }) => useSorter(testItems, prefix), {
+        initialProps: { testItems: items }
       });
 
       act(() => {
@@ -473,7 +473,7 @@ describe('useSorter', () => {
         });
       }
 
-      rerender({ items: ['a', 'b', 'c'] });
+      rerender({ testItems: ['a', 'b', 'c'] });
 
       const progressAfterShrink = result.current.progress;
       expect(progressAfterShrink).toBeGreaterThanOrEqual(0);
@@ -490,8 +490,8 @@ describe('useSorter', () => {
     it('items shrinking to 1 does not divide by zero', () => {
       const items = ['a', 'b', 'c', 'd'];
       const prefix = 'test-heardle-single';
-      const { result, rerender } = renderHook(({ items }) => useSorter(items, prefix), {
-        initialProps: { items }
+      const { result, rerender } = renderHook(({ testItems }: { testItems: string[] }) => useSorter(testItems, prefix), {
+        initialProps: { testItems: items }
       });
 
       act(() => {
@@ -502,7 +502,7 @@ describe('useSorter', () => {
         result.current.left();
       });
 
-      rerender({ items: ['a'] });
+      rerender({ testItems: ['a'] });
 
       expect(result.current.progress).toBeGreaterThanOrEqual(0);
       expect(result.current.progress).toBeLessThanOrEqual(1);
@@ -512,8 +512,8 @@ describe('useSorter', () => {
     it('items shrinking to empty does not crash', () => {
       const items = ['a', 'b', 'c'];
       const prefix = 'test-heardle-empty';
-      const { result, rerender } = renderHook(({ items }) => useSorter(items, prefix), {
-        initialProps: { items }
+      const { result, rerender } = renderHook(({ testItems }: { testItems: string[] }) => useSorter(testItems, prefix), {
+        initialProps: { testItems: items }
       });
 
       act(() => {
@@ -524,7 +524,7 @@ describe('useSorter', () => {
         result.current.left();
       });
 
-      rerender({ items: [] });
+      rerender({ testItems: [] });
 
       expect(result.current.progress).toBeGreaterThanOrEqual(0);
       expect(result.current.progress).toBeLessThanOrEqual(1);

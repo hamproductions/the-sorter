@@ -67,21 +67,21 @@ describe('Character Utils', () => {
   });
   describe('new hasunosora movie members', () => {
     it('includes maika and aoi with english names', () => {
-      expect(characterInfo.find((character) => character.id === '91')).toMatchObject({
+      expect(characterInfo.find((c) => c.id === '91')).toMatchObject({
         id: '91',
         fullName: '錦上マイカ',
         englishName: 'Maika Kinjo',
         school: '蓮ノ空女学院',
         casts: [{ seiyuu: '星宮じゅりあ', englishName: 'Hoshimiya Juria' }]
       });
-      expect(characterInfo.find((character) => character.id === '92')).toMatchObject({
+      expect(characterInfo.find((c) => c.id === '92')).toMatchObject({
         id: '92',
         fullName: '令沢 葵',
         englishName: 'Aoi Reizawa',
         school: '蓮ノ空女学院',
         casts: [{ seiyuu: '朝陽花菜', englishName: 'Asahi Kana' }]
       });
-      expect(characterInfo.find((character) => character.id === '93')).toMatchObject({
+      expect(characterInfo.find((c) => c.id === '93')).toMatchObject({
         id: '93',
         fullName: '紫輪みおん',
         englishName: 'Mion Shinowa',
