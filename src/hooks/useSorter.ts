@@ -29,9 +29,9 @@ export const useSorter = <T>(items: T[], statePrefix?: string) => {
   }, [state, history]);
 
   const loadState = (stateData: { state: SortState<T>; history: SortState<T>[] }) => {
-    const { state, history } = stateData;
-    setState(state);
-    setHistory(history);
+    const { state: loadedState, history: loadedHistory } = stateData;
+    setState(loadedState);
+    setHistory(loadedHistory);
   };
 
   const stateRef = useRef(state);

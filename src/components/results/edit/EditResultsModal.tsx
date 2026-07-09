@@ -87,11 +87,11 @@ export function EditResultsModal(
     const { active, over } = event;
 
     if (active.id !== over?.id) {
-      setItems((items) => {
-        const oldIndex = items.indexOf(active.id);
+      setItems((currentItems) => {
+        const oldIndex = currentItems.indexOf(active.id);
         const newIndex = over?.id ? items.indexOf(over.id) : undefined;
 
-        return arrayMove(items, oldIndex, newIndex ?? items.length);
+        return arrayMove(currentItems, oldIndex, newIndex ?? items.length);
       });
     }
 

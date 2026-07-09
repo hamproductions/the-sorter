@@ -1,6 +1,6 @@
 import { createToaster } from '@ark-ui/react/toast';
 import type { ReactNode } from 'react';
-import { Suspense, createContext, useContext } from 'react';
+import { Suspense, createContext, useMemo, useContext } from 'react';
 import { FaXmark } from 'react-icons/fa6';
 import { IconButton } from '~/components/ui/icon-button';
 import { Toast } from '~/components/ui/toast';
@@ -34,15 +34,18 @@ const toaster = createToaster({
 export function ToasterProvider({ children }: { children: ReactNode }) {
   return (
     <ToasterContext.Provider
-      value={{
-        toast: (options) => {
-          toaster.create({
-            type: 'info',
-            ...options,
-            placement: options.placement ?? 'bottom-end'
-          } as Parameters<typeof toaster.create>[0]);
-        }
-      }}
+      value={useMemo(
+        () => ({
+          toast: (options: any) => {
+            toaster.create({
+              type: 'info',
+              ...options,
+              placement: options.placement ?? 'bottom-end'
+            } as Parameters<typeof toaster.create>[0]);
+          }
+        }),
+        []
+      )}
     >
       {children}
       <Suspense>
