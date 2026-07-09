@@ -56,7 +56,8 @@ export const useSortData = () => {
     undo,
     progress,
     clear,
-    isEnded
+    isEnded,
+    loadResumeState
   } = useSorter(listToSort.map((l) => l.id));
 
   const { toast } = useToaster();
@@ -134,6 +135,7 @@ export const useSortData = () => {
     setFilters,
     listToSort,
     listCount: listToSort.length,
-    clear
+    clear,
+    loadResumeState
   };
 };
