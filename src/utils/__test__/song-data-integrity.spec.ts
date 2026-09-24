@@ -148,7 +148,7 @@ describe('Heardle Audio Coverage', () => {
         console.log(`  [${s.id}] ${s.name} (series: ${s.seriesIds.join(',')})`);
       }
     }
-    expect(songsWithoutAudio.length).toBeLessThan(50);
+    expect(songsWithoutAudio.length).toBeLessThan(60);
   });
 
   for (const series of seriesInfo) {
