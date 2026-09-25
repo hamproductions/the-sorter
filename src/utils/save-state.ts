@@ -1,4 +1,9 @@
-import { calculateMaxComparisons, estimateComparisonsMade, type SortState } from './sort';
+import {
+  calculateMaxComparisons,
+  estimateComparisonsMade,
+  getSortItems,
+  isSortState
+} from './sort';
 import type { SortLog } from '~/types/global-ranking';
 import type { SavedSortState, SorterType } from '~/types/save-state';
 
@@ -71,19 +76,31 @@ const readJson = (storage: Storage, key: string): unknown => {
   }
 };
 
-const isSortState = (value: unknown): value is SortState<string | number> =>
+export const isSortLog = (value: unknown): value is SortLog =>
   !!value &&
   typeof value === 'object' &&
-  Array.isArray((value as SortState<unknown>).arr) &&
-  (value as SortState<unknown>).arr.every((group) => Array.isArray(group));
+  typeof (value as SortLog).sessionId === 'string' &&
+  Array.isArray((value as SortLog).initialOrder) &&
+  typeof (value as SortLog).choices === 'string';
+
+const isSavedSortState = (value: unknown): value is SavedSortState =>
+  !!value &&
+  typeof value === 'object' &&
+  typeof (value as SavedSortState).id === 'string' &&
+  typeof (value as SavedSortState).name === 'string' &&
+  (value as SavedSortState).sorterType in SORTER_TYPE_ROUTES &&
+  isSortState((value as SavedSortState).state) &&
+  Array.isArray((value as SavedSortState).history);
+
+export const toSavedSortStates = (value: unknown): SavedSortState[] =>
+  Array.isArray(value) ? value.filter(isSavedSortState) : [];
 
 export const migrateCurrentSessions = (
   storage: Storage,
   nameFor: (sorterType: SorterType, isCompleted: boolean) => string
 ) => {
   if (storage.getItem(CURRENT_SESSIONS_MIGRATED_KEY)) return;
-  const existing = readJson(storage, SAVED_STATES_KEY);
-  const saves = Array.isArray(existing) ? (existing as SavedSortState[]) : [];
+  const saves = toSavedSortStates(readJson(storage, SAVED_STATES_KEY));
   const migrated = CURRENT_SESSION_PREFIXES.flatMap(({ prefix, sorterType }) => {
     const state = readJson(storage, `${prefix}sort-state`);
     if (!isSortState(state) || state.arr.length === 0) return [];
@@ -99,13 +116,13 @@ export const migrateCurrentSessions = (
         state,
         history: Array.isArray(history) && history.every(isSortState) ? history : [],
         comparisonsCount: typeof count === 'number' ? count : estimateComparisonsMade(state),
-        itemCount: state.arr.reduce((total, group) => total + group.length, 0),
+        itemCount: getSortItems(state).length,
         progress: isCompleted
           ? 1
           : maxComparisons > 0
             ? Math.max(0, Math.min(1, estimateComparisonsMade(state) / maxComparisons))
             : 0,
-        log: log && typeof log === 'object' ? (log as SortLog) : undefined,
+        log: isSortLog(log) ? log : undefined,
         isSeiyuu:
           sorterType === 'characters' ? readJson(storage, 'seiyuu-mode') === true : undefined
       })

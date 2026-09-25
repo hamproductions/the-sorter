@@ -117,7 +117,11 @@ export const useGlobalRankingSubmission = ({
   return {
     contribute: contribute !== false,
     setContribute: (value: boolean) => setContribute(value),
-    isAvailable: isGlobalRankingEnabled && !!log?.ticket && !log.submissionFailed,
+    isAvailable:
+      isGlobalRankingEnabled &&
+      !!log?.ticket &&
+      !log.submissionFailed &&
+      (!!log.submission || !isExpired(log.ticket.expiresAt)),
     isEnabled: isGlobalRankingEnabled,
     sortContext: log?.context ?? context,
     submissionId: log?.submission?.id

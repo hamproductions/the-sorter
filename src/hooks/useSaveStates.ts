@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useLocalStorage } from './useLocalStorage';
 import type { SavedSortState, SorterType } from '~/types/save-state';
 import {
@@ -6,6 +6,7 @@ import {
   removeSaveState,
   renameSaveState,
   getSaveStatesByType,
+  toSavedSortStates,
   getSaveStateById,
   createSavedSortState,
   updateSaveState
@@ -27,13 +28,14 @@ interface SaveInput {
 }
 
 export const useSaveStates = (sorterType?: SorterType) => {
-  const [allSaves, setAllSaves] = useLocalStorage<SavedSortState[]>('saved-sort-states', []);
-  const saves = sorterType ? getSaveStatesByType(allSaves, sorterType) : (allSaves ?? []);
+  const [storedSaves, setAllSaves] = useLocalStorage<SavedSortState[]>('saved-sort-states', []);
+  const allSaves = useMemo(() => toSavedSortStates(storedSaves), [storedSaves]);
+  const saves = sorterType ? getSaveStatesByType(allSaves, sorterType) : allSaves;
 
   const save = useCallback(
     (input: SaveInput) => {
       const entry = createSavedSortState(input);
-      setAllSaves((prev) => addSaveState(prev ?? [], entry));
+      setAllSaves((prev) => addSaveState(toSavedSortStates(prev), entry));
       return entry;
     },
     [setAllSaves]
@@ -41,14 +43,14 @@ export const useSaveStates = (sorterType?: SorterType) => {
 
   const remove = useCallback(
     (id: string) => {
-      setAllSaves((prev) => removeSaveState(prev ?? [], id));
+      setAllSaves((prev) => removeSaveState(toSavedSortStates(prev), id));
     },
     [setAllSaves]
   );
 
   const rename = useCallback(
     (id: string, name: string) => {
-      setAllSaves((prev) => renameSaveState(prev ?? [], id, name));
+      setAllSaves((prev) => renameSaveState(toSavedSortStates(prev), id, name));
     },
     [setAllSaves]
   );
@@ -56,7 +58,7 @@ export const useSaveStates = (sorterType?: SorterType) => {
   const update = useCallback(
     (id: string, input: Omit<SaveInput, 'name' | 'sorterType'>) => {
       setAllSaves((prev) =>
-        updateSaveState(prev ?? [], id, {
+        updateSaveState(toSavedSortStates(prev), id, {
           ...input,
           isCompleted: input.state.status === 'end'
         })
@@ -65,7 +67,7 @@ export const useSaveStates = (sorterType?: SorterType) => {
     [setAllSaves]
   );
 
-  const load = useCallback((id: string) => getSaveStateById(allSaves ?? [], id), [allSaves]);
+  const load = useCallback((id: string) => getSaveStateById(allSaves, id), [allSaves]);
 
-  return { saves, allSaves: allSaves ?? [], save, remove, rename, update, load };
+  return { saves, allSaves, save, remove, rename, update, load };
 };

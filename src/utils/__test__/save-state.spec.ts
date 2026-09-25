@@ -7,6 +7,7 @@ import {
   getSaveStatesByType,
   getSaveStateById,
   migrateCurrentSessions,
+  toSavedSortStates,
   CURRENT_SESSIONS_MIGRATED_KEY,
   SAVED_STATES_KEY
 } from '../save-state';
@@ -267,6 +268,27 @@ describe('save-state', () => {
 const nameFor = (type: string, completed: boolean) => `${type}:${completed ? 'done' : 'wip'}`;
 const readSaves = () =>
   JSON.parse(localStorage.getItem(SAVED_STATES_KEY) ?? '[]') as SavedSortState[];
+
+describe('toSavedSortStates', () => {
+  it('keeps valid saves and drops malformed entries', () => {
+    const valid = createSavedSortState(makeInput());
+    expect(
+      toSavedSortStates([
+        valid,
+        null,
+        { id: 'x' },
+        { ...valid, state: { arr: 5 } },
+        { ...valid, sorterType: 'unknown' }
+      ])
+    ).toEqual([valid]);
+  });
+
+  it('returns an empty list for anything that is not an array', () => {
+    expect(toSavedSortStates({ a: 1 })).toEqual([]);
+    expect(toSavedSortStates('saves')).toEqual([]);
+    expect(toSavedSortStates(null)).toEqual([]);
+  });
+});
 
 describe('migrateCurrentSessions', () => {
   beforeEach(() => {

@@ -32,6 +32,12 @@ export const calculateMaxComparisons = (n: number): number => {
   return max;
 };
 
+export const isSortState = (value: unknown): value is SortState<string | number> =>
+  !!value &&
+  typeof value === 'object' &&
+  Array.isArray((value as SortState<unknown>).arr) &&
+  (value as SortState<unknown>).arr.every((group) => Array.isArray(group));
+
 export const getSortItems = <I>(state: SortState<I>): I[] => [
   ...new Set([
     ...state.arr.flat(),

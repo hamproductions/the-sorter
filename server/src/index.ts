@@ -54,6 +54,11 @@ app
   )
   .listen(config.port, () => {
     logger.info(`Server listening on port ${config.port}`);
+    if (!config.clientIpHeader) {
+      logger.warn(
+        'CLIENT_IP_HEADER is not set: limits use the socket address, so every visitor behind a reverse proxy shares one limit'
+      );
+    }
   });
 
 const shutdown = async () => {

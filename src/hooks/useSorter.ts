@@ -2,7 +2,14 @@ import shuffle from 'lodash-es/shuffle';
 import { useEffect, useCallback, useRef } from 'react';
 import cloneDeep from 'lodash-es/cloneDeep';
 import type { SortState } from '../utils/sort';
-import { step, initSort, calculateMaxComparisons, estimateComparisonsMade } from '../utils/sort';
+import {
+  step,
+  initSort,
+  calculateMaxComparisons,
+  estimateComparisonsMade,
+  isSortState
+} from '../utils/sort';
+import { isSortLog } from '../utils/save-state';
 import { useLocalStorage } from './useLocalStorage';
 import type { SortChoice, SortLog } from '~/types/global-ranking';
 
@@ -12,10 +19,10 @@ const createSessionId = () =>
   `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 
 export const useSorter = <T extends string | number>(items: T[], statePrefix?: string) => {
-  const [state, setState] = useLocalStorage<SortState<T>>(
+  const [storedState, setState] = useLocalStorage<SortState<T>>(
     `${statePrefix ? statePrefix + '-' : ''}sort-state`
   );
-  const [history, setHistory] = useLocalStorage<SortState<T>[]>(
+  const [storedHistory, setHistory] = useLocalStorage<SortState<T>[]>(
     `${statePrefix ? statePrefix + '-' : ''}sort-state-history`,
     undefined
   );
@@ -24,20 +31,21 @@ export const useSorter = <T extends string | number>(items: T[], statePrefix?: s
     undefined
   );
   const [, setDisplayOrder] = useLocalStorage<string[][]>('results-display-order');
-  const [log, setLog] = useLocalStorage<SortLog>(
+  const [storedLog, setLog] = useLocalStorage<SortLog>(
     `${statePrefix ? statePrefix + '-' : ''}sort-log`,
     undefined
   );
 
+  const state = isSortState(storedState) ? (storedState as SortState<T>) : undefined;
+  const history =
+    Array.isArray(storedHistory) && storedHistory.every(isSortState) ? storedHistory : undefined;
+  const log = isSortLog(storedLog) ? storedLog : undefined;
+
   useEffect(() => {
-    if (
-      (state && !state?.arr) ||
-      (state?.arr[0] && !Array.isArray(state?.arr[0])) ||
-      (history?.[0]?.arr[0] && !Array.isArray(history?.[0]?.arr[0]))
-    ) {
-      localStorage.clear();
-    }
-  }, [state, history]);
+    if (storedState != null && !state) setState(undefined);
+    if (storedHistory != null && !history) setHistory(undefined);
+    if (storedLog != null && !log) setLog(undefined);
+  }, [storedState, state, storedHistory, history, storedLog, log, setState, setHistory, setLog]);
 
   const loadState = useCallback(
     (stateData: {
