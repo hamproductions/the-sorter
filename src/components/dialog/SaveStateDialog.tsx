@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaXmark } from 'react-icons/fa6';
 import { Stack, HStack, Box } from 'styled-system/jsx';
@@ -32,8 +32,14 @@ export function SaveStateDialog({
   const handleSave = () => {
     if (!name.trim()) return;
     onSave(name.trim());
-    setName('');
   };
+
+  useEffect(() => {
+    if (!rest.open) return;
+    setName(defaultName);
+    setMode('new');
+    setConfirmOverwriteId(undefined);
+  }, [rest.open, defaultName]);
 
   const hasExistingSaves = existingSaves && existingSaves.length > 0 && onOverwrite;
 
@@ -47,17 +53,7 @@ export function SaveStateDialog({
   };
 
   return (
-    <Dialog.Root
-      {...rest}
-      onOpenChange={(e) => {
-        if (e.open) {
-          setName(defaultName);
-          setMode('new');
-          setConfirmOverwriteId(undefined);
-        }
-        rest.onOpenChange?.(e);
-      }}
-    >
+    <Dialog.Root {...rest}>
       <Dialog.Backdrop />
       <Dialog.Positioner>
         <Dialog.Content>
