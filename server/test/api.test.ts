@@ -304,6 +304,13 @@ describe('review queue', () => {
     return res.json.id as string;
   };
 
+  it('serves the admin page without data and requires the token for data', async () => {
+    const page = await call('GET', '/admin');
+    expect(page.status).toBe(200);
+    expect(page.headers.get('content-type')).toContain('text/html');
+    expect(page.text).not.toContain(ADMIN_TOKEN);
+  });
+
   it('requires the admin token', async () => {
     expect((await call('GET', '/admin/reviews')).status).toBe(401);
     expect(
@@ -311,28 +318,30 @@ describe('review queue', () => {
     ).toBe(401);
   });
 
-  it('approving adds the result to the totals', async () => {
+  it('keeping adds the result to the totals', async () => {
     const id = await queueOne();
     const auth = { authorization: `Bearer ${ADMIN_TOKEN}` };
     const list = await call('GET', '/admin/reviews', { headers: auth });
     expect(list.json.map((r: { id: string; reason: string }) => [r.id, r.reason])).toEqual([
       [id, 'identical_ranking']
     ]);
+    const names = list.json[0].names as Record<string, string>;
+    expect(Object.keys(names)).toHaveLength(16);
+    expect(Object.values(names).every((name) => name.length > 0)).toBe(true);
     expect(list.text).not.toContain('ip_hash');
-    expect(
-      (await call('POST', `/admin/reviews/${id}/approve`, { headers: auth })).json.status
-    ).toBe('accepted');
-    expect((await leaderboard('kind=character&mode=chara')).submissions).toBe(2);
-    expect((await call('POST', `/admin/reviews/${id}/approve`, { headers: auth })).status).toBe(
-      404
+    expect((await call('POST', `/admin/reviews/${id}/keep`, { headers: auth })).json.status).toBe(
+      'kept'
     );
+    expect((await leaderboard('kind=character&mode=chara')).submissions).toBe(2);
+    expect((await call('POST', `/admin/reviews/${id}/keep`, { headers: auth })).status).toBe(404);
+    expect((await call('DELETE', `/admin/reviews/${id}`, { headers: auth })).status).toBe(404);
   });
 
-  it('rejecting deletes the result', async () => {
+  it('deleting removes the result', async () => {
     const id = await queueOne();
     const auth = { authorization: `Bearer ${ADMIN_TOKEN}` };
-    expect((await call('POST', `/admin/reviews/${id}/reject`, { headers: auth })).json.status).toBe(
-      'rejected'
+    expect((await call('DELETE', `/admin/reviews/${id}`, { headers: auth })).json.status).toBe(
+      'deleted'
     );
     expect(await db.select().from(submissions).where(eq(submissions.id, id))).toHaveLength(0);
     expect((await leaderboard('kind=character&mode=chara')).submissions).toBe(1);

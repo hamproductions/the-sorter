@@ -75,6 +75,20 @@ export class DataStore {
     this.universes.clear();
   }
 
+  nameOf(kind: RankingKind, itemId: string) {
+    if (kind === 'song') {
+      const song = this.data.songs.find((s) => s.id === itemId);
+      return song ? (song.englishName ?? song.name) : itemId;
+    }
+    const [characterId, castIndex] = itemId.split('-');
+    const character = this.data.characters.find((c) => c.id === characterId);
+    if (!character) return itemId;
+    const name = character.englishName ?? character.fullName;
+    if (castIndex === undefined) return name;
+    const cast = character.casts[Number(castIndex)];
+    return cast ? `${cast.englishName ?? cast.seiyuu} (${name})` : name;
+  }
+
   universe(kind: RankingKind, mode: RankingMode) {
     const key = kind === 'character' ? `${kind}:${mode}` : kind;
     let set = this.universes.get(key);

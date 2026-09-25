@@ -326,12 +326,15 @@ export class SubmissionService {
       mode: r.mode as RankingMode,
       filter: r.filter,
       ranking: r.ranking,
+      names: Object.fromEntries(
+        r.ranking.flat().map((itemId) => [itemId, this.data.nameOf(r.kind as RankingKind, itemId)])
+      ),
       reason: r.review_reason ?? '',
       createdAt: r.created_at.toISOString()
     }));
   }
 
-  async resolveReview(id: string, action: 'approve' | 'reject') {
+  async resolveReview(id: string, action: 'keep' | 'delete') {
     if (!UUID.test(id)) return { code: 404, error: 'not_found' } satisfies Failure;
     return this.db.transaction(async (tx) => {
       const [row] = await tx
@@ -340,16 +343,16 @@ export class SubmissionService {
         .where(and(eq(submissions.id, id), eq(submissions.status, 'pending_review')))
         .for('update');
       if (!row) return { code: 404, error: 'not_found' } satisfies Failure;
-      if (action === 'reject') {
+      if (action === 'delete') {
         await tx.delete(submissions).where(eq(submissions.id, id));
-        return { status: 'rejected' };
+        return { status: 'deleted' };
       }
       await tx
         .update(submissions)
         .set({ status: 'accepted', review_reason: null })
         .where(eq(submissions.id, id));
       await applyRollups(tx, row, 1);
-      return { status: 'accepted' };
+      return { status: 'kept' };
     });
   }
 

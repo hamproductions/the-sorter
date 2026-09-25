@@ -1,6 +1,7 @@
 import { cors } from '@elysiajs/cors';
 import { Elysia, t } from 'elysia';
 import { rateLimit } from 'elysia-rate-limit';
+import { ADMIN_PAGE } from './admin-page';
 import type { DB } from './db';
 import type { ServerConfig } from './env';
 import type { DataStore } from './lib/data';
@@ -249,6 +250,17 @@ export const createApp = (deps: AppDeps) => {
       }
       return status(404, { error: 'not_found' });
     })
+    .get(
+      '/admin',
+      () =>
+        new Response(ADMIN_PAGE, {
+          headers: {
+            'content-type': 'text/html; charset=utf-8',
+            'content-security-policy':
+              "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'"
+          }
+        })
+    )
     .group('/admin', (admin) =>
       admin
         .onBeforeHandle(({ headers, status }) => {
@@ -258,12 +270,12 @@ export const createApp = (deps: AppDeps) => {
           }
         })
         .get('/reviews', () => submissions.listReviews())
-        .post('/reviews/:id/approve', async ({ params, status }) => {
-          const result = await submissions.resolveReview(params.id, 'approve');
+        .post('/reviews/:id/keep', async ({ params, status }) => {
+          const result = await submissions.resolveReview(params.id, 'keep');
           return isFailure(result) ? status(result.code, { error: result.error }) : result;
         })
-        .post('/reviews/:id/reject', async ({ params, status }) => {
-          const result = await submissions.resolveReview(params.id, 'reject');
+        .delete('/reviews/:id', async ({ params, status }) => {
+          const result = await submissions.resolveReview(params.id, 'delete');
           return isFailure(result) ? status(result.code, { error: result.error }) : result;
         })
     );
