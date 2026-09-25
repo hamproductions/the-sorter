@@ -322,6 +322,14 @@ describe('migrateCurrentSessions', () => {
     expect(localStorage.getItem(CURRENT_SESSIONS_MIGRATED_KEY)).toBe('true');
   });
 
+  it('does not duplicate a session that is already in a slot', () => {
+    localStorage.setItem('sort-state', JSON.stringify(mockSortState));
+    migrateCurrentSessions(localStorage, nameFor);
+    localStorage.removeItem(CURRENT_SESSIONS_MIGRATED_KEY);
+    migrateCurrentSessions(localStorage, nameFor);
+    expect(readSaves()).toHaveLength(1);
+  });
+
   it('runs only once', () => {
     localStorage.setItem('sort-state', JSON.stringify(initSort(['a', 'b', 'c'])));
     migrateCurrentSessions(localStorage, nameFor);

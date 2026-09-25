@@ -104,6 +104,10 @@ export const migrateCurrentSessions = (
   const migrated = CURRENT_SESSION_PREFIXES.flatMap(({ prefix, sorterType }) => {
     const state = readJson(storage, `${prefix}sort-state`);
     if (!isSortState(state) || state.arr.length === 0) return [];
+    const serialized = JSON.stringify(state);
+    if (saves.some((s) => s.sorterType === sorterType && JSON.stringify(s.state) === serialized)) {
+      return [];
+    }
     const history = readJson(storage, `${prefix}sort-state-history`);
     const count = readJson(storage, `${prefix}comparisons-count`);
     const log = readJson(storage, `${prefix}sort-log`);
