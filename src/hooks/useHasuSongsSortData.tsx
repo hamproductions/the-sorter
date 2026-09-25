@@ -39,7 +39,9 @@ export const useHasuSongsSortData = () => {
     undo,
     progress,
     clear,
-    isEnded
+    isEnded,
+    getSnapshot,
+    loadState
   } = useSorter(
     listToSort.map((l) => l.id),
     'hasu-songs'
@@ -111,6 +113,8 @@ export const useHasuSongsSortData = () => {
     listToSort,
     listCount: listToSort.length,
     clear,
-    isEnded
+    isEnded,
+    getSnapshot,
+    loadState
   };
 };

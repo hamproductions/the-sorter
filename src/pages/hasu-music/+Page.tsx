@@ -17,6 +17,7 @@ import { HasuSongResultsView } from '~/components/results/songs/HasuSongResultsV
 import { LoadingCharacterFilters } from '~/components/sorter/LoadingCharacterFilters';
 import { useHasuSongData } from '~/hooks/useHasuSongData';
 import { useHasuSongsSortData } from '~/hooks/useHasuSongsSortData';
+import { useSortSaves } from '~/hooks/useSortSaves';
 import { getPicUrl } from '~/utils/assets';
 import { getNextItems } from '~/utils/preloading';
 import { HasuSongCard } from '~/components/sorter/HasuSongCard';
@@ -48,6 +49,18 @@ const HasuSongFilters = lazy(() =>
   }))
 );
 
+const SaveStateDialog = lazy(() =>
+  import('../../components/dialog/SaveStateDialog').then((m) => ({
+    default: m.SaveStateDialog
+  }))
+);
+
+const SavedStatesListDialog = lazy(() =>
+  import('../../components/dialog/SavedStatesListDialog').then((m) => ({
+    default: m.SavedStatesListDialog
+  }))
+);
+
 export function Page() {
   const songs = useHasuSongData();
   const { toast } = useToaster();
@@ -70,8 +83,12 @@ export function Page() {
     listToSort,
     listCount,
     clear,
-    isEnded
+    isEnded,
+    getSnapshot,
+    loadState
   } = useHasuSongsSortData();
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [showLoadDialog, setShowLoadDialog] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState<{
     type: 'mid-sort' | 'ended' | 'new-session';
     action: 'reset' | 'clear';
@@ -146,6 +163,33 @@ export function Page() {
     }
   };
 
+  const defaultSaveName = `${t('hasu-songs')} - ${new Date().toLocaleDateString()}`;
+
+  const getFilterSummary = () => {
+    if (!songFilters) return undefined;
+    const parts: string[] = [];
+    if (songFilters.generations?.length)
+      parts.push(`${songFilters.generations.length} generations`);
+    if (songFilters.units?.length) parts.push(`${songFilters.units.length} units`);
+    if (songFilters.types?.length) parts.push(`${songFilters.types.length} types`);
+    return parts.length > 0 ? parts.join(', ') : undefined;
+  };
+
+  const {
+    saves,
+    saveCurrent,
+    overwrite,
+    loadById,
+    remove: removeSave
+  } = useSortSaves({
+    sorterType: 'hasu-songs',
+    getSnapshot,
+    loadState,
+    itemCount: listCount,
+    progress,
+    filterSummary: getFilterSummary()
+  });
+
   return (
     <>
       <Metadata title={title} helmet />
@@ -181,9 +225,19 @@ export function Page() {
           <Button onClick={() => void shareUrl()} variant="subtle">
             <FaShare /> {t('settings.share')}
           </Button>
+          {!isSorting && saves.length > 0 && (
+            <Button variant="outline" onClick={() => setShowLoadDialog(true)}>
+              {t('sort.load_save')}
+            </Button>
+          )}
           <Button variant="solid" onClick={() => handleStart()}>
             {!isSorting ? t('sort.start') : t('sort.start_over')}
           </Button>
+          {isSorting && !isEnded && (
+            <Button variant="outline" onClick={() => setShowSaveDialog(true)}>
+              {t('sort.save')}
+            </Button>
+          )}
           {isSorting && (
             <Button variant="subtle" onClick={() => handleClear()}>
               {state?.status !== 'end' ? t('sort.stop') : t('sort.new_settings')}
@@ -321,6 +375,35 @@ export function Page() {
             if (!open) {
               setShowConfirmDialog(undefined);
             }
+          }}
+        />
+        <SaveStateDialog
+          open={showSaveDialog}
+          lazyMount
+          unmountOnExit
+          defaultName={defaultSaveName}
+          onSave={(name) => {
+            if (saveCurrent(name)) setShowSaveDialog(false);
+          }}
+          existingSaves={saves}
+          onOverwrite={(id) => {
+            if (overwrite(id)) setShowSaveDialog(false);
+          }}
+          onOpenChange={({ open }) => {
+            if (!open) setShowSaveDialog(false);
+          }}
+        />
+        <SavedStatesListDialog
+          open={showLoadDialog}
+          lazyMount
+          unmountOnExit
+          saves={saves}
+          onLoad={(id) => {
+            if (loadById(id)) setShowLoadDialog(false);
+          }}
+          onDelete={(id) => removeSave(id)}
+          onOpenChange={({ open }) => {
+            if (!open) setShowLoadDialog(false);
           }}
         />
       </Suspense>

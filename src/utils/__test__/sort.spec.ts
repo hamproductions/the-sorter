@@ -5,7 +5,8 @@ import {
   initSort,
   step,
   calculateMaxComparisons,
-  estimateComparisonsMade
+  estimateComparisonsMade,
+  resumeSort
 } from '../sort';
 
 const createNumberArray = (n = 10) =>
@@ -223,5 +224,147 @@ describe('Sorting', () => {
         state = step(left[0] < right[0] ? 'left' : 'right', state);
       }
     });
+  });
+});
+
+describe('snapshot and restore (JSON round-trip)', () => {
+  it('snapshot of mid-sort state can continue to completion', () => {
+    let state = initSort([5, 3, 1, 4, 2]);
+
+    const doStep = (s: typeof state) => {
+      const { left, right } = getCurrentItem(s) ?? {};
+      if (!left || !right) throw new Error('Invalid State');
+      return step(left[0] < right[0] ? 'left' : 'right', s);
+    };
+
+    state = doStep(state);
+    state = doStep(state);
+
+    const snapshot = JSON.parse(JSON.stringify(state));
+
+    let restored = snapshot as typeof state;
+    while (restored.status !== 'end') {
+      restored = doStep(restored);
+    }
+
+    expect(restored.arr.filter((s) => s.length > 0)).toEqual([[1], [2], [3], [4], [5]]);
+  });
+
+  it('snapshot of completed state remains completed', () => {
+    let state = initSort([1, 2, 3]);
+    while (state.status !== 'end') {
+      state = step('left', state);
+    }
+
+    const snapshot = JSON.parse(JSON.stringify(state));
+    expect(snapshot.status).toBe('end');
+  });
+
+  it('snapshot preserves full mergeState for mid-sort', () => {
+    const state = initSort([3, 1, 2]);
+    const item = getCurrentItem(state);
+    expect(item).toBeDefined();
+
+    const snapshot = JSON.parse(JSON.stringify(state));
+    expect(snapshot.mergeState).toEqual(state.mergeState);
+    expect(snapshot.mergeState?.leftArr).toBeDefined();
+    expect(snapshot.mergeState?.rightArr).toBeDefined();
+  });
+});
+
+describe('resumeSort', () => {
+  it('resumes from flat results', () => {
+    const results = [['a'], ['b'], ['c'], ['d']];
+    const state = resumeSort(results);
+    expect(state.arr).toEqual(results);
+    expect(state.status).toBe('waiting');
+  });
+
+  it('resumes from results with ties', () => {
+    const results = [['a', 'b'], ['c'], ['d']];
+    const state = resumeSort(results);
+    expect(state.arr).toEqual(results);
+    expect(state.status).toBe('waiting');
+  });
+
+  it('can continue sorting after resume', () => {
+    const results = [['c'], ['a'], ['b'], ['d']];
+    let state = resumeSort(results);
+
+    // Should be able to continue sorting
+    while (state.status !== 'end') {
+      const { left, right } = getCurrentItem(state) ?? {};
+      if (!left || !right) throw new Error('Invalid State');
+      const direction = left[0] < right[0] ? 'left' : 'right';
+      state = step(direction, state);
+    }
+
+    expect(state.arr.filter((s) => s.length > 0)).toEqual([['a'], ['b'], ['c'], ['d']]);
+  });
+
+  it('handles empty arrays in results', () => {
+    const results = [['a'], [], ['b'], ['c']];
+    const state = resumeSort(results);
+    expect(state.arr).toEqual(results);
+  });
+
+  it('returns end status for single item', () => {
+    const results = [['a']];
+    const state = resumeSort(results);
+    expect(state.status).toBe('end');
+    expect(state.arr).toEqual(results);
+  });
+
+  it('returns end status for empty results', () => {
+    const results: string[][] = [];
+    const state = resumeSort(results);
+    expect(state.status).toBe('end');
+  });
+
+  it('initializes mergeState correctly for two items', () => {
+    const results = [['b'], ['a']];
+    const state = resumeSort(results);
+    expect(state.status).toBe('waiting');
+    expect(state.mergeState).toBeDefined();
+    expect(state.mergeState?.start).toBe(0);
+    expect(state.mergeState?.mid).toBe(0);
+    expect(state.mergeState?.end).toBe(1);
+    expect(state.mergeState?.leftArr).toEqual([['b']]);
+    expect(state.mergeState?.rightArr).toEqual([['a']]);
+    expect(state.mergeState?.leftArrIdx).toBe(0);
+    expect(state.mergeState?.rightArrIdx).toBe(0);
+    expect(state.mergeState?.arrIdx).toBe(0);
+  });
+
+  it('resumes from all ties', () => {
+    const results = [
+      ['a', 'b', 'c'],
+      ['d', 'e', 'f']
+    ];
+    const state = resumeSort(results);
+    expect(state.status).toBe('waiting');
+    expect(state.arr).toEqual(results);
+  });
+
+  it('handles large result sets', () => {
+    const results = Array.from({ length: 100 }, (_, i) => [String(i)]);
+    const state = resumeSort(results);
+    expect(state.status).toBe('waiting');
+    expect(state.arr.length).toBe(100);
+    expect(state.mergeState).toBeDefined();
+  });
+
+  it('resumes and completes sorting with 5 items', () => {
+    const results = [['d'], ['a'], ['c'], ['b'], ['e']];
+    let state = resumeSort(results);
+
+    while (state.status !== 'end') {
+      const { left, right } = getCurrentItem(state) ?? {};
+      if (!left || !right) throw new Error('Invalid State');
+      const direction = left[0] < right[0] ? 'left' : 'right';
+      state = step(direction, state);
+    }
+
+    expect(state.arr.filter((s) => s.length > 0)).toEqual([['a'], ['b'], ['c'], ['d'], ['e']]);
   });
 });

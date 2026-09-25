@@ -50,6 +50,6 @@ export default defineConfig({
     outputFile: {
       'json-summary': './coverage-summary.json'
     },
-    exclude: [...configDefaults.exclude]
+    exclude: [...configDefaults.exclude, 'server/**']
   }
 });

@@ -1,13 +1,11 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocalStorage } from './useLocalStorage';
+import { useGlobalRankingSubmission } from './useGlobalRankingSubmission';
 import { useSorter } from './useSorter';
 import { useSongData } from './useSongData';
 import { useToaster } from '~/context/ToasterContext';
-
-import { hasFilter } from '~/utils/filter';
-
-import { matchSongFilter } from '~/utils/song-filter';
+import { getSongSortList } from '~/utils/song-sort-list';
 import type { SongFilterType } from '~/components/sorter/SongFilters';
 import { getAssetUrl } from '~/utils/assets';
 import { TieToastContent } from '~/components/sorter/TieToastContent';
@@ -18,6 +16,7 @@ export const useSongsSortData = (
   options?: {
     disableShortcutsRef?: { current: boolean };
     performanceSongIds?: string[];
+    performanceIds?: string[];
     storagePrefix?: string;
   }
 ) => {
@@ -27,32 +26,15 @@ export const useSongsSortData = (
   const [heardleMode, setHeardleMode] = useLocalStorage('heardle-mode', false);
   const [songFilters, setSongFilters] = useLocalStorage<SongFilterType>('song-filters', undefined);
 
-  // Apply performance pre-filter, then song filters, then exclude failed songs
-  const listToSort = useMemo(() => {
-    let filtered = songs;
-
-    // In performance mode, narrow to the performance's setlist songs first
-    if (options?.performanceSongIds && options.performanceSongIds.length > 0) {
-      const perfIds = new Set(options.performanceSongIds);
-      filtered = filtered.filter((s) => perfIds.has(s.id));
-    }
-
-    // Then apply song filters on top
-    if (songFilters && hasFilter(songFilters)) {
-      filtered = filtered.filter((s) => matchSongFilter(s, songFilters));
-    }
-
-    if (heardleMode) {
-      filtered = filtered.filter((s) => s.wikiAudioUrl);
-    }
-
-    // Exclude failed songs if provided
-    if (excludedSongIds && excludedSongIds.size > 0) {
-      filtered = filtered.filter((s) => !excludedSongIds.has(s.id));
-    }
-
-    return filtered;
-  }, [songs, songFilters, excludedSongIds, options?.performanceSongIds, heardleMode]);
+  const listToSort = useMemo(
+    () =>
+      getSongSortList(songs, songFilters, {
+        performanceSongIds: options?.performanceSongIds,
+        heardleMode: !!heardleMode,
+        excludedSongIds
+      }),
+    [songs, songFilters, excludedSongIds, options?.performanceSongIds, heardleMode]
+  );
 
   const {
     init,
@@ -66,11 +48,28 @@ export const useSongsSortData = (
     undo,
     progress,
     clear,
-    isEnded
+    isEnded,
+    getSnapshot,
+    loadState,
+    log,
+    setLog
   } = useSorter(
     listToSort.map((l) => l.id),
     options?.storagePrefix ?? 'songs'
   );
+
+  const isPerformanceMode = !!options?.performanceSongIds?.length;
+  const globalRanking = useGlobalRankingSubmission({
+    log,
+    setLog,
+    isEnded: !!isEnded,
+    context: {
+      kind: 'song',
+      mode: heardleMode ? 'heardle' : isPerformanceMode ? 'performance' : 'normal',
+      filter: songFilters ?? null,
+      performanceIds: isPerformanceMode ? options?.performanceIds : undefined
+    }
+  });
 
   const { toast } = useToaster();
 
@@ -149,6 +148,9 @@ export const useSongsSortData = (
     setSongFilters,
     listToSort,
     listCount: listToSort.length,
-    clear
+    clear,
+    getSnapshot,
+    loadState,
+    globalRanking
   };
 };

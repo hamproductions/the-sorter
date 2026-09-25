@@ -43,23 +43,32 @@ export const useLocalStorage = function <T>(
     () => (typeof window !== 'undefined' ? storage.current.value : initial) ?? initial
   );
 
+  const dataRef = useRef(data);
+  const isSelfUpdate = useRef(false);
+
   const setNewData: Dispatch<SetStateAction<NullOrUndefinedAble<T>>> = useCallback(
     (s: SetStateAction<NullOrUndefinedAble<T>>) => {
-      setData((prev) => {
-        //@ts-expect-error force convert to function
-        const newData = typeof s === 'function' ? s.call(s, prev) : s;
-        storage.current.value = newData;
-        return newData;
-      });
+      const newData =
+        typeof s === 'function'
+          ? (s as (prev: NullOrUndefinedAble<T>) => NullOrUndefinedAble<T>)(dataRef.current)
+          : s;
+      dataRef.current = newData;
+      storage.current.value = newData;
+      setData(newData);
+      isSelfUpdate.current = true;
+      try {
+        window.dispatchEvent(
+          new StorageEvent('storage', {
+            key: storage.current.key,
+            newValue: newData === null || newData === undefined ? null : JSON.stringify(newData)
+          })
+        );
+      } finally {
+        isSelfUpdate.current = false;
+      }
     },
     []
   );
-
-  const updateValue = (updateKey: string) => (storageEvent: StorageEvent) => {
-    if (storageEvent.key === updateKey) {
-      setData(JSON.parse(storageEvent.newValue ?? ''));
-    }
-  };
 
   useEffect(() => {
     setNewData(storage.current.value ?? initial);
@@ -67,9 +76,18 @@ export const useLocalStorage = function <T>(
   }, []);
 
   useEffect(() => {
-    window.addEventListener('storage', updateValue(key));
+    const handleStorage = (storageEvent: StorageEvent) => {
+      if (storageEvent.key !== key || isSelfUpdate.current) return;
+      let newData: NullOrUndefinedAble<T> = null;
+      try {
+        newData = storageEvent.newValue ? JSON.parse(storageEvent.newValue) : null;
+      } catch {}
+      dataRef.current = newData;
+      setData(newData);
+    };
+    window.addEventListener('storage', handleStorage);
     return () => {
-      window.removeEventListener('storage', updateValue(key));
+      window.removeEventListener('storage', handleStorage);
     };
   }, [key]);
 

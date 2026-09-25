@@ -15,15 +15,18 @@ import { useToaster } from '../../context/ToasterContext';
 import { useData } from '../../hooks/useData';
 import { useSortData } from '../../hooks/useSortData';
 import type { Character } from '../../types';
-import { getCurrentItem } from '../../utils/sort';
+import { getCurrentItem, resumeSort } from '../../utils/sort';
 import { addPresetParams, serializeData } from '~/utils/share';
-import { getCastName, getFullName } from '~/utils/character';
+import { getCastName, getCharacterSortList, getFullName } from '~/utils/character';
 import { getNextItems } from '~/utils/preloading';
 import { getFilterTitle, isValidFilter } from '~/utils/filter';
 import { getPicUrl } from '~/utils/assets';
 import { useDialogData } from '~/hooks/useDialogData';
+import { useSortSaves } from '~/hooks/useSortSaves';
 import { LoadingCharacterFilters } from '~/components/sorter/LoadingCharacterFilters';
 import { Metadata } from '~/components/layout/Metadata';
+import { GlobalRankingToggle } from '~/components/results/GlobalRankingToggle';
+import { AgreementPanel } from '~/components/leaderboard/AgreementPanel';
 import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
 
 const ResultsView = lazy(() =>
@@ -66,6 +69,24 @@ const SortingPreviewDialog = lazy(() =>
   }))
 );
 
+const ContinueSortingDialog = lazy(() =>
+  import('../../components/dialog/ContinueSortingDialog').then((m) => ({
+    default: m.ContinueSortingDialog
+  }))
+);
+
+const SaveStateDialog = lazy(() =>
+  import('../../components/dialog/SaveStateDialog').then((m) => ({
+    default: m.SaveStateDialog
+  }))
+);
+
+const SavedStatesListDialog = lazy(() =>
+  import('../../components/dialog/SavedStatesListDialog').then((m) => ({
+    default: m.SavedStatesListDialog
+  }))
+);
+
 export function Page() {
   const data = useData();
   const { toast } = useToaster();
@@ -90,12 +111,19 @@ export function Page() {
     setFilters,
     listToSort,
     listCount,
-    clear
+    clear,
+    loadResumeState,
+    getSnapshot,
+    loadState,
+    globalRanking
   } = useSortData();
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [showLoadDialog, setShowLoadDialog] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState<{
     type: 'mid-sort' | 'ended' | 'new-session' | 'preview';
     action: 'reset' | 'clear';
   }>();
+  const [showContinueDialog, setShowContinueDialog] = useState(false);
   const {
     data: showCharacterInfo,
     isOpen: isShowCharacterInfo,
@@ -193,6 +221,49 @@ export function Page() {
     }
   };
 
+  const handleContinue = (results: string[][]) => {
+    const validIds = new Set(getCharacterSortList(data, seiyuu).map((c) => c.id));
+    const validResults = results
+      .map((group) =>
+        group.filter((id) => {
+          if (!validIds.has(id)) return false;
+          validIds.delete(id);
+          return true;
+        })
+      )
+      .filter((group) => group.length > 0);
+    if (validResults.length === 0) return false;
+    loadResumeState(resumeSort(validResults));
+    setShowContinueDialog(false);
+    return true;
+  };
+
+  const getFilterSummary = () => {
+    if (!filters) return undefined;
+    const parts: string[] = [];
+    if (filters.series?.length) parts.push(`${filters.series.length} series`);
+    if (filters.school?.length) parts.push(`${filters.school.length} schools`);
+    if (filters.units?.length) parts.push(`${filters.units.length} units`);
+    return parts.length > 0 ? parts.join(', ') : undefined;
+  };
+
+  const {
+    saves,
+    saveCurrent,
+    overwrite,
+    loadById,
+    remove: removeSave
+  } = useSortSaves({
+    sorterType: 'characters',
+    getSnapshot,
+    loadState,
+    itemCount: listCount,
+    progress,
+    filterSummary: getFilterSummary()
+  });
+
+  const defaultSaveName = `${t('navigation.characters')} - ${new Date().toLocaleDateString()}`;
+
   return (
     <>
       <Metadata title={title} helmet />
@@ -243,9 +314,24 @@ export function Page() {
           <Button onClick={() => void shareUrl()} variant="subtle">
             <FaShare /> {t('settings.share')}
           </Button>
+          {!isSorting && (
+            <Button variant="outline" onClick={() => setShowContinueDialog(true)}>
+              {t('dialog.continue_sorting')}
+            </Button>
+          )}
+          {!isSorting && saves.length > 0 && (
+            <Button variant="outline" onClick={() => setShowLoadDialog(true)}>
+              {t('sort.load_save')}
+            </Button>
+          )}
           <Button variant="solid" onClick={() => handleStart()}>
             {!isSorting ? t('sort.start') : t('sort.start_over')}
           </Button>
+          {isSorting && !isEnded && (
+            <Button variant="outline" onClick={() => setShowSaveDialog(true)}>
+              {t('sort.save')}
+            </Button>
+          )}
           {isSorting && (
             <Button variant="subtle" onClick={() => handleClear()}>
               {state?.status !== 'end' ? t('sort.stop') : t('sort.new_settings')}
@@ -322,6 +408,19 @@ export function Page() {
                   defaultValue={0}
                 />
               </Stack>
+            )}
+            {state.arr && isEnded && globalRanking.isAvailable && (
+              <GlobalRankingToggle
+                contribute={globalRanking.contribute}
+                setContribute={globalRanking.setContribute}
+              />
+            )}
+            {state.arr && isEnded && globalRanking.isEnabled && (
+              <AgreementPanel
+                kind={globalRanking.sortContext.kind}
+                mode={globalRanking.sortContext.mode}
+                ranking={state.arr}
+              />
             )}
             {state.arr && isEnded && (
               <Suspense>
@@ -430,6 +529,46 @@ export function Page() {
             if (!open) {
               setShowConfirmDialog(undefined);
             }
+          }}
+        />
+        <ContinueSortingDialog
+          open={showContinueDialog}
+          lazyMount
+          unmountOnExit
+          onContinue={handleContinue}
+          onOpenChange={({ open }) => {
+            if (!open) {
+              setShowContinueDialog(false);
+            }
+          }}
+        />
+        <SaveStateDialog
+          open={showSaveDialog}
+          lazyMount
+          unmountOnExit
+          defaultName={defaultSaveName}
+          onSave={(name) => {
+            if (saveCurrent(name)) setShowSaveDialog(false);
+          }}
+          existingSaves={saves}
+          onOverwrite={(id) => {
+            if (overwrite(id)) setShowSaveDialog(false);
+          }}
+          onOpenChange={({ open }) => {
+            if (!open) setShowSaveDialog(false);
+          }}
+        />
+        <SavedStatesListDialog
+          open={showLoadDialog}
+          lazyMount
+          unmountOnExit
+          saves={saves}
+          onLoad={(id) => {
+            if (loadById(id)) setShowLoadDialog(false);
+          }}
+          onDelete={(id) => removeSave(id)}
+          onOpenChange={({ open }) => {
+            if (!open) setShowLoadDialog(false);
           }}
         />
       </Suspense>
