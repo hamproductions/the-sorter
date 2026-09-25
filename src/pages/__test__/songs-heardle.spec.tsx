@@ -90,6 +90,7 @@ vi.mock('~/hooks/useHeardleState', () => ({
 
 vi.mock('../../utils/sort', () => ({
   getCurrentItem: () => ({ left: ['song-1'], right: ['song-2'] }),
+  getSortItems: () => ['song-1', 'song-2'],
   step: vi.fn()
 }));
 

@@ -503,7 +503,6 @@
     "rank_comparison": "you #{{yours}} · everyone #{{global}}",
     "filter": "Filter",
     "filter_none": "Everyone, all items",
-    "exact_only": "Only people who sorted with exactly this filter",
-    "clear_filter": "Clear filter"
+    "exact_only": "Only people who sorted with exactly this filter"
   }
 }

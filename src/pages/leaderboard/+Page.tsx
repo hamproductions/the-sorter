@@ -82,6 +82,10 @@ export function Page() {
   const activeFilter = kind === 'character' ? characterFilter : songFilter;
   const filterCount = countFilter({ ...activeFilter }) + performanceIds.length;
   const view: LeaderboardView = filterCount === 0 ? 'global' : exactOnly ? 'cohort' : 'subset';
+
+  useEffect(() => {
+    if (filterCount === 0) setExactOnly(false);
+  }, [filterCount]);
   const resolve = useRankingItems(kind, activeMode);
 
   const query = useMemo<LeaderboardQuery>(
@@ -192,13 +196,6 @@ export function Page() {
     } else {
       setSongFilter({ ...EMPTY_SONG_FILTER, ...cohort.filter } as SongFilterType);
     }
-  };
-
-  const clearFilter = () => {
-    setPerformanceIds([]);
-    setExactOnly(false);
-    if (kind === 'character') setCharacterFilter(EMPTY_CHARACTER_FILTER);
-    else setSongFilter(EMPTY_SONG_FILTER);
   };
 
   const describeCohort = (cohort: CohortSummary) => {
@@ -327,23 +324,13 @@ export function Page() {
                         />
                       )}
                     </Suspense>
-                    <Wrap gap="3" justifyContent="space-between" alignItems="center">
-                      <Switch
-                        checked={exactOnly}
-                        disabled={filterCount === 0}
-                        onCheckedChange={(e) => setExactOnly(e.checked)}
-                      >
-                        {t('global_ranking.exact_only')}
-                      </Switch>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        disabled={filterCount === 0}
-                        onClick={clearFilter}
-                      >
-                        {t('global_ranking.clear_filter')}
-                      </Button>
-                    </Wrap>
+                    <Switch
+                      checked={exactOnly}
+                      disabled={filterCount === 0}
+                      onCheckedChange={(e) => setExactOnly(e.checked)}
+                    >
+                      {t('global_ranking.exact_only')}
+                    </Switch>
                   </Stack>
                 </Accordion.ItemContent>
               </Accordion.Item>

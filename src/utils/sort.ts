@@ -32,6 +32,14 @@ export const calculateMaxComparisons = (n: number): number => {
   return max;
 };
 
+export const getSortItems = <I>(state: SortState<I>): I[] => [
+  ...new Set([
+    ...state.arr.flat(),
+    ...(state.mergeState?.leftArr?.flat() ?? []),
+    ...(state.mergeState?.rightArr?.flat() ?? [])
+  ])
+];
+
 export const estimateComparisonsMade = <I>(state: SortState<I>): number => {
   const { currentSize, leftStart, mergeState, arr } = state;
   const n = arr.length;

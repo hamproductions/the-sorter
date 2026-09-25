@@ -10,7 +10,7 @@ import { Kbd } from '../../components/ui/styled/kbd';
 import { Text } from '../../components/ui/styled/text';
 import { Switch } from '../../components/ui/switch';
 import { useToaster } from '../../context/ToasterContext';
-import { getCurrentItem } from '../../utils/sort';
+import { getCurrentItem, getSortItems } from '../../utils/sort';
 import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
 import { Metadata } from '~/components/layout/Metadata';
 import { HasuSongResultsView } from '~/components/results/songs/HasuSongResultsView';
@@ -87,6 +87,7 @@ export function Page() {
     getSnapshot,
     loadState
   } = useHasuSongsSortData();
+  const sortCount = state ? getSortItems(state).length : listCount;
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [showLoadDialog, setShowLoadDialog] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState<{
@@ -199,7 +200,7 @@ export function Page() {
     sorterType: 'hasu-songs',
     getSnapshot,
     loadState,
-    itemCount: listCount,
+    itemCount: sortCount,
     progress,
     filterSummary: getFilterSummary()
   });
@@ -233,7 +234,7 @@ export function Page() {
           </>
         )}
         <Text fontSize="sm" fontWeight="bold">
-          {t('settings.song_sort_count', { count: listCount })}
+          {t('settings.song_sort_count', { count: sortCount })}
         </Text>
         <Wrap justifyContent="center">
           <Button onClick={() => void shareUrl()} variant="subtle">

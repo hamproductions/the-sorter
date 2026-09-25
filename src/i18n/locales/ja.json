@@ -437,7 +437,6 @@
     "rank_comparison": "あなた #{{yours}} ・ みんな #{{global}}",
     "filter": "フィルター",
     "filter_none": "全員・全項目",
-    "exact_only": "このフィルターでソートした人だけ",
-    "clear_filter": "フィルターをクリア"
+    "exact_only": "このフィルターでソートした人だけ"
   }
 }

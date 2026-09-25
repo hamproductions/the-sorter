@@ -15,7 +15,7 @@ import { useToaster } from '../../context/ToasterContext';
 import { useData } from '../../hooks/useData';
 import { useSortData } from '../../hooks/useSortData';
 import type { Character } from '../../types';
-import { getCurrentItem, resumeSort } from '../../utils/sort';
+import { getCurrentItem, getSortItems, resumeSort } from '../../utils/sort';
 import { addPresetParams, serializeData } from '~/utils/share';
 import { getCastName, getCharacterSortList, getFullName } from '~/utils/character';
 import { getNextItems } from '~/utils/preloading';
@@ -139,7 +139,15 @@ export function Page() {
   const currentLeft = leftItem && findCharacter(leftItem[0]);
   const currentRight = rightItem && findCharacter(rightItem[0]);
 
-  const titlePrefix = getFilterTitle(filters, data, i18n.language) ?? t('defaultTitlePrefix');
+  const sortItems = state ? getSortItems(state) : undefined;
+  const sortCount = sortItems?.length ?? listCount;
+  const sortItemIds = new Set(sortItems);
+  const isFilterSort =
+    !sortItems ||
+    (sortItems.length === listToSort.length && listToSort.every((c) => sortItemIds.has(c.id)));
+  const titlePrefix =
+    (isFilterSort ? getFilterTitle(filters, data, i18n.language) : undefined) ??
+    t('defaultTitlePrefix');
   const title = t('title', {
     titlePrefix
   });
@@ -263,7 +271,7 @@ export function Page() {
     sorterType: 'characters',
     getSnapshot,
     loadState,
-    itemCount: listCount,
+    itemCount: sortCount,
     progress,
     filterSummary: getFilterSummary(),
     isSeiyuu: seiyuu,
@@ -312,7 +320,7 @@ export function Page() {
           </>
         )}
         <Text fontSize="sm" fontWeight="bold">
-          {t('settings.sort_count', { count: listCount })}
+          {t('settings.sort_count', { count: sortCount })}
         </Text>
         <Button
           size="sm"

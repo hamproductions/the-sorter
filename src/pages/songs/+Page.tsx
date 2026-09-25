@@ -13,7 +13,7 @@ import { Progress } from '../../components/ui/progress';
 import { Switch } from '../../components/ui/switch';
 import { Text } from '../../components/ui/styled/text';
 import { useToaster } from '../../context/ToasterContext';
-import { getCurrentItem } from '../../utils/sort';
+import { getCurrentItem, getSortItems } from '../../utils/sort';
 import { getNextItems } from '~/utils/preloading';
 import { LoadingCharacterFilters } from '~/components/sorter/LoadingCharacterFilters';
 import { Metadata } from '~/components/layout/Metadata';
@@ -168,6 +168,7 @@ export function Page() {
     performanceIds: isPerformanceMode ? performanceMeta?.performanceIds : undefined,
     storagePrefix: isPerformanceMode ? 'perf-songs' : undefined
   });
+  const sortCount = state ? getSortItems(state).length : listCount;
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [showLoadDialog, setShowLoadDialog] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState<{
@@ -525,7 +526,7 @@ export function Page() {
     sorterType: 'songs',
     getSnapshot,
     loadState,
-    itemCount: listCount,
+    itemCount: sortCount,
     progress,
     filterSummary: getFilterSummary()
   });
@@ -573,7 +574,7 @@ export function Page() {
         )}
         <Wrap justifyContent="center" alignItems="center">
           <Text fontSize="sm" fontWeight="bold">
-            {t('settings.song_sort_count', { count: listCount })}
+            {t('settings.song_sort_count', { count: sortCount })}
           </Text>
           <Button
             size="sm"

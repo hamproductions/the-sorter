@@ -36,6 +36,7 @@ vi.mock('~/hooks/useSongsSortData', () => ({
 // We also need to mock getCurrentItem if it's used directly or via helper
 vi.mock('../../utils/sort', () => ({
   getCurrentItem: () => ({ left: ['1'], right: ['2'] }),
+  getSortItems: () => ['1', '2'],
   getNextItems: () => [],
   step: vi.fn()
 }));
