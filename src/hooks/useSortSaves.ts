@@ -1,10 +1,11 @@
-import { useCallback, useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSaveStates } from './useSaveStates';
 import { useSaveLoadContext } from '~/context/SaveLoadContext';
 import { useToaster } from '~/context/ToasterContext';
 import type { SortLog } from '~/types/global-ranking';
 import type { SavedSortState, SorterType } from '~/types/save-state';
+import { SORTER_TYPE_LABEL_KEYS } from '~/utils/save-state';
 import type { SortState } from '~/utils/sort';
 
 interface SortSnapshot<T> {
@@ -20,7 +21,9 @@ export const useSortSaves = <T extends string | number>({
   loadState,
   itemCount,
   progress,
-  filterSummary
+  filterSummary,
+  isSeiyuu,
+  onApply
 }: {
   sorterType: SorterType;
   getSnapshot: () => SortSnapshot<T>;
@@ -33,36 +36,13 @@ export const useSortSaves = <T extends string | number>({
   itemCount: number;
   progress: number;
   filterSummary?: string;
+  isSeiyuu?: boolean;
+  onApply?: (saved: SavedSortState) => void;
 }) => {
   const { t } = useTranslation();
   const { toast } = useToaster();
   const { saves, save, remove, update, load } = useSaveStates(sorterType);
   const { pendingLoadId, clearPendingLoad } = useSaveLoadContext();
-
-  const applySave = useCallback(
-    (saved: SavedSortState) => {
-      loadState({
-        state: saved.state as SortState<T>,
-        history: saved.history as SortState<T>[],
-        comparisonsCount: saved.comparisonsCount,
-        log: saved.log
-      });
-      toast?.({ description: t('dialog.saved_states.loaded') });
-    },
-    [loadState, toast, t]
-  );
-
-  useEffect(() => {
-    if (!pendingLoadId) return;
-    const saved = load(pendingLoadId);
-    if (!saved) {
-      clearPendingLoad();
-      return;
-    }
-    if (saved.sorterType !== sorterType) return;
-    clearPendingLoad();
-    applySave(saved);
-  }, [pendingLoadId, load, clearPendingLoad, sorterType, applySave]);
 
   const captureCurrent = () => {
     const snapshot = getSnapshot();
@@ -74,9 +54,51 @@ export const useSortSaves = <T extends string | number>({
       log: snapshot.log,
       itemCount,
       progress,
-      filterSummary
+      filterSummary,
+      isSeiyuu
     };
   };
+
+  const preserveCurrent = (target: SavedSortState) => {
+    const current = captureCurrent();
+    if (!current || current.state.status === 'end') return;
+    const serialized = JSON.stringify(current.state);
+    if (JSON.stringify(target.state) === serialized) return;
+    if (saves.some((s) => JSON.stringify(s.state) === serialized)) return;
+    save({
+      ...current,
+      sorterType,
+      name: t('dialog.saved_states.auto_name_in_progress', {
+        type: t(SORTER_TYPE_LABEL_KEYS[sorterType])
+      })
+    });
+  };
+
+  const applySave = (saved: SavedSortState) => {
+    preserveCurrent(saved);
+    onApply?.(saved);
+    loadState({
+      state: saved.state as SortState<T>,
+      history: saved.history as SortState<T>[],
+      comparisonsCount: saved.comparisonsCount,
+      log: saved.log
+    });
+    toast?.({ description: t('dialog.saved_states.loaded') });
+  };
+  const applySaveRef = useRef(applySave);
+  applySaveRef.current = applySave;
+
+  useEffect(() => {
+    if (!pendingLoadId) return;
+    const saved = load(pendingLoadId);
+    if (!saved) {
+      clearPendingLoad();
+      return;
+    }
+    if (saved.sorterType !== sorterType) return;
+    clearPendingLoad();
+    applySaveRef.current(saved);
+  }, [pendingLoadId, load, clearPendingLoad, sorterType]);
 
   const saveCurrent = (name: string) => {
     const current = captureCurrent();

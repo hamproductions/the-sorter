@@ -18,4 +18,5 @@ export interface SavedSortState {
   progress: number;
   filterSummary?: string;
   log?: SortLog;
+  isSeiyuu?: boolean;
 }

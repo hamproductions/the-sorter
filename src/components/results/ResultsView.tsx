@@ -70,8 +70,8 @@ export function ResultsView({
     'default'
   );
   const [savedDisplayOrder, setSavedDisplayOrder] = useLocalStorage<string[][]>(
-    'results-display-order',
-    order
+    readOnly ? 'results-display-order-read-only' : 'results-display-order',
+    readOnly ? undefined : order
   );
   const [timestamp, setTimestamp] = useState(new Date());
   const [showRenderingCanvas, setShowRenderingCanvas] = useState(false);
@@ -93,7 +93,8 @@ export function ResultsView({
     }
   }, [currentTab, setCurrentTab, tabs]);
 
-  const displayOrder = savedDisplayOrder?.length === order?.length ? savedDisplayOrder : order;
+  const displayOrder =
+    !readOnly && savedDisplayOrder?.length === order?.length ? savedDisplayOrder : order;
 
   const characters = useMemo(() => {
     if (!displayOrder) return [];

@@ -23,6 +23,7 @@ interface SaveInput {
   progress: number;
   filterSummary?: string;
   log?: SortLog;
+  isSeiyuu?: boolean;
 }
 
 export const useSaveStates = (sorterType?: SorterType) => {

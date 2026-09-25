@@ -111,8 +111,12 @@ export function Page() {
   const { left: leftItem, right: rightItem } =
     (state && getCurrentItem(state)) || ({} as { left: string[]; right: string[] });
 
-  const currentLeft = leftItem && listToSort.find((l) => l.id === leftItem[0]);
-  const currentRight = rightItem && listToSort.find((l) => l.id === rightItem[0]);
+  const currentLeft =
+    leftItem &&
+    (listToSort.find((l) => l.id === leftItem[0]) ?? songs.find((l) => l.id === leftItem[0]));
+  const currentRight =
+    rightItem &&
+    (listToSort.find((l) => l.id === rightItem[0]) ?? songs.find((l) => l.id === rightItem[0]));
 
   // const titlePrefix = getFilterTitle(filters, data, i18n.language) ?? t('defaultTitlePrefix');
   const title = t('title', {

@@ -133,8 +133,11 @@ export function Page() {
   const { left: leftItem, right: rightItem } =
     (state && getCurrentItem(state)) || ({} as { left: string[]; right: string[] });
 
-  const currentLeft = leftItem && listToSort.find((l) => l.id === leftItem[0]);
-  const currentRight = rightItem && listToSort.find((l) => l.id === rightItem[0]);
+  const findCharacter = (id: string) =>
+    listToSort.find((l) => l.id === id) ??
+    getCharacterSortList(data, seiyuu).find((l) => l.id === id);
+  const currentLeft = leftItem && findCharacter(leftItem[0]);
+  const currentRight = rightItem && findCharacter(rightItem[0]);
 
   const titlePrefix = getFilterTitle(filters, data, i18n.language) ?? t('defaultTitlePrefix');
   const title = t('title', {
@@ -259,7 +262,13 @@ export function Page() {
     loadState,
     itemCount: listCount,
     progress,
-    filterSummary: getFilterSummary()
+    filterSummary: getFilterSummary(),
+    isSeiyuu: seiyuu,
+    onApply: (saved) => {
+      const savedSeiyuu =
+        saved.isSeiyuu ?? (saved.log?.context ? saved.log.context.mode === 'seiyuu' : undefined);
+      if (savedSeiyuu !== undefined) setSeiyuu(savedSeiyuu);
+    }
   });
 
   const defaultSaveName = `${t('navigation.characters')} - ${new Date().toLocaleDateString()}`;

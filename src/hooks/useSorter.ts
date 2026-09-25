@@ -23,6 +23,7 @@ export const useSorter = <T extends string | number>(items: T[], statePrefix?: s
     `${statePrefix ? statePrefix + '-' : ''}comparisons-count`,
     undefined
   );
+  const [, setDisplayOrder] = useLocalStorage<string[][]>('results-display-order');
   const [log, setLog] = useLocalStorage<SortLog>(
     `${statePrefix ? statePrefix + '-' : ''}sort-log`,
     undefined
@@ -52,8 +53,9 @@ export const useSorter = <T extends string | number>(items: T[], statePrefix?: s
         setComparisonsCount(count);
       }
       setLog(savedLog ?? null);
+      setDisplayOrder(null);
     },
-    [setState, setHistory, setComparisonsCount, setLog]
+    [setState, setHistory, setComparisonsCount, setLog, setDisplayOrder]
   );
 
   const loadResumeState = (state: SortState<T>) => {
@@ -61,6 +63,7 @@ export const useSorter = <T extends string | number>(items: T[], statePrefix?: s
     setHistory([]);
     setComparisonsCount(1);
     setLog(null);
+    setDisplayOrder(null);
   };
 
   const stateRef = useRef(state);
@@ -109,8 +112,8 @@ export const useSorter = <T extends string | number>(items: T[], statePrefix?: s
     setHistory([]);
     setComparisonsCount(1);
     setLog({ sessionId: createSessionId(), initialOrder, choices: '' });
-    localStorage.removeItem('results-display-order');
-  }, [items, setState, setHistory, setComparisonsCount, setLog]);
+    setDisplayOrder(null);
+  }, [items, setState, setHistory, setComparisonsCount, setLog, setDisplayOrder]);
 
   const handleUndo = useCallback(() => {
     const currentHistory = historyRef.current;
@@ -136,7 +139,7 @@ export const useSorter = <T extends string | number>(items: T[], statePrefix?: s
     setState(undefined);
     setComparisonsCount(undefined);
     setLog(null);
-    localStorage.removeItem('results-display-order');
+    setDisplayOrder(null);
   };
 
   const progress = Math.max(0, Math.min(1, estimatedProgress));

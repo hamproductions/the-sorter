@@ -1,4 +1,6 @@
 import { type ReactNode, createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { SORTER_TYPE_LABEL_KEYS, migrateCurrentSessions } from '~/utils/save-state';
 
 const PENDING_LOAD_KEY = 'pending-save-load';
 
@@ -22,7 +24,21 @@ const writePendingLoad = (id: string | null) => {
 };
 
 export function SaveLoadProvider({ children }: { children: ReactNode }) {
+  const { t } = useTranslation();
   const [pendingLoadId, setPendingLoadId] = useState<string | null>(null);
+  useState(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      migrateCurrentSessions(localStorage, (sorterType, isCompleted) =>
+        t(
+          isCompleted
+            ? 'dialog.saved_states.auto_name_completed'
+            : 'dialog.saved_states.auto_name_in_progress',
+          { type: t(SORTER_TYPE_LABEL_KEYS[sorterType]) }
+        )
+      );
+    } catch {}
+  });
 
   useEffect(() => {
     try {

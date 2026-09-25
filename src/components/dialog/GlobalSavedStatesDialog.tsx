@@ -11,6 +11,7 @@ import { Progress } from '~/components/ui/progress';
 import { Tabs } from '~/components/ui/tabs';
 import { Badge } from '~/components/ui/badge';
 import { Input } from '~/components/ui/input';
+import { SavedResultsDialog } from './SavedResultsDialog';
 import type { SavedSortState, SorterType } from '~/types/save-state';
 import { SORTER_TYPE_ROUTES } from '~/utils/save-state';
 import { useSaveLoadContext } from '~/context/SaveLoadContext';
@@ -40,6 +41,7 @@ export function GlobalSavedStatesDialog({
   const { t, i18n } = useTranslation();
   const { requestLoad } = useSaveLoadContext();
   const [confirmDeleteId, setConfirmDeleteId] = useState<string>();
+  const [viewing, setViewing] = useState<SavedSortState>();
   const [editingId, setEditingId] = useState<string>();
   const [editName, setEditName] = useState('');
 
@@ -172,6 +174,11 @@ export function GlobalSavedStatesDialog({
               >
                 <FaTrash />
               </IconButton>
+              {save.isCompleted && (
+                <Button size="sm" variant="outline" onClick={() => setViewing(save)}>
+                  {t('dialog.saved_states.view_results')}
+                </Button>
+              )}
               <Button size="sm" onClick={() => handleLoad(save)}>
                 {t('dialog.saved_states.load')}
               </Button>
@@ -192,63 +199,74 @@ export function GlobalSavedStatesDialog({
   );
 
   return (
-    <Dialog.Root
-      {...rest}
-      onOpenChange={(e) => {
-        if (!e.open) {
-          setConfirmDeleteId(undefined);
-          setEditingId(undefined);
-        }
-        rest.onOpenChange?.(e);
-      }}
-    >
-      <Dialog.Backdrop />
-      <Dialog.Positioner>
-        <Dialog.Content maxW="lg" maxH="80vh" overflow="auto">
-          <Stack gap="4" p="6">
-            <Stack gap="1">
-              <Dialog.Title>{t('dialog.saved_states.title')}</Dialog.Title>
-              <Dialog.Description>{t('dialog.saved_states.description')}</Dialog.Description>
+    <>
+      <Dialog.Root
+        {...rest}
+        onOpenChange={(e) => {
+          if (!e.open) {
+            setConfirmDeleteId(undefined);
+            setEditingId(undefined);
+          }
+          rest.onOpenChange?.(e);
+        }}
+      >
+        <Dialog.Backdrop />
+        <Dialog.Positioner>
+          <Dialog.Content maxW="lg" maxH="80vh" overflow="auto">
+            <Stack gap="4" p="6">
+              <Stack gap="1">
+                <Dialog.Title>{t('dialog.saved_states.title')}</Dialog.Title>
+                <Dialog.Description>{t('dialog.saved_states.description')}</Dialog.Description>
+              </Stack>
+              <Tabs.Root defaultValue="all" size="sm">
+                <Tabs.List>
+                  {TAB_VALUES.map((tab) => (
+                    <Tabs.Trigger key={tab} value={tab}>
+                      {tab === 'all'
+                        ? t('dialog.saved_states.all')
+                        : t(SORTER_TYPE_LABELS[tab as SorterType])}
+                    </Tabs.Trigger>
+                  ))}
+                  <Tabs.Indicator />
+                </Tabs.List>
+                {TAB_VALUES.map((tab) => {
+                  const filtered = filterSaves(tab);
+                  return (
+                    <Tabs.Content key={tab} value={tab}>
+                      {filtered.length === 0 ? (
+                        renderEmpty()
+                      ) : (
+                        <Stack gap="3">
+                          {filtered.map((save) => renderSaveCard(save, tab === 'all'))}
+                        </Stack>
+                      )}
+                    </Tabs.Content>
+                  );
+                })}
+              </Tabs.Root>
+              <Dialog.CloseTrigger asChild>
+                <Button variant="outline" width="full">
+                  {t('dialog.close')}
+                </Button>
+              </Dialog.CloseTrigger>
             </Stack>
-            <Tabs.Root defaultValue="all" size="sm">
-              <Tabs.List>
-                {TAB_VALUES.map((tab) => (
-                  <Tabs.Trigger key={tab} value={tab}>
-                    {tab === 'all'
-                      ? t('dialog.saved_states.all')
-                      : t(SORTER_TYPE_LABELS[tab as SorterType])}
-                  </Tabs.Trigger>
-                ))}
-                <Tabs.Indicator />
-              </Tabs.List>
-              {TAB_VALUES.map((tab) => {
-                const filtered = filterSaves(tab);
-                return (
-                  <Tabs.Content key={tab} value={tab}>
-                    {filtered.length === 0 ? (
-                      renderEmpty()
-                    ) : (
-                      <Stack gap="3">
-                        {filtered.map((save) => renderSaveCard(save, tab === 'all'))}
-                      </Stack>
-                    )}
-                  </Tabs.Content>
-                );
-              })}
-            </Tabs.Root>
-            <Dialog.CloseTrigger asChild>
-              <Button variant="outline" width="full">
-                {t('dialog.close')}
-              </Button>
+            <Dialog.CloseTrigger asChild position="absolute" top="2" right="2">
+              <IconButton aria-label="Close Dialog" variant="ghost" size="sm">
+                <FaXmark />
+              </IconButton>
             </Dialog.CloseTrigger>
-          </Stack>
-          <Dialog.CloseTrigger asChild position="absolute" top="2" right="2">
-            <IconButton aria-label="Close Dialog" variant="ghost" size="sm">
-              <FaXmark />
-            </IconButton>
-          </Dialog.CloseTrigger>
-        </Dialog.Content>
-      </Dialog.Positioner>
-    </Dialog.Root>
+          </Dialog.Content>
+        </Dialog.Positioner>
+      </Dialog.Root>
+      <SavedResultsDialog
+        open={!!viewing}
+        lazyMount
+        unmountOnExit
+        save={viewing}
+        onOpenChange={({ open }) => {
+          if (!open) setViewing(undefined);
+        }}
+      />
+    </>
   );
 }

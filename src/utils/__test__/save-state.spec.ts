@@ -1,11 +1,14 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import {
   createSavedSortState,
   addSaveState,
   removeSaveState,
   renameSaveState,
   getSaveStatesByType,
-  getSaveStateById
+  getSaveStateById,
+  migrateCurrentSessions,
+  CURRENT_SESSIONS_MIGRATED_KEY,
+  SAVED_STATES_KEY
 } from '../save-state';
 import type { SavedSortState } from '~/types/save-state';
 import type { SortState } from '../sort';
@@ -258,5 +261,78 @@ describe('save-state', () => {
       expect(roundTripped.state.arr).toHaveLength(200);
       expect(roundTripped.itemCount).toBe(200);
     });
+  });
+});
+
+const nameFor = (type: string, completed: boolean) => `${type}:${completed ? 'done' : 'wip'}`;
+const readSaves = () =>
+  JSON.parse(localStorage.getItem(SAVED_STATES_KEY) ?? '[]') as SavedSortState[];
+
+describe('migrateCurrentSessions', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('copies every sorter current session into a slot and keeps the session active', () => {
+    const mid = initSort(['a', 'b', 'c', 'd']);
+    let done = initSort(['1', '2', '3']);
+    while (done.status !== 'end') done = step('left', done);
+    localStorage.setItem('sort-state', JSON.stringify(mid));
+    localStorage.setItem('sort-state-history', JSON.stringify([mid]));
+    localStorage.setItem('comparisons-count', '2');
+    localStorage.setItem('seiyuu-mode', 'true');
+    localStorage.setItem('songs-sort-state', JSON.stringify(done));
+
+    migrateCurrentSessions(localStorage, nameFor);
+
+    const saves = readSaves();
+    expect(saves.map((s) => [s.sorterType, s.name, s.isCompleted])).toEqual([
+      ['characters', 'characters:wip', false],
+      ['songs', 'songs:done', true]
+    ]);
+    expect(saves[0].comparisonsCount).toBe(2);
+    expect(saves[0].history).toHaveLength(1);
+    expect(saves[0].itemCount).toBe(4);
+    expect(saves[0].isSeiyuu).toBe(true);
+    expect(saves[1].progress).toBe(1);
+    expect(saves[1].isSeiyuu).toBeUndefined();
+    expect(localStorage.getItem('sort-state')).toBe(JSON.stringify(mid));
+    expect(localStorage.getItem(CURRENT_SESSIONS_MIGRATED_KEY)).toBe('true');
+  });
+
+  it('runs only once', () => {
+    localStorage.setItem('sort-state', JSON.stringify(initSort(['a', 'b', 'c'])));
+    migrateCurrentSessions(localStorage, nameFor);
+    migrateCurrentSessions(localStorage, nameFor);
+    expect(readSaves()).toHaveLength(1);
+  });
+
+  it('keeps existing saves and skips empty or broken sessions', () => {
+    const existing = createSavedSortState({
+      name: 'Existing',
+      sorterType: 'hasu-songs',
+      state: mockSortState,
+      history: [],
+      comparisonsCount: 1,
+      itemCount: 3,
+      progress: 0
+    });
+    localStorage.setItem(SAVED_STATES_KEY, JSON.stringify([existing]));
+    localStorage.setItem('sort-state', 'undefined');
+    localStorage.setItem('songs-sort-state', '{"arr": "broken"}');
+    localStorage.setItem('hasu-songs-sort-state', '{not json');
+
+    migrateCurrentSessions(localStorage, nameFor);
+
+    expect(readSaves()).toEqual([existing]);
+    expect(localStorage.getItem(CURRENT_SESSIONS_MIGRATED_KEY)).toBe('true');
+  });
+
+  it('carries the ranking log so a migrated session can still be submitted', () => {
+    const log = { sessionId: 's', initialOrder: ['a', 'b'], choices: 'L' };
+    localStorage.setItem('sort-state', JSON.stringify(initSort(['a', 'b'])));
+    localStorage.setItem('sort-log', JSON.stringify(log));
+    migrateCurrentSessions(localStorage, nameFor);
+    expect(readSaves()[0].log).toEqual(log);
   });
 });
