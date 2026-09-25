@@ -173,9 +173,19 @@ export function Page() {
     if (!songFilters) return undefined;
     const parts: string[] = [];
     if (songFilters.generations?.length)
-      parts.push(`${songFilters.generations.length} generations`);
-    if (songFilters.units?.length) parts.push(`${songFilters.units.length} units`);
-    if (songFilters.types?.length) parts.push(`${songFilters.types.length} types`);
+      parts.push(
+        t('dialog.saved_states.filter_summary.generations', {
+          count: songFilters.generations.length
+        })
+      );
+    if (songFilters.units?.length)
+      parts.push(
+        t('dialog.saved_states.filter_summary.units', { count: songFilters.units.length })
+      );
+    if (songFilters.types?.length)
+      parts.push(
+        t('dialog.saved_states.filter_summary.types', { count: songFilters.types.length })
+      );
     return parts.length > 0 ? parts.join(', ') : undefined;
   };
 
@@ -237,7 +247,7 @@ export function Page() {
           <Button variant="solid" onClick={() => handleStart()}>
             {!isSorting ? t('sort.start') : t('sort.start_over')}
           </Button>
-          {isSorting && !isEnded && (
+          {isSorting && (
             <Button variant="outline" onClick={() => setShowSaveDialog(true)}>
               {t('sort.save')}
             </Button>

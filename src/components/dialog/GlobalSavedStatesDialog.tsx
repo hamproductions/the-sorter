@@ -107,7 +107,7 @@ export function GlobalSavedStatesDialog({
                 {save.name}
               </Text>
               <IconButton
-                aria-label="Rename"
+                aria-label={t('dialog.saved_states.rename')}
                 variant="ghost"
                 size="xs"
                 onClick={() => handleStartRename(save)}
@@ -131,7 +131,7 @@ export function GlobalSavedStatesDialog({
         </HStack>
         <Text color="fg.muted" fontSize="xs">
           {formatDate(save.date)} · {t('dialog.saved_states.items', { count: save.itemCount })} ·{' '}
-          {t('dialog.saved_states.comparisons', { count: save.comparisonsCount })}
+          {t('dialog.saved_states.comparisons', { count: save.history.length })}
         </Text>
         {save.filterSummary && (
           <Text color="fg.muted" fontSize="xs" truncate>
@@ -167,7 +167,7 @@ export function GlobalSavedStatesDialog({
           ) : (
             <>
               <IconButton
-                aria-label="Delete"
+                aria-label={t('dialog.saved_states.delete')}
                 variant="ghost"
                 size="sm"
                 onClick={() => setConfirmDeleteId(save.id)}

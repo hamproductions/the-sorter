@@ -252,7 +252,17 @@
       "auto_name_in_progress": "{{type}} (in progress)",
       "auto_name_completed": "{{type}} (completed)",
       "view_results": "View results",
-      "view_results_description": "Saved ranking. Viewing it does not change your current sort."
+      "view_results_description": "Saved ranking. Viewing it does not change your current sort.",
+      "filter_summary": {
+        "series": "{{count}} series",
+        "schools": "{{count}} schools",
+        "units": "{{count}} units",
+        "artists": "{{count}} artists",
+        "types": "{{count}} types",
+        "characters": "{{count}} characters",
+        "generations": "{{count}} generations"
+      },
+      "rename": "Rename"
     },
     "save_state": {
       "title": "Save Session",

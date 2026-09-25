@@ -10,6 +10,8 @@
   "cancel": "キャンセル",
   "hasu-songs": "蓮ノ空楽曲",
   "songs": "楽曲",
+  "artist": "アーティスト",
+  "song-name": "曲名",
   "navigation": {
     "characters": "キャラ",
     "hasu-music": "蓮ノ空",
@@ -170,7 +172,8 @@
         "show_info": "情報を表示する",
         "tier_name": "Tier名",
         "start_rank": "ランク",
-        "hide_bottom_tier": "最下位を非表示する"
+        "hide_bottom_tier": "最下位を非表示する",
+        "ranks": "ランク"
       }
     },
     "copy_text": "テキストをコピーする",
@@ -266,7 +269,17 @@
       "auto_name_in_progress": "{{type}}（進行中）",
       "auto_name_completed": "{{type}}（完了）",
       "view_results": "結果を見る",
-      "view_results_description": "保存されたランキングです。表示しても現在のソートは変わりません。"
+      "view_results_description": "保存されたランキングです。表示しても現在のソートは変わりません。",
+      "filter_summary": {
+        "series": "シリーズ{{count}}件",
+        "schools": "学校{{count}}件",
+        "units": "ユニット{{count}}件",
+        "artists": "アーティスト{{count}}件",
+        "types": "種類{{count}}件",
+        "characters": "キャラクター{{count}}件",
+        "generations": "期{{count}}件"
+      },
+      "rename": "名前を変更"
     }
   },
   "error_page": {

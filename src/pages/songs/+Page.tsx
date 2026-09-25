@@ -496,10 +496,22 @@ export function Page() {
   const getFilterSummary = () => {
     if (!songFilters) return undefined;
     const parts: string[] = [];
-    if (songFilters.series?.length) parts.push(`${songFilters.series.length} series`);
-    if (songFilters.artists?.length) parts.push(`${songFilters.artists.length} artists`);
-    if (songFilters.types?.length) parts.push(`${songFilters.types.length} types`);
-    if (songFilters.characters?.length) parts.push(`${songFilters.characters.length} characters`);
+    if (songFilters.series?.length)
+      parts.push(
+        t('dialog.saved_states.filter_summary.series', { count: songFilters.series.length })
+      );
+    if (songFilters.artists?.length)
+      parts.push(
+        t('dialog.saved_states.filter_summary.artists', { count: songFilters.artists.length })
+      );
+    if (songFilters.types?.length)
+      parts.push(
+        t('dialog.saved_states.filter_summary.types', { count: songFilters.types.length })
+      );
+    if (songFilters.characters?.length)
+      parts.push(
+        t('dialog.saved_states.filter_summary.characters', { count: songFilters.characters.length })
+      );
     return parts.length > 0 ? parts.join(', ') : undefined;
   };
 
@@ -588,7 +600,7 @@ export function Page() {
           >
             {!isSorting ? t('sort.start') : t('sort.start_over')}
           </Button>
-          {isSorting && !isEnded && (
+          {isSorting && (
             <Button variant="outline" onClick={() => setShowSaveDialog(true)}>
               {t('sort.save')}
             </Button>
@@ -745,6 +757,7 @@ export function Page() {
                 kind={globalRanking.sortContext.kind}
                 mode={globalRanking.sortContext.mode}
                 ranking={state.arr}
+                submissionId={globalRanking.submissionId}
               />
             )}
             {state.arr && isEnded && (

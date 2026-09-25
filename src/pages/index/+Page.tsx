@@ -244,9 +244,12 @@ export function Page() {
   const getFilterSummary = () => {
     if (!filters) return undefined;
     const parts: string[] = [];
-    if (filters.series?.length) parts.push(`${filters.series.length} series`);
-    if (filters.school?.length) parts.push(`${filters.school.length} schools`);
-    if (filters.units?.length) parts.push(`${filters.units.length} units`);
+    if (filters.series?.length)
+      parts.push(t('dialog.saved_states.filter_summary.series', { count: filters.series.length }));
+    if (filters.school?.length)
+      parts.push(t('dialog.saved_states.filter_summary.schools', { count: filters.school.length }));
+    if (filters.units?.length)
+      parts.push(t('dialog.saved_states.filter_summary.units', { count: filters.units.length }));
     return parts.length > 0 ? parts.join(', ') : undefined;
   };
 
@@ -336,7 +339,7 @@ export function Page() {
           <Button variant="solid" onClick={() => handleStart()}>
             {!isSorting ? t('sort.start') : t('sort.start_over')}
           </Button>
-          {isSorting && !isEnded && (
+          {isSorting && (
             <Button variant="outline" onClick={() => setShowSaveDialog(true)}>
               {t('sort.save')}
             </Button>
@@ -429,6 +432,7 @@ export function Page() {
                 kind={globalRanking.sortContext.kind}
                 mode={globalRanking.sortContext.mode}
                 ranking={state.arr}
+                submissionId={globalRanking.submissionId}
               />
             )}
             {state.arr && isEnded && (
