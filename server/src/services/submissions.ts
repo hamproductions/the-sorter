@@ -205,7 +205,7 @@ export class SubmissionService {
       ) {
         return { code: 409, error: 'invalid_ticket' } satisfies Failure;
       }
-      if (!(await this.hitLimit(tx, ipHash, day, v.kind, 'submit'))) {
+      if (!ticket.submitted && !(await this.hitLimit(tx, ipHash, day, v.kind, 'submit'))) {
         return { code: 429, error: 'rate_limited' } satisfies Failure;
       }
 
@@ -214,7 +214,10 @@ export class SubmissionService {
         .from(submissions)
         .where(and(eq(submissions.ip_hash, ipHash), eq(submissions.ranking_hash, hash)));
       if (duplicates > 0) {
-        await tx.update(tickets).set({ used_at: now }).where(eq(tickets.id, v.ticket));
+        await tx
+          .update(tickets)
+          .set({ used_at: now, submitted: true })
+          .where(eq(tickets.id, v.ticket));
         return { status: 'duplicate' } satisfies SubmissionResponse;
       }
 
@@ -284,7 +287,10 @@ export class SubmissionService {
           created_at: now
         })
         .returning({ id: submissions.id });
-      await tx.update(tickets).set({ used_at: now }).where(eq(tickets.id, v.ticket));
+      await tx
+        .update(tickets)
+        .set({ used_at: now, submitted: true })
+        .where(eq(tickets.id, v.ticket));
 
       if (status === 'accepted') {
         await applyRollups(

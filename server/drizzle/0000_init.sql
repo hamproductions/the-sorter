@@ -96,7 +96,8 @@ CREATE TABLE "tickets" (
 	"kind" text NOT NULL,
 	"ip_hash" text NOT NULL,
 	"issued_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"used_at" timestamp with time zone
+	"used_at" timestamp with time zone,
+	"submitted" boolean DEFAULT false NOT NULL
 );
 --> statement-breakpoint
 CREATE INDEX "cohorts_scope_idx" ON "cohorts" USING btree ("kind","mode");--> statement-breakpoint

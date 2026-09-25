@@ -283,6 +283,32 @@ describe('withdrawing', () => {
     expect(resubmit.json.status).toBe('accepted');
   });
 
+  it('does not count withdrawing and resubmitting the same ticket against the daily limit', async () => {
+    const { res, ticket, body } = await submit();
+    let current = res.json;
+    for (let i = 0; i < 6; i++) {
+      await call('DELETE', `/submissions/${current.id}`, {
+        body: { deleteToken: current.deleteToken }
+      });
+      const again = await call('POST', '/submissions', { body: { ...body, ticket } });
+      expect(again.status).toBe(200);
+      current = again.json;
+    }
+    expect((await db.select().from(submissions)).length).toBe(1);
+    for (let i = 0; i < 4; i++) {
+      clock.now = new Date(Date.UTC(2026, 8, 10, 13 + i * 2));
+      const other = await submit({
+        seed: 20 + i,
+        preference: shuffled(characterIds.slice(0, 8), i + 30)
+      });
+      expect(other.res.status).toBe(200);
+    }
+    clock.now = new Date(Date.UTC(2026, 8, 10, 23));
+    expect(
+      (await submit({ seed: 99, preference: shuffled(characterIds.slice(0, 8), 99) })).res.status
+    ).toBe(429);
+  });
+
   it('keeps other results when one is withdrawn', async () => {
     const first = await submit({ ip: '198.51.100.1' });
     await submit({ ip: '198.51.100.2', preference: [...characterIds.slice(0, 8)].reverse() });

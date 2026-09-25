@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import {
+  boolean,
   doublePrecision,
   index,
   integer,
@@ -19,7 +20,8 @@ export const tickets = pgTable(
     kind: text().notNull(),
     ip_hash: text().notNull(),
     issued_at: timestamp({ withTimezone: true }).notNull().defaultNow(),
-    used_at: timestamp({ withTimezone: true })
+    used_at: timestamp({ withTimezone: true }),
+    submitted: boolean().notNull().default(false)
   },
   (t) => [index('tickets_issued_at_idx').on(t.issued_at)]
 );

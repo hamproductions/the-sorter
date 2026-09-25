@@ -1,5 +1,5 @@
 {
-  "id": "335eb34f-32fa-42bc-9ddc-31dee692bbb1",
+  "id": "3edf1ab2-a2ff-4957-a600-e71c4b143ad2",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -777,6 +777,13 @@
           "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
+        },
+        "submitted": {
+          "name": "submitted",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         }
       },
       "indexes": {
