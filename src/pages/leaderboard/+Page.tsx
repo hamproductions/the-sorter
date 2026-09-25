@@ -24,7 +24,9 @@ import {
   type RankingMode,
   type StatsResponse
 } from '~/types/global-ranking';
-import { getFilterTitle } from '~/utils/filter';
+import { getArtistName, getSchoolName, getSeriesName, getUnitName } from '~/utils/names';
+import artistsInfo from '../../../data/artists-info.json';
+import seriesInfo from '../../../data/series-info.json';
 import {
   type LeaderboardQuery,
   fetchCohorts,
@@ -202,15 +204,37 @@ export function Page() {
     if (countFilter(cohort.filter) === 0 && cohort.performanceIds.length === 0) {
       return t('global_ranking.no_filter');
     }
-    const title =
+    const lang = i18n.language;
+    const filter = cohort.filter as Record<string, string[] | undefined>;
+    const names =
       cohort.kind === 'character'
-        ? getFilterTitle(
-            { ...EMPTY_CHARACTER_FILTER, ...cohort.filter } as FilterType,
-            characters,
-            i18n.language
-          )
-        : undefined;
-    return title ?? t('global_ranking.filter_count', { count: countFilter(cohort.filter) });
+        ? [
+            ...(filter.series ?? []).map((s) => getSeriesName(s, lang)),
+            ...(filter.school ?? []).map((s) => getSchoolName(s, lang)),
+            ...(filter.units ?? []).map((id) => {
+              const unit = characters.flatMap((c) => c.units).find((u) => u.id === id);
+              return unit ? getUnitName(unit.name, lang) : id;
+            })
+          ]
+        : [
+            ...(filter.series ?? []).map((id) =>
+              id === 'cross'
+                ? t('settings.cross_series')
+                : (seriesInfo.find((s) => s.id === id)?.name ?? id)
+            ),
+            ...(filter.artists ?? []).map((id) => {
+              const artist = artistsInfo.find((a) => a.id === id);
+              return artist ? getArtistName(artist.name, lang) : id;
+            }),
+            ...(filter.years ?? [])
+          ];
+    const rest = countFilter(cohort.filter) - names.length;
+    if (names.length === 0) {
+      return t('global_ranking.filter_count', { count: countFilter(cohort.filter) });
+    }
+    const shown = names.slice(0, 3).join('・');
+    const hidden = names.length - 3 + rest;
+    return hidden > 0 ? `${shown} +${hidden}` : shown;
   };
 
   const title = t('global_ranking.title');
