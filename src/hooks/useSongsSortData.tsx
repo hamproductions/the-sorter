@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useLocalStorage } from './useLocalStorage';
 import { useGlobalRankingSubmission } from './useGlobalRankingSubmission';
 import { useSorter } from './useSorter';
+import { useSongSortTimer } from './useSongSortTimer';
 import { useSongData } from './useSongData';
 import { useToaster } from '~/context/ToasterContext';
 import { getSongSortList } from '~/utils/song-sort-list';
@@ -41,6 +42,7 @@ export const useSongsSortData = (
     left,
     right,
     state,
+    history,
     comparisonsCount,
     isEstimatedCount,
     maxComparisons,
@@ -71,6 +73,60 @@ export const useSongsSortData = (
     }
   });
 
+  // Background timer: track how long each comparison and the whole session takes.
+  const {
+    timing,
+    stats,
+    getElapsedMs,
+    startTimer,
+    clearTimer,
+    recordTick,
+    removeLastTick,
+    markEnded
+  } = useSongSortTimer(options?.storagePrefix ?? 'songs');
+
+  const timedInit = useCallback(() => {
+    startTimer();
+    init();
+  }, [startTimer, init]);
+
+  const timedClear = useCallback(() => {
+    clearTimer();
+    clear();
+  }, [clearTimer, clear]);
+
+  const timedLeft = useCallback(() => {
+    recordTick();
+    left();
+  }, [recordTick, left]);
+
+  const timedRight = useCallback(() => {
+    recordTick();
+    right();
+  }, [recordTick, right]);
+
+  const timedUndo = useCallback(() => {
+    // Only drop a timing entry when undo will actually rewind a comparison. Once
+    // useSorter's history cap (50) is exhausted, undo() no-ops; popping a duration
+    // anyway would desync the timer from the sorter and corrupt the results stats.
+    if (history && history.length > 0) removeLastTick();
+    undo();
+  }, [history, removeLastTick, undo]);
+
+  // Freeze the timer once the sort completes.
+  useEffect(() => {
+    if (state?.status === 'end') markEnded();
+  }, [state?.status, markEnded]);
+
+  const timedLoadState = useCallback(
+    (data: Parameters<typeof loadState>[0]) => {
+      if (data.state.status === 'end') clearTimer();
+      else startTimer();
+      loadState(data);
+    },
+    [clearTimer, startTimer, loadState]
+  );
+
   const { toast } = useToaster();
 
   // useEffect(() => {
@@ -89,11 +145,12 @@ export const useSongsSortData = (
         duration: 1000,
         placement: isMobile ? 'top' : undefined
       });
+      recordTick();
       tie();
     } else {
       toast?.({ description: t('toast.tie_not_allowed'), type: 'error' });
     }
-  }, [toast, tie, noTieMode, t]);
+  }, [toast, tie, noTieMode, t, recordTick]);
 
   useEffect(() => {
     const handleKeystroke = (e: KeyboardEvent) => {
@@ -101,18 +158,18 @@ export const useSongsSortData = (
       if (tag === 'INPUT' || tag === 'TEXTAREA') return;
       if (!state || state.status === 'end') return;
       if (e.key === 'ArrowUp') {
-        undo();
+        timedUndo();
         e.preventDefault();
         return;
       }
       if (options?.disableShortcutsRef?.current) return;
       switch (e.key) {
         case 'ArrowLeft':
-          left();
+          timedLeft();
           e.preventDefault();
           break;
         case 'ArrowRight':
-          right();
+          timedRight();
           e.preventDefault();
           break;
         case 'ArrowDown':
@@ -126,31 +183,34 @@ export const useSongsSortData = (
     return () => {
       document.removeEventListener('keydown', handleKeystroke);
     };
-  }, [left, right, handleTie, undo, state, options?.disableShortcutsRef]);
+  }, [timedLeft, timedRight, handleTie, timedUndo, state, options?.disableShortcutsRef]);
 
   return {
     noTieMode: noTieMode ?? false,
     setNoTieMode,
     heardleMode: heardleMode ?? false,
     setHeardleMode,
-    init,
-    left,
-    right,
+    init: timedInit,
+    left: timedLeft,
+    right: timedRight,
     state,
     comparisonsCount,
     isEstimatedCount,
     maxComparisons,
     tie: handleTie,
-    undo,
+    undo: timedUndo,
     progress,
     isEnded,
     songFilters,
     setSongFilters,
     listToSort,
     listCount: listToSort.length,
-    clear,
+    clear: timedClear,
+    timing,
+    timingStats: stats,
+    getElapsedMs,
     getSnapshot,
-    loadState,
+    loadState: timedLoadState,
     globalRanking
   };
 };

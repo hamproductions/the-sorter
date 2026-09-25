@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { FaShare } from 'react-icons/fa6';
 import { isEqual } from 'lodash-es';
 import { ComparisonInfo } from '../../components/sorter/ComparisonInfo';
+import { SortTimer } from '../../components/sorter/SortTimer';
 import { KeyboardShortcuts } from '../../components/sorter/KeyboardShortcuts';
 import series from '../../../data/series-info.json';
 import { Button } from '../../components/ui/styled/button';
@@ -157,7 +158,10 @@ export function Page() {
     isEnded,
     getSnapshot,
     loadState,
-    globalRanking
+    globalRanking,
+    timing,
+    timingStats,
+    getElapsedMs
   } = useSongsSortData(failedSongIds.size > 0 ? failedSongIds : undefined, {
     disableShortcutsRef,
     performanceSongIds: isPerformanceMode ? performanceSongIds : undefined,
@@ -712,6 +716,7 @@ export function Page() {
                   isEstimatedCount={isEstimatedCount}
                   maxComparisons={maxComparisons}
                 />
+                <SortTimer active={!!timing} getElapsedMs={getElapsedMs} frozen={isEnded} />
                 <Progress
                   translations={{ value: (details) => `${details.percent}%` }}
                   value={progress}
@@ -746,6 +751,7 @@ export function Page() {
               <Suspense>
                 <SongResultsView
                   songsData={songs}
+                  timingStats={timingStats}
                   performanceMeta={
                     isPerformanceMode && performanceMeta ? performanceMeta : undefined
                   }
