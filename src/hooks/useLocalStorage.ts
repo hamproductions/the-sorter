@@ -34,6 +34,8 @@ export class LocalStorage<T = unknown> {
   }
 }
 
+const sameKeyListeners = new Map<string, Set<(value: unknown) => void>>();
+
 export const useLocalStorage = function <T>(
   key: string,
   initial: NullOrUndefinedAble<T> = undefined
@@ -44,7 +46,10 @@ export const useLocalStorage = function <T>(
   );
 
   const dataRef = useRef(data);
-  const isSelfUpdate = useRef(false);
+  const receive = useRef((value: unknown) => {
+    dataRef.current = value as NullOrUndefinedAble<T>;
+    setData(value as NullOrUndefinedAble<T>);
+  });
 
   const setNewData: Dispatch<SetStateAction<NullOrUndefinedAble<T>>> = useCallback(
     (s: SetStateAction<NullOrUndefinedAble<T>>) => {
@@ -55,38 +60,40 @@ export const useLocalStorage = function <T>(
       dataRef.current = newData;
       storage.current.value = newData;
       setData(newData);
-      isSelfUpdate.current = true;
-      try {
-        window.dispatchEvent(
-          new StorageEvent('storage', {
-            key: storage.current.key,
-            newValue: newData === null || newData === undefined ? null : JSON.stringify(newData)
-          })
-        );
-      } finally {
-        isSelfUpdate.current = false;
-      }
+      sameKeyListeners.get(storage.current.key)?.forEach((listener) => {
+        if (listener !== receive.current) listener(newData);
+      });
     },
     []
   );
 
   useEffect(() => {
-    setNewData(storage.current.value ?? initial);
+    const value = storage.current.value ?? initial;
+    dataRef.current = value;
+    storage.current.value = value;
+    setData(value);
     // oxlint-disable-next-line exhaustive-deps
   }, []);
 
   useEffect(() => {
+    const listener = receive.current;
+    let listeners = sameKeyListeners.get(key);
+    if (!listeners) {
+      listeners = new Set();
+      sameKeyListeners.set(key, listeners);
+    }
+    listeners.add(listener);
     const handleStorage = (storageEvent: StorageEvent) => {
-      if (storageEvent.key !== key || isSelfUpdate.current) return;
+      if (storageEvent.key !== key) return;
       let newData: NullOrUndefinedAble<T> = null;
       try {
         newData = storageEvent.newValue ? JSON.parse(storageEvent.newValue) : null;
       } catch {}
-      dataRef.current = newData;
-      setData(newData);
+      listener(newData);
     };
     window.addEventListener('storage', handleStorage);
     return () => {
+      listeners.delete(listener);
       window.removeEventListener('storage', handleStorage);
     };
   }, [key]);
