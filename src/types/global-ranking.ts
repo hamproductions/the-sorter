@@ -114,6 +114,7 @@ export interface ReviewItem {
   mode: RankingMode;
   filter: RankingFilter;
   ranking: string[][];
+  names: Record<string, string>;
   reason: string;
   createdAt: string;
 }

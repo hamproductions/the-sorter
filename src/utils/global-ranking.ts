@@ -7,7 +7,6 @@ import type {
   RankingFilter,
   RankingKind,
   RankingMode,
-  ReviewItem,
   StatsResponse,
   SubmissionPayload,
   SubmissionResponse,
@@ -83,18 +82,4 @@ export const fetchAgreement = (kind: RankingKind, mode: RankingMode, ranking: st
   request<AgreementResponse>('/agreement', {
     method: 'POST',
     body: JSON.stringify({ kind, mode, ranking })
-  });
-
-export const getDumpUrl = (dataset: 'rollups' | 'submissions', period: string, ext: string) =>
-  `${GLOBAL_RANKING_API_URL}/dumps/${dataset}/${period}.${ext}`;
-
-const adminHeaders = (token: string) => ({ Authorization: `Bearer ${token}` });
-
-export const fetchReviews = (token: string) =>
-  request<ReviewItem[]>('/admin/reviews', { headers: adminHeaders(token) });
-
-export const resolveReview = (token: string, id: string, action: 'approve' | 'reject') =>
-  request<{ status: string }>(`/admin/reviews/${encodeURIComponent(id)}/${action}`, {
-    method: 'POST',
-    headers: adminHeaders(token)
   });

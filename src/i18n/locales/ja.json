@@ -252,7 +252,11 @@
       "type_songs": "楽曲",
       "type_hasu_songs": "蓮ノ空",
       "all": "すべて",
-      "renamed": "セッション名を変更しました！"
+      "renamed": "セッション名を変更しました！",
+      "auto_name_in_progress": "{{type}}（進行中）",
+      "auto_name_completed": "{{type}}（完了）",
+      "view_results": "結果を見る",
+      "view_results_description": "保存されたランキングです。表示しても現在のソートは変わりません。"
     }
   },
   "error_page": {
@@ -369,7 +373,6 @@
     "contribute": "結果をみんなのランキングに追加する",
     "contribute_notice": "匿名です。保存されるのはランキングと使用したフィルターだけです。",
     "view_leaderboard": "みんなのランキングを見る",
-    "kind_label": "ランキングの対象",
     "kind_character": "キャラ",
     "kind_song": "楽曲",
     "mode_label": "ソートモード",
@@ -381,13 +384,9 @@
     "mode_performance": "公演",
     "period_label": "期間",
     "period_all": "全期間",
-    "view_label": "集計対象",
-    "view_global": "全員",
-    "view_cohort": "同じフィルター",
-    "view_subset": "フィルター内",
     "view_global_hint": "すべての結果を全項目で集計します。",
-    "view_cohort_hint": "同じフィルターでソートした人の結果だけを集計します。",
-    "view_subset_hint": "すべての結果を、フィルターで選んだ項目の中だけで並べ直して集計します。",
+    "view_cohort_hint": "このフィルターでソートした人の結果だけを集計します。",
+    "view_subset_hint": "すべての結果を、フィルター内の項目だけで並べ直して集計します。",
     "popular_filters": "人気のフィルター",
     "no_filter": "フィルターなし",
     "filter_count_one": "フィルター{{count}}件",
@@ -405,10 +404,6 @@
     "loading": "読み込み中…",
     "trend": "月別の順位",
     "trend_empty": "月別データがまだ足りません。",
-    "downloads": "データをダウンロード",
-    "rollups_csv": "月別集計（CSV）",
-    "rollups_json": "月別集計（JSON）",
-    "submissions_ndjson": "すべての結果（NDJSON）",
     "compare": "みんなと比べる",
     "comparing": "比較中…",
     "agreement_one": "みんなのランキングとの一致度（{{count}}項目）",
@@ -417,14 +412,9 @@
     "agreement_none": "比較できるだけのデータがまだありません。",
     "biggest_differences": "特に違うところ",
     "rank_comparison": "あなた #{{yours}} ・ みんな #{{global}}",
-    "review_title": "レビュー待ち",
-    "review_token": "管理トークン",
-    "review_load": "読み込む",
-    "review_empty": "レビュー待ちの結果はありません。",
-    "review_failed": "レビュー待ちを取得できませんでした。トークンを確認してもう一度お試しください。",
-    "approve": "承認",
-    "reject": "却下",
-    "reason_identical_ranking": "24時間以内に別のネットワークから同一の結果があります",
-    "reason_burst": "10分以内に同じネットワークから複数の結果があります"
+    "filter": "フィルター",
+    "filter_none": "全員・全項目",
+    "exact_only": "このフィルターでソートした人だけ",
+    "clear_filter": "フィルターをクリア"
   }
 }
