@@ -115,8 +115,16 @@ export function Page() {
 
   useEffect(() => {
     if (!isGlobalRankingEnabled) return;
-    void fetchStats().then(setStats);
-  }, []);
+    let cancelled = false;
+    const load = async () => {
+      const res = await fetchStats();
+      if (!cancelled && res) setStats(res);
+    };
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, [reloadKey]);
 
   useEffect(() => {
     if (!isGlobalRankingEnabled) return;
@@ -129,7 +137,7 @@ export function Page() {
     return () => {
       cancelled = true;
     };
-  }, [kind, activeMode]);
+  }, [kind, activeMode, reloadKey]);
 
   useEffect(() => {
     if (!isGlobalRankingEnabled) return;
