@@ -119,6 +119,7 @@ export const useGlobalRankingSubmission = ({
     setContribute: (value: boolean) => setContribute(value),
     isAvailable: isGlobalRankingEnabled && !!log?.ticket && !log.submissionFailed,
     isEnabled: isGlobalRankingEnabled,
-    sortContext: log?.context ?? context
+    sortContext: log?.context ?? context,
+    submissionId: log?.submission?.id
   };
 };

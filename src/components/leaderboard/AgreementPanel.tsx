@@ -12,11 +12,13 @@ const formatRank = (rank: number) => (Number.isInteger(rank) ? String(rank) : ra
 export function AgreementPanel({
   kind,
   mode,
-  ranking
+  ranking,
+  submissionId
 }: {
   kind: RankingKind;
   mode: RankingMode;
   ranking: string[][];
+  submissionId?: string;
 }) {
   const { t } = useTranslation();
   const resolve = useRankingItems(kind, mode);
@@ -28,7 +30,8 @@ export function AgreementPanel({
     const res = await fetchAgreement(
       kind,
       mode,
-      ranking.filter((group) => group.length > 0)
+      ranking.filter((group) => group.length > 0),
+      submissionId
     );
     setResult(res);
     setStatus(res ? 'idle' : 'error');

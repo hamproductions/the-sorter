@@ -570,6 +570,23 @@ describe('agreement', () => {
     expect(reverse.json.percentile).toBe(0);
   });
 
+  it('leaves your own submission out of the consensus', async () => {
+    const items = characterIds.slice(0, 8);
+    const { res, ranking } = await submit({ items, preference: items, ip: '198.51.100.10' });
+    const body = { kind: 'character', mode: 'chara', ranking };
+    expect((await call('POST', '/agreement', { body })).json.agreement).toBeCloseTo(1, 5);
+    const own = await call('POST', '/agreement', { body: { ...body, submissionId: res.json.id } });
+    expect(own.json).toMatchObject({ agreement: null, compared: 0, sampleSize: 0 });
+
+    await submit({ items, preference: [...items].reverse(), ip: '198.51.100.11' });
+    const reversed = await call('POST', '/agreement', {
+      body: { ...body, submissionId: res.json.id }
+    });
+    expect(reversed.json.agreement).toBeCloseTo(0, 5);
+    const bogus = await call('POST', '/agreement', { body: { ...body, submissionId: 'nope' } });
+    expect(bogus.status).toBe(200);
+  });
+
   it('handles empty data and bad input', async () => {
     const empty = await call('POST', '/agreement', {
       body: { kind: 'song', mode: 'normal', ranking: [['1'], ['2']] }

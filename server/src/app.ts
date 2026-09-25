@@ -12,7 +12,7 @@ import { parsePeriod } from './lib/period';
 import { logger } from './logger';
 import { DumpService } from './services/dumps';
 import { LeaderboardService, type LeaderboardScope, ScopeError } from './services/leaderboard';
-import { type Failure, SubmissionService, isKind, isModeOf } from './services/submissions';
+import { type Failure, SubmissionService, UUID, isKind, isModeOf } from './services/submissions';
 import type { LeaderboardView } from '~/types/global-ranking';
 
 const VIEWS: LeaderboardView[] = ['global', 'cohort', 'subset'];
@@ -224,9 +224,18 @@ export const createApp = (deps: AppDeps) => {
         if (!isKind(body.kind)) return status(400, { error: 'invalid_kind' });
         if (!isModeOf(body.kind, body.mode)) return status(400, { error: 'invalid_mode' });
         if (!isRanking(body.ranking)) return status(400, { error: 'invalid_ranking' });
-        return leaderboard.agreement(body.kind, body.mode, body.ranking);
+        const submissionId =
+          body.submissionId && UUID.test(body.submissionId) ? body.submissionId : undefined;
+        return leaderboard.agreement(body.kind, body.mode, body.ranking, submissionId);
       },
-      { body: t.Object({ kind: t.String(), mode: t.String(), ranking: t.Unknown() }) }
+      {
+        body: t.Object({
+          kind: t.String(),
+          mode: t.String(),
+          ranking: t.Unknown(),
+          submissionId: t.Optional(t.String())
+        })
+      }
     )
     .get('/dumps/:dataset/:file', async ({ params, status, set }) => {
       const match = /^(all|\d{4}|\d{4}-\d{2})\.(json|csv|ndjson)$/.exec(params.file);

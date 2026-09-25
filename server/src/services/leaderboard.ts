@@ -9,6 +9,7 @@ import {
   isNotNull,
   lt,
   lte,
+  ne,
   sql,
   type SQL
 } from 'drizzle-orm';
@@ -34,7 +35,8 @@ import {
   mergeRollups,
   restrictRanking,
   type Rollup,
-  toLeaderboard
+  toLeaderboard,
+  withoutRanking
 } from '../lib/ranking';
 import {
   RANKING_MODES,
@@ -323,8 +325,8 @@ export class LeaderboardService {
       });
   }
 
-  async consensus(kind: RankingKind, mode: RankingMode) {
-    const rows = await this.globalRows(
+  async consensusRows(kind: RankingKind, mode: RankingMode): Promise<Rollup[]> {
+    return this.globalRows(
       {
         kind,
         mode,
@@ -335,17 +337,40 @@ export class LeaderboardService {
       },
       false
     );
-    return toLeaderboard(rows);
   }
 
-  async agreement(kind: RankingKind, mode: RankingMode, ranking: string[][]) {
-    const consensus = await this.consensus(kind, mode);
+  async consensus(kind: RankingKind, mode: RankingMode, exclude?: string[][]) {
+    const rows = await this.consensusRows(kind, mode);
+    return toLeaderboard(exclude ? withoutRanking(rows, exclude) : rows);
+  }
+
+  async agreement(
+    kind: RankingKind,
+    mode: RankingMode,
+    ranking: string[][],
+    submissionId?: string
+  ) {
+    const [own] = submissionId
+      ? await this.db
+          .select({ id: submissions.id, ranking: submissions.ranking })
+          .from(submissions)
+          .where(
+            and(
+              eq(submissions.id, submissionId),
+              eq(submissions.kind, kind),
+              eq(submissions.mode, mode),
+              eq(submissions.status, 'accepted')
+            )
+          )
+      : [];
+    const consensus = await this.consensus(kind, mode, own?.ranking);
     const result = computeAgreement(ranking, consensus);
     const scope = and(
       eq(submissions.kind, kind),
       eq(submissions.mode, mode),
       eq(submissions.status, 'accepted'),
-      isNotNull(submissions.agreement)
+      isNotNull(submissions.agreement),
+      own ? ne(submissions.id, own.id) : undefined
     );
     const [{ total }] = await this.db.select({ total: count() }).from(submissions).where(scope);
     let percentile: number | null = null;

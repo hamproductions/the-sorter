@@ -78,8 +78,13 @@ export const fetchCohorts = (kind: RankingKind, mode?: RankingMode) =>
 
 export const fetchStats = () => request<StatsResponse>('/stats');
 
-export const fetchAgreement = (kind: RankingKind, mode: RankingMode, ranking: string[][]) =>
+export const fetchAgreement = (
+  kind: RankingKind,
+  mode: RankingMode,
+  ranking: string[][],
+  submissionId?: string
+) =>
   request<AgreementResponse>('/agreement', {
     method: 'POST',
-    body: JSON.stringify({ kind, mode, ranking })
+    body: JSON.stringify({ kind, mode, ranking, submissionId })
   });

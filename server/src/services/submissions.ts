@@ -13,7 +13,13 @@ import { canonicalizeFilter, cohortHashOf, normalizeIds } from '../lib/filters';
 import { randomToken, safeEqual, sha256 } from '../lib/hash';
 import type { IpHasher } from '../lib/ip';
 import { dayOf, monthOf } from '../lib/period';
-import { computeAgreement, countItems, rankingHash } from '../lib/ranking';
+import {
+  computeAgreement,
+  countItems,
+  rankingHash,
+  toLeaderboard,
+  withoutRanking
+} from '../lib/ranking';
 import { replaySort } from '../lib/replay';
 import { type Executor, applyRollups } from './rollups';
 import type { LeaderboardService } from './leaderboard';
@@ -53,7 +59,7 @@ export interface SubmitInput {
   choices: unknown;
 }
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export const isKind = (value: unknown): value is RankingKind =>
   RANKING_KINDS.includes(value as RankingKind);
@@ -384,7 +390,7 @@ export class SubmissionService {
   async recomputeAgreement(batchSize = 500) {
     for (const kind of RANKING_KINDS) {
       for (const mode of RANKING_MODES[kind]) {
-        const consensus = await this.leaderboard.consensus(kind, mode);
+        const totals = await this.leaderboard.consensusRows(kind, mode);
         let cursor: string | undefined;
         for (;;) {
           const rows = await this.db
@@ -402,6 +408,7 @@ export class SubmissionService {
             .limit(batchSize);
           if (rows.length === 0) break;
           for (const row of rows) {
+            const consensus = toLeaderboard(withoutRanking(totals, row.ranking));
             const { agreement } = computeAgreement(row.ranking, consensus);
             await this.db.update(submissions).set({ agreement }).where(eq(submissions.id, row.id));
           }

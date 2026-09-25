@@ -84,6 +84,22 @@ export const mergeRollups = (rows: Rollup[]) => {
   return [...merged.values()];
 };
 
+export const withoutRanking = (rows: Rollup[], ranking: string[][]) => {
+  const own = new Map(computeContributions(ranking).map((c) => [c.itemId, c]));
+  return rows.map((r) => {
+    const c = own.get(r.itemId);
+    if (!c) return r;
+    return {
+      ...r,
+      appearances: r.appearances - 1,
+      percentileSum: r.percentileSum - c.percentile,
+      top1: r.top1 - c.top1,
+      top3: r.top3 - c.top3,
+      top10: r.top10 - c.top10
+    };
+  });
+};
+
 export const scoreOf = (appearances: number, percentileSum: number) =>
   (percentileSum + PRIOR_WEIGHT * 0.5) / (appearances + PRIOR_WEIGHT);
 
