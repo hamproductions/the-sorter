@@ -76,6 +76,15 @@ export const useLocalStorage = function <T>(
   }, []);
 
   useEffect(() => {
+    if (storage.current.key === key) return;
+    storage.current = new LocalStorage<T>(key);
+    const value = storage.current.value ?? initial;
+    dataRef.current = value;
+    setData(value);
+    // oxlint-disable-next-line exhaustive-deps
+  }, [key]);
+
+  useEffect(() => {
     const listener = receive.current;
     let listeners = sameKeyListeners.get(key);
     if (!listeners) {

@@ -58,6 +58,7 @@ export const CURRENT_SESSIONS_MIGRATED_KEY = 'saved-sort-states-migrated';
 const CURRENT_SESSION_PREFIXES: { prefix: string; sorterType: SorterType }[] = [
   { prefix: '', sorterType: 'characters' },
   { prefix: 'songs-', sorterType: 'songs' },
+  { prefix: 'perf-songs-', sorterType: 'songs' },
   { prefix: 'hasu-songs-', sorterType: 'hasu-songs' }
 ];
 
