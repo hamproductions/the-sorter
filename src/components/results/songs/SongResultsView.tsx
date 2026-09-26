@@ -28,6 +28,7 @@ import { PerformanceOrderView } from './PerformanceOrderView';
 import { SongSortTimeStats } from './SongSortTimeStats';
 import { getFullPerformanceName } from '~/utils/names';
 import type { SortTimingStats } from '~/utils/sort-timing';
+import { TabIcon } from '~/components/layout/TabIcon';
 
 export function SongResultsView({
   titlePrefix,
@@ -285,6 +286,7 @@ export function SongResultsView({
           <Tabs.List>
             {tabs.map((option) => (
               <Tabs.Trigger key={option.id} value={option.id}>
+                <TabIcon id={option.id} />
                 {option.label}
               </Tabs.Trigger>
             ))}

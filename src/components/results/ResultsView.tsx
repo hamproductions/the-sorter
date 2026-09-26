@@ -24,6 +24,7 @@ import type { Character } from '~/types';
 import { useLocalStorage } from '~/hooks/useLocalStorage';
 import { useToaster } from '~/context/ToasterContext';
 import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
+import { TabIcon } from '~/components/layout/TabIcon';
 
 export type ShareDisplayData = {
   title: string;
@@ -295,6 +296,7 @@ export function ResultsView({
             <Tabs.List>
               {tabs.map((option) => (
                 <Tabs.Trigger key={option.id} value={option.id}>
+                  <TabIcon id={option.id} />
                   {option.label}
                 </Tabs.Trigger>
               ))}

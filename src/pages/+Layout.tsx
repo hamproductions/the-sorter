@@ -14,6 +14,13 @@ import { IconButton } from '~/components/ui/styled/icon-button';
 import { getAssetUrl } from '~/utils/assets';
 import { useSaveStates } from '~/hooks/useSaveStates';
 import { SORTER_TYPE_ROUTES } from '~/utils/save-state';
+import {
+  CharactersIcon,
+  HasuSongsIcon,
+  LeaderboardIcon,
+  SetlistPredictionIcon,
+  SongsIcon
+} from '~/components/layout/section-icons';
 import type { SorterType } from '~/types/save-state';
 
 const GlobalSavedStatesDialog = lazy(() =>
@@ -50,16 +57,24 @@ export function Layout({ children }: { children: React.ReactNode }) {
           href={join(import.meta.env.BASE_URL, '/')}
           data-active={currentPath === join(import.meta.env.BASE_URL, '/') ? true : undefined}
           onClick={() => setIsDrawerOpen(false)}
+          display="inline-flex"
+          gap="1.5"
+          alignItems="center"
           _active={{ fontWeight: 'bold' }}
         >
+          <CharactersIcon />
           {t(`navigation.characters`)}
         </Link>
         <Link
           href={join(import.meta.env.BASE_URL, '/songs')}
           data-active={currentPath === join(import.meta.env.BASE_URL, '/songs') ? true : undefined}
           onClick={() => setIsDrawerOpen(false)}
+          display="inline-flex"
+          gap="1.5"
+          alignItems="center"
           _active={{ fontWeight: 'bold' }}
         >
+          <SongsIcon />
           {t(`navigation.songs`)}
         </Link>
         <Link
@@ -68,8 +83,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
             currentPath === join(import.meta.env.BASE_URL, '/hasu-music') ? true : undefined
           }
           onClick={() => setIsDrawerOpen(false)}
+          display="inline-flex"
+          gap="1.5"
+          alignItems="center"
           _active={{ fontWeight: 'bold' }}
         >
+          <HasuSongsIcon />
           {t(`navigation.hasu-music`)}
         </Link>
         <Link
@@ -80,8 +99,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
               : undefined
           }
           onClick={() => setIsDrawerOpen(false)}
+          display="inline-flex"
+          gap="1.5"
+          alignItems="center"
           _active={{ fontWeight: 'bold' }}
         >
+          <SetlistPredictionIcon />
           {t(`navigation.setlist-prediction`)}
         </Link>
         <Link
@@ -92,8 +115,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
               : undefined
           }
           onClick={() => setIsDrawerOpen(false)}
+          display="inline-flex"
+          gap="1.5"
+          alignItems="center"
           _active={{ fontWeight: 'bold' }}
         >
+          <LeaderboardIcon />
           {t(`navigation.leaderboard`)}
         </Link>
       </>
@@ -165,7 +192,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     setIsDrawerOpen(false);
                     setShowGlobalSaves(true);
                   }}
+                  gap="1.5"
                   justifyContent="flex-start"
+                  px="0"
+                  fontSize="md"
+                  fontWeight="normal"
+                  css={{ '& svg': { width: '1em', height: '1em' } }}
                 >
                   <FaBookmark /> {t('navigation.saved_states')}
                 </Button>

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { join } from 'path-browserify';
 import { useTranslation } from 'react-i18next';
-import { FaXmark, FaTrash, FaPen } from 'react-icons/fa6';
+import { FaXmark, FaTrash, FaPen, FaLayerGroup } from 'react-icons/fa6';
+import { SorterTypeIcon } from '~/components/layout/TabIcon';
 import { Stack, HStack, Box } from 'styled-system/jsx';
 import { Button } from '~/components/ui/button';
 import { Dialog } from '~/components/ui/dialog';
@@ -222,6 +223,11 @@ export function GlobalSavedStatesDialog({
                 <Tabs.List>
                   {TAB_VALUES.map((tab) => (
                     <Tabs.Trigger key={tab} value={tab}>
+                      {tab === 'all' ? (
+                        <FaLayerGroup />
+                      ) : (
+                        <SorterTypeIcon type={tab as SorterType} />
+                      )}
                       {tab === 'all'
                         ? t('dialog.saved_states.all')
                         : t(SORTER_TYPE_LABELS[tab as SorterType])}

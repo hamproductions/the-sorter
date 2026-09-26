@@ -1,6 +1,7 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaChevronDown } from 'react-icons/fa6';
+import { CharactersIcon, SongsIcon } from '~/components/layout/section-icons';
 import { Metadata } from '~/components/layout/Metadata';
 import { LeaderboardSelect } from '~/components/leaderboard/LeaderboardSelect';
 import { LeaderboardTable } from '~/components/leaderboard/LeaderboardTable';
@@ -264,9 +265,11 @@ export function Page() {
             >
               <Tabs.List justifyContent="center" w="full">
                 <Tabs.Trigger value="character" flex="1" justifyContent="center">
+                  <CharactersIcon />
                   {t('global_ranking.kind_character')}
                 </Tabs.Trigger>
                 <Tabs.Trigger value="song" flex="1" justifyContent="center">
+                  <SongsIcon />
                   {t('global_ranking.kind_song')}
                 </Tabs.Trigger>
                 <Tabs.Indicator />
