@@ -10,13 +10,14 @@ import { Kbd } from '../../components/ui/styled/kbd';
 import { Text } from '../../components/ui/styled/text';
 import { Switch } from '../../components/ui/switch';
 import { useToaster } from '../../context/ToasterContext';
-import { getCurrentItem } from '../../utils/sort';
+import { getCurrentItem, getSortItems } from '../../utils/sort';
 import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
 import { Metadata } from '~/components/layout/Metadata';
 import { HasuSongResultsView } from '~/components/results/songs/HasuSongResultsView';
 import { LoadingCharacterFilters } from '~/components/sorter/LoadingCharacterFilters';
 import { useHasuSongData } from '~/hooks/useHasuSongData';
 import { useHasuSongsSortData } from '~/hooks/useHasuSongsSortData';
+import { useSortSaves } from '~/hooks/useSortSaves';
 import { getPicUrl } from '~/utils/assets';
 import { getNextItems } from '~/utils/preloading';
 import { HasuSongCard } from '~/components/sorter/HasuSongCard';
@@ -48,6 +49,18 @@ const HasuSongFilters = lazy(() =>
   }))
 );
 
+const SaveStateDialog = lazy(() =>
+  import('../../components/dialog/SaveStateDialog').then((m) => ({
+    default: m.SaveStateDialog
+  }))
+);
+
+const SavedStatesListDialog = lazy(() =>
+  import('../../components/dialog/SavedStatesListDialog').then((m) => ({
+    default: m.SavedStatesListDialog
+  }))
+);
+
 export function Page() {
   const songs = useHasuSongData();
   const { toast } = useToaster();
@@ -70,8 +83,13 @@ export function Page() {
     listToSort,
     listCount,
     clear,
-    isEnded
+    isEnded,
+    getSnapshot,
+    loadState
   } = useHasuSongsSortData();
+  const sortCount = state ? getSortItems(state).length : listCount;
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [showLoadDialog, setShowLoadDialog] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState<{
     type: 'mid-sort' | 'ended' | 'new-session';
     action: 'reset' | 'clear';
@@ -94,8 +112,12 @@ export function Page() {
   const { left: leftItem, right: rightItem } =
     (state && getCurrentItem(state)) || ({} as { left: string[]; right: string[] });
 
-  const currentLeft = leftItem && listToSort.find((l) => l.id === leftItem[0]);
-  const currentRight = rightItem && listToSort.find((l) => l.id === rightItem[0]);
+  const currentLeft =
+    leftItem &&
+    (listToSort.find((l) => l.id === leftItem[0]) ?? songs.find((l) => l.id === leftItem[0]));
+  const currentRight =
+    rightItem &&
+    (listToSort.find((l) => l.id === rightItem[0]) ?? songs.find((l) => l.id === rightItem[0]));
 
   // const titlePrefix = getFilterTitle(filters, data, i18n.language) ?? t('defaultTitlePrefix');
   const title = t('title', {
@@ -146,6 +168,43 @@ export function Page() {
     }
   };
 
+  const defaultSaveName = `${t('hasu-songs')} - ${new Date().toLocaleDateString()}`;
+
+  const getFilterSummary = () => {
+    if (!songFilters) return undefined;
+    const parts: string[] = [];
+    if (songFilters.generations?.length)
+      parts.push(
+        t('dialog.saved_states.filter_summary.generations', {
+          count: songFilters.generations.length
+        })
+      );
+    if (songFilters.units?.length)
+      parts.push(
+        t('dialog.saved_states.filter_summary.units', { count: songFilters.units.length })
+      );
+    if (songFilters.types?.length)
+      parts.push(
+        t('dialog.saved_states.filter_summary.types', { count: songFilters.types.length })
+      );
+    return parts.length > 0 ? parts.join(', ') : undefined;
+  };
+
+  const {
+    saves,
+    saveCurrent,
+    overwrite,
+    loadById,
+    remove: removeSave
+  } = useSortSaves({
+    sorterType: 'hasu-songs',
+    getSnapshot,
+    loadState,
+    itemCount: sortCount,
+    progress,
+    filterSummary: getFilterSummary()
+  });
+
   return (
     <>
       <Metadata title={title} helmet />
@@ -175,15 +234,25 @@ export function Page() {
           </>
         )}
         <Text fontSize="sm" fontWeight="bold">
-          {t('settings.song_sort_count', { count: listCount })}
+          {t('settings.song_sort_count', { count: sortCount })}
         </Text>
         <Wrap justifyContent="center">
           <Button onClick={() => void shareUrl()} variant="subtle">
             <FaShare /> {t('settings.share')}
           </Button>
+          {!isSorting && saves.length > 0 && (
+            <Button variant="outline" onClick={() => setShowLoadDialog(true)}>
+              {t('sort.load_save')}
+            </Button>
+          )}
           <Button variant="solid" onClick={() => handleStart()}>
             {!isSorting ? t('sort.start') : t('sort.start_over')}
           </Button>
+          {isSorting && (
+            <Button variant="outline" onClick={() => setShowSaveDialog(true)}>
+              {t('sort.save')}
+            </Button>
+          )}
           {isSorting && (
             <Button variant="subtle" onClick={() => handleClear()}>
               {state?.status !== 'end' ? t('sort.stop') : t('sort.new_settings')}
@@ -321,6 +390,35 @@ export function Page() {
             if (!open) {
               setShowConfirmDialog(undefined);
             }
+          }}
+        />
+        <SaveStateDialog
+          open={showSaveDialog}
+          lazyMount
+          unmountOnExit
+          defaultName={defaultSaveName}
+          onSave={(name) => {
+            if (saveCurrent(name)) setShowSaveDialog(false);
+          }}
+          existingSaves={saves}
+          onOverwrite={(id) => {
+            if (overwrite(id)) setShowSaveDialog(false);
+          }}
+          onOpenChange={({ open }) => {
+            if (!open) setShowSaveDialog(false);
+          }}
+        />
+        <SavedStatesListDialog
+          open={showLoadDialog}
+          lazyMount
+          unmountOnExit
+          saves={saves}
+          onLoad={(id) => {
+            if (loadById(id)) setShowLoadDialog(false);
+          }}
+          onDelete={(id) => removeSave(id)}
+          onOpenChange={({ open }) => {
+            if (!open) setShowLoadDialog(false);
           }}
         />
       </Suspense>

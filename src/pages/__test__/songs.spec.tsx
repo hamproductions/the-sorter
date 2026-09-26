@@ -26,13 +26,17 @@ vi.mock('~/hooks/useSongsSortData', () => ({
     setNoTieMode: vi.fn(),
     setSongFilters: vi.fn(),
     songFilters: {},
-    isEnded: false
+    isEnded: false,
+    timing: undefined,
+    timingStats: undefined,
+    getElapsedMs: () => 0
   })
 }));
 
 // We also need to mock getCurrentItem if it's used directly or via helper
 vi.mock('../../utils/sort', () => ({
   getCurrentItem: () => ({ left: ['1'], right: ['2'] }),
+  getSortItems: () => ['1', '2'],
   getNextItems: () => [],
   step: vi.fn()
 }));

@@ -1,0 +1,15 @@
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    restart: unless-stopped
+    ports:
+      - '5433:5432'
+    environment:
+      POSTGRES_USER: sorter
+      POSTGRES_PASSWORD: sorter
+      POSTGRES_DB: sorter
+    volumes:
+      - sorter_db:/var/lib/postgresql/data
+
+volumes:
+  sorter_db:

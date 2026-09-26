@@ -289,7 +289,7 @@ describe('Home Page', () => {
         await user.keyboard('[Space][ArrowDown]');
         await user.keyboard('[Space]');
 
-        await user.click(await findByText('Save'));
+        await user.click(await within(dialog).findByText('Save'));
 
         const after = await findAllByText(/(Nirei|Hanamiya|Sakurai)/i);
         // We might find 6 items because the edit modal might still be in the DOM or transitioning out,

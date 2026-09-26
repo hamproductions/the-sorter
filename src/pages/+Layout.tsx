@@ -1,7 +1,8 @@
 import { join } from 'path-browserify';
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BiMenu, BiX } from 'react-icons/bi';
+import { FaBookmark } from 'react-icons/fa6';
 import { Box, Container, HStack, Stack } from 'styled-system/jsx';
 import { ColorModeToggle } from '~/components/layout/ColorModeToggle';
 import { Footer } from '~/components/layout/Footer';
@@ -11,15 +12,43 @@ import { Link } from '~/components/ui/link';
 import { Button } from '~/components/ui/styled/button';
 import { IconButton } from '~/components/ui/styled/icon-button';
 import { getAssetUrl } from '~/utils/assets';
+import { useSaveStates } from '~/hooks/useSaveStates';
+import { SORTER_TYPE_ROUTES } from '~/utils/save-state';
+import {
+  CharactersIcon,
+  HasuSongsIcon,
+  LeaderboardIcon,
+  SetlistPredictionIcon,
+  SongsIcon
+} from '~/components/layout/section-icons';
+import type { SorterType } from '~/types/save-state';
+
+const GlobalSavedStatesDialog = lazy(() =>
+  import('~/components/dialog/GlobalSavedStatesDialog').then((m) => ({
+    default: m.GlobalSavedStatesDialog
+  }))
+);
+
+function getCurrentSorterType(path: string): SorterType | undefined {
+  const base = import.meta.env.BASE_URL;
+  for (const [type, route] of Object.entries(SORTER_TYPE_ROUTES)) {
+    if (path === join(base, route)) return type as SorterType;
+  }
+  return undefined;
+}
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation();
   const [currentPath, setCurrentPath] = useState(import.meta.env.BASE_URL);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [showGlobalSaves, setShowGlobalSaves] = useState(false);
+  const { allSaves, remove, rename } = useSaveStates();
 
   useEffect(() => {
     setCurrentPath(window.location.pathname);
   }, [children]);
+
+  const currentSorterType = getCurrentSorterType(currentPath);
 
   function NavLinks() {
     return (
@@ -28,16 +57,24 @@ export function Layout({ children }: { children: React.ReactNode }) {
           href={join(import.meta.env.BASE_URL, '/')}
           data-active={currentPath === join(import.meta.env.BASE_URL, '/') ? true : undefined}
           onClick={() => setIsDrawerOpen(false)}
+          display="inline-flex"
+          gap="1.5"
+          alignItems="center"
           _active={{ fontWeight: 'bold' }}
         >
+          <CharactersIcon />
           {t(`navigation.characters`)}
         </Link>
         <Link
           href={join(import.meta.env.BASE_URL, '/songs')}
           data-active={currentPath === join(import.meta.env.BASE_URL, '/songs') ? true : undefined}
           onClick={() => setIsDrawerOpen(false)}
+          display="inline-flex"
+          gap="1.5"
+          alignItems="center"
           _active={{ fontWeight: 'bold' }}
         >
+          <SongsIcon />
           {t(`navigation.songs`)}
         </Link>
         <Link
@@ -46,8 +83,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
             currentPath === join(import.meta.env.BASE_URL, '/hasu-music') ? true : undefined
           }
           onClick={() => setIsDrawerOpen(false)}
+          display="inline-flex"
+          gap="1.5"
+          alignItems="center"
           _active={{ fontWeight: 'bold' }}
         >
+          <HasuSongsIcon />
           {t(`navigation.hasu-music`)}
         </Link>
         <Link
@@ -58,9 +99,29 @@ export function Layout({ children }: { children: React.ReactNode }) {
               : undefined
           }
           onClick={() => setIsDrawerOpen(false)}
+          display="inline-flex"
+          gap="1.5"
+          alignItems="center"
           _active={{ fontWeight: 'bold' }}
         >
+          <SetlistPredictionIcon />
           {t(`navigation.setlist-prediction`)}
+        </Link>
+        <Link
+          href={join(import.meta.env.BASE_URL, '/leaderboard')}
+          data-active={
+            currentPath.startsWith(join(import.meta.env.BASE_URL, '/leaderboard'))
+              ? true
+              : undefined
+          }
+          onClick={() => setIsDrawerOpen(false)}
+          display="inline-flex"
+          gap="1.5"
+          alignItems="center"
+          _active={{ fontWeight: 'bold' }}
+        >
+          <LeaderboardIcon />
+          {t(`navigation.leaderboard`)}
         </Link>
       </>
     );
@@ -89,6 +150,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </Box>
 
             <HStack hideBelow="md" justifySelf="flex-end">
+              <IconButton
+                variant="ghost"
+                size="sm"
+                aria-label={t('navigation.saved_states')}
+                onClick={() => setShowGlobalSaves(true)}
+              >
+                <FaBookmark />
+              </IconButton>
               <LanguageToggle />
               <ColorModeToggle />
             </HStack>
@@ -116,6 +185,22 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <Drawer.Body>
               <Stack gap={4}>
                 <NavLinks />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setIsDrawerOpen(false);
+                    setShowGlobalSaves(true);
+                  }}
+                  gap="1.5"
+                  justifyContent="flex-start"
+                  px="0"
+                  fontSize="md"
+                  fontWeight="normal"
+                  css={{ '& svg': { width: '1em', height: '1em' } }}
+                >
+                  <FaBookmark /> {t('navigation.saved_states')}
+                </Button>
               </Stack>
             </Drawer.Body>
             <Drawer.Footer>
@@ -127,6 +212,23 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </Drawer.Content>
         </Drawer.Positioner>
       </Drawer.Root>
+
+      {!import.meta.env.SSR && (
+        <Suspense>
+          <GlobalSavedStatesDialog
+            open={showGlobalSaves}
+            lazyMount
+            unmountOnExit
+            saves={allSaves}
+            currentSorterType={currentSorterType}
+            onDelete={(id) => remove(id)}
+            onRename={(id, name) => rename(id, name)}
+            onOpenChange={({ open }) => {
+              if (!open) setShowGlobalSaves(false);
+            }}
+          />
+        </Suspense>
+      )}
 
       <Box
         style={{

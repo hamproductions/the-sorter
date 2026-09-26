@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaXmark } from 'react-icons/fa6';
+import { FaCircleCheck, FaCircleXmark, FaForward, FaLayerGroup, FaXmark } from 'react-icons/fa6';
 import { HStack, Stack } from 'styled-system/jsx';
 import { Dialog } from '~/components/ui/dialog';
 import { Tabs } from '~/components/ui/tabs';
@@ -112,15 +112,19 @@ export function HeardleStatsDialog({
             <Tabs.Root defaultValue="all" size="sm">
               <Tabs.List>
                 <Tabs.Trigger value="all">
+                  <FaLayerGroup />
                   {t('heardle.tab_all')} ({total})
                 </Tabs.Trigger>
                 <Tabs.Trigger value="correct">
+                  <FaCircleCheck />
                   {t('heardle.tab_correct')} ({correctCount})
                 </Tabs.Trigger>
                 <Tabs.Trigger value="failed">
+                  <FaCircleXmark />
                   {t('heardle.tab_failed')} ({failedCount})
                 </Tabs.Trigger>
                 <Tabs.Trigger value="passed">
+                  <FaForward />
                   {t('heardle.tab_passed')} ({passedCount})
                 </Tabs.Trigger>
                 <Tabs.Indicator />

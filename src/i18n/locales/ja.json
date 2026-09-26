@@ -9,12 +9,17 @@
   "save": "保存",
   "cancel": "キャンセル",
   "hasu-songs": "蓮ノ空楽曲",
+  "intro-don": "イントロドン",
   "songs": "楽曲",
+  "artist": "アーティスト",
+  "song-name": "曲名",
   "navigation": {
     "characters": "キャラ",
     "hasu-music": "蓮ノ空",
     "songs": "楽曲",
-    "setlist-prediction": "セトリ予想"
+    "setlist-prediction": "セトリ予想",
+    "saved_states": "保存済みセッション",
+    "leaderboard": "みんなのランキング"
   },
   "settings": {
     "sort_count": "{{ count }}人をランキングする",
@@ -103,11 +108,14 @@
     "pick_right": "右を選択する",
     "comparison_no": "第{{ count }}回目",
     "comparisons": "回",
+    "elapsed_time": "経過時間",
     "estimate_disclaimer": "最悪ケースの予測です。通常はもっと少なくなります。",
     "preview": "プレビュー",
     "preview_title": "ソートプレビュー",
     "preview_description": "最初の{{ count }}件を表示",
-    "preview_search": "検索..."
+    "preview_search": "検索...",
+    "save": "保存",
+    "load_save": "保存を読み込む"
   },
   "footer": {
     "created_by": "作者：",
@@ -132,6 +140,15 @@
     "results_title": "{{ titlePrefix }}　{{ sortType }}{{ type }}",
     "default_results_title": "ラブライブ！シリーズ　{{ sortType }}{{ type }}",
     "generated_at": "作成日",
+    "timing": {
+      "heading": "所要時間",
+      "total": "合計時間",
+      "comparisons": "比較回数",
+      "average": "平均（1比較あたり）",
+      "median": "中央値（1比較あたり）",
+      "fastest": "最速",
+      "slowest": "最遅"
+    },
     "tier": "ティアリスト",
     "edit": " 結果を修正する（未完成）",
     "share_text": {
@@ -156,7 +173,8 @@
         "show_info": "情報を表示する",
         "tier_name": "Tier名",
         "start_rank": "ランク",
-        "hide_bottom_tier": "最下位を非表示する"
+        "hide_bottom_tier": "最下位を非表示する",
+        "ranks": "ランク"
       }
     },
     "copy_text": "テキストをコピーする",
@@ -210,6 +228,59 @@
       "units": "ユニット",
       "school": "学校",
       "color_name": "色名"
+    },
+    "continue_sorting_dialog": {
+      "title": "仕分けを続ける",
+      "description": "以前の仕分け結果を貼り付けて、途中から再開します",
+      "placeholder": "結果を JSON 配列または改行区切りリストとして貼り付け：\n[[\"id1\"], [\"id2\"], [\"id3\"]]\nまたは\nid1\nid2\nid3",
+      "continue": "続ける",
+      "invalid_format": "形式が無効です。有効な JSON 配列または改行区切りリストを貼り付けてください。"
+    },
+    "ok": "OK",
+    "save_state": {
+      "title": "セッションを保存",
+      "description": "ランキングの進捗を保存して後で再開できます",
+      "name_label": "セッション名",
+      "name_placeholder": "保存名を入力...",
+      "save": "保存",
+      "saved": "セッションを保存しました！",
+      "new_save": "新規",
+      "overwrite": "上書き",
+      "overwrite_confirm": "この保存を上書きしますか？",
+      "overwritten": "セッションを更新しました！"
+    },
+    "saved_states": {
+      "title": "保存済みセッション",
+      "description": "保存したランキングセッションを読み込みまたは管理します",
+      "empty": "保存されたセッションはありません",
+      "empty_hint": "ランキングセッションを保存するとここに表示されます",
+      "load": "読み込む",
+      "delete": "削除",
+      "delete_confirm": "この保存セッションを削除しますか？",
+      "completed": "完了",
+      "in_progress": "進行中",
+      "items": "{{count}}件",
+      "comparisons": "{{count}}回比較",
+      "loaded": "セッションを読み込みました！",
+      "type_characters": "キャラ",
+      "type_songs": "楽曲",
+      "type_hasu_songs": "蓮ノ空",
+      "all": "すべて",
+      "renamed": "セッション名を変更しました！",
+      "auto_name_in_progress": "{{type}}（進行中）",
+      "auto_name_completed": "{{type}}（完了）",
+      "view_results": "結果を見る",
+      "view_results_description": "保存されたランキングです。表示しても現在のソートは変わりません。",
+      "filter_summary": {
+        "series": "シリーズ{{count}}件",
+        "schools": "学校{{count}}件",
+        "units": "ユニット{{count}}件",
+        "artists": "アーティスト{{count}}件",
+        "types": "種類{{count}}件",
+        "characters": "キャラクター{{count}}件",
+        "generations": "期{{count}}件"
+      },
+      "rename": "名前を変更"
     }
   },
   "error_page": {
@@ -318,5 +389,55 @@
     "calculateScore": "スコアを計算",
     "startTyping": "曲名やアーティスト名を入力して検索...",
     "showingResults": "{{count}}件を表示"
+  },
+  "global_ranking": {
+    "title": "みんなのランキング",
+    "description": "ソートを完了したみんなの結果を匿名で集計したランキングです。",
+    "disabled": "このビルドではみんなのランキングを利用できません。",
+    "contribute": "結果をみんなのランキングに追加する",
+    "contribute_notice": "匿名です。保存されるのはランキングと使用したフィルターだけです。",
+    "view_leaderboard": "みんなのランキングを見る",
+    "kind_character": "キャラ",
+    "kind_song": "楽曲",
+    "mode_label": "ソートモード",
+    "mode_all": "すべてのモード",
+    "mode_chara": "キャラ",
+    "mode_seiyuu": "声優",
+    "mode_normal": "通常",
+    "mode_heardle": "イントロドン",
+    "mode_performance": "公演",
+    "period_label": "期間",
+    "period_all": "全期間",
+    "view_global_hint": "すべての結果を全項目で集計します。",
+    "view_cohort_hint": "このフィルターでソートした人の結果だけを集計します。",
+    "view_subset_hint": "すべての結果を、フィルター内の項目だけで並べ直して集計します。",
+    "popular_filters": "人気のフィルター",
+    "no_filter": "フィルターなし",
+    "filter_count_one": "フィルター{{count}}件",
+    "filter_count_other": "フィルター{{count}}件",
+    "submissions_one": "{{count}}件の結果",
+    "submissions_other": "{{count}}件の結果",
+    "rank": "順位",
+    "item": "名前",
+    "score": "スコア",
+    "appearances": "ソート数",
+    "top1": "1位の数",
+    "empty": "この条件の結果はまだありません。ソートを完了すると追加されます。",
+    "error": "みんなのランキングを読み込めませんでした。接続を確認してもう一度お試しください。",
+    "retry": "再試行",
+    "loading": "読み込み中…",
+    "trend": "月別の順位",
+    "trend_empty": "月別データがまだ足りません。",
+    "compare": "みんなと比べる",
+    "comparing": "比較中…",
+    "agreement_one": "みんなのランキングとの一致度（{{count}}項目）",
+    "agreement_other": "みんなのランキングとの一致度（{{count}}項目）",
+    "agreement_percentile": "結果を共有した{{count}}人のうち、{{value}}%の人よりみんなと一致しています。",
+    "agreement_none": "比較できるだけのデータがまだありません。",
+    "biggest_differences": "特に違うところ",
+    "rank_comparison": "あなた #{{yours}} ・ みんな #{{global}}",
+    "filter": "フィルター",
+    "filter_none": "全員・全項目",
+    "exact_only": "このフィルターでソートした人だけ"
   }
 }

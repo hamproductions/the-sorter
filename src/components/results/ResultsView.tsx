@@ -24,6 +24,7 @@ import type { Character } from '~/types';
 import { useLocalStorage } from '~/hooks/useLocalStorage';
 import { useToaster } from '~/context/ToasterContext';
 import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
+import { TabIcon } from '~/components/layout/TabIcon';
 
 export type ShareDisplayData = {
   title: string;
@@ -70,8 +71,8 @@ export function ResultsView({
     'default'
   );
   const [savedDisplayOrder, setSavedDisplayOrder] = useLocalStorage<string[][]>(
-    'results-display-order',
-    order
+    readOnly ? 'results-display-order-read-only' : 'results-display-order',
+    readOnly ? undefined : order
   );
   const [timestamp, setTimestamp] = useState(new Date());
   const [showRenderingCanvas, setShowRenderingCanvas] = useState(false);
@@ -93,7 +94,8 @@ export function ResultsView({
     }
   }, [currentTab, setCurrentTab, tabs]);
 
-  const displayOrder = savedDisplayOrder?.length === order?.length ? savedDisplayOrder : order;
+  const displayOrder =
+    !readOnly && savedDisplayOrder?.length === order?.length ? savedDisplayOrder : order;
 
   const characters = useMemo(() => {
     if (!displayOrder) return [];
@@ -294,6 +296,7 @@ export function ResultsView({
             <Tabs.List>
               {tabs.map((option) => (
                 <Tabs.Trigger key={option.id} value={option.id}>
+                  <TabIcon id={option.id} />
                   {option.label}
                 </Tabs.Trigger>
               ))}
