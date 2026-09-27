@@ -38,6 +38,7 @@ import {
   type StatsResponse
 } from '~/types/global-ranking';
 import { useFilterNameLookup } from '~/hooks/useFilterNameLookup';
+import { useGlobalRankingAvailable } from '~/hooks/useGlobalRankingAvailable';
 import { countFilter, describeFilter } from '~/utils/filter-summary';
 import { getSeriesName } from '~/utils/names';
 import characterSeries from '../../../data/series.json';
@@ -98,6 +99,7 @@ export function Page() {
   const [stats, setStats] = useState<StatsResponse>();
   const [cohorts, setCohorts] = useState<CohortSummary[]>([]);
   const [result, setResult] = useState<LeaderboardResponse>();
+  const { available, recheck } = useGlobalRankingAvailable();
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>(
     isGlobalRankingEnabled ? 'loading' : 'idle'
   );
@@ -178,7 +180,7 @@ export function Page() {
   );
 
   useEffect(() => {
-    if (!isGlobalRankingEnabled) return;
+    if (!available) return;
     let cancelled = false;
     const load = async () => {
       const res = await fetchStats();
@@ -188,10 +190,10 @@ export function Page() {
     return () => {
       cancelled = true;
     };
-  }, [reloadKey]);
+  }, [reloadKey, available]);
 
   useEffect(() => {
-    if (!isGlobalRankingEnabled || !hydrated) return;
+    if (!available || !hydrated) return;
     let cancelled = false;
     const load = async () => {
       const res = await fetchCohorts(kind, activeMode);
@@ -201,10 +203,10 @@ export function Page() {
     return () => {
       cancelled = true;
     };
-  }, [kind, activeMode, reloadKey, hydrated]);
+  }, [kind, activeMode, reloadKey, hydrated, available]);
 
   useEffect(() => {
-    if (!isGlobalRankingEnabled || !hydrated) return;
+    if (!available || !hydrated) return;
     let cancelled = false;
     setStatus('loading');
     const load = async () => {
@@ -218,7 +220,7 @@ export function Page() {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [query, reloadKey, hydrated]);
+  }, [query, reloadKey, hydrated, available]);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -412,8 +414,17 @@ export function Page() {
           </Text>
         </Stack>
 
-        {!isGlobalRankingEnabled ? (
-          <Text color="fg.muted">{t('global_ranking.disabled')}</Text>
+        {available === false ? (
+          <Stack gap="2" alignItems="center">
+            <Text color="fg.muted">{t('global_ranking.disabled')}</Text>
+            {isGlobalRankingEnabled && (
+              <Button size="sm" variant="outline" onClick={recheck}>
+                {t('global_ranking.retry')}
+              </Button>
+            )}
+          </Stack>
+        ) : available === undefined ? (
+          <Text color="fg.muted">{t('global_ranking.loading')}</Text>
         ) : (
           <>
             <Tabs.Root

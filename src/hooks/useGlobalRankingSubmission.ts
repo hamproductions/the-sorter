@@ -1,5 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { useEffect, useRef, useState } from 'react';
+import { useGlobalRankingAvailable } from './useGlobalRankingAvailable';
 import { useLocalStorage } from './useLocalStorage';
 import { useSaveStates } from './useSaveStates';
 import {
@@ -10,12 +11,7 @@ import {
   type SubmissionPayload,
   type SubmissionStatus
 } from '~/types/global-ranking';
-import {
-  isGlobalRankingEnabled,
-  requestTicket,
-  submitResult,
-  withdrawResult
-} from '~/utils/global-ranking';
+import { requestTicket, submitResult, withdrawResult } from '~/utils/global-ranking';
 
 export const CONTRIBUTE_STORAGE_KEY = 'global-ranking-contribute';
 
@@ -43,6 +39,8 @@ export const useGlobalRankingSubmission = ({
   contextRef.current = context;
 
   const sessionId = log?.sessionId;
+  const { available } = useGlobalRankingAvailable();
+  const isEnabled = available === true;
   const { allSaves, setLog: setSaveLog } = useSaveStates();
   const submission = log?.submission;
   const optedOut = !!log?.optedOut;
@@ -64,7 +62,7 @@ export const useGlobalRankingSubmission = ({
   }, [isFresh, sessionId, setLog]);
 
   const needsTicket =
-    isGlobalRankingEnabled &&
+    isEnabled &&
     !!log?.context &&
     !log.ticketRequested &&
     log.initialOrder.length >= GLOBAL_RANKING_MIN_ITEMS;
@@ -178,10 +176,10 @@ export const useGlobalRankingSubmission = ({
       }
     },
     isAvailable:
-      isGlobalRankingEnabled &&
+      isEnabled &&
       !!log?.ticket &&
       (!!log.submission || !!log.submissionFailed || !isExpired(log.ticket.expiresAt)),
-    isEnabled: isGlobalRankingEnabled,
+    isEnabled,
     sortContext: log?.context ?? context,
     submissionId: log?.submission?.id
   };

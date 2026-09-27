@@ -13,6 +13,7 @@ import { Link } from '~/components/ui/link';
 import { Button } from '~/components/ui/styled/button';
 import { IconButton } from '~/components/ui/styled/icon-button';
 import { getAssetUrl } from '~/utils/assets';
+import { useGlobalRankingAvailable } from '~/hooks/useGlobalRankingAvailable';
 import { useSaveStates } from '~/hooks/useSaveStates';
 import { SORTER_TYPE_ROUTES } from '~/utils/save-state';
 import {
@@ -44,6 +45,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [showGlobalSaves, setShowGlobalSaves] = useState(false);
   const { allSaves, remove, rename } = useSaveStates();
+  const { available: rankingAvailable } = useGlobalRankingAvailable();
 
   useEffect(() => {
     setCurrentPath(window.location.pathname);
@@ -108,22 +110,24 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <SetlistPredictionIcon />
           {t(`navigation.setlist-prediction`)}
         </Link>
-        <Link
-          href={join(import.meta.env.BASE_URL, '/leaderboard')}
-          data-active={
-            currentPath.startsWith(join(import.meta.env.BASE_URL, '/leaderboard'))
-              ? true
-              : undefined
-          }
-          onClick={() => setIsDrawerOpen(false)}
-          display="inline-flex"
-          gap="1.5"
-          alignItems="center"
-          _active={{ fontWeight: 'bold' }}
-        >
-          <LeaderboardIcon />
-          {t(`navigation.leaderboard`)}
-        </Link>
+        {rankingAvailable && (
+          <Link
+            href={join(import.meta.env.BASE_URL, '/leaderboard')}
+            data-active={
+              currentPath.startsWith(join(import.meta.env.BASE_URL, '/leaderboard'))
+                ? true
+                : undefined
+            }
+            onClick={() => setIsDrawerOpen(false)}
+            display="inline-flex"
+            gap="1.5"
+            alignItems="center"
+            _active={{ fontWeight: 'bold' }}
+          >
+            <LeaderboardIcon />
+            {t(`navigation.leaderboard`)}
+          </Link>
+        )}
       </>
     );
   }

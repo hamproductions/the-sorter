@@ -20,6 +20,21 @@ export const GLOBAL_RANKING_API_URL = (import.meta.env.PUBLIC_ENV__RANKING_API_U
 
 export const isGlobalRankingEnabled = GLOBAL_RANKING_API_URL !== '';
 
+const HEALTH_TIMEOUT_MS = 5000;
+let availability: Promise<boolean> | undefined;
+
+export const checkGlobalRankingAvailable = (force = false) => {
+  if (!isGlobalRankingEnabled) return Promise.resolve(false);
+  if (force || !availability) {
+    availability = fetch(`${GLOBAL_RANKING_API_URL}/health`, {
+      signal: AbortSignal.timeout(HEALTH_TIMEOUT_MS)
+    })
+      .then((res) => res.ok)
+      .catch(() => false);
+  }
+  return availability;
+};
+
 const request = async <T>(path: string, init?: RequestInit): Promise<T | undefined> => {
   if (!isGlobalRankingEnabled) return undefined;
   try {
