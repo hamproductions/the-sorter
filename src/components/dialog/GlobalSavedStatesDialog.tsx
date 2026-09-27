@@ -8,10 +8,10 @@ import { Button } from '~/components/ui/button';
 import { Dialog } from '~/components/ui/dialog';
 import { IconButton } from '~/components/ui/icon-button';
 import { Text } from '~/components/ui/text';
-import { Progress } from '~/components/ui/progress';
 import { Tabs } from '~/components/ui/tabs';
 import { Badge } from '~/components/ui/badge';
 import { Input } from '~/components/ui/input';
+import { SavePreview } from './SavePreview';
 import { SavedResultsDialog } from './SavedResultsDialog';
 import type { SavedSortState, SorterType } from '~/types/save-state';
 import { SORTER_TYPE_ROUTES } from '~/utils/save-state';
@@ -139,14 +139,7 @@ export function GlobalSavedStatesDialog({
             {save.filterSummary}
           </Text>
         )}
-        {!save.isCompleted && (
-          <Progress
-            value={save.progress}
-            min={0}
-            max={1}
-            translations={{ value: (d) => `${d.percent}%` }}
-          />
-        )}
+        {save.isCompleted && save.sorterType !== 'hasu-songs' && <SavePreview save={save} />}
         <HStack gap="2" justifyContent="flex-end">
           {confirmDeleteId === save.id ? (
             <>
@@ -250,11 +243,6 @@ export function GlobalSavedStatesDialog({
                   );
                 })}
               </Tabs.Root>
-              <Dialog.CloseTrigger asChild>
-                <Button variant="outline" width="full">
-                  {t('dialog.close')}
-                </Button>
-              </Dialog.CloseTrigger>
             </Stack>
             <Dialog.CloseTrigger asChild position="absolute" top="2" right="2">
               <IconButton aria-label="Close Dialog" variant="ghost" size="sm">

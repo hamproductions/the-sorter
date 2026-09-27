@@ -4,7 +4,8 @@ import {
   getSortItems,
   isSortState
 } from './sort';
-import type { SortLog } from '~/types/global-ranking';
+import type { TFunction } from 'i18next';
+import type { RankingFilter, SortLog } from '~/types/global-ranking';
 import type { SavedSortState, SorterType } from '~/types/save-state';
 
 type CreateSaveInput = Omit<SavedSortState, 'id' | 'date' | 'isCompleted'>;
@@ -60,12 +61,26 @@ export const SORTER_TYPE_LABEL_KEYS: Record<SorterType, string> = {
 export const SAVED_STATES_KEY = 'saved-sort-states';
 export const CURRENT_SESSIONS_MIGRATED_KEY = 'saved-sort-states-migrated';
 
-const CURRENT_SESSION_PREFIXES: { prefix: string; sorterType: SorterType }[] = [
-  { prefix: '', sorterType: 'characters' },
-  { prefix: 'songs-', sorterType: 'songs' },
+const CURRENT_SESSION_PREFIXES: { prefix: string; sorterType: SorterType; filterKey?: string }[] = [
+  { prefix: '', sorterType: 'characters', filterKey: 'filters' },
+  { prefix: 'songs-', sorterType: 'songs', filterKey: 'song-filters' },
   { prefix: 'perf-songs-', sorterType: 'songs' },
   { prefix: 'hasu-songs-', sorterType: 'hasu-songs' }
 ];
+
+const AUTO_NAME_COUNT_KEYS: Record<SorterType, string> = {
+  characters: 'dialog.saved_states.auto_name_count_characters',
+  songs: 'dialog.saved_states.auto_name_count_songs',
+  'hasu-songs': 'dialog.saved_states.auto_name_count_songs'
+};
+
+export const autoSaveName = (
+  t: TFunction,
+  sorterType: SorterType,
+  itemCount: number,
+  filterSummary?: string
+) =>
+  `${filterSummary ?? t(SORTER_TYPE_LABEL_KEYS[sorterType])} · ${t(AUTO_NAME_COUNT_KEYS[sorterType], { count: itemCount })}`;
 
 const readJson = (storage: Storage, key: string): unknown => {
   try {
@@ -97,11 +112,16 @@ export const toSavedSortStates = (value: unknown): SavedSortState[] =>
 
 export const migrateCurrentSessions = (
   storage: Storage,
-  nameFor: (sorterType: SorterType, isCompleted: boolean) => string
+  nameFor: (
+    sorterType: SorterType,
+    isCompleted: boolean,
+    details: { itemCount: number; filterSummary?: string }
+  ) => string,
+  summarize?: (sorterType: SorterType, filter: RankingFilter) => string | undefined
 ) => {
   if (storage.getItem(CURRENT_SESSIONS_MIGRATED_KEY)) return;
   const saves = toSavedSortStates(readJson(storage, SAVED_STATES_KEY));
-  const migrated = CURRENT_SESSION_PREFIXES.flatMap(({ prefix, sorterType }) => {
+  const migrated = CURRENT_SESSION_PREFIXES.flatMap(({ prefix, sorterType, filterKey }) => {
     const state = readJson(storage, `${prefix}sort-state`);
     if (!isSortState(state) || state.arr.length === 0) return [];
     const serialized = JSON.stringify(state);
@@ -113,14 +133,23 @@ export const migrateCurrentSessions = (
     const log = readJson(storage, `${prefix}sort-log`);
     const maxComparisons = calculateMaxComparisons(state.arr.length);
     const isCompleted = state.status === 'end';
+    const itemCount = getSortItems(state).length;
+    const storedFilter = filterKey ? readJson(storage, filterKey) : null;
+    const filter = isSortLog(log)
+      ? log.context?.filter
+      : storedFilter && typeof storedFilter === 'object'
+        ? (storedFilter as RankingFilter)
+        : undefined;
+    const filterSummary = filter ? summarize?.(sorterType, filter) : undefined;
     return [
       createSavedSortState({
-        name: nameFor(sorterType, isCompleted),
+        name: nameFor(sorterType, isCompleted, { itemCount, filterSummary }),
         sorterType,
         state,
         history: Array.isArray(history) && history.every(isSortState) ? history : [],
         comparisonsCount: typeof count === 'number' ? count : estimateComparisonsMade(state),
-        itemCount: getSortItems(state).length,
+        itemCount,
+        filterSummary,
         progress: isCompleted
           ? 1
           : maxComparisons > 0
@@ -136,4 +165,16 @@ export const migrateCurrentSessions = (
     storage.setItem(SAVED_STATES_KEY, JSON.stringify([...migrated, ...saves]));
   }
   storage.setItem(CURRENT_SESSIONS_MIGRATED_KEY, 'true');
+};
+
+export const getLocallySortedIds = (storage: Storage, sorterType: SorterType) => {
+  const states = [
+    ...CURRENT_SESSION_PREFIXES.filter((p) => p.sorterType === sorterType).map(({ prefix }) =>
+      readJson(storage, `${prefix}sort-state`)
+    ),
+    ...getSaveStatesByType(toSavedSortStates(readJson(storage, SAVED_STATES_KEY)), sorterType).map(
+      (s) => s.state
+    )
+  ];
+  return new Set(states.filter(isSortState).flatMap((state) => getSortItems(state).map(String)));
 };

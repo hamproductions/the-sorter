@@ -30,9 +30,21 @@ export interface SortLog {
   context?: SortSessionContext;
   ticket?: { id: string; expiresAt: string };
   ticketRequested?: boolean;
-  submission?: { id: string; deleteToken: string };
+  submission?: { id: string; deleteToken: string; status?: 'accepted' | 'pending_review' };
   submissionFailed?: boolean;
+  submissionDuplicate?: boolean;
+  optedOut?: boolean;
 }
+
+export type SubmissionStatus =
+  | 'sending'
+  | 'accepted'
+  | 'pending_review'
+  | 'removing'
+  | 'removed'
+  | 'duplicate'
+  | 'failed'
+  | 'waiting';
 
 export interface TicketResponse {
   ticket: string;

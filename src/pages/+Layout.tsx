@@ -7,6 +7,7 @@ import { Box, Container, HStack, Stack } from 'styled-system/jsx';
 import { ColorModeToggle } from '~/components/layout/ColorModeToggle';
 import { Footer } from '~/components/layout/Footer';
 import { LanguageToggle } from '~/components/layout/LanguageToggle';
+import { Badge } from '~/components/ui/badge';
 import { Drawer } from '~/components/ui/drawer';
 import { Link } from '~/components/ui/link';
 import { Button } from '~/components/ui/styled/button';
@@ -150,14 +151,20 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </Box>
 
             <HStack hideBelow="md" justifySelf="flex-end">
-              <IconButton
+              <Button
                 variant="ghost"
                 size="sm"
-                aria-label={t('navigation.saved_states')}
+                data-testid="saved-sessions-button"
                 onClick={() => setShowGlobalSaves(true)}
               >
                 <FaBookmark />
-              </IconButton>
+                {t('navigation.saved_states')}
+                {allSaves.length > 0 && (
+                  <Badge size="sm" variant="solid">
+                    {allSaves.length}
+                  </Badge>
+                )}
+              </Button>
               <LanguageToggle />
               <ColorModeToggle />
             </HStack>
@@ -200,6 +207,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   css={{ '& svg': { width: '1em', height: '1em' } }}
                 >
                   <FaBookmark /> {t('navigation.saved_states')}
+                  {allSaves.length > 0 && (
+                    <Badge size="sm" variant="solid">
+                      {allSaves.length}
+                    </Badge>
+                  )}
                 </Button>
               </Stack>
             </Drawer.Body>

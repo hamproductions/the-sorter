@@ -17,8 +17,11 @@ import { getCurrentItem, getSortItems } from '../../utils/sort';
 import { getNextItems } from '~/utils/preloading';
 import { LoadingCharacterFilters } from '~/components/sorter/LoadingCharacterFilters';
 import { Metadata } from '~/components/layout/Metadata';
+import { useFilterNameLookup } from '~/hooks/useFilterNameLookup';
+import { describeFilter } from '~/utils/filter-summary';
+import type { RankingFilter } from '~/types/global-ranking';
+import { GlobalRankingSection } from '~/components/results/GlobalRankingSection';
 import { GlobalRankingToggle } from '~/components/results/GlobalRankingToggle';
-import { AgreementPanel } from '~/components/leaderboard/AgreementPanel';
 import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
 import { SongCard } from '~/components/sorter/SongCard';
 import { useSongsSortData } from '~/hooks/useSongsSortData';
@@ -494,27 +497,9 @@ export function Page() {
 
   const defaultSaveName = `${t('songs')} - ${new Date().toLocaleDateString()}`;
 
-  const getFilterSummary = () => {
-    if (!songFilters) return undefined;
-    const parts: string[] = [];
-    if (songFilters.series?.length)
-      parts.push(
-        t('dialog.saved_states.filter_summary.series', { count: songFilters.series.length })
-      );
-    if (songFilters.artists?.length)
-      parts.push(
-        t('dialog.saved_states.filter_summary.artists', { count: songFilters.artists.length })
-      );
-    if (songFilters.types?.length)
-      parts.push(
-        t('dialog.saved_states.filter_summary.types', { count: songFilters.types.length })
-      );
-    if (songFilters.characters?.length)
-      parts.push(
-        t('dialog.saved_states.filter_summary.characters', { count: songFilters.characters.length })
-      );
-    return parts.length > 0 ? parts.join(', ') : undefined;
-  };
+  const filterNames = useFilterNameLookup();
+  const getFilterSummary = () =>
+    describeFilter('song', songFilters as RankingFilter | undefined, i18n.language, t, filterNames);
 
   const {
     saves,
@@ -737,6 +722,13 @@ export function Page() {
                   max={1}
                   defaultValue={0}
                 />
+                {globalRanking.isAvailable && (
+                  <GlobalRankingToggle
+                    contribute={globalRanking.contribute}
+                    setContribute={globalRanking.setContribute}
+                    status={globalRanking.status}
+                  />
+                )}
               </Stack>
             )}
             {heardleMode && state.status !== 'end' && (
@@ -745,20 +737,6 @@ export function Page() {
                 songs={[...listToSort, ...failedSongsForResults]}
                 lang={i18n.language}
                 maxAttempts={maxAttempts}
-              />
-            )}
-            {state.arr && isEnded && globalRanking.isAvailable && (
-              <GlobalRankingToggle
-                contribute={globalRanking.contribute}
-                setContribute={globalRanking.setContribute}
-              />
-            )}
-            {state.arr && isEnded && globalRanking.isEnabled && (
-              <AgreementPanel
-                kind={globalRanking.sortContext.kind}
-                mode={globalRanking.sortContext.mode}
-                ranking={state.arr}
-                submissionId={globalRanking.submissionId}
               />
             )}
             {state.arr && isEnded && (
@@ -777,6 +755,9 @@ export function Page() {
                   order={state.arr}
                 />
               </Suspense>
+            )}
+            {state.arr && isEnded && (
+              <GlobalRankingSection globalRanking={globalRanking} ranking={state.arr} />
             )}
           </Stack>
         )}

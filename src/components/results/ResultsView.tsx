@@ -39,6 +39,7 @@ export function ResultsView({
   order,
   isSeiyuu,
   readOnly,
+  allowExport,
   shareDisplayData,
   onShareResults,
   onSelectCharacter,
@@ -49,6 +50,7 @@ export function ResultsView({
   order?: string[][];
   isSeiyuu: boolean;
   readOnly?: boolean;
+  allowExport?: boolean;
   shareDisplayData?: {
     title: string;
     description?: string;
@@ -205,7 +207,7 @@ export function ResultsView({
           {displayTitle || t('results.sort_results')}
         </Heading>
         {displayDescription && <Text>{displayDescription}</Text>}
-        {!readOnly && (
+        {(!readOnly || allowExport) && (
           <Stack w="full">
             <HStack justifyContent="center">
               <Button variant="subtle" onClick={() => void copyText()}>
@@ -257,24 +259,28 @@ export function ResultsView({
               </Accordion.Item>
             </Accordion.Root>
             <Wrap justifyContent="space-between" w="full">
-              <Button variant="subtle" onClick={() => setShowEditResults(true)}>
-                <FaPencil /> {t('results.edit')}
-              </Button>
-              <Wrap justifyContent="flex-end">
-                <Button
-                  variant="subtle"
-                  data-testid="share-results-button"
-                  onClick={() =>
-                    onShareResults?.({
-                      title,
-                      description,
-                      tierListSettings: tierListSettings ?? undefined,
-                      tab: displayTab ?? undefined
-                    })
-                  }
-                >
-                  <FaShare /> {t('results.share')}
+              {!readOnly && (
+                <Button variant="subtle" onClick={() => setShowEditResults(true)}>
+                  <FaPencil /> {t('results.edit')}
                 </Button>
+              )}
+              <Wrap justifyContent="flex-end" ml="auto">
+                {onShareResults && (
+                  <Button
+                    variant="subtle"
+                    data-testid="share-results-button"
+                    onClick={() =>
+                      onShareResults({
+                        title,
+                        description,
+                        tierListSettings: tierListSettings ?? undefined,
+                        tab: displayTab ?? undefined
+                      })
+                    }
+                  >
+                    <FaShare /> {t('results.share')}
+                  </Button>
+                )}
                 <Button variant="subtle" onClick={() => void screenshot()}>
                   <FaCopy /> {t('results.copy')}
                 </Button>
@@ -337,7 +343,7 @@ export function ResultsView({
           </Box>
         </Tabs.Root>
       </Stack>
-      {!readOnly && showRenderingCanvas && (
+      {(!readOnly || allowExport) && showRenderingCanvas && (
         <Box position="absolute" w="0" h="0" overflow="hidden">
           <Stack id="results" width="1280px" p="4" bgColor="bg.canvas">
             {title && (

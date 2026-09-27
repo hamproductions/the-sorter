@@ -63,7 +63,8 @@ vi.mock('~/hooks/useSongsSortData', () => ({
     isEnded: false,
     timing: undefined,
     timingStats: undefined,
-    getElapsedMs: () => 0
+    getElapsedMs: () => 0,
+    globalRanking: { isAvailable: false, isEnabled: false }
   })
 }));
 

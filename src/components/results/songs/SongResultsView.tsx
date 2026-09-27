@@ -41,6 +41,7 @@ export function SongResultsView({
   timingStats,
   onShareResults,
   readOnly,
+  allowExport,
   ...props
 }: RootProps & {
   titlePrefix?: string;
@@ -53,6 +54,7 @@ export function SongResultsView({
   timingStats?: SortTimingStats;
   onShareResults?: () => void;
   readOnly?: boolean;
+  allowExport?: boolean;
 }) {
   const artists = useArtistsData();
   const seriesData = useSeriesData();
@@ -251,7 +253,7 @@ export function SongResultsView({
               </Accordion.ItemContent>
             </Accordion.Item>
           </Accordion.Root>
-          {!readOnly && currentTab !== 'performance-order' && (
+          {(!readOnly || allowExport) && currentTab !== 'performance-order' && (
             <HStack justifyContent="space-between" w="full">
               <Wrap justifyContent="flex-end" w="full">
                 {onShareResults && (

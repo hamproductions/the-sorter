@@ -6,7 +6,6 @@ import { Button } from '~/components/ui/button';
 import { Dialog } from '~/components/ui/dialog';
 import { IconButton } from '~/components/ui/icon-button';
 import { Text } from '~/components/ui/text';
-import { Progress } from '~/components/ui/progress';
 import { SavedResultsDialog } from './SavedResultsDialog';
 import type { SavedSortState } from '~/types/save-state';
 
@@ -84,14 +83,6 @@ export function SavedStatesListDialog({
                           {t('dialog.saved_states.items', { count: save.itemCount })} ·{' '}
                           {t('dialog.saved_states.comparisons', { count: save.history.length })}
                         </Text>
-                        {!save.isCompleted && (
-                          <Progress
-                            value={save.progress}
-                            min={0}
-                            max={1}
-                            translations={{ value: (d) => `${d.percent}%` }}
-                          />
-                        )}
                         <HStack gap="2" justifyContent="flex-end">
                           {confirmDeleteId === save.id ? (
                             <>
@@ -144,11 +135,6 @@ export function SavedStatesListDialog({
                   ))}
                 </Stack>
               )}
-              <Dialog.CloseTrigger asChild>
-                <Button variant="outline" width="full">
-                  {t('dialog.close')}
-                </Button>
-              </Dialog.CloseTrigger>
             </Stack>
             <Dialog.CloseTrigger asChild position="absolute" top="2" right="2">
               <IconButton aria-label="Close Dialog" variant="ghost" size="sm">

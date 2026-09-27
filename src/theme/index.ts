@@ -1,4 +1,6 @@
 import { type PartialTheme } from '@pandacss/types';
+import amber from '@park-ui/panda-preset/colors/amber';
+import green from '@park-ui/panda-preset/colors/green';
 
 export const theme: PartialTheme = {
   layerStyles: {
@@ -13,6 +15,8 @@ export const theme: PartialTheme = {
   },
   tokens: {
     colors: {
+      green: green.tokens,
+      amber: amber.tokens,
       ll: {
         1: { value: '#170e11' },
         2: { value: '#211217' },
@@ -43,6 +47,8 @@ export const theme: PartialTheme = {
   },
   semanticTokens: {
     colors: {
+      green: green.semanticTokens,
+      amber: amber.semanticTokens,
       accent: {
         1: { value: '{colors.ll.1}' },
         2: { value: '{colors.ll.2}' },

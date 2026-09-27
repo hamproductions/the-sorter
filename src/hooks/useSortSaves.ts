@@ -5,7 +5,7 @@ import { useSaveLoadContext } from '~/context/SaveLoadContext';
 import { useToaster } from '~/context/ToasterContext';
 import type { SortLog } from '~/types/global-ranking';
 import type { SavedSortState, SorterType } from '~/types/save-state';
-import { SORTER_TYPE_LABEL_KEYS } from '~/utils/save-state';
+import { autoSaveName } from '~/utils/save-state';
 import type { SortState } from '~/utils/sort';
 
 interface SortSnapshot<T> {
@@ -68,9 +68,7 @@ export const useSortSaves = <T extends string | number>({
     save({
       ...current,
       sorterType,
-      name: t('dialog.saved_states.auto_name_in_progress', {
-        type: t(SORTER_TYPE_LABEL_KEYS[sorterType])
-      })
+      name: autoSaveName(t, sorterType, current.itemCount, current.filterSummary)
     });
   };
 

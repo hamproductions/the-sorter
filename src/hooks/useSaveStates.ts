@@ -67,7 +67,18 @@ export const useSaveStates = (sorterType?: SorterType) => {
     [setAllSaves]
   );
 
+  const setLog = useCallback(
+    (id: string, update: (log: SortLog) => SortLog) => {
+      setAllSaves((prev) =>
+        toSavedSortStates(prev).map((s) =>
+          s.id === id && s.log ? { ...s, log: update(s.log) } : s
+        )
+      );
+    },
+    [setAllSaves]
+  );
+
   const load = useCallback((id: string) => getSaveStateById(allSaves, id), [allSaves]);
 
-  return { saves, allSaves, save, remove, rename, update, load };
+  return { saves, allSaves, save, remove, rename, update, setLog, load };
 };

@@ -25,8 +25,10 @@ import { useDialogData } from '~/hooks/useDialogData';
 import { useSortSaves } from '~/hooks/useSortSaves';
 import { LoadingCharacterFilters } from '~/components/sorter/LoadingCharacterFilters';
 import { Metadata } from '~/components/layout/Metadata';
+import { describeFilter } from '~/utils/filter-summary';
+import type { RankingFilter } from '~/types/global-ranking';
+import { GlobalRankingSection } from '~/components/results/GlobalRankingSection';
 import { GlobalRankingToggle } from '~/components/results/GlobalRankingToggle';
-import { AgreementPanel } from '~/components/leaderboard/AgreementPanel';
 import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
 
 const ResultsView = lazy(() =>
@@ -249,17 +251,8 @@ export function Page() {
     return true;
   };
 
-  const getFilterSummary = () => {
-    if (!filters) return undefined;
-    const parts: string[] = [];
-    if (filters.series?.length)
-      parts.push(t('dialog.saved_states.filter_summary.series', { count: filters.series.length }));
-    if (filters.school?.length)
-      parts.push(t('dialog.saved_states.filter_summary.schools', { count: filters.school.length }));
-    if (filters.units?.length)
-      parts.push(t('dialog.saved_states.filter_summary.units', { count: filters.units.length }));
-    return parts.length > 0 ? parts.join(', ') : undefined;
-  };
+  const getFilterSummary = () =>
+    describeFilter('character', filters as RankingFilter | undefined, i18n.language, t);
 
   const {
     saves,
@@ -427,21 +420,14 @@ export function Page() {
                   max={1}
                   defaultValue={0}
                 />
+                {globalRanking.isAvailable && (
+                  <GlobalRankingToggle
+                    contribute={globalRanking.contribute}
+                    setContribute={globalRanking.setContribute}
+                    status={globalRanking.status}
+                  />
+                )}
               </Stack>
-            )}
-            {state.arr && isEnded && globalRanking.isAvailable && (
-              <GlobalRankingToggle
-                contribute={globalRanking.contribute}
-                setContribute={globalRanking.setContribute}
-              />
-            )}
-            {state.arr && isEnded && globalRanking.isEnabled && (
-              <AgreementPanel
-                kind={globalRanking.sortContext.kind}
-                mode={globalRanking.sortContext.mode}
-                ranking={state.arr}
-                submissionId={globalRanking.submissionId}
-              />
             )}
             {state.arr && isEnded && (
               <Suspense>
@@ -455,6 +441,9 @@ export function Page() {
                   order={state.arr}
                 />
               </Suspense>
+            )}
+            {state.arr && isEnded && (
+              <GlobalRankingSection globalRanking={globalRanking} ranking={state.arr} />
             )}
           </Stack>
         )}
