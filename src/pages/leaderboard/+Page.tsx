@@ -159,7 +159,11 @@ export function Page() {
   );
 
   const periodOptions = useMemo(() => {
-    const monthFormat = new Intl.DateTimeFormat(i18n.language, { year: 'numeric', month: 'long' });
+    const monthFormat = new Intl.DateTimeFormat(i18n.language, {
+      year: 'numeric',
+      month: 'long',
+      timeZone: 'UTC'
+    });
     const years = [...new Set(months.map((m) => m.slice(0, 4)))];
     const options = [{ value: 'all', label: t('global_ranking.period_all') }];
     for (const year of years) {
