@@ -1,5 +1,7 @@
-import { and, asc, count, eq, gt, lt, ne, sql } from 'drizzle-orm';
+import { and, asc, count, eq, gt, isNotNull, lt, ne, sql } from 'drizzle-orm';
 import {
+  cohort_monthly,
+  cohort_monthly_stats,
   cohorts,
   daily_salts,
   query_cache,
@@ -21,7 +23,7 @@ import {
   withoutRanking
 } from '../lib/ranking';
 import { replaySort } from '../lib/replay';
-import { type Executor, applyRollups } from './rollups';
+import { type Executor, applyCohortRollups, applyRollups } from './rollups';
 import type { LeaderboardService } from './leaderboard';
 import {
   GLOBAL_RANKING_MAX_ITEMS,
@@ -182,7 +184,7 @@ export class SubmissionService {
     if (mode === 'heardle') return null;
     const derived = this.data.deriveItems(kind, mode, filter, performanceIds);
     if (!derived || !sameSet(derived, initialOrder)) return null;
-    return cohortHashOf(kind, mode, filter, performanceIds);
+    return cohortHashOf(kind, mode, derived);
   }
 
   async submit(input: SubmitInput, ip: string): Promise<SubmissionResponse | Failure> {
@@ -385,6 +387,63 @@ export class SubmissionService {
         )
       );
     await this.db.delete(query_cache).where(lt(query_cache.expires_at, now));
+  }
+
+  async rekeyCohorts() {
+    const rows = await this.db
+      .select({
+        id: submissions.id,
+        kind: submissions.kind,
+        mode: submissions.mode,
+        filter: submissions.filter,
+        performance_ids: submissions.performance_ids,
+        initial_order: submissions.initial_order,
+        ranking: submissions.ranking,
+        month: submissions.month,
+        status: submissions.status,
+        cohort_hash: submissions.cohort_hash
+      })
+      .from(submissions)
+      .where(isNotNull(submissions.cohort_hash))
+      .orderBy(asc(submissions.created_at));
+    const rekeyed = rows.map((row) => ({
+      ...row,
+      next: cohortHashOf(row.kind as RankingKind, row.mode as RankingMode, row.initial_order)
+    }));
+    if (rekeyed.every((row) => row.next === row.cohort_hash)) return 0;
+
+    await this.db.transaction(async (tx) => {
+      await tx.delete(cohort_monthly);
+      await tx.delete(cohort_monthly_stats);
+      await tx.delete(cohorts);
+      for (const row of rekeyed) {
+        if (row.next !== row.cohort_hash) {
+          await tx
+            .update(submissions)
+            .set({ cohort_hash: row.next })
+            .where(eq(submissions.id, row.id));
+        }
+        await tx
+          .insert(cohorts)
+          .values({
+            hash: row.next,
+            kind: row.kind,
+            mode: row.mode,
+            filter: row.filter,
+            performance_ids: row.performance_ids
+          })
+          .onConflictDoNothing();
+        if (row.status === 'accepted') {
+          await applyCohortRollups(
+            tx,
+            { month: row.month, cohort_hash: row.next, ranking: row.ranking },
+            1
+          );
+        }
+      }
+      await tx.delete(query_cache);
+    });
+    return rekeyed.length;
   }
 
   async recomputeAgreement(batchSize = 500) {

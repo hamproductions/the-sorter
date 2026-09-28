@@ -40,6 +40,8 @@ const selectCurrentItem = async (
 
 vi.setConfig({ testTimeout: 15000 });
 
+const IGNORE_SAVED_COUNT = 'script, style, [data-saved-count]';
+
 describe('Home Page', () => {
   it('Renders', async () => {
     const [{ findByText }] = await render(<Page />);
@@ -127,7 +129,7 @@ describe('Home Page', () => {
       }
       expect(await findByText('Sort Results')).toBeInTheDocument();
       expect(await findAllByText(/(Nirei|Hanamiya|Sakurai)/i)).toHaveLength(3);
-      expect(await findAllByText('1')).toHaveLength(1);
+      expect(await findAllByText('1', { ignore: IGNORE_SAVED_COUNT })).toHaveLength(1);
     });
 
     it('Sort with Ties', async () => {
@@ -154,7 +156,7 @@ describe('Home Page', () => {
       }
       expect(await findByText('Sort Results')).toBeInTheDocument();
       expect(await findAllByText(/(Nirei|Hanamiya|Sakurai)/i)).toHaveLength(3);
-      expect(await findAllByText('1')).toHaveLength(3);
+      expect(await findAllByText('1', { ignore: IGNORE_SAVED_COUNT })).toHaveLength(3);
     });
 
     it('Undo', async () => {
@@ -235,7 +237,7 @@ describe('Home Page', () => {
         expect(await findByText('Sort Results')).toBeInTheDocument();
 
         // Default is Ranking View
-        expect(await findByText('1')).toBeInTheDocument();
+        expect(await findByText('1', { ignore: IGNORE_SAVED_COUNT })).toBeInTheDocument();
 
         // Switch to Table View
         await user.click(await findByText('Table'));
