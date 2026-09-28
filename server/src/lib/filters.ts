@@ -49,12 +49,8 @@ export const canonicalizeFilter = (
 
 export const normalizeIds = (ids: string[] | undefined) => [...new Set(ids ?? [])].sort();
 
-export const cohortHashOf = (
-  kind: RankingKind,
-  mode: RankingMode,
-  filter: CanonicalFilter,
-  performanceIds: string[]
-) => sha256(JSON.stringify([kind, mode, filter, performanceIds])).slice(0, 32);
+export const cohortHashOf = (kind: RankingKind, mode: RankingMode, items: string[]) =>
+  sha256(JSON.stringify(['items', kind, mode, [...new Set(items)].sort()])).slice(0, 32);
 
 export const toCharacterFilter = (filter: CanonicalFilter): FilterType => ({
   series: (filter.series as string[]) ?? [],

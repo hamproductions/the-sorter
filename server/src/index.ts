@@ -25,6 +25,9 @@ await refreshData();
 
 const { app, services } = createApp({ db, data, config });
 
+const rekeyed = await services.submissions.rekeyCohorts();
+if (rekeyed > 0) logger.info(`Rebuilt cohorts for ${rekeyed} submissions`);
+
 const runJob = (name: string, job: () => Promise<void>) => async () => {
   try {
     await job();
