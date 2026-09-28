@@ -86,7 +86,7 @@ describe('Character Utils', () => {
         fullName: '紫輪みおん',
         englishName: 'Mion Shinowa',
         school: '蓮ノ空女学院',
-        casts: [{ seiyuu: '湯浅かなえ', englishName: 'Kanae Yuasa' }]
+        casts: [{ seiyuu: '湯浅かなえ', englishName: 'Yuasa Kanae' }]
       });
     });
   });
