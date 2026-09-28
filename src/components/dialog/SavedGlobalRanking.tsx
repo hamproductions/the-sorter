@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { AgreementPanel } from '../leaderboard/AgreementPanel';
 import { GlobalRankingToggle } from '../results/GlobalRankingToggle';
 import { Text } from '../ui/text';
-import { useGlobalRankingAvailable } from '~/hooks/useGlobalRankingAvailable';
 import { useLocalStorage } from '~/hooks/useLocalStorage';
 import { useSaveStates } from '~/hooks/useSaveStates';
 import {
@@ -11,7 +10,7 @@ import {
   type SortLog,
   type SubmissionStatus
 } from '~/types/global-ranking';
-import { submitResult, withdrawResult } from '~/utils/global-ranking';
+import { isGlobalRankingEnabled, submitResult, withdrawResult } from '~/utils/global-ranking';
 import { Stack } from 'styled-system/jsx';
 
 const isExpired = (log: SortLog) =>
@@ -20,7 +19,6 @@ const isExpired = (log: SortLog) =>
 export function SavedGlobalRanking({ saveId, ranking }: { saveId: string; ranking: string[][] }) {
   const { t } = useTranslation();
   const { allSaves, setLog } = useSaveStates();
-  const { available } = useGlobalRankingAvailable();
   const log = allSaves.find((s) => s.id === saveId)?.log;
   const liveLogs = [
     useLocalStorage<SortLog>('sort-log'),
@@ -30,7 +28,7 @@ export function SavedGlobalRanking({ saveId, ranking }: { saveId: string; rankin
   const [busy, setBusy] = useState<'sending' | 'removing'>();
   const [failed, setFailed] = useState(false);
 
-  if (!available || !log?.context) return null;
+  if (!isGlobalRankingEnabled || !log?.context) return null;
   const context = log.context;
   const updateLog = (update: (l: SortLog) => SortLog) => {
     setLog(saveId, update);

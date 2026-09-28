@@ -461,7 +461,7 @@
   "global_ranking": {
     "title": "Global ranking",
     "description": "Anonymous results from everyone who finished a sort, combined into one ranking.",
-    "disabled": "The global ranking isn't available right now. Sorting and saved sessions still work.",
+    "disabled": "The global ranking isn't available in this build.",
     "contribute": "Add my result to the global ranking",
     "contribute_notice": "What's stored: your ranking and the filter you used. No account, no IP address.",
     "view_leaderboard": "See the global ranking",
