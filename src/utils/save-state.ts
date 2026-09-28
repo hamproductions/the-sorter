@@ -178,3 +178,34 @@ export const getLocallySortedIds = (storage: Storage, sorterType: SorterType) =>
   ];
   return new Set(states.filter(isSortState).flatMap((state) => getSortItems(state).map(String)));
 };
+
+const AUTO_SAVED_RESULTS_KEY = 'auto-saved-results';
+const AUTO_SAVED_RESULTS_LIMIT = 200;
+
+const hashString = (value: string) => {
+  let hash = 5381;
+  for (let i = 0; i < value.length; i++) hash = ((hash << 5) + hash + value.charCodeAt(i)) | 0;
+  return (hash >>> 0).toString(36);
+};
+
+const readAutoSaved = (): string[] => {
+  try {
+    const value: unknown = JSON.parse(localStorage.getItem(AUTO_SAVED_RESULTS_KEY) ?? '[]');
+    return Array.isArray(value) ? value.filter((v): v is string => typeof v === 'string') : [];
+  } catch {
+    return [];
+  }
+};
+
+export const wasResultAutoSaved = (serializedState: string) =>
+  readAutoSaved().includes(hashString(serializedState));
+
+export const markResultAutoSaved = (serializedState: string) => {
+  try {
+    const hashes = [hashString(serializedState), ...readAutoSaved()].slice(
+      0,
+      AUTO_SAVED_RESULTS_LIMIT
+    );
+    localStorage.setItem(AUTO_SAVED_RESULTS_KEY, JSON.stringify(hashes));
+  } catch {}
+};

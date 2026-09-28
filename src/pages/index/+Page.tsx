@@ -266,6 +266,7 @@ export function Page() {
     loadState,
     itemCount: sortCount,
     progress,
+    isEnded,
     filterSummary: getFilterSummary(),
     isSeiyuu: seiyuu,
     onApply: (saved) => {

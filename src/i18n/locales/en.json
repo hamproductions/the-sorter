@@ -265,7 +265,8 @@
       "auto_name_count_characters_one": "{{count}} character",
       "auto_name_count_characters_other": "{{count}} characters",
       "auto_name_count_songs_one": "{{count}} song",
-      "auto_name_count_songs_other": "{{count}} songs"
+      "auto_name_count_songs_other": "{{count}} songs",
+      "auto_saved": "Result saved to Saved Sessions"
     },
     "save_state": {
       "title": "Save Session",

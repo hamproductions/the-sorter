@@ -513,6 +513,7 @@ export function Page() {
     loadState,
     itemCount: sortCount,
     progress,
+    isEnded,
     filterSummary: getFilterSummary()
   });
 

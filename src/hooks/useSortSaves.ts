@@ -5,7 +5,7 @@ import { useSaveLoadContext } from '~/context/SaveLoadContext';
 import { useToaster } from '~/context/ToasterContext';
 import type { SortLog } from '~/types/global-ranking';
 import type { SavedSortState, SorterType } from '~/types/save-state';
-import { autoSaveName } from '~/utils/save-state';
+import { autoSaveName, markResultAutoSaved, wasResultAutoSaved } from '~/utils/save-state';
 import type { SortState } from '~/utils/sort';
 
 interface SortSnapshot<T> {
@@ -23,6 +23,7 @@ export const useSortSaves = <T extends string | number>({
   progress,
   filterSummary,
   isSeiyuu,
+  isEnded,
   onApply
 }: {
   sorterType: SorterType;
@@ -37,6 +38,7 @@ export const useSortSaves = <T extends string | number>({
   progress: number;
   filterSummary?: string;
   isSeiyuu?: boolean;
+  isEnded: boolean;
   onApply?: (saved: SavedSortState) => void;
 }) => {
   const { t } = useTranslation();
@@ -85,6 +87,27 @@ export const useSortSaves = <T extends string | number>({
   };
   const applySaveRef = useRef(applySave);
   applySaveRef.current = applySave;
+
+  const autoSave = () => {
+    const current = captureCurrent();
+    if (!current || current.state.status !== 'end') return;
+    const serialized = JSON.stringify(current.state);
+    if (wasResultAutoSaved(serialized)) return;
+    markResultAutoSaved(serialized);
+    if (saves.some((s) => JSON.stringify(s.state) === serialized)) return;
+    save({
+      ...current,
+      sorterType,
+      name: autoSaveName(t, sorterType, current.itemCount, current.filterSummary)
+    });
+    toast?.({ description: t('dialog.saved_states.auto_saved') });
+  };
+  const autoSaveRef = useRef(autoSave);
+  autoSaveRef.current = autoSave;
+
+  useEffect(() => {
+    if (isEnded && !pendingLoadId) autoSaveRef.current();
+  }, [isEnded, pendingLoadId]);
 
   useEffect(() => {
     if (!pendingLoadId) return;
