@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [2.1.0](https://github.com/hamproductions/the-sorter/compare/v2.0.0...v2.1.0) (2026-09-28)
+
+
+### Bug Fixes
+
+* **global-ranking:** ignore non-local ranking API URLs in dev builds ([a3c6479](https://github.com/hamproductions/the-sorter/commit/a3c6479d4c5d8e11d4c78617b061bf89e1d68039))
+* **leaderboard:** format period month labels in UTC ([7717bc1](https://github.com/hamproductions/the-sorter/commit/7717bc1bdbe35c210677a500695435fd0a3b7c4b))
+* **leaderboard:** name the selections in popular filter chips ([1902717](https://github.com/hamproductions/the-sorter/commit/19027171c0088ce8f6a3a846f5224a82cc99857a))
+* make legacy session migration idempotent; trim English title prefix ([de441f2](https://github.com/hamproductions/the-sorter/commit/de441f276ab8ef8ea5e74fec43159b0a033add4b))
+* **ranking:** leave the viewer's own submission out of agreement ([56460bf](https://github.com/hamproductions/the-sorter/commit/56460bffe0d9029e26e064139258ce5327b6a680))
+* **saves:** allow saving finished sorts and polish saved session cards ([42f9b57](https://github.com/hamproductions/the-sorter/commit/42f9b5776b377cd5bb6e073351783908d5ef76e4))
+* **server:** group exact-filter cohorts by resolved item set ([b9441cd](https://github.com/hamproductions/the-sorter/commit/b9441cdfe3082fdc4f5218fdf862a4db62e6d799))
+* **sorter:** describe the running sort in the header; single leaderboard filter reset ([882c7ec](https://github.com/hamproductions/the-sorter/commit/882c7ec83c4563c455c7ce1a26048cdc1dd645d3))
+* survive malformed stored data, hide contribution for expired tickets ([a7d42c9](https://github.com/hamproductions/the-sorter/commit/a7d42c9478677d860f6595178c046d8048d238b6))
+* **ui:** keep the tab title in sync and reset the save dialog on every open ([f45afeb](https://github.com/hamproductions/the-sorter/commit/f45afeba120005e11aed9b8c3b17511f1984fd53))
+
+
+### Features
+
+* **global-ranking:** address review feedback on leaderboard, compare panel and saved sessions ([dae687e](https://github.com/hamproductions/the-sorter/commit/dae687e6b9539ef8cd55a08afd4fa05fcf1fd4d6)), closes [#1](https://github.com/hamproductions/the-sorter/issues/1) [rou#estimate](https://github.com/rou/issues/estimate)
+* **saves:** save finished results to Saved Sessions automatically ([6532089](https://github.com/hamproductions/the-sorter/commit/65320895d7ea0db6f2eee5bc50f736e258006925))
+* **ui:** icons for navigation and tabs ([5184a05](https://github.com/hamproductions/the-sorter/commit/5184a0582a309ad10e832b39b248789665769117))
+
 # [2.0.0](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.19.0...v2.0.0) (2026-09-25)
 
 
