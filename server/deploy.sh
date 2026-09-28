@@ -2,7 +2,8 @@
 set -eu
 cd "$(dirname "$0")"
 
-docker compose pull api
+git pull --ff-only
+docker compose build api
 docker compose up -d api
 docker image prune -f
 

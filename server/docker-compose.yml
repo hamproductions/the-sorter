@@ -1,6 +1,10 @@
+name: the-sorter-server
 services:
   api:
-    image: registry.ham-san.net/the-sorter-server:latest
+    build:
+      context: ..
+      dockerfile: server/Dockerfile
+    image: the-sorter-server:local
     restart: unless-stopped
     env_file: .env
     environment:
