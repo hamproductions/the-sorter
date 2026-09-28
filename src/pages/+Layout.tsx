@@ -163,7 +163,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <FaBookmark />
                 {t('navigation.saved_states')}
                 {allSaves.length > 0 && (
-                  <Badge size="sm" variant="solid">
+                  <Badge data-saved-count size="sm" variant="solid">
                     {allSaves.length}
                   </Badge>
                 )}
@@ -211,7 +211,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 >
                   <FaBookmark /> {t('navigation.saved_states')}
                   {allSaves.length > 0 && (
-                    <Badge size="sm" variant="solid">
+                    <Badge data-saved-count size="sm" variant="solid">
                       {allSaves.length}
                     </Badge>
                   )}

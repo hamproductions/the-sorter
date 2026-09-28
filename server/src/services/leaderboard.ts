@@ -88,14 +88,16 @@ export class LeaderboardService {
   }
 
   private cohortHashes(scope: LeaderboardScope) {
-    return this.modesFor(scope.kind, scope.mode).map((mode) =>
-      cohortHashOf(
+    return this.modesFor(scope.kind, scope.mode).flatMap((mode) => {
+      if (mode === 'heardle') return [];
+      const items = this.data.deriveItems(
         scope.kind,
         mode,
         scope.filter,
         mode === 'performance' ? scope.performanceIds : []
-      )
-    );
+      );
+      return items?.length ? [cohortHashOf(scope.kind, mode, items)] : [];
+    });
   }
 
   subsetOf(scope: Pick<LeaderboardScope, 'kind' | 'mode' | 'filter' | 'performanceIds'>) {

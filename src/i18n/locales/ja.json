@@ -282,7 +282,8 @@
       "auto_name_count_characters_one": "{{count}}人",
       "auto_name_count_characters_other": "{{count}}人",
       "auto_name_count_songs_one": "{{count}}曲",
-      "auto_name_count_songs_other": "{{count}}曲"
+      "auto_name_count_songs_other": "{{count}}曲",
+      "auto_saved": "結果を保存済みセッションに保存しました"
     }
   },
   "error_page": {

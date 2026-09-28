@@ -114,10 +114,11 @@ describe('canonicalizeFilter', () => {
     expect(canonicalizeFilter('character', ['series'])).toBeUndefined();
   });
 
-  it('gives equivalent filters the same cohort hash', () => {
-    const a = canonicalizeFilter('song', { years: [2024, 2023], artists: [] })!;
-    const b = canonicalizeFilter('song', { years: [2023, 2024] })!;
-    expect(cohortHashOf('song', 'normal', a, [])).toBe(cohortHashOf('song', 'normal', b, []));
+  it('gives the same item set the same cohort hash', () => {
+    expect(cohortHashOf('song', 'normal', ['2', '1'])).toBe(
+      cohortHashOf('song', 'normal', ['1', '2', '1'])
+    );
+    expect(cohortHashOf('song', 'normal', ['1'])).not.toBe(cohortHashOf('song', 'heardle', ['1']));
   });
 });
 
