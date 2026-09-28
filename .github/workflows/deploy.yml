@@ -21,7 +21,7 @@ jobs:
       - name: Build
         run: PUBLIC_ENV__BASE_URL=/the-sorter bun run ci:build
         env:
-          PUBLIC_ENV__RANKING_API_URL: https://sorter-api.ham-san.net
+          PUBLIC_ENV__RANKING_API_URL: ${{ vars.RANKING_API_URL }}
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
