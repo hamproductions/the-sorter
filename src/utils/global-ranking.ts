@@ -18,7 +18,10 @@ export const GLOBAL_RANKING_API_URL = (import.meta.env.PUBLIC_ENV__RANKING_API_U
   ''
 );
 
-export const isGlobalRankingEnabled = GLOBAL_RANKING_API_URL !== '';
+const isLocalApi = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(GLOBAL_RANKING_API_URL);
+
+export const isGlobalRankingEnabled =
+  GLOBAL_RANKING_API_URL !== '' && (!import.meta.env.DEV || isLocalApi);
 
 const request = async <T>(path: string, init?: RequestInit): Promise<T | undefined> => {
   if (!isGlobalRankingEnabled) return undefined;
