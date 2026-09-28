@@ -25,7 +25,10 @@ import { HeardleStatsDialog } from '~/components/sorter/HeardleStatsDialog';
 import type { GuessResult } from '~/hooks/useHeardleState';
 import type { PerformanceSortMeta } from '~/types/performance-sort';
 import { PerformanceOrderView } from './PerformanceOrderView';
+import { SongSortTimeStats } from './SongSortTimeStats';
 import { getFullPerformanceName } from '~/utils/names';
+import type { SortTimingStats } from '~/utils/sort-timing';
+import { TabIcon } from '~/components/layout/TabIcon';
 
 export function SongResultsView({
   titlePrefix,
@@ -35,8 +38,10 @@ export function SongResultsView({
   failedSongs,
   guessResults,
   maxAttempts,
+  timingStats,
   onShareResults,
   readOnly,
+  allowExport,
   ...props
 }: RootProps & {
   titlePrefix?: string;
@@ -46,8 +51,10 @@ export function SongResultsView({
   failedSongs?: Song[];
   guessResults?: Record<string, GuessResult>;
   maxAttempts?: number;
+  timingStats?: SortTimingStats;
   onShareResults?: () => void;
   readOnly?: boolean;
+  allowExport?: boolean;
 }) {
   const artists = useArtistsData();
   const seriesData = useSeriesData();
@@ -213,6 +220,8 @@ export function SongResultsView({
           {t('results.sort_results')}
         </Heading>
 
+        {timingStats && <SongSortTimeStats stats={timingStats} />}
+
         <Stack w="full">
           <Accordion.Root size="md" collapsible>
             <Accordion.Item value="default" width="100%">
@@ -244,7 +253,7 @@ export function SongResultsView({
               </Accordion.ItemContent>
             </Accordion.Item>
           </Accordion.Root>
-          {!readOnly && currentTab !== 'performance-order' && (
+          {(!readOnly || allowExport) && currentTab !== 'performance-order' && (
             <HStack justifyContent="space-between" w="full">
               <Wrap justifyContent="flex-end" w="full">
                 {onShareResults && (
@@ -279,6 +288,7 @@ export function SongResultsView({
           <Tabs.List>
             {tabs.map((option) => (
               <Tabs.Trigger key={option.id} value={option.id}>
+                <TabIcon id={option.id} />
                 {option.label}
               </Tabs.Trigger>
             ))}

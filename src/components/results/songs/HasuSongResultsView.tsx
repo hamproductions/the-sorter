@@ -22,6 +22,7 @@ import { Text } from '~/components/ui/text';
 import type { HasuSong } from '~/types/songs';
 import { Button } from '~/components/ui/button';
 import type { RootProps } from '~/components/ui/styled/tabs';
+import { TabIcon } from '~/components/layout/TabIcon';
 
 export function HasuSongResultsView({
   titlePrefix,
@@ -282,6 +283,7 @@ export function HasuSongResultsView({
           <Tabs.List>
             {tabs.map((option) => (
               <Tabs.Trigger key={option.id} value={option.id}>
+                <TabIcon id={option.id} />
                 {option.label}
               </Tabs.Trigger>
             ))}

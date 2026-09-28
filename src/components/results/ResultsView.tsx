@@ -24,6 +24,7 @@ import type { Character } from '~/types';
 import { useLocalStorage } from '~/hooks/useLocalStorage';
 import { useToaster } from '~/context/ToasterContext';
 import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
+import { TabIcon } from '~/components/layout/TabIcon';
 
 export type ShareDisplayData = {
   title: string;
@@ -38,6 +39,7 @@ export function ResultsView({
   order,
   isSeiyuu,
   readOnly,
+  allowExport,
   shareDisplayData,
   onShareResults,
   onSelectCharacter,
@@ -48,6 +50,7 @@ export function ResultsView({
   order?: string[][];
   isSeiyuu: boolean;
   readOnly?: boolean;
+  allowExport?: boolean;
   shareDisplayData?: {
     title: string;
     description?: string;
@@ -70,8 +73,8 @@ export function ResultsView({
     'default'
   );
   const [savedDisplayOrder, setSavedDisplayOrder] = useLocalStorage<string[][]>(
-    'results-display-order',
-    order
+    readOnly ? 'results-display-order-read-only' : 'results-display-order',
+    readOnly ? undefined : order
   );
   const [timestamp, setTimestamp] = useState(new Date());
   const [showRenderingCanvas, setShowRenderingCanvas] = useState(false);
@@ -93,7 +96,8 @@ export function ResultsView({
     }
   }, [currentTab, setCurrentTab, tabs]);
 
-  const displayOrder = savedDisplayOrder?.length === order?.length ? savedDisplayOrder : order;
+  const displayOrder =
+    !readOnly && savedDisplayOrder?.length === order?.length ? savedDisplayOrder : order;
 
   const characters = useMemo(() => {
     if (!displayOrder) return [];
@@ -203,7 +207,7 @@ export function ResultsView({
           {displayTitle || t('results.sort_results')}
         </Heading>
         {displayDescription && <Text>{displayDescription}</Text>}
-        {!readOnly && (
+        {(!readOnly || allowExport) && (
           <Stack w="full">
             <HStack justifyContent="center">
               <Button variant="subtle" onClick={() => void copyText()}>
@@ -255,24 +259,28 @@ export function ResultsView({
               </Accordion.Item>
             </Accordion.Root>
             <Wrap justifyContent="space-between" w="full">
-              <Button variant="subtle" onClick={() => setShowEditResults(true)}>
-                <FaPencil /> {t('results.edit')}
-              </Button>
-              <Wrap justifyContent="flex-end">
-                <Button
-                  variant="subtle"
-                  data-testid="share-results-button"
-                  onClick={() =>
-                    onShareResults?.({
-                      title,
-                      description,
-                      tierListSettings: tierListSettings ?? undefined,
-                      tab: displayTab ?? undefined
-                    })
-                  }
-                >
-                  <FaShare /> {t('results.share')}
+              {!readOnly && (
+                <Button variant="subtle" onClick={() => setShowEditResults(true)}>
+                  <FaPencil /> {t('results.edit')}
                 </Button>
+              )}
+              <Wrap justifyContent="flex-end" ml="auto">
+                {onShareResults && (
+                  <Button
+                    variant="subtle"
+                    data-testid="share-results-button"
+                    onClick={() =>
+                      onShareResults({
+                        title,
+                        description,
+                        tierListSettings: tierListSettings ?? undefined,
+                        tab: displayTab ?? undefined
+                      })
+                    }
+                  >
+                    <FaShare /> {t('results.share')}
+                  </Button>
+                )}
                 <Button variant="subtle" onClick={() => void screenshot()}>
                   <FaCopy /> {t('results.copy')}
                 </Button>
@@ -294,6 +302,7 @@ export function ResultsView({
             <Tabs.List>
               {tabs.map((option) => (
                 <Tabs.Trigger key={option.id} value={option.id}>
+                  <TabIcon id={option.id} />
                   {option.label}
                 </Tabs.Trigger>
               ))}
@@ -334,7 +343,7 @@ export function ResultsView({
           </Box>
         </Tabs.Root>
       </Stack>
-      {!readOnly && showRenderingCanvas && (
+      {(!readOnly || allowExport) && showRenderingCanvas && (
         <Box position="absolute" w="0" h="0" overflow="hidden">
           <Stack id="results" width="1280px" p="4" bgColor="bg.canvas">
             {title && (

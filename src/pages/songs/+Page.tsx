@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { FaShare } from 'react-icons/fa6';
 import { isEqual } from 'lodash-es';
 import { ComparisonInfo } from '../../components/sorter/ComparisonInfo';
+import { SortTimer } from '../../components/sorter/SortTimer';
 import { KeyboardShortcuts } from '../../components/sorter/KeyboardShortcuts';
 import series from '../../../data/series-info.json';
 import { Button } from '../../components/ui/styled/button';
@@ -12,14 +13,20 @@ import { Progress } from '../../components/ui/progress';
 import { Switch } from '../../components/ui/switch';
 import { Text } from '../../components/ui/styled/text';
 import { useToaster } from '../../context/ToasterContext';
-import { getCurrentItem } from '../../utils/sort';
+import { getCurrentItem, getSortItems } from '../../utils/sort';
 import { getNextItems } from '~/utils/preloading';
 import { LoadingCharacterFilters } from '~/components/sorter/LoadingCharacterFilters';
 import { Metadata } from '~/components/layout/Metadata';
+import { useFilterNameLookup } from '~/hooks/useFilterNameLookup';
+import { describeFilter } from '~/utils/filter-summary';
+import type { RankingFilter } from '~/types/global-ranking';
+import { GlobalRankingSection } from '~/components/results/GlobalRankingSection';
+import { GlobalRankingToggle } from '~/components/results/GlobalRankingToggle';
 import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
 import { SongCard } from '~/components/sorter/SongCard';
 import { useSongsSortData } from '~/hooks/useSongsSortData';
 import { useHeardleState } from '~/hooks/useHeardleState';
+import { useSortSaves } from '~/hooks/useSortSaves';
 import { SongResultsView } from '~/components/results/songs/SongResultsView';
 import { HeardleStats } from '~/components/sorter/HeardleStats';
 import { preloadAudioBlob } from '~/components/sorter/Heardle';
@@ -73,6 +80,18 @@ const SortingPreviewDialog = lazy(() =>
 const PerformancePickerForSortDialog = lazy(() =>
   import('../../components/sorter/PerformancePickerForSortDialog').then((m) => ({
     default: m.PerformancePickerForSortDialog
+  }))
+);
+
+const SaveStateDialog = lazy(() =>
+  import('../../components/dialog/SaveStateDialog').then((m) => ({
+    default: m.SaveStateDialog
+  }))
+);
+
+const SavedStatesListDialog = lazy(() =>
+  import('../../components/dialog/SavedStatesListDialog').then((m) => ({
+    default: m.SavedStatesListDialog
   }))
 );
 
@@ -139,12 +158,22 @@ export function Page() {
     listToSort,
     listCount,
     clear,
-    isEnded
+    isEnded,
+    getSnapshot,
+    loadState,
+    globalRanking,
+    timing,
+    timingStats,
+    getElapsedMs
   } = useSongsSortData(failedSongIds.size > 0 ? failedSongIds : undefined, {
     disableShortcutsRef,
     performanceSongIds: isPerformanceMode ? performanceSongIds : undefined,
+    performanceIds: isPerformanceMode ? performanceMeta?.performanceIds : undefined,
     storagePrefix: isPerformanceMode ? 'perf-songs' : undefined
   });
+  const sortCount = state ? getSortItems(state).length : listCount;
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [showLoadDialog, setShowLoadDialog] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState<{
     type: 'mid-sort' | 'ended' | 'preview' | 'new-session';
     action: 'reset' | 'clear';
@@ -466,6 +495,27 @@ export function Page() {
     }
   };
 
+  const defaultSaveName = `${t('songs')} - ${new Date().toLocaleDateString()}`;
+
+  const filterNames = useFilterNameLookup();
+  const getFilterSummary = () =>
+    describeFilter('song', songFilters as RankingFilter | undefined, i18n.language, t, filterNames);
+
+  const {
+    saves,
+    saveCurrent,
+    overwrite,
+    loadById,
+    remove: removeSave
+  } = useSortSaves({
+    sorterType: 'songs',
+    getSnapshot,
+    loadState,
+    itemCount: sortCount,
+    progress,
+    filterSummary: getFilterSummary()
+  });
+
   return (
     <>
       <Metadata title={title} helmet />
@@ -509,7 +559,7 @@ export function Page() {
         )}
         <Wrap justifyContent="center" alignItems="center">
           <Text fontSize="sm" fontWeight="bold">
-            {t('settings.song_sort_count', { count: listCount })}
+            {t('settings.song_sort_count', { count: sortCount })}
           </Text>
           <Button
             size="sm"
@@ -524,6 +574,11 @@ export function Page() {
           <Button onClick={() => void shareUrl()} variant="subtle">
             <FaShare /> {t('settings.share')}
           </Button>
+          {!isSorting && saves.length > 0 && (
+            <Button variant="outline" onClick={() => setShowLoadDialog(true)}>
+              {t('sort.load_save')}
+            </Button>
+          )}
           <Button
             variant="solid"
             onClick={() => handleStart()}
@@ -531,6 +586,11 @@ export function Page() {
           >
             {!isSorting ? t('sort.start') : t('sort.start_over')}
           </Button>
+          {isSorting && (
+            <Button variant="outline" onClick={() => setShowSaveDialog(true)}>
+              {t('sort.save')}
+            </Button>
+          )}
           {isSorting && (
             <Button variant="subtle" onClick={() => handleClear()}>
               {state?.status !== 'end' ? t('sort.stop') : t('sort.new_settings')}
@@ -654,6 +714,7 @@ export function Page() {
                   isEstimatedCount={isEstimatedCount}
                   maxComparisons={maxComparisons}
                 />
+                <SortTimer active={!!timing} getElapsedMs={getElapsedMs} frozen={isEnded} />
                 <Progress
                   translations={{ value: (details) => `${details.percent}%` }}
                   value={progress}
@@ -661,6 +722,13 @@ export function Page() {
                   max={1}
                   defaultValue={0}
                 />
+                {globalRanking.isAvailable && (
+                  <GlobalRankingToggle
+                    contribute={globalRanking.contribute}
+                    setContribute={globalRanking.setContribute}
+                    status={globalRanking.status}
+                  />
+                )}
               </Stack>
             )}
             {heardleMode && state.status !== 'end' && (
@@ -675,6 +743,7 @@ export function Page() {
               <Suspense>
                 <SongResultsView
                   songsData={songs}
+                  timingStats={timingStats}
                   performanceMeta={
                     isPerformanceMode && performanceMeta ? performanceMeta : undefined
                   }
@@ -686,6 +755,9 @@ export function Page() {
                   order={state.arr}
                 />
               </Suspense>
+            )}
+            {state.arr && isEnded && (
+              <GlobalRankingSection globalRanking={globalRanking} ranking={state.arr} />
             )}
           </Stack>
         )}
@@ -792,6 +864,35 @@ export function Page() {
           open={showPerformancePicker}
           onOpenChange={({ open }) => setShowPerformancePicker(open)}
           onSelectPerformance={handleSelectPerformance}
+        />
+        <SaveStateDialog
+          open={showSaveDialog}
+          lazyMount
+          unmountOnExit
+          defaultName={defaultSaveName}
+          onSave={(name) => {
+            if (saveCurrent(name)) setShowSaveDialog(false);
+          }}
+          existingSaves={saves}
+          onOverwrite={(id) => {
+            if (overwrite(id)) setShowSaveDialog(false);
+          }}
+          onOpenChange={({ open }) => {
+            if (!open) setShowSaveDialog(false);
+          }}
+        />
+        <SavedStatesListDialog
+          open={showLoadDialog}
+          lazyMount
+          unmountOnExit
+          saves={saves}
+          onLoad={(id) => {
+            if (loadById(id)) setShowLoadDialog(false);
+          }}
+          onDelete={(id) => removeSave(id)}
+          onOpenChange={({ open }) => {
+            if (!open) setShowLoadDialog(false);
+          }}
         />
       </Suspense>
     </>

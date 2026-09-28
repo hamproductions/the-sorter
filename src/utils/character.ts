@@ -1,5 +1,32 @@
+import { hasFilter, matchFilter } from './filter';
+import type { FilterType } from '~/components/sorter/CharacterFilters';
 import type { Locale } from '~/i18n';
 import type { Character, WithRank } from '~/types';
+
+const toSeiyuuList = (characters: Character[]): Character[] => {
+  const bySeiyuu = new Map<string, Character>();
+  for (const c of characters) {
+    c.casts.forEach((cast, idx) => {
+      if (!bySeiyuu.has(cast.seiyuu)) {
+        bySeiyuu.set(cast.seiyuu, {
+          ...c,
+          id: idx > 0 ? `${c.id}-${idx}` : c.id,
+          casts: [cast]
+        } as Character);
+      }
+    });
+  }
+  return [...bySeiyuu.values()];
+};
+
+export const getCharacterSortList = (
+  characters: Character[],
+  seiyuu: boolean,
+  filters?: FilterType | null
+): Character[] => {
+  const list = seiyuu ? toSeiyuuList(characters) : characters;
+  return filters && hasFilter(filters) ? list.filter((c) => matchFilter(c, filters)) : list;
+};
 
 export const getCharacterFromId = (
   data: Character[],

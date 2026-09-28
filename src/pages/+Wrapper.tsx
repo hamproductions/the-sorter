@@ -8,6 +8,7 @@ import '../i18n';
 
 import '../index.css';
 import { SentryProvider } from '~/components/utils/SentryContext';
+import { SaveLoadProvider } from '~/context/SaveLoadContext';
 
 export function Wrapper({ children }: { children: React.ReactNode }) {
   return (
@@ -15,7 +16,9 @@ export function Wrapper({ children }: { children: React.ReactNode }) {
       <SentryProvider>
         <ErrorBoundary>
           <ColorModeProvider>
-            <ToasterProvider>{children}</ToasterProvider>
+            <ToasterProvider>
+              <SaveLoadProvider>{children}</SaveLoadProvider>
+            </ToasterProvider>
           </ColorModeProvider>
         </ErrorBoundary>
       </SentryProvider>

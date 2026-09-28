@@ -32,6 +32,20 @@ export const calculateMaxComparisons = (n: number): number => {
   return max;
 };
 
+export const isSortState = (value: unknown): value is SortState<string | number> =>
+  !!value &&
+  typeof value === 'object' &&
+  Array.isArray((value as SortState<unknown>).arr) &&
+  (value as SortState<unknown>).arr.every((group) => Array.isArray(group));
+
+export const getSortItems = <I>(state: SortState<I>): I[] => [
+  ...new Set([
+    ...state.arr.flat(),
+    ...(state.mergeState?.leftArr?.flat() ?? []),
+    ...(state.mergeState?.rightArr?.flat() ?? [])
+  ])
+];
+
 export const estimateComparisonsMade = <I>(state: SortState<I>): number => {
   const { currentSize, leftStart, mergeState, arr } = state;
   const n = arr.length;
@@ -260,5 +274,41 @@ export const getCurrentItem = <T>(state: SortState<T>) => {
   return {
     left,
     right
+  };
+};
+
+export const resumeSort = <I>(results: I[][]): SortState<I> => {
+  const filteredResults = results.filter((r) => r.length > 0);
+  if (filteredResults.length <= 1) {
+    return {
+      arr: results,
+      currentSize: 1,
+      leftStart: 0,
+      status: 'end'
+    };
+  }
+
+  const n = results.length;
+  const mid = Math.min(0 + 1 - 1, n - 1);
+  const end = Math.min(0 + 2 * 1 - 1, n - 1);
+
+  const leftArr = [results[0]];
+  const rightArr = [results[1]];
+
+  return {
+    arr: results,
+    currentSize: 1,
+    leftStart: 0,
+    status: 'waiting',
+    mergeState: {
+      start: 0,
+      mid,
+      end,
+      leftArr,
+      rightArr,
+      leftArrIdx: 0,
+      rightArrIdx: 0,
+      arrIdx: 0
+    }
   };
 };

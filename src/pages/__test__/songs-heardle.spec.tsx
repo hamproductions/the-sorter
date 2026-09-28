@@ -60,7 +60,11 @@ vi.mock('~/hooks/useSongsSortData', () => ({
     songFilters: {},
     setSongFilters: vi.fn(),
     clear: clearFn,
-    isEnded: false
+    isEnded: false,
+    timing: undefined,
+    timingStats: undefined,
+    getElapsedMs: () => 0,
+    globalRanking: { isAvailable: false, isEnabled: false }
   })
 }));
 
@@ -87,6 +91,7 @@ vi.mock('~/hooks/useHeardleState', () => ({
 
 vi.mock('../../utils/sort', () => ({
   getCurrentItem: () => ({ left: ['song-1'], right: ['song-2'] }),
+  getSortItems: () => ['song-1', 'song-2'],
   step: vi.fn()
 }));
 

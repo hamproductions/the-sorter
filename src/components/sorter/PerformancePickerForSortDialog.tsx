@@ -187,7 +187,7 @@ export function PerformancePickerForSortDialog({
   };
 
   return (
-    <DialogRoot open={open} onOpenChange={onOpenChange}>
+    <DialogRoot open={open} onOpenChange={onOpenChange} lazyMount unmountOnExit>
       <DialogBackdrop />
       <DialogPositioner
         display="flex"

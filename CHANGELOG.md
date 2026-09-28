@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [2.0.0](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.19.0...v2.0.0) (2026-09-25)
+
+
+### Features
+
+* **global ranking:** anonymous global results for the character and song sorters, verified server side by replaying each sort, with spam limits and an admin review page
+* **global ranking:** leaderboard at `/leaderboard` with the sorter filters, exact-filter view, all-time/year/month periods and per-item rank history
+* **global ranking:** compare your result with everyone (agreement, percentile and biggest differences)
+* **global ranking:** contribution toggle on the results page; turning it off withdraws your result
+* **saved sessions:** save, overwrite, rename, delete and load sorting sessions across sorters, view completed results, and keep your current session automatically after updating
+* **sorter:** continue sorting from pasted results
+* **song sorter:** session timer with per-comparison and total time on the results
+* **server:** Bun + Elysia + Postgres ranking server with data dumps and a Docker image
+
+
+### Bug Fixes
+
+* **storage:** keep same-key settings in sync without re-parsing on every write
+* **songs:** performance mode keeps its own session instead of writing into the normal song sort
+* **global ranking:** turning contribution off and on again no longer uses up the daily limit
+* **results:** read-only result views no longer overwrite the current session's edited order
+
 # [1.19.0](https://github.com/Tanyawat-Arsaga/the-sorter/compare/v1.18.2...v1.19.0) (2026-02-27)
 
 

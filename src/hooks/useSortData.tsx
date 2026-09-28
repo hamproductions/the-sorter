@@ -1,13 +1,13 @@
-import groupBy from 'lodash-es/groupBy';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useData } from './useData';
+import { useGlobalRankingSubmission } from './useGlobalRankingSubmission';
 import { useLocalStorage } from './useLocalStorage';
 import { useSorter } from './useSorter';
 import type { FilterType } from '~/components/sorter/CharacterFilters';
 import { useToaster } from '~/context/ToasterContext';
-import type { Character } from '~/types';
-import { hasFilter, isValidFilter, matchFilter } from '~/utils/filter';
+import { getCharacterSortList } from '~/utils/character';
+import { isValidFilter } from '~/utils/filter';
 import { getAssetUrl } from '~/utils/assets';
 import { TieToastContent } from '~/components/sorter/TieToastContent';
 import { token } from 'styled-system/tokens';
@@ -22,27 +22,10 @@ export const useSortData = () => {
     school: [],
     units: []
   });
-  const listToSort = useMemo(() => {
-    const charaSeiyuu = seiyuu
-      ? Object.values(
-          groupBy(
-            characters.flatMap((c) =>
-              c.casts.map(
-                (a, idx) =>
-                  ({ ...c, id: idx > 0 ? `${c.id}-${idx}` : c.id, casts: [a] }) as Character
-              )
-            ),
-            (d) => d.casts[0].seiyuu
-          )
-        ).map((d) => d[0])
-      : characters;
-
-    return filters && hasFilter(filters)
-      ? charaSeiyuu.filter((c) => {
-          return matchFilter(c, filters);
-        })
-      : charaSeiyuu;
-  }, [seiyuu, characters, filters]);
+  const listToSort = useMemo(
+    () => getCharacterSortList(characters, !!seiyuu, filters),
+    [seiyuu, characters, filters]
+  );
 
   const {
     init,
@@ -56,8 +39,24 @@ export const useSortData = () => {
     undo,
     progress,
     clear,
-    isEnded
+    isEnded,
+    loadResumeState,
+    getSnapshot,
+    loadState,
+    log,
+    setLog
   } = useSorter(listToSort.map((l) => l.id));
+
+  const globalRanking = useGlobalRankingSubmission({
+    log,
+    setLog,
+    isEnded,
+    context: {
+      kind: 'character',
+      mode: seiyuu ? 'seiyuu' : 'chara',
+      filter: isValidFilter(filters) ? { ...filters } : null
+    }
+  });
 
   const { toast } = useToaster();
 
@@ -134,6 +133,10 @@ export const useSortData = () => {
     setFilters,
     listToSort,
     listCount: listToSort.length,
-    clear
+    clear,
+    loadResumeState,
+    getSnapshot,
+    loadState,
+    globalRanking
   };
 };

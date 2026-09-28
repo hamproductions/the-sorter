@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Fragment } from 'react';
+import { Fragment, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { VERSION } from '../../version';
 
@@ -11,12 +11,16 @@ export function Metadata(props: { title?: string; helmet?: boolean }) {
   const url = 'https://hamproductions.github.io/the-sorter/';
   const Wrapper = props.helmet ? Helmet : Fragment;
 
+  useEffect(() => {
+    if (props.helmet) document.title = title;
+  }, [props.helmet, title]);
+
   return (
     <Wrapper>
       {/* <link rel="icon" type="image/svg+xml" href="/vite.svg" /> */}
       <meta data-rh="true" name="viewport" content="width=device-width, initial-scale=1.0" />
 
-      <title>{title}</title>
+      {!props.helmet && <title>{title}</title>}
       <meta data-rh="true" property="og:title" content={title} />
       <meta data-rh="true" name="twitter:title" content={title} />
 
