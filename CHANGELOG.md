@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [2.3.0](https://github.com/hamproductions/the-sorter/compare/v2.2.0...v2.3.0) (2026-10-18)
+
+
+### Bug Fixes
+
+* **data:** correct 17 seiyuu englishName entries to Family-Given order ([102a164](https://github.com/hamproductions/the-sorter/commit/102a164600286a7313bc0fa06237e9629e7fe52a))
+* **data:** English names for 2026 School Idol Musical seiyuu ([fe5056d](https://github.com/hamproductions/the-sorter/commit/fe5056df279e8da4c4aed8573807548861b07a9c))
+
+
+### Features
+
+* **assets:** add hasunosora 106 character icons and official seiyuu portraits ([c90a4ff](https://github.com/hamproductions/the-sorter/commit/c90a4ffa40144562ef2eb86eb46967519b64808d))
+* **assets:** update hasunosora 104/105 standing art and seiyuu photos ([1ee2142](https://github.com/hamproductions/the-sorter/commit/1ee21425341136f992a4b126cb454594195212aa))
+* **assets:** update hasunosora 106 official character standing visuals ([03328cd](https://github.com/hamproductions/the-sorter/commit/03328cde07653f9422b97dcc06e4861cb7f700e2))
+
 # [2.2.0](https://github.com/hamproductions/the-sorter/compare/v2.1.0...v2.2.0) (2026-09-28)
 
 
