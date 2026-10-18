@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [2.4.0](https://github.com/hamproductions/the-sorter/compare/v2.3.0...v2.4.0) (2026-10-18)
+
+
+### Features
+
+* **assets:** add missing School Idol Musical cast photos ([437fad4](https://github.com/hamproductions/the-sorter/commit/437fad4af52501f364eb00d00de1aed06b563b5f))
+
 # [2.3.0](https://github.com/hamproductions/the-sorter/compare/v2.2.0...v2.3.0) (2026-10-18)
 
 
