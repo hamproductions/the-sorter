@@ -1,0 +1,115 @@
+name: PR previews
+description: >
+  Adds one static preview per open pull request to an already-built site directory
+  (<site-dir>/pr/<n>/) so a single Pages artifact serves production and every preview.
+  No third-party actions; needs only bash, git, gh and jq. Only PRs whose head commit changed are rebuilt.
+
+inputs:
+  site-dir:
+    description: Built production site; previews are added under it
+    default: build/client
+  build-output:
+    description: Directory a PR build writes
+    default: build/client
+  install:
+    description: Install command run in each PR worktree
+    default: bun install --frozen-lockfile
+  build:
+    description: Build command run in each PR worktree
+    default: bun run build
+  base-env:
+    description: Env var the build reads for its public base path
+    default: BASE_PATH
+  base-path:
+    description: Public base path of production; empty means /<repo>/
+    default: ''
+  site-url:
+    description: 'Public URL of production; empty means https://<owner>.github.io/<repo>'
+    default: ''
+  prefix:
+    description: Folder under site-dir that holds previews
+    default: pr
+  max-previews:
+    description: Newest N open PRs get a preview
+    default: '5'
+  max-size-mb:
+    description: Skip previews that would push the site past this size; Pages allows 1000
+    default: '900'
+  exclude:
+    description: 'Space-separated paths removed from each preview to save size, e.g. "books voice"'
+    default: ''
+  install-cache-path:
+    description: Package manager download cache
+    default: ~/.bun/install/cache
+  lock-file:
+    description: Lock file that keys the package cache
+    default: bun.lock
+  secret:
+    description: Hides previews at unguessable URLs derived from this value and disables the index page; keep it in a repository secret
+    default: ''
+  comment-pr:
+    description: PR number to comment the preview link on; empty disables
+    default: ''
+  token:
+    description: Token for gh and git fetch; empty means github.token (needs pull-requests write for comments)
+    default: ''
+
+outputs:
+  built:
+    description: Space-separated PR numbers present in the site
+    value: ${{ steps.assemble.outputs.built }}
+
+runs:
+  using: composite
+  steps:
+    - id: list
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token || github.token }}
+        GH_REPO: ${{ github.repository }}
+        SECRET: ${{ inputs.secret }}
+        MAX: ${{ inputs.max-previews }}
+        CONFIG: ${{ inputs.install }}|${{ inputs.build }}|${{ inputs.base-env }}|${{ inputs.base-path || format('/{0}/', github.event.repository.name) }}|${{ inputs.prefix }}
+      run: bash "${{ github.action_path }}/previews.sh" list
+    - uses: actions/cache@v4
+      with:
+        path: ${{ inputs.install-cache-path }}
+        key: pr-previews-pkgs-${{ hashFiles(inputs.lock-file) }}
+        restore-keys: pr-previews-pkgs-
+    - id: restore
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ runner.temp }}/pr-previews
+        key: pr-previews-${{ steps.list.outputs.key }}
+        restore-keys: pr-previews-
+    - shell: bash
+      env:
+        BUILD: ${{ inputs.build }}
+        INSTALL: ${{ inputs.install }}
+        BASE_ENV: ${{ inputs.base-env }}
+        BASE_PATH_IN: ${{ inputs.base-path || format('/{0}/', github.event.repository.name) }}
+        SITE_URL_IN: ${{ inputs.site-url || format('https://{0}.github.io/{1}', github.repository_owner, github.event.repository.name) }}
+        PREFIX: ${{ inputs.prefix }}
+        OUTPUT: ${{ inputs.build-output }}
+        SECRET: ${{ inputs.secret }}
+        TOKEN: ${{ inputs.token || github.token }}
+      run: bash "${{ github.action_path }}/previews.sh" build
+    - if: steps.restore.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: ${{ runner.temp }}/pr-previews
+        key: pr-previews-${{ steps.list.outputs.key }}
+    - id: assemble
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token || github.token }}
+        GH_REPO: ${{ github.repository }}
+        SITE_DIR: ${{ inputs.site-dir }}
+        PREFIX: ${{ inputs.prefix }}
+        MAX_MB: ${{ inputs.max-size-mb }}
+        EXCLUDE: ${{ inputs.exclude }}
+        BASE_PATH_IN: ${{ inputs.base-path || format('/{0}/', github.event.repository.name) }}
+        SITE_URL_IN: ${{ inputs.site-url || format('https://{0}.github.io/{1}', github.repository_owner, github.event.repository.name) }}
+        SECRET: ${{ inputs.secret }}
+        COMMENT_PR: ${{ inputs.comment-pr }}
+      run: bash "${{ github.action_path }}/previews.sh" assemble

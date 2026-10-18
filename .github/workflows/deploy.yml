@@ -4,59 +4,101 @@ on:
   push:
     branches:
       - main
+  pull_request_target:
+    types: [opened, synchronize, reopened, closed]
+  workflow_dispatch:
   workflow_run:
     workflows: ["Update Data"]
     types: [completed]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  pull-requests: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
 jobs:
-  # Build job
   build:
     name: Build Project
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    if: >-
+      (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success') &&
+      (github.event_name != 'pull_request_target' || github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
+    outputs:
+      previews: ${{ steps.previews.outputs.built }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
       - name: Install Dependencies
         uses: ./.github/composite-actions/setup
+      - id: prod
+        uses: actions/cache@v4
+        with:
+          path: dist/client
+          key: site-${{ github.sha }}
       - name: Build
+        if: steps.prod.outputs.cache-hit != 'true'
         run: PUBLIC_ENV__BASE_URL=/the-sorter bun run ci:build
         env:
           PUBLIC_ENV__RANKING_API_URL: ${{ vars.RANKING_API_URL }}
+      - id: previews
+        uses: ./.github/actions/pr-previews
+        with:
+          site-dir: dist/client
+          build-output: dist/client
+          install: bun install --frozen-lockfile && bun panda codegen
+          build: bun run ci:build
+          base-env: PUBLIC_ENV__BASE_URL
+          base-path: /the-sorter/
+          lock-file: bun.lockb
+          exclude: assets/songs
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist/client
 
-    # <Not provided for brevity>
-    # At a minimum this job should upload artifacts using actions/upload-pages-artifact
-
-  # Deploy job
   deploy:
-    # Add a dependency to the build job
     needs: build
-
-    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
     permissions:
-      pages: write # to deploy to Pages
-      id-token: write # to verify the deployment originates from an appropriate source
-
-    # Deploy to the github-pages environment
+      pages: write
+      id-token: write
+      pull-requests: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-
-    # Specify runner + deployment step
-
     outputs:
       url: ${{ steps.deployment.outputs.page_url }}
-
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4 # or specific "vX.X.X" version tag for this action
+        uses: actions/deploy-pages@v4
+      - name: Comment preview link
+        if: github.event_name == 'pull_request_target' && github.event.action != 'closed' && contains(format(' {0} ', needs.build.outputs.previews), format(' {0} ', github.event.pull_request.number))
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          body="<!-- deploy-preview -->
+          Preview: ${PAGE_URL%/}/pr/${PR}/
+          Commit: ${SHA}
+          Song audio is left out of previews."
+          id=$(gh api "repos/$GH_REPO/issues/$PR/comments" --paginate --jq '.[] | select(.body | startswith("<!-- deploy-preview -->")) | .id' | head -1)
+          if [ -n "$id" ]; then gh api -X PATCH "repos/$GH_REPO/issues/comments/$id" -f body="$body" > /dev/null
+          else gh pr comment "$PR" --body "$body"; fi
 
   lighthouse:
+    if: github.event_name != 'pull_request_target'
     runs-on: ubuntu-latest
     needs: deploy
     steps:
@@ -65,7 +107,7 @@ jobs:
         uses: treosh/lighthouse-ci-action@v11
         with:
           urls: ${{ needs.deploy.outputs.url }}
-          budgetPath: ./budget.json # test performance budgets
+          budgetPath: ./budget.json
           temporaryPublicStorage: true
       - name: Running Page Speed Insights
         uses: jakepartusch/psi-action@v1.3
