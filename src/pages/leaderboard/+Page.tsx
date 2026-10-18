@@ -88,6 +88,7 @@ export function Page() {
   const [mode, setMode] = useState<RankingMode | 'all'>('chara');
   const [period, setPeriod] = useState('all');
   const [exactOnly, setExactOnly] = useState(false);
+  const [globalRanks, setGlobalRanks] = useState(false);
   const [characterFilter, setCharacterFilter] = useState<FilterType | null | undefined>(
     EMPTY_CHARACTER_FILTER
   );
@@ -113,10 +114,14 @@ export function Page() {
   const activeMode = mode === 'all' ? undefined : mode;
   const activeFilter = kind === 'character' ? characterFilter : songFilter;
   const filterCount = countFilter({ ...activeFilter }) + performanceIds.length;
-  const view: LeaderboardView = filterCount === 0 ? 'global' : exactOnly ? 'cohort' : 'subset';
+  const keepGlobalRanks = filterCount > 0 && globalRanks;
+  const view: LeaderboardView =
+    filterCount === 0 || keepGlobalRanks ? 'global' : exactOnly ? 'cohort' : 'subset';
 
   useEffect(() => {
-    if (hydrated && filterCount === 0) setExactOnly(false);
+    if (!hydrated || filterCount > 0) return;
+    setExactOnly(false);
+    setGlobalRanks(false);
   }, [filterCount, hydrated]);
 
   useEffect(() => {
@@ -135,6 +140,7 @@ export function Page() {
     );
     setPeriod(params.get('period') ?? 'all');
     setExactOnly(params.get('exact') === '1');
+    setGlobalRanks(params.get('global') === '1');
     try {
       const filter = JSON.parse(params.get('filter') ?? 'null') as RankingFilter | null;
       if (filter && nextKind === 'character') {
@@ -176,6 +182,17 @@ export function Page() {
     }),
     [kind, activeMode, period, view, activeFilter, performanceIds]
   );
+  const scopeQuery = useMemo<LeaderboardQuery>(
+    () => ({
+      kind,
+      mode: activeMode,
+      period,
+      view: 'subset',
+      filter: { ...activeFilter },
+      performanceIds
+    }),
+    [kind, activeMode, period, activeFilter, performanceIds]
+  );
 
   useEffect(() => {
     if (!isGlobalRankingEnabled) return;
@@ -208,17 +225,27 @@ export function Page() {
     let cancelled = false;
     setStatus('loading');
     const load = async () => {
-      const res = await fetchLeaderboard(query);
+      const [res, scope] = await Promise.all([
+        fetchLeaderboard(query),
+        keepGlobalRanks ? fetchLeaderboard(scopeQuery) : undefined
+      ]);
       if (cancelled) return;
-      setResult(res);
-      setStatus(res ? 'idle' : 'error');
+      const scopeIds = new Set(scope?.items.map((entry) => entry.itemId));
+      const scoped =
+        res && keepGlobalRanks && scope
+          ? { ...res, items: res.items.filter((entry) => scopeIds.has(entry.itemId)) }
+          : keepGlobalRanks
+            ? undefined
+            : res;
+      setResult(scoped);
+      setStatus(scoped ? 'idle' : 'error');
     };
     const timer = setTimeout(() => void load(), 300);
     return () => {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [query, reloadKey, hydrated]);
+  }, [query, scopeQuery, keepGlobalRanks, reloadKey, hydrated]);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -237,6 +264,7 @@ export function Page() {
       }
       if (performanceIds.length > 0) params.set('perf', performanceIds.join(','));
       if (exactOnly) params.set('exact', '1');
+      if (globalRanks) params.set('global', '1');
     }
     if (sort.key !== DEFAULT_SORT.key || sort.desc !== DEFAULT_SORT.desc) {
       params.set('sort', sort.key);
@@ -260,6 +288,7 @@ export function Page() {
     activeFilter,
     performanceIds,
     exactOnly,
+    globalRanks,
     sort,
     search,
     minAppearances,
@@ -333,6 +362,7 @@ export function Page() {
     setPage(1);
     setMode(cohort.mode);
     setExactOnly(true);
+    setGlobalRanks(false);
     setPerformanceIds(cohort.performanceIds);
     if (cohort.kind === 'character') {
       setCharacterFilter({ ...EMPTY_CHARACTER_FILTER, ...cohort.filter } as FilterType);
@@ -541,8 +571,18 @@ export function Page() {
                       )}
                     </Suspense>
                     <Switch
-                      checked={exactOnly}
+                      checked={globalRanks}
                       disabled={filterCount === 0}
+                      onCheckedChange={(e) => {
+                        setPage(1);
+                        setGlobalRanks(e.checked);
+                      }}
+                    >
+                      {t('global_ranking.global_ranks')}
+                    </Switch>
+                    <Switch
+                      checked={exactOnly}
+                      disabled={filterCount === 0 || globalRanks}
                       onCheckedChange={(e) => {
                         setPage(1);
                         setExactOnly(e.checked);
@@ -557,7 +597,7 @@ export function Page() {
 
             <Stack aria-live="polite" gap="2" w="full">
               <Text color="fg.muted" fontSize="sm" textAlign="center">
-                {t(`global_ranking.view_${view}_hint`)}
+                {t(`global_ranking.view_${keepGlobalRanks ? 'global_filter' : view}_hint`)}
               </Text>
               {status === 'error' ? (
                 <Stack gap="2" alignItems="center">
