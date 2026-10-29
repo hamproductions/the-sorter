@@ -1,6 +1,6 @@
-import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaChevronDown } from 'react-icons/fa6';
+import { FaFilter, FaXmark } from 'react-icons/fa6';
 import { CharactersIcon, SongsIcon } from '~/components/layout/section-icons';
 import { Metadata } from '~/components/layout/Metadata';
 import {
@@ -18,9 +18,10 @@ import { useRankingItems } from '~/components/leaderboard/useRankingItems';
 import type { FilterType } from '~/components/sorter/CharacterFilters';
 import { LoadingCharacterFilters } from '~/components/sorter/LoadingCharacterFilters';
 import type { SongFilterType } from '~/components/sorter/SongFilters';
-import { Accordion } from '~/components/ui/accordion';
 import { Button } from '~/components/ui/button';
+import { Drawer } from '~/components/ui/drawer';
 import { FormLabel } from '~/components/ui/form-label';
+import { IconButton } from '~/components/ui/icon-button';
 import { Input } from '~/components/ui/input';
 import { Pagination } from '~/components/ui/pagination';
 import { Switch } from '~/components/ui/switch';
@@ -39,9 +40,6 @@ import {
 } from '~/types/global-ranking';
 import { useFilterNameLookup } from '~/hooks/useFilterNameLookup';
 import { countFilter, describeFilter } from '~/utils/filter-summary';
-import { getSeriesName } from '~/utils/names';
-import characterSeries from '../../../data/series.json';
-import seriesInfo from '../../../data/series-info.json';
 import {
   type LeaderboardQuery,
   fetchCohorts,
@@ -50,7 +48,8 @@ import {
   isGlobalRankingEnabled
 } from '~/utils/global-ranking';
 import { getLocallySortedIds } from '~/utils/save-state';
-import { HStack, Stack, Wrap } from 'styled-system/jsx';
+import { css } from 'styled-system/css';
+import { HStack, Stack, Wrap, styled } from 'styled-system/jsx';
 
 const CharacterFilters = lazy(() =>
   import('~/components/sorter/CharacterFilters').then((m) => ({ default: m.CharacterFilters }))
@@ -82,6 +81,37 @@ const compareEntries = (sort: TableSort) => (a: LeaderboardEntry, b: Leaderboard
 
 const parseList = (value: string | null) => (value ? value.split(',').filter(Boolean) : []);
 
+const HISTORY_KEYS = ['kind', 'mode', 'period', 'filter', 'perf', 'exact', 'global'];
+const AGGREGATIONS = ['subset', 'global', 'cohort'] as const;
+type Aggregation = (typeof AGGREGATIONS)[number];
+
+const sameIds = (a: (string | number)[] = [], b: (string | number)[] = []) =>
+  a.length === b.length && a.map(String).toSorted().join() === b.map(String).toSorted().join();
+
+const sameFilter = (a: RankingFilter, b: RankingFilter) =>
+  [...new Set([...Object.keys(a), ...Object.keys(b)])].every((key) => sameIds(a[key], b[key]));
+
+function QuickFilterRow({
+  label,
+  testId,
+  children
+}: {
+  label: string;
+  testId: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Stack gap="2" w="full">
+      <Text color="fg.muted" fontSize="xs" fontWeight="bold">
+        {label}
+      </Text>
+      <Wrap data-testid={testId} gap="2">
+        {children}
+      </Wrap>
+    </Stack>
+  );
+}
+
 export function Page() {
   const { t, i18n } = useTranslation();
   const [kind, setKind] = useState<RankingKind>('character');
@@ -109,6 +139,7 @@ export function Page() {
   const [mineIds, setMineIds] = useState<Set<string>>(new Set());
   const [sort, setSort] = useState<TableSort>(DEFAULT_SORT);
   const [page, setPage] = useState(1);
+  const [filterOpen, setFilterOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
   const activeMode = mode === 'all' ? undefined : mode;
@@ -124,41 +155,54 @@ export function Page() {
     setGlobalRanks(false);
   }, [filterCount, hydrated]);
 
+  const restoring = useRef(true);
+
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const nextKind = params.get('kind') === 'song' ? 'song' : 'character';
-    const nextMode = params.get('mode');
-    setKind(nextKind);
-    setMode(
-      nextMode === 'all' && nextKind === 'song'
-        ? 'all'
-        : (RANKING_MODES[nextKind] as readonly string[]).includes(nextMode ?? '')
-          ? (nextMode as RankingMode)
-          : nextKind === 'character'
-            ? 'chara'
-            : 'all'
-    );
-    setPeriod(params.get('period') ?? 'all');
-    setExactOnly(params.get('exact') === '1');
-    setGlobalRanks(params.get('global') === '1');
-    try {
-      const filter = JSON.parse(params.get('filter') ?? 'null') as RankingFilter | null;
-      if (filter && nextKind === 'character') {
-        setCharacterFilter({ ...EMPTY_CHARACTER_FILTER, ...filter } as FilterType);
-      } else if (filter) {
-        setSongFilter({ ...EMPTY_SONG_FILTER, ...filter } as SongFilterType);
+    const readUrl = () => {
+      restoring.current = true;
+      const params = new URLSearchParams(window.location.search);
+      const nextKind = params.get('kind') === 'song' ? 'song' : 'character';
+      const nextMode = params.get('mode');
+      setKind(nextKind);
+      setMode(
+        nextMode === 'all' && nextKind === 'song'
+          ? 'all'
+          : (RANKING_MODES[nextKind] as readonly string[]).includes(nextMode ?? '')
+            ? (nextMode as RankingMode)
+            : nextKind === 'character'
+              ? 'chara'
+              : 'all'
+      );
+      setPeriod(params.get('period') ?? 'all');
+      setExactOnly(params.get('exact') === '1');
+      setGlobalRanks(params.get('global') === '1');
+      try {
+        const filter = JSON.parse(params.get('filter') ?? 'null') as RankingFilter | null;
+        setCharacterFilter({
+          ...EMPTY_CHARACTER_FILTER,
+          ...(nextKind === 'character' ? filter : null)
+        } as FilterType);
+        setSongFilter({
+          ...EMPTY_SONG_FILTER,
+          ...(nextKind === 'song' ? filter : null)
+        } as SongFilterType);
+      } catch {}
+      setPerformanceIds(parseList(params.get('perf')));
+      const sortKey = params.get('sort');
+      if (SORT_KEYS.includes(sortKey as SortKey)) {
+        setSort({ key: sortKey as SortKey, desc: params.get('dir') === 'desc' });
+      } else {
+        setSort(DEFAULT_SORT);
       }
-    } catch {}
-    setPerformanceIds(parseList(params.get('perf')));
-    const sortKey = params.get('sort');
-    if (SORT_KEYS.includes(sortKey as SortKey)) {
-      setSort({ key: sortKey as SortKey, desc: params.get('dir') === 'desc' });
-    }
-    setSearch(params.get('q') ?? '');
-    setMinAppearances(Math.max(1, Number(params.get('min')) || 1));
-    setMineOnly(params.get('mine') === '1');
-    setPage(Math.max(1, Number(params.get('page')) || 1));
-    setHydrated(true);
+      setSearch(params.get('q') ?? '');
+      setMinAppearances(Math.max(1, Number(params.get('min')) || 1));
+      setMineOnly(params.get('mine') === '1');
+      setPage(Math.max(1, Number(params.get('page')) || 1));
+      setHydrated(true);
+    };
+    readUrl();
+    window.addEventListener('popstate', readUrl);
+    return () => window.removeEventListener('popstate', readUrl);
   }, []);
 
   useEffect(() => {
@@ -276,8 +320,12 @@ export function Page() {
     if (page > 1) params.set('page', String(page));
     const query = params.toString();
     const url = `${window.location.pathname}${query ? `?${query}` : ''}`;
+    const current = new URLSearchParams(window.location.search);
+    const push =
+      !restoring.current && HISTORY_KEYS.some((key) => current.get(key) !== params.get(key));
+    restoring.current = false;
     if (url !== `${window.location.pathname}${window.location.search}`) {
-      window.history.replaceState(window.history.state, '', url);
+      window.history[push ? 'pushState' : 'replaceState'](window.history.state, '', url);
     }
   }, [
     hydrated,
@@ -358,7 +406,28 @@ export function Page() {
     setPeriod('all');
   };
 
+  const isActiveCohort = (cohort: CohortSummary) =>
+    filterCount > 0 &&
+    exactOnly &&
+    !globalRanks &&
+    cohort.mode === mode &&
+    sameIds(cohort.performanceIds, performanceIds) &&
+    sameFilter(cohort.filter, { ...activeFilter });
+
+  const clearFilter = () => {
+    setPage(1);
+    setPerformanceIds([]);
+    setExactOnly(false);
+    setGlobalRanks(false);
+    if (kind === 'character') setCharacterFilter(EMPTY_CHARACTER_FILTER);
+    else setSongFilter(EMPTY_SONG_FILTER);
+  };
+
   const applyCohort = (cohort: CohortSummary) => {
+    if (isActiveCohort(cohort)) {
+      clearFilter();
+      return;
+    }
     setPage(1);
     setMode(cohort.mode);
     setExactOnly(true);
@@ -373,9 +442,24 @@ export function Page() {
 
   const describeCohort = (cohort: CohortSummary) =>
     describeFilter(cohort.kind, cohort.filter, i18n.language, t, filterNames) ??
-    (cohort.performanceIds.length > 0
-      ? t('global_ranking.filter_count', { count: cohort.performanceIds.length })
-      : t('global_ranking.no_filter'));
+    t('global_ranking.filter_count', { count: cohort.performanceIds.length });
+
+  const popularCohorts = cohorts
+    .filter((cohort) => countFilter(cohort.filter) + cohort.performanceIds.length > 0)
+    .slice(0, 10);
+
+  const filterSummary =
+    describeFilter(kind, { ...activeFilter }, i18n.language, t, filterNames) ??
+    (performanceIds.length > 0
+      ? t('global_ranking.filter_count', { count: performanceIds.length })
+      : t('global_ranking.filter_none'));
+
+  const aggregation: Aggregation = globalRanks ? 'global' : exactOnly ? 'cohort' : 'subset';
+  const setAggregation = (next: Aggregation) => {
+    setPage(1);
+    setGlobalRanks(next === 'global');
+    setExactOnly(next === 'cohort');
+  };
 
   const onSort = useCallback((key: SortKey) => {
     setPage(1);
@@ -383,28 +467,6 @@ export function Page() {
       current.key === key ? { key, desc: !current.desc } : { key, desc: key !== 'rank' }
     );
   }, []);
-
-  const seriesChips = useMemo(
-    () =>
-      kind === 'character'
-        ? Object.keys(characterSeries).map((id) => ({
-            id,
-            label: getSeriesName(id, i18n.language)
-          }))
-        : seriesInfo.map((s) => ({ id: s.id, label: s.name })),
-    [kind, i18n.language]
-  );
-  const selectedSeries = (activeFilter?.series ?? []) as string[];
-  const toggleSeries = (id: string) => {
-    const series = selectedSeries.includes(id)
-      ? selectedSeries.filter((s) => s !== id)
-      : [...selectedSeries, id];
-    setPage(1);
-    setPerformanceIds([]);
-    if (kind === 'character')
-      setCharacterFilter({ ...EMPTY_CHARACTER_FILTER, ...characterFilter, series });
-    else setSongFilter({ ...EMPTY_SONG_FILTER, ...songFilter, series });
-  };
 
   const filtered = useMemo(
     () =>
@@ -432,12 +494,12 @@ export function Page() {
   return (
     <>
       <Metadata title={title} helmet />
-      <Stack gap="5" alignItems="center" w="full">
-        <Stack gap="1" alignItems="center" textAlign="center">
-          <Text fontSize="3xl" fontWeight="bold">
+      <Stack gap="4" alignItems="center" w="full">
+        <Stack gap="0" alignItems="center" textAlign="center">
+          <Text fontSize="2xl" fontWeight="bold">
             {title}
           </Text>
-          <Text maxW="prose" color="fg.muted">
+          <Text maxW="prose" color="fg.muted" fontSize="sm">
             {t('global_ranking.description')}
           </Text>
         </Stack>
@@ -465,7 +527,7 @@ export function Page() {
               </Tabs.List>
             </Tabs.Root>
 
-            <Wrap gap="4" justifyContent="center" alignItems="flex-end">
+            <Wrap gap="3" justifyContent="center" alignItems="flex-end" w="full">
               <LeaderboardSelect
                 label={t('global_ranking.mode_label')}
                 value={mode}
@@ -475,6 +537,7 @@ export function Page() {
                   setMode(next as RankingMode | 'all');
                   setPerformanceIds([]);
                 }}
+                width="36"
               />
               <LeaderboardSelect
                 label={t('global_ranking.period_label')}
@@ -484,121 +547,194 @@ export function Page() {
                   setPage(1);
                   setPeriod(next);
                 }}
-                width="56"
+                width="48"
               />
+              <Stack gap="1.5">
+                <FormLabel htmlFor="leaderboard-search" fontSize="sm">
+                  {t('global_ranking.search_label')}
+                </FormLabel>
+                <Input
+                  id="leaderboard-search"
+                  type="search"
+                  size="sm"
+                  value={search}
+                  placeholder={t('global_ranking.search_placeholder')}
+                  onChange={(e) => {
+                    setPage(1);
+                    setSearch(e.target.value);
+                  }}
+                  w="48"
+                />
+              </Stack>
+              <LeaderboardSelect
+                label={t('global_ranking.min_appearances')}
+                value={String(minAppearances)}
+                options={MIN_APPEARANCE_OPTIONS.map((value) => ({
+                  value: String(value),
+                  label:
+                    value === 1
+                      ? t('global_ranking.min_appearances_any')
+                      : t('global_ranking.min_appearances_value', { count: value })
+                }))}
+                onChange={(next) => {
+                  setPage(1);
+                  setMinAppearances(Number(next));
+                }}
+                width="32"
+              />
+              {filterCount > 0 && (
+                <LeaderboardSelect
+                  label={t('global_ranking.aggregation')}
+                  value={aggregation}
+                  options={AGGREGATIONS.map((value) => ({
+                    value,
+                    label: t(`global_ranking.aggregation_${value}`)
+                  }))}
+                  onChange={(next) => setAggregation(next as Aggregation)}
+                  width="56"
+                />
+              )}
+              <Button
+                data-testid="filter-button"
+                size="sm"
+                variant={filterCount > 0 ? 'solid' : 'outline'}
+                onClick={() => setFilterOpen(true)}
+              >
+                <FaFilter />
+                {filterCount > 0
+                  ? `${t('global_ranking.filter')} (${filterCount})`
+                  : t('global_ranking.filter')}
+              </Button>
+              {mineIds.size > 0 && (
+                <Switch
+                  checked={mineOnly}
+                  onCheckedChange={(e) => {
+                    setPage(1);
+                    setMineOnly(e.checked);
+                  }}
+                  pb="1.5"
+                >
+                  {t(`global_ranking.mine_only_${kind}`)}
+                </Switch>
+              )}
             </Wrap>
 
-            <Stack gap="2" alignItems="center" w="full">
-              <Wrap
-                data-testid="series-chips"
-                gap="2"
-                justifyContent={{ base: 'flex-start', md: 'center' }}
-                w="full"
-                pb={{ base: '1', md: '0' }}
-                overflowX={{ base: 'auto', md: 'visible' }}
-                flexWrap={{ base: 'nowrap', md: 'wrap' }}
-              >
-                {seriesChips.map((chip) => (
-                  <Button
-                    key={chip.id}
-                    size="xs"
-                    variant={selectedSeries.includes(chip.id) ? 'solid' : 'outline'}
-                    aria-pressed={selectedSeries.includes(chip.id)}
-                    onClick={() => toggleSeries(chip.id)}
-                    flexShrink={0}
-                  >
-                    {chip.label}
-                  </Button>
-                ))}
-              </Wrap>
-              {cohorts.length > 0 && (
-                <Wrap gap="2" justifyContent="center" alignItems="center">
-                  <Text color="fg.muted" fontSize="xs" fontWeight="bold">
-                    {t('global_ranking.popular_filters')}
-                  </Text>
-                  {cohorts.slice(0, 10).map((cohort) => (
-                    <Button
-                      key={cohort.hash}
-                      size="xs"
-                      variant="subtle"
-                      onClick={() => applyCohort(cohort)}
-                    >
-                      {describeCohort(cohort)} ({cohort.submissions})
-                    </Button>
-                  ))}
-                </Wrap>
-              )}
-            </Stack>
-
-            <Accordion.Root collapsible defaultValue={[]} w="full">
-              <Accordion.Item value="filter" w="full">
-                <Accordion.ItemTrigger>
-                  <HStack gap="2">
-                    <Text fontWeight="bold">{t('global_ranking.filter')}</Text>
-                    <Text color="fg.muted" fontSize="sm">
-                      {filterCount === 0
-                        ? t('global_ranking.filter_none')
-                        : t('global_ranking.filter_count', { count: filterCount })}
-                    </Text>
-                  </HStack>
-                  <Accordion.ItemIndicator>
-                    <FaChevronDown />
-                  </Accordion.ItemIndicator>
-                </Accordion.ItemTrigger>
-                <Accordion.ItemContent>
-                  <Stack gap="4" pb="2">
-                    <Suspense fallback={<LoadingCharacterFilters />}>
-                      {import.meta.env.SSR ? (
-                        <LoadingCharacterFilters />
-                      ) : kind === 'character' ? (
-                        <CharacterFilters
-                          filters={characterFilter}
-                          setFilters={(value) => {
-                            setPage(1);
-                            setPerformanceIds([]);
-                            setCharacterFilter(value);
-                          }}
-                        />
-                      ) : (
-                        <SongFilters
-                          filters={songFilter}
-                          setFilters={(value) => {
-                            setPage(1);
-                            setPerformanceIds([]);
-                            setSongFilter(value);
-                          }}
-                        />
+            <Drawer.Root open={filterOpen} onOpenChange={(e) => setFilterOpen(e.open)}>
+              <Drawer.Backdrop />
+              <Drawer.Positioner>
+                <Drawer.Content>
+                  <Drawer.Header>
+                    <HStack justifyContent="space-between">
+                      <Drawer.Title>{t('global_ranking.filter')}</Drawer.Title>
+                      <Drawer.CloseTrigger asChild>
+                        <IconButton
+                          aria-label={t('global_ranking.close')}
+                          variant="ghost"
+                          size="sm"
+                        >
+                          <FaXmark />
+                        </IconButton>
+                      </Drawer.CloseTrigger>
+                    </HStack>
+                  </Drawer.Header>
+                  <Drawer.Body>
+                    <Stack gap="5">
+                      {popularCohorts.length > 0 && (
+                        <QuickFilterRow
+                          label={t('global_ranking.popular_filters')}
+                          testId="cohort-chips"
+                        >
+                          {popularCohorts.map((cohort) => {
+                            const label = describeCohort(cohort);
+                            const active = isActiveCohort(cohort);
+                            return (
+                              <Button
+                                key={cohort.hash}
+                                size="xs"
+                                variant={active ? 'solid' : 'subtle'}
+                                aria-pressed={active}
+                                title={label}
+                                onClick={() => applyCohort(cohort)}
+                                flexShrink={0}
+                              >
+                                <styled.span display="block" maxW="60" truncate>
+                                  {label}
+                                </styled.span>
+                                <styled.span fontVariantNumeric="tabular-nums" opacity="0.75">
+                                  {cohort.submissions}
+                                </styled.span>
+                              </Button>
+                            );
+                          })}
+                        </QuickFilterRow>
                       )}
-                    </Suspense>
-                    <Switch
-                      checked={globalRanks}
-                      disabled={filterCount === 0}
-                      onCheckedChange={(e) => {
-                        setPage(1);
-                        setGlobalRanks(e.checked);
-                      }}
-                    >
-                      {t('global_ranking.global_ranks')}
-                    </Switch>
-                    <Switch
-                      checked={exactOnly}
-                      disabled={filterCount === 0 || globalRanks}
-                      onCheckedChange={(e) => {
-                        setPage(1);
-                        setExactOnly(e.checked);
-                      }}
-                    >
-                      {t('global_ranking.exact_only')}
-                    </Switch>
-                  </Stack>
-                </Accordion.ItemContent>
-              </Accordion.Item>
-            </Accordion.Root>
+                      <Suspense fallback={<LoadingCharacterFilters />}>
+                        {import.meta.env.SSR ? (
+                          <LoadingCharacterFilters />
+                        ) : kind === 'character' ? (
+                          <CharacterFilters
+                            filters={characterFilter}
+                            setFilters={(value) => {
+                              setPage(1);
+                              setPerformanceIds([]);
+                              setCharacterFilter(value);
+                            }}
+                          />
+                        ) : (
+                          <SongFilters
+                            filters={songFilter}
+                            setFilters={(value) => {
+                              setPage(1);
+                              setPerformanceIds([]);
+                              setSongFilter(value);
+                            }}
+                          />
+                        )}
+                      </Suspense>
+                    </Stack>
+                  </Drawer.Body>
+                  <Drawer.Footer>
+                    <HStack justifyContent="space-between" w="full">
+                      <Button variant="ghost" onClick={clearFilter} disabled={filterCount === 0}>
+                        {t('global_ranking.clear_filter')}
+                      </Button>
+                      <Drawer.CloseTrigger asChild>
+                        <Button>
+                          {t('global_ranking.show_results', {
+                            count: result?.submissions ?? 0
+                          })}
+                        </Button>
+                      </Drawer.CloseTrigger>
+                    </HStack>
+                  </Drawer.Footer>
+                </Drawer.Content>
+              </Drawer.Positioner>
+            </Drawer.Root>
 
-            <Stack aria-live="polite" gap="2" w="full">
-              <Text color="fg.muted" fontSize="sm" textAlign="center">
-                {t(`global_ranking.view_${keepGlobalRanks ? 'global_filter' : view}_hint`)}
-              </Text>
+            <Stack aria-live="polite" gap="3" w="full">
+              <HStack gap="2" justifyContent="center" w="full" minW="0" minH="6">
+                <Text flexShrink={0} color="fg.muted" fontSize="sm">
+                  {status === 'loading'
+                    ? t('global_ranking.loading')
+                    : result
+                      ? t('global_ranking.submissions', { count: result.submissions })
+                      : ''}
+                </Text>
+                {filterCount > 0 && (
+                  <>
+                    <Text
+                      title={filterSummary}
+                      color="fg.muted"
+                      fontSize="sm"
+                      truncate
+                    >{`· ${filterSummary}`}</Text>
+                    <Button size="xs" variant="ghost" onClick={clearFilter} flexShrink={0}>
+                      <FaXmark />
+                      {t('global_ranking.clear_filter')}
+                    </Button>
+                  </>
+                )}
+              </HStack>
               {status === 'error' ? (
                 <Stack gap="2" alignItems="center">
                   <Text color="fg.muted">{t('global_ranking.error')}</Text>
@@ -607,60 +743,19 @@ export function Page() {
                   </Button>
                 </Stack>
               ) : result && result.items.length > 0 ? (
-                <>
-                  <Text color="fg.muted" fontSize="sm" textAlign="center">
-                    {status === 'loading'
-                      ? t('global_ranking.loading')
-                      : t('global_ranking.submissions', { count: result.submissions })}
-                  </Text>
-                  <Wrap gap="3" justifyContent="center" alignItems="flex-end">
-                    <Stack gap="1.5">
-                      <FormLabel htmlFor="leaderboard-search" fontSize="sm">
-                        {t('global_ranking.search_label')}
-                      </FormLabel>
-                      <Input
-                        id="leaderboard-search"
-                        type="search"
-                        size="sm"
-                        value={search}
-                        placeholder={t('global_ranking.search_placeholder')}
-                        onChange={(e) => {
-                          setPage(1);
-                          setSearch(e.target.value);
-                        }}
-                        w="56"
-                      />
-                    </Stack>
-                    <LeaderboardSelect
-                      label={t('global_ranking.min_appearances')}
-                      value={String(minAppearances)}
-                      options={MIN_APPEARANCE_OPTIONS.map((value) => ({
-                        value: String(value),
-                        label:
-                          value === 1
-                            ? t('global_ranking.min_appearances_any')
-                            : t('global_ranking.min_appearances_value', { count: value })
-                      }))}
-                      onChange={(next) => {
-                        setPage(1);
-                        setMinAppearances(Number(next));
-                      }}
-                      width="36"
-                    />
-                    <Switch
-                      checked={mineOnly}
-                      disabled={mineIds.size === 0}
-                      onCheckedChange={(e) => {
-                        setPage(1);
-                        setMineOnly(e.checked);
-                      }}
-                      pb="1.5"
-                    >
-                      {t(`global_ranking.mine_only_${kind}`)}
-                    </Switch>
-                  </Wrap>
+                <Stack
+                  aria-busy={status === 'loading'}
+                  gap="3"
+                  opacity={status === 'loading' ? 0.5 : 1}
+                  transition="opacity 0.2s"
+                >
                   {!search.trim() && (
-                    <Stack alignItems="center" py="2">
+                    <Stack
+                      className={css({
+                        '@media (max-height: 819px), (max-width: 767px)': { display: 'none' }
+                      })}
+                      alignItems="center"
+                    >
                       <LeaderboardPodium
                         entries={filtered.toSorted((a, b) => a.rank - b.rank).slice(0, 3)}
                         resolve={resolve}
@@ -691,14 +786,13 @@ export function Page() {
                       />
                     </Stack>
                   )}
-                  <Text maxW="prose" mx="auto" color="fg.muted" fontSize="xs" textAlign="center">
-                    {t('global_ranking.score_caption')}
-                  </Text>
-                </>
+                </Stack>
               ) : (
-                <Text color="fg.muted" textAlign="center">
-                  {status === 'loading' ? t('global_ranking.loading') : t('global_ranking.empty')}
-                </Text>
+                status !== 'loading' && (
+                  <Text color="fg.muted" textAlign="center">
+                    {t('global_ranking.empty')}
+                  </Text>
+                )
               )}
             </Stack>
           </>

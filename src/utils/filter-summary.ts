@@ -39,7 +39,7 @@ const nameList = (
         ...(filter.series ?? []).map((id) =>
           id === 'cross'
             ? t('settings.cross_series')
-            : (seriesInfo.find((s) => s.id === String(id))?.name ?? String(id))
+            : getSeriesName(seriesInfo.find((s) => s.id === String(id))?.name ?? String(id), lang)
         ),
         ...(filter.artists ?? []).map((id) => {
           const artist = artistsInfo.find((a) => a.id === String(id));

@@ -1,6 +1,6 @@
 import { Fragment, memo, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaArrowDown, FaArrowUp, FaCircleInfo } from 'react-icons/fa6';
+import { FaArrowDown, FaArrowUp, FaChevronDown, FaCircleInfo } from 'react-icons/fa6';
 import { IconButton } from '../ui/icon-button';
 import { Popover } from '../ui/popover';
 import { Skeleton } from '../ui/skeleton';
@@ -11,6 +11,7 @@ import { RankTrendChart, TREND_CHART_ASPECT } from './RankTrendChart';
 import type { RankingItemDisplay } from './useRankingItems';
 import type { ItemHistoryPoint, LeaderboardEntry } from '~/types/global-ranking';
 import { type LeaderboardQuery, fetchItemHistory } from '~/utils/global-ranking';
+import { css } from 'styled-system/css';
 import { Box, HStack, Stack, styled } from 'styled-system/jsx';
 
 export const SORT_KEYS = [
@@ -30,8 +31,8 @@ export interface TableSort {
 
 const percent = (value: number) => `${(value * 100).toFixed(1)}%`;
 const historyCache = new Map<string, ItemHistoryPoint[]>();
-const COLUMNS: { key: Exclude<SortKey, 'rank' | 'score'>; hideBelow: 'sm' | 'md' }[] = [
-  { key: 'appearances', hideBelow: 'sm' },
+const COLUMNS: { key: Exclude<SortKey, 'rank' | 'score'>; hideBelow?: 'sm' | 'md' }[] = [
+  { key: 'appearances' },
   { key: 'top1', hideBelow: 'sm' },
   { key: 'top3', hideBelow: 'md' },
   { key: 'top10', hideBelow: 'md' },
@@ -83,6 +84,10 @@ function TrendRow({
           {failed ? (
             <Text color="fg.muted" fontSize="sm">
               {t('global_ranking.error')}
+            </Text>
+          ) : points && points.length < 2 ? (
+            <Text color="fg.muted" fontSize="sm">
+              {t('global_ranking.trend_empty')}
             </Text>
           ) : points ? (
             <RankTrendChart points={points} color={color} />
@@ -138,7 +143,7 @@ const LeaderboardRow = memo(function LeaderboardRow({
         <Table.Cell>
           <HStack gap="2">
             <ItemThumbnail item={item} size="8" />
-            <Stack gap="0">
+            <Stack flex="1" gap="0" minW="0">
               <Text fontWeight="medium">{item.name}</Text>
               {item.subtitle && (
                 <Text color="fg.muted" fontSize="xs">
@@ -146,12 +151,27 @@ const LeaderboardRow = memo(function LeaderboardRow({
                 </Text>
               )}
             </Stack>
+            <Box
+              hideBelow="sm"
+              transform={isOpen ? 'rotate(180deg)' : undefined}
+              flexShrink={0}
+              color="fg.subtle"
+              transition="transform 0.2s"
+            >
+              <FaChevronDown size="0.75em" />
+            </Box>
           </HStack>
         </Table.Cell>
         <Table.Cell fontVariantNumeric="tabular-nums" textAlign="end">
           <Stack gap="1" alignItems="flex-end">
             <Text>{percent(entry.score)}</Text>
-            <Box borderRadius="full" w="16" h="1" bg="bg.muted" overflow="hidden">
+            <Box
+              borderRadius="full"
+              w={{ base: '12', sm: '16' }}
+              h="1"
+              bg="bg.muted"
+              overflow="hidden"
+            >
               <Box style={{ width: percent(entry.score) }} h="full" bg="var(--color)" />
             </Box>
           </Stack>
@@ -196,7 +216,12 @@ function ScoreInfo() {
       <Popover.Positioner>
         <Popover.Content maxW="xs" fontWeight="normal" textAlign="start">
           <Popover.Title fontWeight="bold">{t('global_ranking.score')}</Popover.Title>
-          <Popover.Description>{t('global_ranking.score_info')}</Popover.Description>
+          <Popover.Description>
+            <Stack gap="2">
+              <span>{t('global_ranking.score_info')}</span>
+              <span>{t('global_ranking.score_caption')}</span>
+            </Stack>
+          </Popover.Description>
         </Popover.Content>
       </Popover.Positioner>
     </Popover.Root>
@@ -224,6 +249,7 @@ function SortHeader({
       gap="1"
       alignItems="center"
       fontWeight={active ? 'bold' : 'inherit'}
+      whiteSpace="nowrap"
     >
       {children}
       {active && (sort.desc ? <FaArrowDown size="0.7em" /> : <FaArrowUp size="0.7em" />)}
@@ -259,16 +285,21 @@ export function LeaderboardTable({
     sort.key === key ? (sort.desc ? 'descending' : 'ascending') : undefined;
 
   return (
-    <Table.Root size="sm" data-testid="leaderboard-table">
+    <Table.Root
+      className={css({ '& :is(th, td)': { px: { base: '1.5', sm: '3' } } })}
+      size="sm"
+      data-testid="leaderboard-table"
+      bg="bg.default"
+    >
       <Table.Head>
         <Table.Row>
-          <Table.Header aria-sort={ariaSort('rank')}>
+          <Table.Header aria-sort={ariaSort('rank')} w="1%">
             <SortHeader sortKey="rank" sort={sort} onSort={onSort}>
               {t('global_ranking.rank')}
             </SortHeader>
           </Table.Header>
           <Table.Header>{t('global_ranking.item')}</Table.Header>
-          <Table.Header aria-sort={ariaSort('score')} textAlign="end">
+          <Table.Header aria-sort={ariaSort('score')} w="1%" textAlign="end">
             <HStack gap="0" justifyContent="flex-end">
               <SortHeader sortKey="score" sort={sort} onSort={onSort}>
                 {t('global_ranking.score')}
@@ -277,7 +308,13 @@ export function LeaderboardTable({
             </HStack>
           </Table.Header>
           {COLUMNS.map(({ key, hideBelow }) => (
-            <Table.Header key={key} aria-sort={ariaSort(key)} hideBelow={hideBelow} textAlign="end">
+            <Table.Header
+              key={key}
+              aria-sort={ariaSort(key)}
+              hideBelow={hideBelow}
+              w="1%"
+              textAlign="end"
+            >
               <SortHeader sortKey={key} sort={sort} onSort={onSort}>
                 {t(`global_ranking.${key}`)}
               </SortHeader>
