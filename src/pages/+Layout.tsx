@@ -62,6 +62,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           display="inline-flex"
           gap="1.5"
           alignItems="center"
+          whiteSpace="nowrap"
           _active={{ fontWeight: 'bold' }}
         >
           <CharactersIcon />
@@ -74,6 +75,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           display="inline-flex"
           gap="1.5"
           alignItems="center"
+          whiteSpace="nowrap"
           _active={{ fontWeight: 'bold' }}
         >
           <SongsIcon />
@@ -88,6 +90,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           display="inline-flex"
           gap="1.5"
           alignItems="center"
+          whiteSpace="nowrap"
           _active={{ fontWeight: 'bold' }}
         >
           <HasuSongsIcon />
@@ -104,6 +107,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           display="inline-flex"
           gap="1.5"
           alignItems="center"
+          whiteSpace="nowrap"
           _active={{ fontWeight: 'bold' }}
         >
           <SetlistPredictionIcon />
@@ -121,6 +125,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             display="inline-flex"
             gap="1.5"
             alignItems="center"
+            whiteSpace="nowrap"
             _active={{ fontWeight: 'bold' }}
           >
             <LeaderboardIcon />
@@ -137,7 +142,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Stack>
           <HStack justifyContent="space-between" alignItems="center" w="full">
             {/* Desktop Navigation */}
-            <HStack hideBelow="md">
+            <HStack hideBelow="md" flexWrap="wrap" flex="1" columnGap="4" rowGap="1" minW="0">
               <NavLinks />
             </HStack>
 
