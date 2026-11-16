@@ -561,7 +561,7 @@ export function Page() {
                           performanceEntries={
                             isPerformanceMode
                               ? getDistinctSongPerformanceEntries(
-                                  currentLeft.id,
+                                  currentLeft,
                                   performanceMeta?.setlistOrder
                                 )
                               : undefined
@@ -593,7 +593,7 @@ export function Page() {
                           performanceEntries={
                             isPerformanceMode
                               ? getDistinctSongPerformanceEntries(
-                                  currentRight.id,
+                                  currentRight,
                                   performanceMeta?.setlistOrder
                                 )
                               : undefined

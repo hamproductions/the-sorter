@@ -229,12 +229,12 @@ export function parseSetlistPerformers(
     }
 
     if (performers.length > 0 && unrecognized === 0) {
-      const hasOutsidePerformer = performers.some((p) => {
+      const outsidePerformers = performers.filter((p) => {
         if (p.kind === 'group') return !originalArtistIds.has(p.id);
         return !originalCharIds.has(p.characterId);
       });
-      if (!hasOutsidePerformer) return undefined;
-      return performers;
+      if (outsidePerformers.length === 0) return undefined;
+      return outsidePerformers;
     }
   }
 
@@ -254,11 +254,29 @@ export interface SongPerformanceDisplayEntry {
 }
 
 export function getDistinctSongPerformanceEntries(
-  songId: string,
+  songOrId: Song | string,
   setlistOrder?: SetlistOrderEntry[]
 ): SongPerformanceDisplayEntry[] {
   if (!setlistOrder || setlistOrder.length === 0) return [];
-  const matches = setlistOrder.filter((entry) => entry.songId === songId);
+  const songId = typeof songOrId === 'string' ? songOrId : songOrId.id;
+  const song = typeof songOrId === 'string' ? undefined : songOrId;
+  const { characterIds: originalCharIds, artistIds: originalArtistIds } = getOriginalSongPool(song);
+
+  const normalizePerformers = (performers?: CollabPerformer[]): CollabPerformer[] | undefined => {
+    if (!performers || performers.length === 0) return undefined;
+    if (!song) return performers;
+    const filtered = performers.filter((p) =>
+      p.kind === 'group' ? !originalArtistIds.has(p.id) : !originalCharIds.has(p.characterId)
+    );
+    return filtered.length > 0 ? filtered : undefined;
+  };
+
+  const matches = setlistOrder
+    .filter((entry) => entry.songId === songId)
+    .map((entry) => ({
+      ...entry,
+      performers: normalizePerformers(entry.performers)
+    }));
   if (matches.length === 0) return [];
 
   if (matches.length === 1) {

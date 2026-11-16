@@ -275,39 +275,35 @@ describe('parseSetlistPerformers & getDistinctSongPerformanceEntries', () => {
     expect(result).toBeUndefined();
   });
 
-  it('returns member performers when members from outside the original group participate', () => {
+  it('returns only outside collaborating members when members from outside the original group participate', () => {
     const result = parseSetlistPerformers(
       '高坂穂乃果、南ことり、高海千歌、桜内梨子 Ver.',
       museSong
     );
     expect(result).toEqual([
-      { kind: 'member', characterId: '1' },
-      { kind: 'member', characterId: '3' },
       { kind: 'member', characterId: '13' },
       { kind: 'member', characterId: '14' }
     ]);
   });
 
-  it('returns member performers when other characters join a solo song', () => {
+  it('returns only outside collaborating members when other characters join a solo song', () => {
     const result = parseSetlistPerformers(
       'ショート Ver.｜麻布麻衣、朝香果林、葉月 恋、村野さやか Ver.',
       soloSong
     );
     expect(result).toEqual([
-      { kind: 'member', characterId: '82' },
       { kind: 'member', characterId: '27' },
       { kind: 'member', characterId: '41' },
       { kind: 'member', characterId: '60' }
     ]);
   });
 
-  it('returns group performers when whole groups collaborate', () => {
+  it('returns only outside collaborating group performers when whole groups collaborate', () => {
     const result = parseSetlistPerformers(
       "Movie Edit｜μ's・Aqours・虹ヶ咲学園スクールアイドル同好会 Ver.",
       museSong
     );
     expect(result).toEqual([
-      expect.objectContaining({ kind: 'group', id: '1', name: "μ's" }),
       expect.objectContaining({ kind: 'group', id: '33', name: 'Aqours' }),
       expect.objectContaining({
         kind: 'group',
