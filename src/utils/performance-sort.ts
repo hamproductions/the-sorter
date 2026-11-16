@@ -273,17 +273,12 @@ export function getDistinctSongPerformanceEntries(
   }
 
   const firstLineupSig = getPerformerSignature(matches[0].performers);
-  const firstRemarks = matches[0].remarks ?? '';
-  const allIdentical = matches.every(
-    (m) =>
-      getPerformerSignature(m.performers) === firstLineupSig && (m.remarks ?? '') === firstRemarks
-  );
+  const allIdentical = matches.every((m) => getPerformerSignature(m.performers) === firstLineupSig);
 
   if (allIdentical) {
     return [
       {
         label: matches.map((m) => m.label).join(' / '),
-        remarks: matches[0].remarks,
         performers: matches[0].performers
       }
     ];
@@ -292,7 +287,6 @@ export function getDistinctSongPerformanceEntries(
   return matches.map((entry) => ({
     dayLabel: entry.performanceName ?? entry.label,
     label: entry.label,
-    remarks: entry.remarks,
     performers: entry.performers
   }));
 }

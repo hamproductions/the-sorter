@@ -126,10 +126,10 @@ describe('SongCard', () => {
     expect(queryByText('FAILED')).not.toBeInTheDocument();
   });
 
-  it('renders whole-group collaboration badges and raw remarks without member icons', async () => {
+  it('renders whole-group collaboration badges without member icons', async () => {
     const song = createMockSong({ name: 'SUNNY DAY SONG' });
 
-    const [{ getByText, container }] = await render(
+    const [{ getByText, queryByText, container }] = await render(
       <SongCard
         song={song}
         heardleMode={false}
@@ -146,15 +146,16 @@ describe('SongCard', () => {
       />
     );
 
+    expect(getByText('Collab Members')).toBeInTheDocument();
     expect(getByText('Aqours')).toBeInTheDocument();
-    expect(getByText("Movie Edit｜μ's・Aqours Ver.")).toBeInTheDocument();
+    expect(queryByText("Movie Edit｜μ's・Aqours Ver.")).not.toBeInTheDocument();
     expect(container.querySelectorAll('img')).toHaveLength(0);
   });
 
   it('renders color-coded member names with character icons for member collaborations', async () => {
     const song = createMockSong({ name: 'ユメノトビラ' });
 
-    const [{ getByText, getByAltText }] = await render(
+    const [{ getByText, getByAltText, queryByText }] = await render(
       <SongCard
         song={song}
         heardleMode={false}
@@ -176,7 +177,7 @@ describe('SongCard', () => {
     expect(getByText('Chika Takami')).toBeInTheDocument();
     expect(getByAltText('Honoka Kosaka Icon')).toBeInTheDocument();
     expect(getByAltText('Chika Takami Icon')).toBeInTheDocument();
-    expect(getByText('高坂穂乃果、高海千歌 Ver.')).toBeInTheDocument();
+    expect(queryByText('高坂穂乃果、高海千歌 Ver.')).not.toBeInTheDocument();
   });
 
   it('renders separate day rows when lineups differ across days', async () => {

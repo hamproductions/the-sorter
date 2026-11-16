@@ -85,13 +85,12 @@ export function PerformanceOrderView({
         // Handle old format where setlistOrder was string[] of songIds
         const songId = typeof entry === 'string' ? entry : entry.songId;
         const label = typeof entry === 'string' ? `${idx + 1}` : entry.label;
-        const remarks = typeof entry === 'string' ? undefined : entry.remarks;
         const performers = typeof entry === 'string' ? undefined : entry.performers;
         const song = songs.find((s) => s.id === songId);
         if (!song) return null;
         const rank = rankMap[songId];
         if (rank === undefined) return null;
-        return { label, song, rank, remarks, performers };
+        return { label, song, rank, performers };
       })
       .filter((row): row is NonNullable<typeof row> => row !== null);
   }, [performanceMeta.setlistOrder, songs, rankMap]);
@@ -108,7 +107,7 @@ export function PerformanceOrderView({
       </Table.Head>
       <Table.Body>
         {rows.map((row, idx) => {
-          const { rank, song, label, remarks, performers } = row;
+          const { rank, song, label, performers } = row;
           const seriesColor = getSongColor(song);
           const rankColor = getRankColor(rank, totalRanked);
 
@@ -143,11 +142,6 @@ export function PerformanceOrderView({
                       characters={characters}
                       lang={lang}
                     />
-                  )}
-                  {remarks && (
-                    <Text color="fg.muted" fontSize="xs" textAlign="center">
-                      {remarks}
-                    </Text>
                   )}
                 </Stack>
               </Table.Cell>

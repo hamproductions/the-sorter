@@ -203,11 +203,7 @@ export function SongCard({
   const showInfo = !heardleMode || isRevealed;
   const defaultArtistText = formatArtistsWithVariants(song.artists, artistsData, lang);
   const hasPerformanceDetails =
-    showInfo &&
-    performanceEntries &&
-    performanceEntries.length > 0 &&
-    (performanceEntries.length > 1 ||
-      performanceEntries.some((e) => Boolean(e.performers?.length || e.remarks)));
+    showInfo && Boolean(performanceEntries?.some((e) => Boolean(e.performers?.length)));
 
   return (
     <Stack
@@ -359,11 +355,6 @@ export function SongCard({
                       {defaultArtistText}
                     </Text>
                   )
-                )}
-                {entry.remarks && (
-                  <Text color="fg.muted" fontSize="xs" textAlign="center">
-                    {entry.remarks}
-                  </Text>
                 )}
               </Stack>
             ))}
