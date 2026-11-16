@@ -55,6 +55,11 @@ const CharacterFilters = lazy(() =>
   import('~/components/sorter/CharacterFilters').then((m) => ({ default: m.CharacterFilters }))
 );
 
+const PerformancePickerForSortDialog = lazy(() =>
+  import('~/components/sorter/PerformancePickerForSortDialog').then((m) => ({
+    default: m.PerformancePickerForSortDialog
+  }))
+);
 const SongFilters = lazy(() =>
   import('~/components/sorter/SongFilters').then((m) => ({ default: m.SongFilters }))
 );
@@ -140,6 +145,7 @@ export function Page() {
   const [sort, setSort] = useState<TableSort>(DEFAULT_SORT);
   const [page, setPage] = useState(1);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
   const activeMode = mode === 'all' ? undefined : mode;
@@ -668,6 +674,17 @@ export function Page() {
                           })}
                         </QuickFilterRow>
                       )}
+                      {kind === 'song' && (
+                        <Stack gap="2" w="full">
+                          <Button size="sm" variant="outline" onClick={() => setPickerOpen(true)}>
+                            {performanceIds.length > 0
+                              ? t('global_ranking.performances_selected', {
+                                  count: performanceIds.length
+                                })
+                              : t('global_ranking.select_performances')}
+                          </Button>
+                        </Stack>
+                      )}
                       <Suspense fallback={<LoadingCharacterFilters />}>
                         {import.meta.env.SSR ? (
                           <LoadingCharacterFilters />
@@ -710,6 +727,21 @@ export function Page() {
                 </Drawer.Content>
               </Drawer.Positioner>
             </Drawer.Root>
+
+            {pickerOpen && (
+              <Suspense fallback={null}>
+                <PerformancePickerForSortDialog
+                  open={pickerOpen}
+                  onOpenChange={({ open }) => setPickerOpen(open)}
+                  initialPerformanceIds={performanceIds}
+                  onSelectPerformanceIds={(ids) => {
+                    setPage(1);
+                    setMode('performance');
+                    setPerformanceIds(ids);
+                  }}
+                />
+              </Suspense>
+            )}
 
             <Stack aria-live="polite" gap="3" w="full">
               <HStack gap="2" justifyContent="center" w="full" minW="0" minH="6">
