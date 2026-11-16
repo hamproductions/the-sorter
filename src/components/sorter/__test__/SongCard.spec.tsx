@@ -171,6 +171,7 @@ describe('SongCard', () => {
       />
     );
 
+    expect(getByText('Collab Members')).toBeInTheDocument();
     expect(getByText('Honoka Kosaka')).toBeInTheDocument();
     expect(getByText('Chika Takami')).toBeInTheDocument();
     expect(getByAltText('Honoka Kosaka Icon')).toBeInTheDocument();

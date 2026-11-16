@@ -109,7 +109,8 @@
     "preview": "Preview",
     "preview_title": "Sorting Preview",
     "preview_description": "First {{ count }} items shown",
-    "preview_search": "Search..."
+    "preview_search": "Search...",
+    "collab_members": "Collab Members"
   },
   "footer": {
     "created_by": "Created by",

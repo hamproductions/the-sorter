@@ -343,11 +343,16 @@ export function SongCard({
                   </Text>
                 )}
                 {entry.performers && entry.performers.length > 0 ? (
-                  <CollabPerformersList
-                    performers={entry.performers}
-                    characters={charactersData}
-                    lang={lang}
-                  />
+                  <>
+                    <Text color="fg.muted" fontSize="xs" fontWeight="bold">
+                      {t('sort.collab_members', { defaultValue: 'Collab Members' })}
+                    </Text>
+                    <CollabPerformersList
+                      performers={entry.performers}
+                      characters={charactersData}
+                      lang={lang}
+                    />
+                  </>
                 ) : (
                   entry.dayLabel && (
                     <Text fontSize="xs" fontWeight="medium" textAlign="center">

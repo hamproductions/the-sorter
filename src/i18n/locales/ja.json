@@ -107,7 +107,8 @@
     "preview": "プレビュー",
     "preview_title": "ソートプレビュー",
     "preview_description": "最初の{{ count }}件を表示",
-    "preview_search": "検索..."
+    "preview_search": "検索...",
+    "collab_members": "コラボメンバー"
   },
   "footer": {
     "created_by": "作者：",
