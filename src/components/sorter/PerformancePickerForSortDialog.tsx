@@ -156,7 +156,7 @@ export function PerformancePickerForSortDialog({
       setExpandedTourNames([]);
       setSearch('');
     }
-  }, [open]);
+  }, [open, initialPerformanceIds]);
 
   const toggleExpandedTour = (tourName: string) => {
     setExpandedTourNames((current) =>
