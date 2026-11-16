@@ -56,8 +56,9 @@ export function PerformancePickerForSortDialog({
   const [expandedTourNames, setExpandedTourNames] = useState<string[]>([]);
   const [search, setSearch] = useState('');
 
-  const { setlistsByPerformanceId, loading: setlistsLoading } =
-    usePerformanceSetlists(selectOnly ? [] : selectedPerformanceIds);
+  const { setlistsByPerformanceId, loading: setlistsLoading } = usePerformanceSetlists(
+    selectOnly ? [] : selectedPerformanceIds
+  );
 
   const filteredPerformances = useMemo(() => {
     let filtered = performances.filter((p) => p.hasSetlist === true);
@@ -155,7 +156,6 @@ export function PerformancePickerForSortDialog({
       setExpandedTourNames([]);
       setSearch('');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   const toggleExpandedTour = (tourName: string) => {
