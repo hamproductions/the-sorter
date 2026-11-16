@@ -201,4 +201,44 @@ describe('PerformancePickerForSortDialog', () => {
       })
     );
   });
+
+  it('in selection-only mode returns just the chosen performance IDs', async () => {
+    const onSelectPerformanceIds = vi.fn();
+    const onOpenChange = vi.fn();
+    const user = userEvent.setup();
+
+    await render(
+      <PerformancePickerForSortDialog
+        open
+        onOpenChange={onOpenChange}
+        onSelectPerformanceIds={onSelectPerformanceIds}
+      />
+    );
+
+    await user.click(screen.getAllByLabelText('Show details')[0]);
+    await user.click(screen.getByLabelText('Latest Live - Day 1'));
+    await user.click(screen.getByLabelText('Latest Live - Day 2'));
+    await user.click(screen.getByText('Confirm'));
+
+    expect(onSelectPerformanceIds).toHaveBeenCalledWith(['perf-1', 'perf-2']);
+    expect(onOpenChange).toHaveBeenCalledWith({ open: false });
+  });
+
+  it('in selection-only mode starts from the initial selection', async () => {
+    const onSelectPerformanceIds = vi.fn();
+    const user = userEvent.setup();
+
+    await render(
+      <PerformancePickerForSortDialog
+        open
+        onOpenChange={vi.fn()}
+        onSelectPerformanceIds={onSelectPerformanceIds}
+        initialPerformanceIds={['perf-3']}
+      />
+    );
+
+    await user.click(screen.getByText('Confirm'));
+
+    expect(onSelectPerformanceIds).toHaveBeenCalledWith(['perf-3']);
+  });
 });

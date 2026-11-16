@@ -17,10 +17,10 @@ import { selectPreset } from '../../__test__/utils/sorter';
 const selectCurrentItem = async (
   container: RenderResult,
   user: UserEvent,
-  sortOrder = ['Nirei', 'Hanamiya', 'Sakurai']
+  sortOrder = ['Nirei', 'Hanamiya', 'Sakurai', 'Hoshimiya']
 ) => {
   const { findAllByText } = container;
-  const divs = await findAllByText(/(Nirei|Hanamiya|Sakurai)/i);
+  const divs = await findAllByText(/(Nirei|Hanamiya|Sakurai|Hoshimiya)/i);
   expect(divs).toHaveLength(2);
   const index =
     sortOrder.findIndex((name) => divs[0].textContent?.includes(name)) >
@@ -53,11 +53,11 @@ describe('Home Page', () => {
       it('select filters', async () => {
         const [{ findByText }, user] = await render(<Page />);
         await user.click(await findByText('Cerise Bouquet', {}, { timeout: 2000 }));
-        expect(await findByText('3 to be sorted')).toBeInTheDocument();
+        expect(await findByText('4 to be sorted')).toBeInTheDocument();
         await user.click(await findByText('DOLLCHESTRA'));
-        expect(await findByText('6 to be sorted')).toBeInTheDocument();
+        expect(await findByText('8 to be sorted')).toBeInTheDocument();
         await user.click(await findByText('Mira-Cra Park!'));
-        expect(await findByText('9 to be sorted')).toBeInTheDocument();
+        expect(await findByText('12 to be sorted')).toBeInTheDocument();
         expect(window.localStorage.getItem('filters')).toEqual(
           JSON.stringify({
             series: [],
@@ -128,7 +128,7 @@ describe('Home Page', () => {
         );
       }
       expect(await findByText('Sort Results')).toBeInTheDocument();
-      expect(await findAllByText(/(Nirei|Hanamiya|Sakurai)/i)).toHaveLength(3);
+      expect(await findAllByText(/(Nirei|Hanamiya|Sakurai|Hoshimiya)/i)).toHaveLength(4);
       expect(await findAllByText('1', { ignore: IGNORE_SAVED_COUNT })).toHaveLength(1);
     });
 
@@ -155,8 +155,9 @@ describe('Home Page', () => {
         );
       }
       expect(await findByText('Sort Results')).toBeInTheDocument();
-      expect(await findAllByText(/(Nirei|Hanamiya|Sakurai)/i)).toHaveLength(3);
+      expect(await findAllByText(/(Nirei|Hanamiya|Sakurai|Hoshimiya)/i)).toHaveLength(4);
       expect(await findAllByText('1', { ignore: IGNORE_SAVED_COUNT })).toHaveLength(3);
+      expect(await findByText('1.')).toBeInTheDocument();
     });
 
     it('Undo', async () => {
@@ -165,13 +166,13 @@ describe('Home Page', () => {
       await selectPreset(container, user, 'Cerise Bouquet');
       await user.click(await findByText('Start', {}, {}));
       const divs = await selectCurrentItem(container, user);
-      const newDivs = await findAllByText(/(Nirei|Hanamiya|Sakurai)/i);
+      const newDivs = await findAllByText(/(Nirei|Hanamiya|Sakurai|Hoshimiya)/i);
       expect(
         newDivs[0].textContent !== divs[0].textContent ||
           newDivs[1].textContent !== divs[1].textContent
       ).toEqual(true);
       await user.click(await findByText('Undo'));
-      const returnedDiv = await findAllByText(/(Nirei|Hanamiya|Sakurai)/i);
+      const returnedDiv = await findAllByText(/(Nirei|Hanamiya|Sakurai|Hoshimiya)/i);
       expect(
         returnedDiv[0].textContent === divs[0].textContent &&
           returnedDiv[1].textContent === divs[1].textContent
@@ -230,7 +231,7 @@ describe('Home Page', () => {
         await selectPreset(container, user, 'Cerise Bouquet');
         await user.click(await findByText('Start', {}, {}));
 
-        // Finish sorting (3 items)
+        // Finish sorting (4 items)
         while (container.queryByText('Keyboard Shortcuts')) {
           await selectCurrentItem(container, user);
         }
@@ -268,11 +269,12 @@ describe('Home Page', () => {
         }
         expect(await findByText('Sort Results')).toBeInTheDocument();
 
-        const before = await findAllByText(/(Nirei|Hanamiya|Sakurai)/i);
-        expect(before).toHaveLength(3);
+        const before = await findAllByText(/(Nirei|Hanamiya|Sakurai|Hoshimiya)/i);
+        expect(before).toHaveLength(4);
         expect(before[0].textContent).toMatch(/Nozomi Nirei/i);
         expect(before[1].textContent).toMatch(/Nina Hanamiya/i);
         expect(before[2].textContent).toMatch(/Hina Sakurai/i);
+        expect(before[3].textContent).toMatch(/Juria Hoshimiya/i);
 
         await user.click(await findByText('Edit Results (Experimental)'));
 
@@ -281,7 +283,9 @@ describe('Home Page', () => {
         // The modal is the last thing opened, so the items should be at the end?
         // Or we can scope it.
         const dialog = await findByRole('dialog');
-        const dialogItems = await within(dialog).findAllByText(/(Nirei|Hanamiya|Sakurai)/i);
+        const dialogItems = await within(dialog).findAllByText(
+          /(Nirei|Hanamiya|Sakurai|Hoshimiya)/i
+        );
 
         // Assuming the text is inside the sortable item or the item itself is focusable
         // We might need to find the button/handle.
@@ -293,7 +297,7 @@ describe('Home Page', () => {
 
         await user.click(await within(dialog).findByText('Save'));
 
-        const after = await findAllByText(/(Nirei|Hanamiya|Sakurai)/i);
+        const after = await findAllByText(/(Nirei|Hanamiya|Sakurai|Hoshimiya)/i);
         // We might find 6 items because the edit modal might still be in the DOM or transitioning out,
         // or simply because we are searching the whole document.
         // Let's verify that we have at least 3 items and the first 3 (which should be the main view) are correct.

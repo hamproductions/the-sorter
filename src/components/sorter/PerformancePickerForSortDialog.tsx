@@ -28,7 +28,10 @@ import type { Performance } from '~/types/setlist-prediction';
 export interface PerformancePickerForSortDialogProps {
   open: boolean;
   onOpenChange: (details: { open: boolean }) => void;
-  onSelectPerformance: (songIds: string[], meta: PerformanceSortMeta) => void;
+  onSelectPerformance?: (songIds: string[], meta: PerformanceSortMeta) => void;
+  /** Selection-only mode: skips setlist loading and returns just the chosen performance IDs. */
+  onSelectPerformanceIds?: (performanceIds: string[]) => void;
+  initialPerformanceIds?: string[];
 }
 
 function getPerformanceRowName(performance: Performance): string {
@@ -38,18 +41,24 @@ function getPerformanceRowName(performance: Performance): string {
 export function PerformancePickerForSortDialog({
   open,
   onOpenChange,
-  onSelectPerformance
+  onSelectPerformance,
+  onSelectPerformanceIds,
+  initialPerformanceIds
 }: PerformancePickerForSortDialogProps) {
+  const selectOnly = !!onSelectPerformanceIds;
   const { t, i18n } = useTranslation();
   const { performances, loading: performancesLoading } = usePerformanceData();
   const songs = useSongData();
 
-  const [selectedPerformanceIds, setSelectedPerformanceIds] = useState<string[]>([]);
+  const [selectedPerformanceIds, setSelectedPerformanceIds] = useState<string[]>(
+    initialPerformanceIds ?? []
+  );
   const [expandedTourNames, setExpandedTourNames] = useState<string[]>([]);
   const [search, setSearch] = useState('');
 
-  const { setlistsByPerformanceId, loading: setlistsLoading } =
-    usePerformanceSetlists(selectedPerformanceIds);
+  const { setlistsByPerformanceId, loading: setlistsLoading } = usePerformanceSetlists(
+    selectOnly ? [] : selectedPerformanceIds
+  );
 
   const filteredPerformances = useMemo(() => {
     let filtered = performances.filter((p) => p.hasSetlist === true);
@@ -140,12 +149,14 @@ export function PerformancePickerForSortDialog({
   const hasPreviewSongs = previewEntries.length > 0;
 
   useEffect(() => {
-    if (!open) {
+    if (open) {
+      setSelectedPerformanceIds(initialPerformanceIds ?? []);
+    } else {
       setSelectedPerformanceIds([]);
       setExpandedTourNames([]);
       setSearch('');
     }
-  }, [open]);
+  }, [open, initialPerformanceIds]);
 
   const toggleExpandedTour = (tourName: string) => {
     setExpandedTourNames((current) =>
@@ -180,9 +191,15 @@ export function PerformancePickerForSortDialog({
   };
 
   const handleConfirm = () => {
+    if (selectOnly) {
+      if (selectedPerformances.length === 0) return;
+      onSelectPerformanceIds?.(selectedPerformances.map((performance) => performance.id));
+      onOpenChange({ open: false });
+      return;
+    }
     if (selectedPerformances.length === 0 || setlistsLoading || !hasPreviewSongs) return;
     if (!performanceSelection) return;
-    onSelectPerformance(performanceSelection.songIds, performanceSelection.meta);
+    onSelectPerformance?.(performanceSelection.songIds, performanceSelection.meta);
     onOpenChange({ open: false });
   };
 
@@ -372,7 +389,19 @@ export function PerformancePickerForSortDialog({
                 bg="bg.subtle"
                 overflow="clip"
               >
-                {selectedPerformances.length > 0 ? (
+                {selectOnly && selectedPerformances.length > 0 ? (
+                  <Stack gap={0} p={2} overscrollBehavior="contain" overflow="auto">
+                    {selectedPerformances.map((performance) => (
+                      <Box key={performance.id} borderRadius="sm" p={2}>
+                        <Text fontSize="sm">{getFullPerformanceName(performance)}</Text>
+                        <Text color="fg.muted" fontSize="xs">
+                          {new Date(performance.date).toLocaleDateString()} •{' '}
+                          {performance.venue || 'TBA'}
+                        </Text>
+                      </Box>
+                    ))}
+                  </Stack>
+                ) : selectedPerformances.length > 0 ? (
                   <>
                     <Stack gap={1} borderBottomWidth="1px" p={3}>
                       <Text fontSize="sm" fontWeight="medium">
@@ -446,7 +475,10 @@ export function PerformancePickerForSortDialog({
               </DialogCloseTrigger>
               <Button
                 onClick={handleConfirm}
-                disabled={selectedPerformances.length === 0 || setlistsLoading || !hasPreviewSongs}
+                disabled={
+                  selectedPerformances.length === 0 ||
+                  (!selectOnly && (setlistsLoading || !hasPreviewSongs))
+                }
               >
                 {t('common.confirm')}
               </Button>
