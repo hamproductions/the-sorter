@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { computeSetlistLabels, computeSortableSetlistLabels } from '../performance-sort';
+import {
+  computeSetlistLabels,
+  computeSortableSetlistLabels,
+  getDistinctSongPerformanceEntries,
+  parseSetlistPerformers
+} from '../performance-sort';
 import type { PerformanceSetlist, SetlistItem } from '~/types/setlist-prediction';
 import type { Song } from '~/types/songs';
 
@@ -247,5 +252,112 @@ describe('computeSortableSetlistLabels', () => {
     const result = computeSortableSetlistLabels(setlist, songs);
 
     expect(result).toEqual([{ songId: '820', label: 'M01' }]);
+  });
+});
+
+describe('parseSetlistPerformers & getDistinctSongPerformanceEntries', () => {
+  const museSong = {
+    id: '69',
+    name: 'ユメノトビラ',
+    seriesIds: [1],
+    artists: [{ id: '1', variant: null }]
+  } as unknown as Song;
+
+  const soloSong = {
+    id: '784',
+    name: 'ひっさつマイマイモード',
+    seriesIds: [8],
+    artists: [{ id: '215', variant: null }]
+  } as unknown as Song;
+
+  it('returns undefined when only a subset of the original group performs', () => {
+    const result = parseSetlistPerformers('穂乃果・ことり・凛・真姫・花陽・にこ Ver.', museSong);
+    expect(result).toBeUndefined();
+  });
+
+  it('returns member performers when members from outside the original group participate', () => {
+    const result = parseSetlistPerformers(
+      '高坂穂乃果、南ことり、高海千歌、桜内梨子 Ver.',
+      museSong
+    );
+    expect(result).toEqual([
+      { kind: 'member', characterId: '1' },
+      { kind: 'member', characterId: '3' },
+      { kind: 'member', characterId: '13' },
+      { kind: 'member', characterId: '14' }
+    ]);
+  });
+
+  it('returns member performers when other characters join a solo song', () => {
+    const result = parseSetlistPerformers(
+      'ショート Ver.｜麻布麻衣、朝香果林、葉月 恋、村野さやか Ver.',
+      soloSong
+    );
+    expect(result).toEqual([
+      { kind: 'member', characterId: '82' },
+      { kind: 'member', characterId: '27' },
+      { kind: 'member', characterId: '41' },
+      { kind: 'member', characterId: '60' }
+    ]);
+  });
+
+  it('returns group performers when whole groups collaborate', () => {
+    const result = parseSetlistPerformers(
+      "Movie Edit｜μ's・Aqours・虹ヶ咲学園スクールアイドル同好会 Ver.",
+      museSong
+    );
+    expect(result).toEqual([
+      expect.objectContaining({ kind: 'group', id: '1', name: "μ's" }),
+      expect.objectContaining({ kind: 'group', id: '33', name: 'Aqours' }),
+      expect.objectContaining({
+        kind: 'group',
+        id: '60',
+        name: '虹ヶ咲学園スクールアイドル同好会'
+      })
+    ]);
+  });
+
+  it('deduplicates multi-day entries when lineup and remarks are identical across days', () => {
+    const entries = getDistinctSongPerformanceEntries('103', [
+      {
+        songId: '103',
+        label: 'Day.1 M50',
+        performanceName: 'Day.1',
+        remarks: 'Movie Edit',
+        performers: [{ kind: 'group', id: '1', name: "μ's" }]
+      },
+      {
+        songId: '103',
+        label: 'Day.2 M49',
+        performanceName: 'Day.2',
+        remarks: 'Movie Edit',
+        performers: [{ kind: 'group', id: '1', name: "μ's" }]
+      }
+    ]);
+    expect(entries).toHaveLength(1);
+    expect(entries[0].dayLabel).toBeUndefined();
+  });
+
+  it('preserves per-day entries with dayLabel when lineups differ across days', () => {
+    const entries = getDistinctSongPerformanceEntries('892', [
+      {
+        songId: '892',
+        label: 'Day.1 M14',
+        performanceName: 'Day.1',
+        remarks: '大沢瑠璃乃、高橋ポルカ Ver.',
+        performers: [
+          { kind: 'member', characterId: '63' },
+          { kind: 'member', characterId: '81' }
+        ]
+      },
+      {
+        songId: '892',
+        label: 'Day.2 M10',
+        performanceName: 'Day.2'
+      }
+    ]);
+    expect(entries).toHaveLength(2);
+    expect(entries[0].dayLabel).toBe('Day.1');
+    expect(entries[1].dayLabel).toBe('Day.2');
   });
 });

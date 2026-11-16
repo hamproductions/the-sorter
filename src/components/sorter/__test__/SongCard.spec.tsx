@@ -125,4 +125,87 @@ describe('SongCard', () => {
 
     expect(queryByText('FAILED')).not.toBeInTheDocument();
   });
+
+  it('renders whole-group collaboration badges and raw remarks without member icons', async () => {
+    const song = createMockSong({ name: 'SUNNY DAY SONG' });
+
+    const [{ getByText, container }] = await render(
+      <SongCard
+        song={song}
+        heardleMode={false}
+        performanceEntries={[
+          {
+            label: 'M50',
+            remarks: "Movie Edit｜μ's・Aqours Ver.",
+            performers: [
+              { kind: 'group', id: '1', name: "μ's", color: '#f200b5' },
+              { kind: 'group', id: '33', name: 'Aqours', color: '#0098f0' }
+            ]
+          }
+        ]}
+      />
+    );
+
+    expect(getByText('Aqours')).toBeInTheDocument();
+    expect(getByText("Movie Edit｜μ's・Aqours Ver.")).toBeInTheDocument();
+    expect(container.querySelectorAll('img')).toHaveLength(0);
+  });
+
+  it('renders color-coded member names with character icons for member collaborations', async () => {
+    const song = createMockSong({ name: 'ユメノトビラ' });
+
+    const [{ getByText, getByAltText }] = await render(
+      <SongCard
+        song={song}
+        heardleMode={false}
+        performanceEntries={[
+          {
+            label: 'M28',
+            remarks: '高坂穂乃果、高海千歌 Ver.',
+            performers: [
+              { kind: 'member', characterId: '1' },
+              { kind: 'member', characterId: '13' }
+            ]
+          }
+        ]}
+      />
+    );
+
+    expect(getByText('Honoka Kosaka')).toBeInTheDocument();
+    expect(getByText('Chika Takami')).toBeInTheDocument();
+    expect(getByAltText('Honoka Kosaka Icon')).toBeInTheDocument();
+    expect(getByAltText('Chika Takami Icon')).toBeInTheDocument();
+    expect(getByText('高坂穂乃果、高海千歌 Ver.')).toBeInTheDocument();
+  });
+
+  it('renders separate day rows when lineups differ across days', async () => {
+    const song = createMockSong({ name: 'SUPER SUMMER SENSATION!!' });
+
+    const [{ getByText }] = await render(
+      <SongCard
+        song={song}
+        heardleMode={false}
+        performanceEntries={[
+          {
+            dayLabel: 'Day.1',
+            label: 'Day.1 M14',
+            remarks: '大沢瑠璃乃、高橋ポルカ Ver.',
+            performers: [
+              { kind: 'member', characterId: '63' },
+              { kind: 'member', characterId: '81' }
+            ]
+          },
+          {
+            dayLabel: 'Day.2',
+            label: 'Day.2 M10'
+          }
+        ]}
+      />
+    );
+
+    expect(getByText('Day.1')).toBeInTheDocument();
+    expect(getByText('Day.2')).toBeInTheDocument();
+    expect(getByText('Rurino Osawa')).toBeInTheDocument();
+    expect(getByText('Polka Takahashi')).toBeInTheDocument();
+  });
 });

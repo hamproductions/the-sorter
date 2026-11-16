@@ -38,7 +38,10 @@ import type { Song } from '~/types/songs';
 import type { PerformanceSortMeta } from '~/types/performance-sort';
 import type { Performance, PerformanceSetlist } from '~/types/setlist-prediction';
 import { useLocalStorage } from '~/hooks/useLocalStorage';
-import { buildPerformanceSortSelection } from '~/utils/performance-sort';
+import {
+  buildPerformanceSortSelection,
+  getDistinctSongPerformanceEntries
+} from '~/utils/performance-sort';
 
 const ConfirmMidSortDialog = lazy(() =>
   import('../../components/dialog/ConfirmDialog').then((m) => ({
@@ -555,6 +558,14 @@ export function Page() {
                           onClick={bothRevealed ? () => left() : undefined}
                           song={currentLeft}
                           artists={artistLeft}
+                          performanceEntries={
+                            isPerformanceMode
+                              ? getDistinctSongPerformanceEntries(
+                                  currentLeft.id,
+                                  performanceMeta?.setlistOrder
+                                )
+                              : undefined
+                          }
                           heardleMode={heardleMode}
                           isRevealed={isLeftRevealed}
                           isFailed={isLeftFailed}
@@ -579,6 +590,14 @@ export function Page() {
                           onClick={bothRevealed ? () => right() : undefined}
                           song={currentRight}
                           artists={artistRight}
+                          performanceEntries={
+                            isPerformanceMode
+                              ? getDistinctSongPerformanceEntries(
+                                  currentRight.id,
+                                  performanceMeta?.setlistOrder
+                                )
+                              : undefined
+                          }
                           heardleMode={heardleMode}
                           isRevealed={isRightRevealed}
                           isFailed={isRightFailed}

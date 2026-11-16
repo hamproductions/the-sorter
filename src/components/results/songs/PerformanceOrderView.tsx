@@ -3,11 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { Stack } from 'styled-system/jsx';
 import { Table } from '~/components/ui/table';
 import { Text } from '~/components/ui/text';
+import type { Character } from '~/types';
 import type { Song } from '~/types/songs';
 import { getSongColor } from '~/utils/song';
 import { useArtistsData } from '~/hooks/useArtistsData';
+import { useData } from '~/hooks/useData';
 import { useSongData } from '~/hooks/useSongData';
 import { SchoolBadge } from '~/components/sorter/SchoolBadge';
+import { CollabPerformersList } from '~/components/sorter/SongCard';
 import { getArtistName, getSongName } from '~/utils/names';
 import type { PerformanceSortMeta } from '~/types/performance-sort';
 
@@ -56,6 +59,7 @@ export function PerformanceOrderView({
 }) {
   const songs = useSongData();
   const artists = useArtistsData();
+  const characters = useData() as unknown as Character[];
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
 
@@ -81,11 +85,13 @@ export function PerformanceOrderView({
         // Handle old format where setlistOrder was string[] of songIds
         const songId = typeof entry === 'string' ? entry : entry.songId;
         const label = typeof entry === 'string' ? `${idx + 1}` : entry.label;
+        const remarks = typeof entry === 'string' ? undefined : entry.remarks;
+        const performers = typeof entry === 'string' ? undefined : entry.performers;
         const song = songs.find((s) => s.id === songId);
         if (!song) return null;
         const rank = rankMap[songId];
         if (rank === undefined) return null;
-        return { label, song, rank };
+        return { label, song, rank, remarks, performers };
       })
       .filter((row): row is NonNullable<typeof row> => row !== null);
   }, [performanceMeta.setlistOrder, songs, rankMap]);
@@ -102,7 +108,7 @@ export function PerformanceOrderView({
       </Table.Head>
       <Table.Body>
         {rows.map((row, idx) => {
-          const { rank, song, label } = row;
+          const { rank, song, label, remarks, performers } = row;
           const seriesColor = getSongColor(song);
           const rankColor = getRankColor(rank, totalRanked);
 
@@ -131,6 +137,18 @@ export function PerformanceOrderView({
                 <Stack gap="1" alignItems="center" w="full" py="2">
                   <SchoolBadge locale={lang} song={song} />
                   <Text>{formatArtistsWithVariants(song.artists, artists, lang)}</Text>
+                  {performers && performers.length > 0 && (
+                    <CollabPerformersList
+                      performers={performers}
+                      characters={characters}
+                      lang={lang}
+                    />
+                  )}
+                  {remarks && (
+                    <Text color="fg.muted" fontSize="xs" textAlign="center">
+                      {remarks}
+                    </Text>
+                  )}
                 </Stack>
               </Table.Cell>
               <Table.Cell textAlign="center">

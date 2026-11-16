@@ -1,14 +1,21 @@
 import { useTranslation } from 'react-i18next';
 import { Text } from '../ui/text';
 import type { StackProps } from 'styled-system/jsx';
-import { Center, Box, HStack, Stack } from 'styled-system/jsx';
+import { Center, Box, HStack, Stack, Wrap } from 'styled-system/jsx';
 import { token } from 'styled-system/tokens';
 import type { Artist, Song } from '~/types/songs';
+import type { Character } from '~/types';
+import type { CollabPerformer } from '~/types/performance-sort';
+import type { SongPerformanceDisplayEntry } from '~/utils/performance-sort';
 import { getSongColor } from '~/utils/song';
 import { getArtistName, getSongName } from '~/utils/names';
+import { getFullName } from '~/utils/character';
 import { useArtistsData } from '~/hooks/useArtistsData';
+import { useData } from '~/hooks/useData';
+import { CharacterIcon } from './CharacterIcon';
 import { Heardle } from './Heardle';
 import type { GuessResult } from '~/hooks/useHeardleState';
+import type { Locale } from '~/i18n';
 
 function formatArtistsWithVariants(
   songArtists: Song['artists'],
@@ -73,9 +80,82 @@ function MiniGuessIndicator({ result, maxAttempts }: { result: GuessResult; maxA
   );
 }
 
+export function CollabPerformersList({
+  performers,
+  characters,
+  lang
+}: {
+  performers: CollabPerformer[];
+  characters: Character[];
+  lang: string;
+}) {
+  return (
+    <Wrap gap="1.5" justifyContent="center" alignItems="center" w="full">
+      {performers.map((performer, idx) => {
+        if (performer.kind === 'group') {
+          return (
+            <Box
+              key={`group-${performer.id}-${idx}`}
+              style={{
+                ['--color' as 'color']: performer.color ?? undefined,
+                borderColor: performer.color ?? token('colors.border.default')
+              }}
+              borderRadius="full"
+              borderWidth="1px"
+              py="0.5"
+              px="2.5"
+              bgColor="bg.canvas"
+            >
+              <Text layerStyle="textStroke" color="var(--color)" fontSize="xs" fontWeight="bold">
+                {getArtistName(performer.name, lang)}
+              </Text>
+            </Box>
+          );
+        }
+
+        const character = characters.find((c) => String(c.id) === String(performer.characterId));
+        if (!character) return null;
+
+        return (
+          <HStack
+            key={`member-${character.id}-${idx}`}
+            style={{
+              ['--color' as 'color']: character.colorCode ?? undefined,
+              borderColor: character.colorCode ?? token('colors.border.default')
+            }}
+            gap="1"
+            alignItems="center"
+            borderRadius="full"
+            borderWidth="1px"
+            py="0.5"
+            pl="1"
+            pr="2"
+            bgColor="bg.canvas"
+          >
+            <CharacterIcon
+              character={character}
+              locale={lang as Locale}
+              flexShrink={0}
+              border="1px solid"
+              borderColor="var(--color)"
+              rounded="full"
+              w="5"
+              h="5"
+            />
+            <Text layerStyle="textStroke" color="var(--color)" fontSize="xs" fontWeight="bold">
+              {getFullName(character, lang as Locale)}
+            </Text>
+          </HStack>
+        );
+      })}
+    </Wrap>
+  );
+}
+
 export interface SongCardProps extends StackProps {
   song?: Song;
   artists?: Artist[];
+  performanceEntries?: SongPerformanceDisplayEntry[];
   heardleMode?: boolean;
   isRevealed?: boolean;
   isFailed?: boolean;
@@ -94,6 +174,7 @@ export interface SongCardProps extends StackProps {
 export function SongCard({
   song,
   artists: _artists,
+  performanceEntries,
   heardleMode,
   isRevealed,
   isFailed,
@@ -111,6 +192,7 @@ export function SongCard({
 }: SongCardProps) {
   const { t, i18n } = useTranslation();
   const artistsData = useArtistsData();
+  const charactersData = useData() as unknown as Character[];
 
   const lang = i18n.language;
 
@@ -119,6 +201,13 @@ export function SongCard({
   // Determine if we should show Heardle or revealed content
   const showHeardle = heardleMode && !isRevealed && songInventory && onGuess && onPass && onNoAudio;
   const showInfo = !heardleMode || isRevealed;
+  const defaultArtistText = formatArtistsWithVariants(song.artists, artistsData, lang);
+  const hasPerformanceDetails =
+    showInfo &&
+    performanceEntries &&
+    performanceEntries.length > 0 &&
+    (performanceEntries.length > 1 ||
+      performanceEntries.some((e) => Boolean(e.performers?.length || e.remarks)));
 
   return (
     <Stack
@@ -188,7 +277,7 @@ export function SongCard({
           flex={1}
           alignItems="center"
           w="full"
-          minH={{ base: 0, sm: '240px' }}
+          minH="240px"
           overflow="hidden"
         >
           <Center position="absolute" flex={1} w="full" h="full" overflow="hidden">
@@ -212,8 +301,14 @@ export function SongCard({
           </Center>
         </Stack>
       )}
-      <Stack gap={0} alignItems="center">
-        <Text layerStyle="textStroke" color="var(--color)" fontSize="2xl" fontWeight="bold">
+      <Stack gap={1} alignItems="center" w="full">
+        <Text
+          layerStyle="textStroke"
+          color="var(--color)"
+          fontSize="2xl"
+          fontWeight="bold"
+          textAlign="center"
+        >
           {showInfo && getSongName(song.name, song.englishName, lang)}
         </Text>
         {showInfo && lang === 'en' && song.englishName && (
@@ -222,8 +317,53 @@ export function SongCard({
           </Text>
         )}
         <Text fontSize="sm" textAlign="center">
-          {showInfo && formatArtistsWithVariants(song.artists, artistsData, lang)}
+          {showInfo && defaultArtistText}
         </Text>
+        {hasPerformanceDetails && performanceEntries && (
+          <Stack gap={1.5} alignItems="center" w="full" mt={1}>
+            {performanceEntries.map((entry, idx) => (
+              <Stack
+                key={`${entry.dayLabel ?? 'single'}-${entry.label}-${idx}`}
+                style={
+                  entry.dayLabel
+                    ? {
+                        border: `1px solid ${token('colors.border.default')}`,
+                        padding: '6px'
+                      }
+                    : undefined
+                }
+                gap={1}
+                alignItems="center"
+                borderRadius="md"
+                w="full"
+              >
+                {entry.dayLabel && (
+                  <Text color="fg.muted" fontSize="xs" fontWeight="bold">
+                    {entry.dayLabel}
+                  </Text>
+                )}
+                {entry.performers && entry.performers.length > 0 ? (
+                  <CollabPerformersList
+                    performers={entry.performers}
+                    characters={charactersData}
+                    lang={lang}
+                  />
+                ) : (
+                  entry.dayLabel && (
+                    <Text fontSize="xs" fontWeight="medium" textAlign="center">
+                      {defaultArtistText}
+                    </Text>
+                  )
+                )}
+                {entry.remarks && (
+                  <Text color="fg.muted" fontSize="xs" textAlign="center">
+                    {entry.remarks}
+                  </Text>
+                )}
+              </Stack>
+            ))}
+          </Stack>
+        )}
         {heardleMode && isRevealed && !song.wikiAudioUrl && (
           <Text mt={1} color="fg.muted" fontSize="xs">
             {t('heardle.no_audio_badge', { defaultValue: 'No audio available' })}
