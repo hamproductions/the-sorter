@@ -502,6 +502,8 @@
     "biggest_differences": "Where you differ most",
     "rank_comparison": "you #{{yours}} · everyone #{{global}}",
     "filter": "Filter",
+    "select_performances": "Select performances",
+    "performances_selected": "{{count}} performances selected",
     "filter_none": "Everyone, all items",
     "score_info_label": "What does Score mean?",
     "score_info": "How high this item lands on average across every ranking that included it. 100% = always ranked first, 0% = always last. Each ranking is scored only over the items it contained, and tied items share their position. Items with few results are pulled toward 50% (as if they had 5 extra middle-of-the-pack results), so one enthusiastic #1 can't top the board. \"Unadjusted\" is the same average without that adjustment.",
