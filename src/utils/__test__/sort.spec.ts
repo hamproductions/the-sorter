@@ -6,7 +6,8 @@ import {
   step,
   calculateMaxComparisons,
   estimateComparisonsMade,
-  resumeSort
+  resumeSort,
+  extendSort
 } from '../sort';
 
 const createNumberArray = (n = 10) =>
@@ -366,5 +367,62 @@ describe('resumeSort', () => {
     }
 
     expect(state.arr.filter((s) => s.length > 0)).toEqual([['a'], ['b'], ['c'], ['d'], ['e']]);
+  });
+});
+
+describe('extendSort', () => {
+  it('preserves old order and ties while inserting only new comparisons', () => {
+    let state = extendSort([['b', 'c'], ['e']], ['a', 'd']);
+    const comparisons: string[][] = [];
+    while (state.status !== 'end') {
+      const { left, right } = getCurrentItem(state) ?? {};
+      if (!left || !right) throw new Error('Invalid State');
+      comparisons.push([...left, ...right]);
+      const direction = left[0] === right[0] ? 'tie' : left[0] < right[0] ? 'left' : 'right';
+      state = step(direction, state);
+    }
+    expect(comparisons.every((pair) => pair.some((item) => item === 'a' || item === 'd'))).toBe(
+      true
+    );
+    expect(state.arr.filter((group) => group.length > 0)).toEqual([
+      ['a'],
+      ['b', 'c'],
+      ['d'],
+      ['e']
+    ]);
+    expect(state.preservedOrder).toEqual([['b', 'c'], ['e']]);
+  });
+
+  it('keeps metadata through snapshots, undo clones, empty input and duplicate IDs', () => {
+    const state = extendSort([['a', 'a'], ['b']], ['b', 'c']);
+    const snapshot = JSON.parse(JSON.stringify(state)) as typeof state;
+    const next = step('left', snapshot);
+    expect(next.preservedOrder).toEqual([['a'], ['b']]);
+    expect(snapshot.preservedOrder).toEqual([['a'], ['b']]);
+    expect(extendSort([['a', 'a'], []], []).arr).toEqual([['a']]);
+    expect(extendSort([], []).status).toBe('end');
+  });
+
+  it('uses an old member rank to auto-order a persisted new-item tie', () => {
+    let state = extendSort([['a'], ['b'], ['c'], ['d'], ['e']], ['x']);
+    const comparisons: string[][][] = [];
+    while (state.status !== 'end') {
+      const { left, right } = getCurrentItem(state) ?? {};
+      if (!left || !right) throw new Error('Invalid State');
+      comparisons.push([left.slice(), right.slice()]);
+      state = step(left.includes('x') || right.includes('x') ? 'tie' : 'left', state);
+      if (state.arr.some((group) => group.includes('x') && group.length > 1)) {
+        state = JSON.parse(JSON.stringify(state)) as typeof state;
+      }
+    }
+    expect(comparisons).toEqual([[['e'], ['x']]]);
+    expect(state.arr.filter((group) => group.length > 0)).toEqual([
+      ['a'],
+      ['b'],
+      ['c'],
+      ['d'],
+      ['e', 'x']
+    ]);
+    expect(state.preservedOrder).toEqual([['a'], ['b'], ['c'], ['d'], ['e']]);
   });
 });

@@ -16,6 +16,7 @@ import {
 } from '~/utils/share';
 import type { GuessResult } from '~/hooks/useHeardleState';
 import type { PerformanceSortMeta } from '~/types/performance-sort';
+import { usePerformanceSortMeta } from '~/hooks/usePerformanceSortMeta';
 
 const MAX_ATTEMPTS = 5;
 
@@ -23,7 +24,8 @@ export function Page() {
   const songs = useSongData();
   const { t } = useTranslation();
 
-  const params = new URLSearchParams(import.meta.env.SSR ? '' : location.search);
+  const search = import.meta.env.SSR ? '' : location.search;
+  const params = new URLSearchParams(search);
   const urlData = params.get('data');
 
   const {
@@ -34,9 +36,12 @@ export function Page() {
     results: string[][];
     guessResults?: Record<string, GuessResult>;
     performanceMeta?: PerformanceSortMeta;
-  } =
-    JSON.parse(urlData !== null ? (decompressFromEncodedURIComponent(urlData) ?? '{}') : '{}') ??
-    {};
+  } = useMemo(
+    () =>
+      JSON.parse(urlData !== null ? (decompressFromEncodedURIComponent(urlData) ?? '{}') : '{}') ??
+      {},
+    [urlData]
+  );
 
   const filters = {
     series: getAllCommaSeparated(params, 'series'),
@@ -47,8 +52,11 @@ export function Page() {
     songs: getAllCommaSeparated(params, 'songs').map(Number),
     years: getAllCommaSeparated(params, 'years').map(Number)
   };
-  const performanceParams = getSongPerformanceParams(params);
-  const displayPerformanceMeta = performanceMeta ?? performanceParams?.meta;
+  const legacyMeta = useMemo(
+    () => getSongPerformanceParams(new URLSearchParams(search))?.meta,
+    [search]
+  );
+  const displayPerformanceMeta = usePerformanceSortMeta(performanceMeta ?? legacyMeta);
 
   const failedSongs = useMemo(() => {
     if (!guessResults) return undefined;
@@ -91,6 +99,7 @@ export function Page() {
                 guessResults={guessResults}
                 maxAttempts={guessResults ? MAX_ATTEMPTS : undefined}
                 readOnly
+                allowExport
                 w="full"
                 order={results}
               />

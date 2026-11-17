@@ -5,7 +5,12 @@ import { useSaveLoadContext } from '~/context/SaveLoadContext';
 import { useToaster } from '~/context/ToasterContext';
 import type { SortLog } from '~/types/global-ranking';
 import type { SavedSortState, SorterType } from '~/types/save-state';
-import { autoSaveName, markResultAutoSaved, wasResultAutoSaved } from '~/utils/save-state';
+import {
+  autoSaveName,
+  getSortSaveIdentity,
+  markResultAutoSaved,
+  wasResultAutoSaved
+} from '~/utils/save-state';
 import type { SortState } from '~/utils/sort';
 
 interface SortSnapshot<T> {
@@ -24,6 +29,7 @@ export const useSortSaves = <T extends string | number>({
   filterSummary,
   isSeiyuu,
   isEnded,
+  metadata,
   onApply
 }: {
   sorterType: SorterType;
@@ -39,6 +45,7 @@ export const useSortSaves = <T extends string | number>({
   filterSummary?: string;
   isSeiyuu?: boolean;
   isEnded: boolean;
+  metadata?: Pick<SavedSortState, 'performanceMeta' | 'songFilters'>;
   onApply?: (saved: SavedSortState) => void;
 }) => {
   const { t } = useTranslation();
@@ -50,6 +57,7 @@ export const useSortSaves = <T extends string | number>({
     const snapshot = getSnapshot();
     if (!snapshot.state) return;
     return {
+      ...metadata,
       state: snapshot.state,
       history: snapshot.history,
       comparisonsCount: snapshot.comparisonsCount,
@@ -64,9 +72,9 @@ export const useSortSaves = <T extends string | number>({
   const preserveCurrent = (target: SavedSortState) => {
     const current = captureCurrent();
     if (!current || current.state.status === 'end') return;
-    const serialized = JSON.stringify(current.state);
-    if (JSON.stringify(target.state) === serialized) return;
-    if (saves.some((s) => JSON.stringify(s.state) === serialized)) return;
+    const serialized = getSortSaveIdentity({ ...current, sorterType });
+    if (getSortSaveIdentity(target) === serialized) return;
+    if (saves.some((s) => getSortSaveIdentity(s) === serialized)) return;
     save({
       ...current,
       sorterType,
@@ -91,10 +99,10 @@ export const useSortSaves = <T extends string | number>({
   const autoSave = () => {
     const current = captureCurrent();
     if (!current || current.state.status !== 'end') return;
-    const serialized = JSON.stringify(current.state);
+    const serialized = getSortSaveIdentity({ ...current, sorterType });
     if (wasResultAutoSaved(serialized)) return;
     markResultAutoSaved(serialized);
-    if (saves.some((s) => JSON.stringify(s.state) === serialized)) return;
+    if (saves.some((s) => getSortSaveIdentity(s) === serialized)) return;
     save({
       ...current,
       sorterType,

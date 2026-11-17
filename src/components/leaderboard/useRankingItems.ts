@@ -1,7 +1,9 @@
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useData } from '~/hooks/useData';
+import { useArtistsData } from '~/hooks/useArtistsData';
 import { useDiscographyData } from '~/hooks/useDiscographyData';
+import type { Discography } from '~/hooks/useDiscographyData';
 import { useSeriesData } from '~/hooks/useSeriesData';
 import { useSongData } from '~/hooks/useSongData';
 import type { RankingKind, RankingMode } from '~/types/global-ranking';
@@ -17,12 +19,15 @@ export interface RankingItemDisplay {
 }
 
 const PLACEHOLDER_OWNERS = 3;
-let jacketById: Map<string, string> | undefined;
+let jacketById: Map<string, Discography['versions']> | undefined;
+
+const normalizeEdition = (name: string) => name.normalize('NFKC').replace(/\s/g, '');
 
 export const useRankingItems = (kind: RankingKind, mode?: RankingMode) => {
   const { i18n } = useTranslation();
   const characters = useData();
   const songs = useSongData();
+  const artists = useArtistsData();
   const series = useSeriesData();
   const discographies = useDiscographyData();
   const lang = i18n.language;
@@ -37,8 +42,8 @@ export const useRankingItems = (kind: RankingKind, mode?: RankingMode) => {
     const isPlaceholder = (url: string) => (owners.get(url)?.size ?? 0) >= PLACEHOLDER_OWNERS;
     return new Map(
       discographies.flatMap((d) => {
-        const image = d.versions.find((v) => v.imageUrl && !isPlaceholder(v.imageUrl))?.imageUrl;
-        return image ? [[d.id, image] as const] : [];
+        const versions = d.versions.filter((v) => v.imageUrl && !isPlaceholder(v.imageUrl));
+        return versions.length ? [[d.id, versions] as const] : [];
       })
     );
   })();
@@ -60,8 +65,23 @@ export const useRankingItems = (kind: RankingKind, mode?: RankingMode) => {
       }
       const song = songs.find((s) => s.id === id);
       if (!song) return { name: id };
+      const editionNames = new Set(
+        [
+          song.name,
+          ...song.artists.flatMap((a) => artists.find((artist) => artist.id === a.id)?.name ?? [])
+        ].map(normalizeEdition)
+      );
       const jacket = song.discographyIds
-        ?.map((discographyId) => jackets.get(String(discographyId)))
+        ?.map((discographyId) => {
+          const versions = jackets.get(String(discographyId));
+          const matches = versions?.filter((v) => {
+            const name = normalizeEdition(v.name ?? '')
+              .replace(/[【】]/g, '')
+              .replace(/盤$/, '');
+            return editionNames.has(name);
+          });
+          return (matches?.length === 1 ? matches[0] : versions?.[0])?.imageUrl;
+        })
         .find(Boolean);
       const videoId = song.musicVideo?.videoId;
       return {
@@ -70,6 +90,6 @@ export const useRankingItems = (kind: RankingKind, mode?: RankingMode) => {
         image: jacket ?? (videoId ? `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg` : undefined)
       };
     },
-    [kind, mode, characters, songs, series, jackets, lang]
+    [kind, mode, characters, songs, artists, series, jackets, lang]
   );
 };

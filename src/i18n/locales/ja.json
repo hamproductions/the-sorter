@@ -12,6 +12,10 @@
   "intro-don": "イントロドン",
   "songs": "楽曲",
   "artist": "アーティスト",
+  "performance": {
+    "performers": "歌唱",
+    "original_recording": "原曲アーティスト"
+  },
   "song-name": "曲名",
   "navigation": {
     "characters": "キャラ",
@@ -99,6 +103,7 @@
   "sort": {
     "start": "開始",
     "start_over": "やり直す",
+    "add_new_songs": "未ソートの{{count}}曲をこの結果に追加",
     "stop": "中止",
     "new_settings": "設定を変更する",
     "tie": "引き分け",

@@ -10,6 +10,7 @@ import { useSongData } from '~/hooks/useSongData';
 import { SchoolBadge } from '~/components/sorter/SchoolBadge';
 import { getArtistName, getSongName } from '~/utils/names';
 import type { PerformanceSortMeta } from '~/types/performance-sort';
+import { SongPerformanceContext } from '~/components/sorter/SongPerformanceContext';
 
 function getRankColor(rank: number, total: number): string {
   if (total <= 1) return 'hsl(120, 70%, 50%)';
@@ -85,7 +86,7 @@ export function PerformanceOrderView({
         if (!song) return null;
         const rank = rankMap[songId];
         if (rank === undefined) return null;
-        return { label, song, rank };
+        return { label, song, rank, entry: typeof entry === 'string' ? { songId, label } : entry };
       })
       .filter((row): row is NonNullable<typeof row> => row !== null);
   }, [performanceMeta.setlistOrder, songs, rankMap]);
@@ -102,7 +103,7 @@ export function PerformanceOrderView({
       </Table.Head>
       <Table.Body>
         {rows.map((row, idx) => {
-          const { rank, song, label } = row;
+          const { rank, song, label, entry } = row;
           const seriesColor = getSongColor(song);
           const rankColor = getRankColor(rank, totalRanked);
 
@@ -130,7 +131,11 @@ export function PerformanceOrderView({
               <Table.Cell>
                 <Stack gap="1" alignItems="center" w="full" py="2">
                   <SchoolBadge locale={lang} song={song} />
-                  <Text>{formatArtistsWithVariants(song.artists, artists, lang)}</Text>
+                  <Text>
+                    {t('performance.original_recording')}:{' '}
+                    {formatArtistsWithVariants(song.artists, artists, lang)}
+                  </Text>
+                  <SongPerformanceContext song={song} entries={[entry]} />
                 </Stack>
               </Table.Cell>
               <Table.Cell textAlign="center">

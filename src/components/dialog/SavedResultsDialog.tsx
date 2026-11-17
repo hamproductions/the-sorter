@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaXmark } from 'react-icons/fa6';
 import { ResultsView, type ShareDisplayData } from '../results/ResultsView';
@@ -13,8 +14,15 @@ import type { FilterType } from '~/components/sorter/CharacterFilters';
 import type { SongFilterType } from '~/components/sorter/SongFilters';
 import { useToaster } from '~/context/ToasterContext';
 import type { SavedSortState } from '~/types/save-state';
-import { addPresetParams, addSongPresetParams, serializeData } from '~/utils/share';
+import {
+  addPresetParams,
+  addSongPerformanceParams,
+  addSongPresetParams,
+  serializeData
+} from '~/utils/share';
 import { Stack } from 'styled-system/jsx';
+import { usePerformanceSortMeta } from '~/hooks/usePerformanceSortMeta';
+import { getSavedPerformanceMeta } from '~/utils/save-state';
 
 export interface SavedResultsDialogProps extends Dialog.RootProps {
   save?: SavedSortState;
@@ -26,6 +34,8 @@ export function SavedResultsDialog({ save, ...rest }: SavedResultsDialogProps) {
   const characters = useData();
   const songs = useSongData();
   const hasuSongs = useHasuSongData();
+  const savedMeta = useMemo(() => getSavedPerformanceMeta(save), [save]);
+  const performanceMeta = usePerformanceSortMeta(savedMeta);
   const order = save?.state.arr.filter((group) => group.length > 0) ?? [];
   const isSeiyuu = save?.isSeiyuu ?? save?.log?.context?.mode === 'seiyuu';
   const filter = save?.log?.context?.filter ?? {};
@@ -45,8 +55,12 @@ export function SavedResultsDialog({ save, ...rest }: SavedResultsDialogProps) {
   };
 
   const shareSongs = async () => {
-    const params = addSongPresetParams(new URLSearchParams(), filter as SongFilterType);
-    params.append('data', await serializeData({ results: order }));
+    const params = addSongPresetParams(
+      new URLSearchParams(),
+      save?.songFilters ?? (filter as SongFilterType)
+    );
+    addSongPerformanceParams(params, performanceMeta);
+    params.append('data', await serializeData({ results: order, performanceMeta }));
     await copyShareUrl('/songs/share', params);
   };
 
@@ -79,6 +93,7 @@ export function SavedResultsDialog({ save, ...rest }: SavedResultsDialogProps) {
                 allowExport
                 onShareResults={() => void shareSongs()}
                 songsData={songs}
+                performanceMeta={performanceMeta}
                 w="full"
                 order={order as string[][]}
               />

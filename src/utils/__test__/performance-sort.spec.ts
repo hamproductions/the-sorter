@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { computeSetlistLabels, computeSortableSetlistLabels } from '../performance-sort';
+import {
+  computeSetlistLabels,
+  computeSortableSetlistLabels,
+  formatPerformancePerformersText,
+  getDistinctSongPerformanceEntries,
+  getPerformerSignature
+} from '../performance-sort';
 import type { PerformanceSetlist, SetlistItem } from '~/types/setlist-prediction';
 import type { Song } from '~/types/songs';
 
@@ -227,7 +233,13 @@ describe('computeSortableSetlistLabels', () => {
 
     const result = computeSortableSetlistLabels(setlist, songs);
 
-    expect(result).toEqual([{ songId: '428', label: 'M01' }]);
+    expect(result).toEqual([
+      {
+        songId: '428',
+        label: 'M01',
+        customSongName: 'Colorful Dreams! Colorful Smiles!'
+      }
+    ]);
   });
 
   it('re-resolves wrong song ids by custom song title', () => {
@@ -246,6 +258,121 @@ describe('computeSortableSetlistLabels', () => {
 
     const result = computeSortableSetlistLabels(setlist, songs);
 
-    expect(result).toEqual([{ songId: '820', label: 'M01' }]);
+    expect(result).toEqual([
+      {
+        songId: '820',
+        label: 'M01',
+        customSongName: '約束になれ僕らの歌'
+      }
+    ]);
+  });
+
+  it('keeps remarks and parses the complete character lineup', () => {
+    const remarks = '高坂穂乃果（CV.新田恵海）、南ことり（CV.内田彩）、園田海未（CV.三森すずこ）';
+    const setlist = makeSetlist(
+      [
+        {
+          id: 'item-0',
+          type: 'song',
+          position: 0,
+          songId: '428',
+          customSongName: 'Colorful Dreams! Colorful Smiles!',
+          remarks
+        } as SetlistItem
+      ],
+      [{ name: 'Main', startIndex: 0, endIndex: 0, type: 'main' }]
+    );
+
+    expect(computeSortableSetlistLabels(setlist, songs)).toEqual([
+      {
+        songId: '428',
+        label: 'M01',
+        customSongName: 'Colorful Dreams! Colorful Smiles!',
+        remarks,
+        performers: [
+          { kind: 'member', characterId: '1' },
+          { kind: 'member', characterId: '3' },
+          { kind: 'member', characterId: '4' }
+        ]
+      }
+    ]);
+  });
+
+  it('keeps the complete named group lineup', () => {
+    const setlist = makeSetlist(
+      [
+        {
+          id: 'item-0',
+          type: 'song',
+          position: 0,
+          songId: '428',
+          customSongName: 'Colorful Dreams! Colorful Smiles!',
+          remarks: 'Aqours Ver.'
+        } as SetlistItem
+      ],
+      [{ name: 'Main', startIndex: 0, endIndex: 0, type: 'main' }]
+    );
+
+    expect(computeSortableSetlistLabels(setlist, songs)[0].performers).toEqual([
+      { kind: 'group', id: '33', name: 'Aqours' }
+    ]);
+  });
+
+  it('keeps ambiguous remarks for display and preserves each performance entry', () => {
+    const entries = [
+      {
+        songId: '428',
+        label: 'Day 1 M01',
+        date: '2025-01-01',
+        performanceName: 'Day 1',
+        remarks: '歌唱メンバー不明'
+      },
+      {
+        songId: '428',
+        label: 'Day 2 M01',
+        date: '2025-01-02',
+        performanceName: 'Day 2',
+        remarks: '歌唱メンバー不明'
+      }
+    ];
+
+    expect(getDistinctSongPerformanceEntries('428', entries)).toEqual(
+      entries.map((entry) => ({
+        ...entry,
+        dayLabel: entry.performanceName
+      }))
+    );
+    expect(formatPerformancePerformersText(songs[1], entries, [], 'ja')).toBe(
+      'Day 1 M01: 2025-01-01: 歌唱メンバー不明 / Day 2 M01: 2025-01-02: 歌唱メンバー不明'
+    );
+  });
+
+  it('creates order-independent performer signatures', () => {
+    expect(
+      getPerformerSignature([
+        { kind: 'member', characterId: '1' },
+        { kind: 'member', characterId: '3' }
+      ])
+    ).toBe(
+      getPerformerSignature([
+        { kind: 'member', characterId: '3' },
+        { kind: 'member', characterId: '1' }
+      ])
+    );
+  });
+
+  it('preserves appearance or absence notes without declaring a complete singer lineup', () => {
+    for (const remarks of [
+      'メドレー・TVサイズ｜南條愛乃さん（絢瀬絵里役）出演',
+      '鬼頭明里さん（近江彼方役）は欠席'
+    ]) {
+      const setlist = makeSetlist(
+        [{ id: 'note', type: 'song', position: 0, songId: '428', remarks } as SetlistItem],
+        [{ name: 'Main', startIndex: 0, endIndex: 0, type: 'main' }]
+      );
+      const entry = computeSortableSetlistLabels(setlist, songs)[0];
+      expect(entry.remarks).toBe(remarks);
+      expect(entry.performers).toBeUndefined();
+    }
   });
 });

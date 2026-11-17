@@ -11,6 +11,7 @@ import type { SongFilterType } from '~/components/sorter/SongFilters';
 import { getAssetUrl } from '~/utils/assets';
 import { TieToastContent } from '~/components/sorter/TieToastContent';
 import { token } from 'styled-system/tokens';
+import { extendSort } from '~/utils/sort';
 
 export const useSongsSortData = (
   excludedSongIds?: Set<string>,
@@ -94,6 +95,16 @@ export const useSongsSortData = (
     clearTimer();
     clear();
   }, [clearTimer, clear]);
+
+  const addNewSongs = useCallback(() => {
+    if (state?.status !== 'end') return;
+    const updated = extendSort(
+      state.arr,
+      listToSort.map((song) => song.id)
+    );
+    startTimer();
+    loadState({ state: updated, history: [], comparisonsCount: 0 });
+  }, [state, listToSort, startTimer, loadState]);
 
   const timedLeft = useCallback(() => {
     recordTick();
@@ -211,6 +222,7 @@ export const useSongsSortData = (
     getElapsedMs,
     getSnapshot,
     loadState: timedLoadState,
-    globalRanking
+    globalRanking,
+    addNewSongs
   };
 };
