@@ -229,6 +229,15 @@ export function getPerformerSignature(performers?: PerformancePerformer[]): stri
     .join(',');
 }
 
+export function getPerformanceVersionNote(entry: SetlistOrderEntry): string {
+  if (!entry.performers?.length) return entry.remarks ?? '';
+  return (entry.remarks ?? '')
+    .split(/[｜|]/u)
+    .map((part) => part.trim())
+    .filter((part) => part && !getSetlistPerformers(part)?.length)
+    .join(' · ');
+}
+
 export interface SongPerformanceDisplayEntry extends SetlistOrderEntry {
   dayLabel?: string;
 }
