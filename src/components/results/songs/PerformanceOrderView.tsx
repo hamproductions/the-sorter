@@ -12,6 +12,7 @@ import { useSongData } from '~/hooks/useSongData';
 import { SchoolBadge } from '~/components/sorter/SchoolBadge';
 import { CollabPerformersList } from '~/components/sorter/SongCard';
 import { getArtistName, getSongName } from '~/utils/names';
+import { getDistinctSongPerformanceEntries } from '~/utils/performance-sort';
 import type { PerformanceSortMeta } from '~/types/performance-sort';
 
 function getRankColor(rank: number, total: number): string {
@@ -85,9 +86,13 @@ export function PerformanceOrderView({
         // Handle old format where setlistOrder was string[] of songIds
         const songId = typeof entry === 'string' ? entry : entry.songId;
         const label = typeof entry === 'string' ? `${idx + 1}` : entry.label;
-        const performers = typeof entry === 'string' ? undefined : entry.performers;
         const song = songs.find((s) => s.id === songId);
         if (!song) return null;
+        const normalized =
+          typeof entry === 'string'
+            ? undefined
+            : getDistinctSongPerformanceEntries(song, [entry])[0];
+        const performers = normalized?.performers;
         const rank = rankMap[songId];
         if (rank === undefined) return null;
         return { label, song, rank, performers };
@@ -137,11 +142,16 @@ export function PerformanceOrderView({
                   <SchoolBadge locale={lang} song={song} />
                   <Text>{formatArtistsWithVariants(song.artists, artists, lang)}</Text>
                   {performers && performers.length > 0 && (
-                    <CollabPerformersList
-                      performers={performers}
-                      characters={characters}
-                      lang={lang}
-                    />
+                    <>
+                      <Text color="fg.muted" fontSize="xs" fontWeight="bold">
+                        {t('sort.collab_members', { defaultValue: 'Collab Members' })}
+                      </Text>
+                      <CollabPerformersList
+                        performers={performers}
+                        characters={characters}
+                        lang={lang}
+                      />
+                    </>
                   )}
                 </Stack>
               </Table.Cell>

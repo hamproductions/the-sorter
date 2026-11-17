@@ -14,16 +14,18 @@ import { Input } from '~/components/ui/input';
 import { Textarea } from '~/components/ui/textarea';
 import { useToaster } from '~/context/ToasterContext';
 import { useLocalStorage } from '~/hooks/useLocalStorage';
-import type { WithRank } from '~/types';
+import type { Character, WithRank } from '~/types';
 import { Text } from '~/components/ui/text';
 import type { Song } from '~/types/songs';
 import { Button } from '~/components/ui/button';
 import type { RootProps } from '~/components/ui/styled/tabs';
 import { useArtistsData } from '~/hooks/useArtistsData';
+import { useData } from '~/hooks/useData';
 import { useSeriesData } from '~/hooks/useSeriesData';
 import { HeardleStatsDialog } from '~/components/sorter/HeardleStatsDialog';
 import type { GuessResult } from '~/hooks/useHeardleState';
 import type { PerformanceSortMeta } from '~/types/performance-sort';
+import { formatCollabPerformersText } from '~/utils/performance-sort';
 import { PerformanceOrderView } from './PerformanceOrderView';
 import { getFullPerformanceName } from '~/utils/names';
 
@@ -50,6 +52,7 @@ export function SongResultsView({
   readOnly?: boolean;
 }) {
   const artists = useArtistsData();
+  const characters = useData() as unknown as Character[];
   const seriesData = useSeriesData();
   const { toast } = useToaster();
   const [title, setTitle] = useState<string>('My LoveLive! Song Ranking');
@@ -150,7 +153,16 @@ export function SongResultsView({
           item.map((i) => {
             const s = songsData.find((s) => s.id === `${i}`);
             const artist = s?.artists.map((art) => artists.find((a) => a.id === art.id));
-            return `${idx + 1}. ${s?.name} - ${artist?.[0]?.name ?? 'unknown'}`;
+            const collabText = formatCollabPerformersText(
+              s,
+              performanceMeta?.setlistOrder,
+              characters,
+              _i18n.language
+            );
+            const collabSuffix = collabText
+              ? ` (${t('sort.collab_members', { defaultValue: 'Collab Members' })}: ${collabText})`
+              : '';
+            return `${idx + 1}. ${s?.name} - ${artist?.[0]?.name ?? 'unknown'}${collabSuffix}`;
           })
         )
         .join('\n') ?? ''
@@ -169,11 +181,18 @@ export function SongResultsView({
             const s = songsData.find((s) => s.id === `${i}`);
             const artist = s?.artists.map((art) => artists.find((a) => a.id === art.id));
             const series = uniq(s?.seriesIds).map((id) => seriesData.find((a) => a.id === `${id}`));
+            const collabText = formatCollabPerformersText(
+              s,
+              performanceMeta?.setlistOrder,
+              characters,
+              _i18n.language
+            );
             return {
               rank: idx + 1,
               title: s?.name,
               series: series.map((a) => a?.name)?.join(', '),
-              unit: artist?.map((a) => a?.name)?.join(', ')
+              unit: artist?.map((a) => a?.name)?.join(', '),
+              ...(collabText ? { collabMembers: collabText } : {})
             };
           })
         )
@@ -288,6 +307,7 @@ export function SongResultsView({
             <Tabs.Content value="table">
               <SongRankingTable
                 songs={songs}
+                performanceMeta={performanceMeta}
                 guessResults={guessResults}
                 maxAttempts={maxAttempts}
               />
@@ -353,10 +373,10 @@ export function SongResultsView({
               </Heading>
             )}
             {description && <Text>{description}</Text>}
-            {currentTab === 'table' ? (
-              <SongRankingTable songs={songs} />
+            {currentTab === 'performance-order' && performanceMeta && order ? (
+              <PerformanceOrderView performanceMeta={performanceMeta} order={order} />
             ) : (
-              <SongRankingTable songs={songs} />
+              <SongRankingTable songs={songs} performanceMeta={performanceMeta} />
             )}
             <Text textAlign="end">
               {t('results.generated_at')}: {timestamp.toLocaleString()}

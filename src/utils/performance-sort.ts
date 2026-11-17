@@ -1,3 +1,4 @@
+import type { Character } from '~/types';
 import type {
   CollabPerformer,
   PerformanceSortMeta,
@@ -6,7 +7,9 @@ import type {
 import type { Performance, PerformanceSetlist } from '~/types/setlist-prediction';
 import type { Song } from '~/types/songs';
 import { isSongItem } from '~/types/setlist-prediction';
-import { getFullPerformanceName } from './names';
+import type { Locale } from '~/i18n';
+import { getFullName } from './character';
+import { getArtistName, getFullPerformanceName } from './names';
 import artistsInfo from '../../data/artists-info.json';
 import characterInfo from '../../data/character-info.json';
 import seriesInfo from '../../data/series-info.json';
@@ -307,6 +310,36 @@ export function getDistinctSongPerformanceEntries(
     label: entry.label,
     performers: entry.performers
   }));
+}
+
+export function formatCollabPerformersText(
+  song: Song | undefined,
+  setlistOrder: SetlistOrderEntry[] | undefined,
+  characters: Character[],
+  lang: string
+): string | undefined {
+  if (!song || !setlistOrder || setlistOrder.length === 0) return undefined;
+  const entries = getDistinctSongPerformanceEntries(song, setlistOrder).filter(
+    (entry) => entry.performers && entry.performers.length > 0
+  );
+  if (entries.length === 0) return undefined;
+
+  const formattedEntries = entries
+    .map((entry) => {
+      const names = (entry.performers ?? [])
+        .map((p) => {
+          if (p.kind === 'group') return getArtistName(p.name, lang);
+          const chara = characters.find((c) => String(c.id) === String(p.characterId));
+          return chara ? getFullName(chara, lang as Locale) : undefined;
+        })
+        .filter((n): n is string => Boolean(n))
+        .join(', ');
+      if (!names) return undefined;
+      return entry.dayLabel ? `${entry.dayLabel}: ${names}` : names;
+    })
+    .filter((s): s is string => Boolean(s));
+
+  return formattedEntries.length > 0 ? formattedEntries.join(' / ') : undefined;
 }
 
 export function computeSetlistLabels(setlist: PerformanceSetlist): SetlistOrderEntry[] {

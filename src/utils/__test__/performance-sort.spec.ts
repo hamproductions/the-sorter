@@ -2,9 +2,12 @@ import { describe, expect, it } from 'vitest';
 import {
   computeSetlistLabels,
   computeSortableSetlistLabels,
+  formatCollabPerformersText,
   getDistinctSongPerformanceEntries,
   parseSetlistPerformers
 } from '../performance-sort';
+import characterInfo from '../../../data/character-info.json';
+import type { Character } from '~/types';
 import type { PerformanceSetlist, SetlistItem } from '~/types/setlist-prediction';
 import type { Song } from '~/types/songs';
 
@@ -355,5 +358,26 @@ describe('parseSetlistPerformers & getDistinctSongPerformanceEntries', () => {
     expect(entries).toHaveLength(2);
     expect(entries[0].dayLabel).toBe('Day.1');
     expect(entries[1].dayLabel).toBe('Day.2');
+  });
+
+  it('formats collab performers text for text and JSON exports', () => {
+    const characters = characterInfo as unknown as Character[];
+    const text = formatCollabPerformersText(
+      museSong,
+      [
+        {
+          songId: '69',
+          label: 'M28',
+          performers: [
+            { kind: 'member', characterId: '1' },
+            { kind: 'member', characterId: '13' },
+            { kind: 'member', characterId: '14' }
+          ]
+        }
+      ],
+      characters,
+      'en'
+    );
+    expect(text).toBe('Chika Takami, Riko Sakurauchi');
   });
 });
