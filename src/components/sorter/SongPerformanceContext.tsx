@@ -18,7 +18,7 @@ export function SongPerformanceContext({
   const { t, i18n } = useTranslation();
   const characters = useData();
   return (
-    <Stack gap="2" w="full" minW="0" textAlign="start">
+    <Stack gap="2" w="full" minW="0" maxW={{ base: '300px', md: 'full' }} textAlign="start">
       {getDistinctSongPerformanceEntries(song, entries).map((entry, index) => (
         <Stack key={index} gap="1" minW="0">
           <Text color="fg.muted" fontSize="xs">
