@@ -11,6 +11,7 @@ import { Heardle } from './Heardle';
 import type { GuessResult } from '~/hooks/useHeardleState';
 import type { SetlistOrderEntry } from '~/types/performance-sort';
 import { SongPerformanceContext } from './SongPerformanceContext';
+import { getPerformanceDisplayPerformers } from '~/utils/performance-sort';
 
 function formatArtistsWithVariants(
   songArtists: Song['artists'],
@@ -123,6 +124,10 @@ export function SongCard({
   // Determine if we should show Heardle or revealed content
   const showHeardle = heardleMode && !isRevealed && songInventory && onGuess && onPass && onNoAudio;
   const showInfo = !heardleMode || isRevealed;
+  const hasLineupChange = performanceEntries?.some(
+    (entry) =>
+      entry.songId === song.id && getPerformanceDisplayPerformers(song, entry.performers).length > 0
+  );
 
   return (
     <Stack
@@ -225,7 +230,7 @@ export function SongCard({
           </Text>
         )}
         <Text fontSize="sm" textAlign="center">
-          {showInfo && performanceEntries && `${t('performance.original_recording')}: `}
+          {showInfo && hasLineupChange && `${t('performance.original_recording')}: `}
           {showInfo && formatArtistsWithVariants(song.artists, artistsData, lang)}
         </Text>
         {showInfo && performanceEntries && (

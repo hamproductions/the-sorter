@@ -229,6 +229,58 @@ export function getPerformerSignature(performers?: PerformancePerformer[]): stri
     .join(',');
 }
 
+export function getPerformanceDisplayPerformers(
+  song: Song,
+  performers?: PerformancePerformer[]
+): PerformancePerformer[] {
+  if (!performers?.length) return [];
+  const artistIds = new Set(song.artists.map((artist) => artist.id));
+  if (
+    performers.length === artistIds.size &&
+    performers.every((performer) => performer.kind === 'group' && artistIds.has(performer.id))
+  )
+    return [];
+  if (performers.some((performer) => performer.kind === 'group')) return performers;
+
+  const memberIds = performers
+    .flatMap((performer) => (performer.kind === 'member' ? [performer.characterId] : []))
+    .toSorted();
+  const originalMembers = song.artists.flatMap((songArtist) => {
+    const artist = artistsInfo.find((item) => item.id === songArtist.id);
+    if (songArtist.variant)
+      return characterInfo
+        .filter((character) =>
+          character.units.some(
+            (unit) => unit.id === songArtist.id && unit.additionalInfo === songArtist.variant
+          )
+        )
+        .map((character) => character.id);
+    return artist?.characters.filter((id): id is string => Boolean(id)) ?? [];
+  });
+  if (
+    originalMembers.length &&
+    [...new Set(originalMembers)].toSorted().join(',') === memberIds.join(',')
+  )
+    return [];
+
+  if (song.artists.length === 1 && !song.artists[0].variant) {
+    const variants = new Map<string, string[]>();
+    for (const character of characterInfo) {
+      for (const unit of character.units) {
+        if (unit.id !== song.artists[0].id || !unit.additionalInfo) continue;
+        variants.set(unit.additionalInfo, [
+          ...(variants.get(unit.additionalInfo) ?? []),
+          character.id
+        ]);
+      }
+    }
+    for (const roster of variants.values()) {
+      if (roster.toSorted().join(',') === memberIds.join(',')) return [];
+    }
+  }
+  return performers;
+}
+
 export function getPerformanceVersionNote(entry: SetlistOrderEntry): string {
   if (!entry.performers?.length) return entry.remarks ?? '';
   return (entry.remarks ?? '')

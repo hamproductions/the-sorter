@@ -11,6 +11,7 @@ import { SchoolBadge } from '~/components/sorter/SchoolBadge';
 import { getArtistName, getSongName } from '~/utils/names';
 import type { PerformanceSortMeta } from '~/types/performance-sort';
 import { SongPerformanceContext } from '~/components/sorter/SongPerformanceContext';
+import { getPerformanceDisplayPerformers } from '~/utils/performance-sort';
 
 function getRankColor(rank: number, total: number): string {
   if (total <= 1) return 'hsl(120, 70%, 50%)';
@@ -132,7 +133,8 @@ export function PerformanceOrderView({
                 <Stack gap="1" alignItems="center" w="full" py="2">
                   <SchoolBadge locale={lang} song={song} />
                   <Text>
-                    {t('performance.original_recording')}:{' '}
+                    {getPerformanceDisplayPerformers(song, entry.performers).length > 0 &&
+                      `${t('performance.original_recording')}: `}
                     {formatArtistsWithVariants(song.artists, artists, lang)}
                   </Text>
                   <SongPerformanceContext song={song} entries={[entry]} />

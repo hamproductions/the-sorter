@@ -12,6 +12,7 @@ import { getArtistName, getSongName } from '~/utils/names';
 import type { GuessResult } from '~/hooks/useHeardleState';
 import type { PerformanceSortMeta } from '~/types/performance-sort';
 import { SongPerformanceContext } from '~/components/sorter/SongPerformanceContext';
+import { getPerformanceDisplayPerformers } from '~/utils/performance-sort';
 
 function formatArtistsWithVariants(
   songArtists: Song['artists'],
@@ -99,7 +100,11 @@ export function SongRankingTable({
                 <Stack gap="1" alignItems="center" w="full" py="2">
                   <SchoolBadge locale={lang} song={c} />
                   <Text>
-                    {performanceMeta && `${t('performance.original_recording')}: `}
+                    {performanceMeta?.setlistOrder.some(
+                      (entry) =>
+                        entry.songId === c.id &&
+                        getPerformanceDisplayPerformers(c, entry.performers).length > 0
+                    ) && `${t('performance.original_recording')}: `}
                     {formatArtistsWithVariants(songArtists, artists, lang)}
                   </Text>
                   {performanceMeta && (
