@@ -141,19 +141,14 @@ export function SongResultsView({
   };
 
   const screenshot = async () => {
-    const shareImage = await makeScreenshot();
-    if (!shareImage) return;
-    try {
-      await navigator.share({
-        text: t('share.copy_text'),
-        files: [new File([shareImage], 'll-sorted.png')]
-      });
-    } catch {
-      await navigator.clipboard.write([
-        new ClipboardItem({ 'image/png': shareImage }, { presentationStyle: 'attachment' })
-      ]);
-      toast?.({ description: t('toast.screenshot_copied') });
-    }
+    const image = makeScreenshot().then((blob) => {
+      if (!blob) throw new Error('Result image is unavailable');
+      return blob;
+    });
+    await navigator.clipboard.write([
+      new ClipboardItem({ 'image/png': image }, { presentationStyle: 'attachment' })
+    ]);
+    toast?.({ description: t('toast.screenshot_copied') });
   };
 
   const exportText = async () => {

@@ -133,18 +133,6 @@ export function Page() {
     }
   }, [resolvedPerformanceMeta, performanceMeta, setPerformanceMeta]);
 
-  // Clear stale old-format performance data (setlistOrder was string[], now SetlistOrderEntry[])
-  useEffect(() => {
-    if (
-      performanceMeta?.setlistOrder?.length &&
-      typeof performanceMeta.setlistOrder[0] === 'string'
-    ) {
-      setPerformanceMeta(undefined);
-      setPerformanceSongIds(undefined);
-    }
-    // oxlint-disable-next-line exhaustive-deps
-  }, [performanceMeta?.setlistOrder, setPerformanceMeta, setPerformanceSongIds]);
-
   const isPerformanceMode = !!(performanceSongIds && performanceSongIds.length > 0);
 
   const disableShortcutsRef = useRef(false);
@@ -542,7 +530,9 @@ export function Page() {
     },
     onApply: (saved) => {
       const meta = getSavedPerformanceMeta(saved);
-      const ids = new Set(meta?.setlistOrder.map((entry) => entry.songId));
+      const ids = new Set(
+        meta?.setlistOrder.map((entry) => (typeof entry === 'string' ? entry : entry.songId))
+      );
       setPerformanceMeta(meta);
       setPerformanceSongIds(
         meta ? (ids.size ? [...ids] : getSortItems(saved.state).map(String)) : undefined
