@@ -12,6 +12,10 @@
   "intro-don": "Heardle",
   "songs": "Songs",
   "artist": "Artist",
+  "performance": {
+    "performers": "Performers",
+    "original_recording": "Original recording"
+  },
   "song-name": "Title",
   "navigation": {
     "characters": "Characters",
@@ -99,6 +103,7 @@
   "sort": {
     "start": "Start",
     "start_over": "Start Over",
+    "add_new_songs": "Add {{count}} new songs to this ranking",
     "stop": "Stop",
     "new_settings": "Choose new settings",
     "tie": "Tie",

@@ -10,6 +10,9 @@ import { SchoolBadge } from '~/components/sorter/SchoolBadge';
 import { MiniDots } from '~/components/sorter/MiniDots';
 import { getArtistName, getSongName } from '~/utils/names';
 import type { GuessResult } from '~/hooks/useHeardleState';
+import type { PerformanceSortMeta } from '~/types/performance-sort';
+import { SongPerformanceContext } from '~/components/sorter/SongPerformanceContext';
+import { getPerformanceDisplayPerformers } from '~/utils/performance-sort';
 
 function formatArtistsWithVariants(
   songArtists: Song['artists'],
@@ -46,12 +49,14 @@ export function SongRankingTable({
   songs,
   onSelectSong,
   guessResults,
-  maxAttempts
+  maxAttempts,
+  performanceMeta
 }: {
   songs: WithRank<Song>[];
   onSelectSong?: (character: WithRank<Song>) => void;
   guessResults?: Record<string, GuessResult>;
   maxAttempts?: number;
+  performanceMeta?: PerformanceSortMeta;
 }) {
   const artists = useArtistsData();
   const { t, i18n } = useTranslation();
@@ -59,7 +64,7 @@ export function SongRankingTable({
   const lang = i18n.language;
 
   return (
-    <Table.Root size="sm">
+    <Table.Root size="sm" minW={performanceMeta ? '720px' : undefined}>
       <Table.Head>
         <Table.Row>
           <Table.Header textAlign={'center'}>{t('ranking')}</Table.Header>
@@ -94,7 +99,17 @@ export function SongRankingTable({
               <Table.Cell>
                 <Stack gap="1" alignItems="center" w="full" py="2">
                   <SchoolBadge locale={lang} song={c} />
-                  <Text>{formatArtistsWithVariants(songArtists, artists, lang)}</Text>
+                  <Text>
+                    {performanceMeta?.setlistOrder.some(
+                      (entry) =>
+                        entry.songId === c.id &&
+                        getPerformanceDisplayPerformers(c, entry.performers).length > 0
+                    ) && `${t('performance.original_recording')}: `}
+                    {formatArtistsWithVariants(songArtists, artists, lang)}
+                  </Text>
+                  {performanceMeta && (
+                    <SongPerformanceContext song={c} entries={performanceMeta.setlistOrder} />
+                  )}
                 </Stack>
               </Table.Cell>
               {guessResults && maxAttempts && (

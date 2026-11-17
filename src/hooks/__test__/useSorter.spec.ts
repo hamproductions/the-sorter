@@ -1,9 +1,40 @@
 import { renderHook, act } from '@testing-library/react';
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { useSorter } from '../useSorter';
-import { initSort, step } from '../../utils/sort';
+import { extendSort, getCurrentItem, initSort, step } from '../../utils/sort';
 
 describe('useSorter', () => {
+  it('resumes an extended ranking, undoes a new comparison, and preserves its old ties', () => {
+    localStorage.clear();
+    const items = ['a', 'b', 'c', 'd'];
+    const { result, unmount } = renderHook(() => useSorter(items, 'extended'));
+    act(() =>
+      result.current.loadState({
+        state: extendSort([['a', 'b'], ['d']], items),
+        history: [],
+        comparisonsCount: 0
+      })
+    );
+    const before = JSON.stringify(result.current.state);
+    act(() => result.current.left());
+    act(() => result.current.undo());
+    expect(JSON.stringify(result.current.state)).toBe(before);
+    unmount();
+    const restored = renderHook(() => useSorter(items, 'extended'));
+    let count = 0;
+    while (!restored.result.current.isEnded && count++ < 20) {
+      const pair = getCurrentItem(restored.result.current.state!);
+      expect([...pair!.left!, ...pair!.right!]).toContain('c');
+      act(() => restored.result.current.left());
+    }
+    expect(restored.result.current.isEnded).toBe(true);
+    expect(restored.result.current.state?.arr.filter((group) => group.length)).toEqual([
+      ['a', 'b'],
+      ['d'],
+      ['c']
+    ]);
+    expect(restored.result.current.log).toBeUndefined();
+  });
   beforeAll(() => {
     localStorage.clear();
   });

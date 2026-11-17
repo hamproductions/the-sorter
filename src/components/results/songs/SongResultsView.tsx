@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { flushSync } from 'react-dom';
 import { FaChevronDown, FaCopy, FaDownload, FaShare } from 'react-icons/fa6';
 
 import { useTranslation } from 'react-i18next';
@@ -29,6 +30,11 @@ import { SongSortTimeStats } from './SongSortTimeStats';
 import { getFullPerformanceName } from '~/utils/names';
 import type { SortTimingStats } from '~/utils/sort-timing';
 import { TabIcon } from '~/components/layout/TabIcon';
+import { useData } from '~/hooks/useData';
+import {
+  formatPerformancePerformersText,
+  getDistinctSongPerformanceEntries
+} from '~/utils/performance-sort';
 
 export function SongResultsView({
   titlePrefix,
@@ -57,6 +63,7 @@ export function SongResultsView({
   allowExport?: boolean;
 }) {
   const artists = useArtistsData();
+  const characters = useData();
   const seriesData = useSeriesData();
   const { toast } = useToaster();
   const [title, setTitle] = useState<string>('My LoveLive! Song Ranking');
@@ -114,11 +121,13 @@ export function SongResultsView({
   }, [order, songsData, failedSongIds]);
 
   const makeScreenshot = async () => {
-    setShowRenderingCanvas(true);
+    flushSync(() => {
+      setTimestamp(new Date());
+      setShowRenderingCanvas(true);
+    });
     toast?.({ description: t('toast.generating_screenshot') });
     const domToBlob = await import('modern-screenshot').then((module) => module.domToBlob);
     const resultsBox = document.getElementById('results');
-    setTimestamp(new Date());
     if (resultsBox) {
       const shareImage = await domToBlob(resultsBox, {
         quality: 1,
@@ -132,58 +141,63 @@ export function SongResultsView({
   };
 
   const screenshot = async () => {
-    const shareImage = await makeScreenshot();
-    if (!shareImage) return;
-    try {
-      await navigator.share({
-        text: t('share.copy_text'),
-        files: [new File([shareImage], 'll-sorted.png')]
-      });
-    } catch {
-      await navigator.clipboard.write([
-        new ClipboardItem({ 'image/png': shareImage }, { presentationStyle: 'attachment' })
-      ]);
-      toast?.({ description: t('toast.screenshot_copied') });
-    }
+    const image = makeScreenshot().then((blob) => {
+      if (!blob) throw new Error('Result image is unavailable');
+      return blob;
+    });
+    await navigator.clipboard.write([
+      new ClipboardItem({ 'image/png': image }, { presentationStyle: 'attachment' })
+    ]);
+    toast?.({ description: t('toast.screenshot_copied') });
   };
 
   const exportText = async () => {
-    const filteredOrder = order
-      ?.map((ids) => ids.filter((id) => !failedSongIds.has(`${id}`)))
-      .filter((ids) => ids.length > 0);
     await navigator.clipboard.writeText(
-      filteredOrder
-        ?.flatMap((item, idx) =>
-          item.map((i) => {
-            const s = songsData.find((s) => s.id === `${i}`);
-            const artist = s?.artists.map((art) => artists.find((a) => a.id === art.id));
-            return `${idx + 1}. ${s?.name} - ${artist?.[0]?.name ?? 'unknown'}`;
-          })
-        )
-        .join('\n') ?? ''
+      [
+        performanceMeta
+          ? [effectiveTitlePrefix, performanceMeta.date, performanceMeta.venue]
+              .filter(Boolean)
+              .join(' · ')
+          : undefined,
+        ...songs.map((song) => {
+          const original = song.artists
+            .map((art) => artists.find((a) => a.id === art.id)?.name)
+            .filter(Boolean)
+            .join(', ');
+          const context = formatPerformancePerformersText(
+            song,
+            performanceMeta?.setlistOrder,
+            characters,
+            _i18n.language
+          );
+          return `${song.rank}. ${song.name} - ${original}${context ? `\n${context}` : ''}`;
+        })
+      ]
+        .filter(Boolean)
+        .join('\n')
     );
     toast?.({ description: t('toast.text_copied') });
   };
 
   const exportJSON = async () => {
-    const filteredOrder = order
-      ?.map((ids) => ids.filter((id) => !failedSongIds.has(`${id}`)))
-      .filter((ids) => ids.length > 0);
     await navigator.clipboard.writeText(
       JSON.stringify(
-        filteredOrder?.flatMap((item, idx) =>
-          item.map((i) => {
-            const s = songsData.find((s) => s.id === `${i}`);
-            const artist = s?.artists.map((art) => artists.find((a) => a.id === art.id));
-            const series = uniq(s?.seriesIds).map((id) => seriesData.find((a) => a.id === `${id}`));
-            return {
-              rank: idx + 1,
-              title: s?.name,
-              series: series.map((a) => a?.name)?.join(', '),
-              unit: artist?.map((a) => a?.name)?.join(', ')
-            };
-          })
-        )
+        songs.map((s) => {
+          const artist = s?.artists.map((art) => artists.find((a) => a.id === art.id));
+          const series = uniq(s?.seriesIds).map((id) => seriesData.find((a) => a.id === `${id}`));
+          return {
+            rank: s.rank,
+            title: s?.name,
+            series: series.map((a) => a?.name)?.join(', '),
+            unit: artist?.map((a) => a?.name)?.join(', '),
+            ...(performanceMeta
+              ? {
+                  performance: effectiveTitlePrefix,
+                  performances: getDistinctSongPerformanceEntries(s, performanceMeta.setlistOrder)
+                }
+              : {})
+          };
+        })
       )
     );
     toast?.({ description: t('toast.text_copied') });
@@ -219,6 +233,7 @@ export function SongResultsView({
         <Heading fontSize="2xl" fontWeight="bold">
           {t('results.sort_results')}
         </Heading>
+        {performanceMeta && <Text fontWeight="bold">{effectiveTitlePrefix}</Text>}
 
         {timingStats && <SongSortTimeStats stats={timingStats} />}
 
@@ -253,7 +268,7 @@ export function SongResultsView({
               </Accordion.ItemContent>
             </Accordion.Item>
           </Accordion.Root>
-          {(!readOnly || allowExport) && currentTab !== 'performance-order' && (
+          {(!readOnly || allowExport) && (
             <HStack justifyContent="space-between" w="full">
               <Wrap justifyContent="flex-end" w="full">
                 {onShareResults && (
@@ -300,6 +315,7 @@ export function SongResultsView({
                 songs={songs}
                 guessResults={guessResults}
                 maxAttempts={maxAttempts}
+                performanceMeta={performanceMeta}
               />
             </Tabs.Content>
             {performanceMeta && order && (
@@ -364,9 +380,11 @@ export function SongResultsView({
             )}
             {description && <Text>{description}</Text>}
             {currentTab === 'table' ? (
-              <SongRankingTable songs={songs} />
+              <SongRankingTable songs={songs} performanceMeta={performanceMeta} />
+            ) : performanceMeta && order ? (
+              <PerformanceOrderView performanceMeta={performanceMeta} order={order} />
             ) : (
-              <SongRankingTable songs={songs} />
+              <SongRankingTable songs={songs} performanceMeta={performanceMeta} />
             )}
             <Text textAlign="end">
               {t('results.generated_at')}: {timestamp.toLocaleString()}

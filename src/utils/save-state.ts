@@ -7,6 +7,24 @@ import {
 import type { TFunction } from 'i18next';
 import type { RankingFilter, SortLog } from '~/types/global-ranking';
 import type { SavedSortState, SorterType } from '~/types/save-state';
+import type { PerformanceSortMeta } from '~/types/performance-sort';
+
+export const getSavedPerformanceMeta = (save?: SavedSortState): PerformanceSortMeta | undefined => {
+  if (save?.performanceMeta) return save.performanceMeta;
+  const ids = save?.log?.context?.performanceIds;
+  if (!ids?.length) return undefined;
+  return { performanceIds: ids, tourName: save?.name ?? '', setlistOrder: [] };
+};
+
+export const getSortSaveIdentity = (
+  save: Pick<SavedSortState, 'state' | 'sorterType' | 'performanceMeta' | 'songFilters'>
+) =>
+  JSON.stringify({
+    sorterType: save.sorterType,
+    state: save.state,
+    performanceMeta: save.performanceMeta,
+    songFilters: save.songFilters
+  });
 
 type CreateSaveInput = Omit<SavedSortState, 'id' | 'date' | 'isCompleted'>;
 
@@ -124,8 +142,19 @@ export const migrateCurrentSessions = (
   const migrated = CURRENT_SESSION_PREFIXES.flatMap(({ prefix, sorterType, filterKey }) => {
     const state = readJson(storage, `${prefix}sort-state`);
     if (!isSortState(state) || state.arr.length === 0) return [];
+    const performanceMeta =
+      prefix === 'perf-songs-'
+        ? (readJson(storage, 'perf-songs-meta') as PerformanceSortMeta | undefined)
+        : undefined;
     const serialized = JSON.stringify(state);
-    if (saves.some((s) => s.sorterType === sorterType && JSON.stringify(s.state) === serialized)) {
+    if (
+      saves.some(
+        (s) =>
+          s.sorterType === sorterType &&
+          JSON.stringify(s.state) === serialized &&
+          JSON.stringify(s.performanceMeta ?? null) === JSON.stringify(performanceMeta ?? null)
+      )
+    ) {
       return [];
     }
     const history = readJson(storage, `${prefix}sort-state-history`);
@@ -150,6 +179,7 @@ export const migrateCurrentSessions = (
         comparisonsCount: typeof count === 'number' ? count : estimateComparisonsMade(state),
         itemCount,
         filterSummary,
+        performanceMeta,
         progress: isCompleted
           ? 1
           : maxComparisons > 0

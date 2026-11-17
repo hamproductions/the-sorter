@@ -51,6 +51,54 @@ describe('SongCard', () => {
     expect(container.querySelector('[class*="shadow"]')).not.toBeInTheDocument();
   });
 
+  it('keeps complete performance singers and separate day/version notes beside the original credit', async () => {
+    const song = createMockSong();
+    const [{ getByText, getByAltText, queryByText, getAllByAltText }] = await render(
+      <SongCard
+        song={song}
+        performanceEntries={[
+          {
+            songId: song.id,
+            label: 'Day.1 M03',
+            performanceName: 'Day.1',
+            date: '2026-11-14',
+            remarks: 'TVサイズ｜穂乃果、ことり Ver.',
+            performers: [
+              { kind: 'member', characterId: '1' },
+              { kind: 'member', characterId: '3' }
+            ]
+          },
+          {
+            songId: song.id,
+            label: 'Day.2 M04',
+            performanceName: 'Day.2',
+            date: '2026-11-15',
+            remarks: 'TVサイズ｜穂乃果、ことり Ver.',
+            performers: [
+              { kind: 'member', characterId: '1' },
+              { kind: 'member', characterId: '3' }
+            ]
+          },
+          {
+            songId: song.id,
+            label: 'Day.3 M05',
+            performanceName: 'Day.3',
+            date: '2026-11-16',
+            remarks: '出演者全員'
+          }
+        ]}
+      />
+    );
+    expect(getByText(/Original recording/)).toBeInTheDocument();
+    expect(getByAltText('Honoka Kosaka')).toBeInTheDocument();
+    expect(getByAltText('Kotori Minami')).toBeInTheDocument();
+    expect(getAllByAltText('Honoka Kosaka')).toHaveLength(1);
+    expect(getByText('Day 1 · M03 / Day 2 · M04 · TVサイズ')).toBeInTheDocument();
+    expect(getByText('Day 3 · M05')).toBeInTheDocument();
+    expect(queryByText('TVサイズ｜穂乃果、ことり Ver.')).not.toBeInTheDocument();
+    expect(getByText('出演者全員')).toBeInTheDocument();
+  });
+
   it('renders Heardle component when all heardle props provided and isRevealed=false', async () => {
     const song = createMockSong();
 

@@ -46,6 +46,9 @@ import type { PerformanceSortMeta } from '~/types/performance-sort';
 import type { Performance, PerformanceSetlist } from '~/types/setlist-prediction';
 import { useLocalStorage } from '~/hooks/useLocalStorage';
 import { buildPerformanceSortSelection } from '~/utils/performance-sort';
+import { usePerformanceSortMeta } from '~/hooks/usePerformanceSortMeta';
+import { getSavedPerformanceMeta } from '~/utils/save-state';
+import type { SongFilterType } from '~/components/sorter/SongFilters';
 
 const ConfirmMidSortDialog = lazy(() =>
   import('../../components/dialog/ConfirmDialog').then((m) => ({
@@ -122,18 +125,13 @@ export function Page() {
     useLocalStorage<PerformanceSortMeta>('perf-songs-meta');
   const [performanceSongIds, setPerformanceSongIds] = useLocalStorage<string[]>('perf-songs-ids');
   const [showPerformancePicker, setShowPerformancePicker] = useState(false);
+  const resolvedPerformanceMeta = usePerformanceSortMeta(performanceMeta);
 
-  // Clear stale old-format performance data (setlistOrder was string[], now SetlistOrderEntry[])
   useEffect(() => {
-    if (
-      performanceMeta?.setlistOrder?.length &&
-      typeof performanceMeta.setlistOrder[0] === 'string'
-    ) {
-      setPerformanceMeta(undefined);
-      setPerformanceSongIds(undefined);
+    if (resolvedPerformanceMeta && resolvedPerformanceMeta !== performanceMeta) {
+      setPerformanceMeta(resolvedPerformanceMeta);
     }
-    // oxlint-disable-next-line exhaustive-deps
-  }, [performanceMeta?.setlistOrder, setPerformanceMeta, setPerformanceSongIds]);
+  }, [resolvedPerformanceMeta, performanceMeta, setPerformanceMeta]);
 
   const isPerformanceMode = !!(performanceSongIds && performanceSongIds.length > 0);
 
@@ -164,7 +162,8 @@ export function Page() {
     globalRanking,
     timing,
     timingStats,
-    getElapsedMs
+    getElapsedMs,
+    addNewSongs
   } = useSongsSortData(failedSongIds.size > 0 ? failedSongIds : undefined, {
     disableShortcutsRef,
     performanceSongIds: isPerformanceMode ? performanceSongIds : undefined,
@@ -172,6 +171,16 @@ export function Page() {
     storagePrefix: isPerformanceMode ? 'perf-songs' : undefined
   });
   const sortCount = state ? getSortItems(state).length : listCount;
+  const [pendingSave, setPendingSave] = useState<Parameters<typeof loadState>[0]>();
+  useEffect(() => {
+    if (!pendingSave) return;
+    loadState(pendingSave);
+    setPendingSave(undefined);
+  }, [pendingSave, loadState, isPerformanceMode]);
+  const rankedSongIds = new Set(state?.arr.flat());
+  const newSongCount = isEnded
+    ? listToSort.filter((song) => !rankedSongIds.has(song.id)).length
+    : 0;
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [showLoadDialog, setShowLoadDialog] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState<{
@@ -510,11 +519,27 @@ export function Page() {
   } = useSortSaves({
     sorterType: 'songs',
     getSnapshot,
-    loadState,
+    loadState: setPendingSave,
     itemCount: sortCount,
     progress,
-    isEnded,
-    filterSummary: getFilterSummary()
+    isEnded: isEnded && !pendingSave,
+    filterSummary: getFilterSummary(),
+    metadata: {
+      performanceMeta: isPerformanceMode ? resolvedPerformanceMeta : undefined,
+      songFilters: songFilters ?? undefined
+    },
+    onApply: (saved) => {
+      const meta = getSavedPerformanceMeta(saved);
+      const ids = new Set(
+        meta?.setlistOrder.map((entry) => (typeof entry === 'string' ? entry : entry.songId))
+      );
+      setPerformanceMeta(meta);
+      setPerformanceSongIds(
+        meta ? (ids.size ? [...ids] : getSortItems(saved.state).map(String)) : undefined
+      );
+      setSongFilters(saved.songFilters ?? (saved.log?.context?.filter as SongFilterType));
+      setHeardleMode(saved.log?.context?.mode === 'heardle');
+    }
   });
 
   return (
@@ -597,7 +622,24 @@ export function Page() {
               {state?.status !== 'end' ? t('sort.stop') : t('sort.new_settings')}
             </Button>
           )}
+          {isEnded && !heardleMode && newSongCount > 0 && (
+            <Button variant="outline" onClick={addNewSongs}>
+              {t('sort.add_new_songs', { count: newSongCount })}
+            </Button>
+          )}
         </Wrap>
+        {isPerformanceMode && resolvedPerformanceMeta && (
+          <Stack gap="1" alignItems="center">
+            <Text fontWeight="bold">
+              {resolvedPerformanceMeta.selectionLabel ?? resolvedPerformanceMeta.tourName}
+            </Text>
+            <Text fontSize="sm">
+              {[resolvedPerformanceMeta.date, resolvedPerformanceMeta.venue]
+                .filter(Boolean)
+                .join(' · ')}
+            </Text>
+          </Stack>
+        )}
         {state && (
           <Stack alignItems="center" w="full">
             {state.status !== 'end' && (
@@ -615,6 +657,9 @@ export function Page() {
                         <SongCard
                           onClick={bothRevealed ? () => left() : undefined}
                           song={currentLeft}
+                          performanceEntries={
+                            isPerformanceMode ? resolvedPerformanceMeta?.setlistOrder : undefined
+                          }
                           artists={artistLeft}
                           heardleMode={heardleMode}
                           isRevealed={isLeftRevealed}
@@ -639,6 +684,9 @@ export function Page() {
                         <SongCard
                           onClick={bothRevealed ? () => right() : undefined}
                           song={currentRight}
+                          performanceEntries={
+                            isPerformanceMode ? resolvedPerformanceMeta?.setlistOrder : undefined
+                          }
                           artists={artistRight}
                           heardleMode={heardleMode}
                           isRevealed={isRightRevealed}

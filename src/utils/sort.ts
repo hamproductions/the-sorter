@@ -5,6 +5,7 @@ export interface SortState<I> {
   status?: 'done' | 'waiting' | 'end';
   mergeState?: MergeState<I>;
   ties?: I[][];
+  preservedOrder?: I[][];
 }
 interface MergeState<I> {
   start: number;
@@ -116,7 +117,8 @@ export const mergeSort = <I>(state: SortState<I>): SortState<I> => {
           start: leftStart,
           mid,
           end
-        }
+        },
+        preservedOrder: state.preservedOrder
       });
       if (res.status !== 'done') {
         return res;
@@ -128,7 +130,8 @@ export const mergeSort = <I>(state: SortState<I>): SortState<I> => {
     arr,
     currentSize: arr.length,
     leftStart: 0,
-    status: 'end'
+    status: 'end',
+    preservedOrder: state.preservedOrder
   };
 };
 
@@ -140,6 +143,11 @@ export const merge = <I>(state: SortState<I>): SortState<I> => {
 
   const n1 = mid - start + 1;
   const n2 = end - mid;
+  const oldRank = new Map(
+    (state.preservedOrder ?? []).flatMap((group, rank) =>
+      group.map((item) => [item, rank] as const)
+    )
+  );
 
   if (!leftArr || !rightArr) {
     // console.log('Init Merge', 'start', start, 'mid', mid, 'end', end);
@@ -173,6 +181,25 @@ export const merge = <I>(state: SortState<I>): SortState<I> => {
       leftArrIdx++;
       arrIdx++;
     } else {
+      const left = leftArr[leftArrIdx];
+      const right = rightArr[rightArrIdx];
+      const leftRank = left.map((item) => oldRank.get(item)).find((rank) => rank !== undefined);
+      const rightRank = right.map((item) => oldRank.get(item)).find((rank) => rank !== undefined);
+      if (leftRank !== undefined && rightRank !== undefined) {
+        if (leftRank === rightRank) {
+          arr[arrIdx] = [...left, ...right];
+          rightArr[rightArrIdx] = [];
+          leftArrIdx++;
+        } else if (leftRank < rightRank) {
+          arr[arrIdx] = left;
+          leftArrIdx++;
+        } else {
+          arr[arrIdx] = right;
+          rightArrIdx++;
+        }
+        arrIdx++;
+        continue;
+      }
       return {
         arr,
         currentSize,
@@ -186,7 +213,8 @@ export const merge = <I>(state: SortState<I>): SortState<I> => {
           rightArr,
           rightArrIdx,
           arrIdx
-        }
+        },
+        preservedOrder: state.preservedOrder
       };
     }
   }
@@ -213,7 +241,8 @@ export const merge = <I>(state: SortState<I>): SortState<I> => {
     arr,
     currentSize,
     leftStart,
-    status: 'done'
+    status: 'done',
+    preservedOrder: state.preservedOrder
   };
 };
 
@@ -249,7 +278,8 @@ export const step = <I>(option: 'left' | 'right' | 'tie', state: SortState<I>): 
       arr,
       currentSize,
       leftStart,
-      mergeState: { start, mid, end, leftArrIdx, rightArrIdx, arrIdx, leftArr, rightArr }
+      mergeState: { start, mid, end, leftArrIdx, rightArrIdx, arrIdx, leftArr, rightArr },
+      preservedOrder: state.preservedOrder
     });
 
     if (!nextState.mergeState) {
@@ -311,4 +341,25 @@ export const resumeSort = <I>(results: I[][]): SortState<I> => {
       arrIdx: 0
     }
   };
+};
+
+export const extendSort = <I>(results: I[][], items: I[]): SortState<I> => {
+  const seen = new Set<I>();
+  const preservedOrder = results
+    .map((group) => group.filter((item) => !seen.has(item) && !!seen.add(item)))
+    .filter((group) => group.length > 0);
+  const arr = preservedOrder.map((group) => [...group]);
+  for (const item of items) {
+    if (!seen.has(item)) {
+      seen.add(item);
+      arr.push([item]);
+    }
+  }
+  return mergeSort({
+    arr,
+    currentSize: 1,
+    leftStart: 0,
+    status: arr.length <= 1 ? 'done' : 'waiting',
+    preservedOrder
+  });
 };

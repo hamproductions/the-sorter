@@ -6,6 +6,7 @@ import {
   renameSaveState,
   getSaveStatesByType,
   getSaveStateById,
+  getSortSaveIdentity,
   migrateCurrentSessions,
   toSavedSortStates,
   CURRENT_SESSIONS_MIGRATED_KEY,
@@ -51,6 +52,23 @@ const makeInput = (overrides?: Partial<Parameters<typeof createSavedSortState>[0
 });
 
 describe('save-state', () => {
+  it('keeps identical rankings from different performances distinct while ignoring save names and dates', () => {
+    const first = createSavedSortState(
+      makeInput({
+        sorterType: 'songs',
+        state: mockCompletedState,
+        performanceMeta: { performanceIds: ['756'], tourName: 'Fest', setlistOrder: [] }
+      })
+    );
+    const second = {
+      ...first,
+      performanceMeta: { ...first.performanceMeta!, performanceIds: ['757'] }
+    };
+    expect(getSortSaveIdentity(first)).not.toBe(getSortSaveIdentity(second));
+    expect(getSortSaveIdentity(first)).toBe(
+      getSortSaveIdentity({ ...first, name: 'Renamed' } as SavedSortState)
+    );
+  });
   describe('createSavedSortState', () => {
     it('creates a save with id, date, and provided fields', () => {
       const save = createSavedSortState(
@@ -293,6 +311,19 @@ describe('toSavedSortStates', () => {
 describe('migrateCurrentSessions', () => {
   beforeEach(() => {
     localStorage.clear();
+  });
+
+  it('migrates performance metadata even when an existing slot has the same song order', () => {
+    const earlier = createSavedSortState(
+      makeInput({ sorterType: 'songs', state: mockCompletedState })
+    );
+    const meta = { performanceIds: ['756'], tourName: 'Fest', setlistOrder: [] };
+    localStorage.setItem(SAVED_STATES_KEY, JSON.stringify([earlier]));
+    localStorage.setItem('perf-songs-sort-state', JSON.stringify(mockCompletedState));
+    localStorage.setItem('perf-songs-meta', JSON.stringify(meta));
+    migrateCurrentSessions(localStorage, nameFor);
+    expect(readSaves()).toHaveLength(2);
+    expect(readSaves()[0].performanceMeta).toEqual(meta);
   });
 
   it('copies every sorter current session into a slot and keeps the session active', () => {

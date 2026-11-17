@@ -9,6 +9,9 @@ import { getArtistName, getSongName } from '~/utils/names';
 import { useArtistsData } from '~/hooks/useArtistsData';
 import { Heardle } from './Heardle';
 import type { GuessResult } from '~/hooks/useHeardleState';
+import type { SetlistOrderEntry } from '~/types/performance-sort';
+import { SongPerformanceContext } from './SongPerformanceContext';
+import { getPerformanceDisplayPerformers } from '~/utils/performance-sort';
 
 function formatArtistsWithVariants(
   songArtists: Song['artists'],
@@ -89,6 +92,7 @@ export interface SongCardProps extends StackProps {
   onNoAudio?: () => void;
   heardleInputRef?: React.RefObject<HTMLInputElement | null>;
   guessResult?: GuessResult;
+  performanceEntries?: SetlistOrderEntry[];
 }
 
 export function SongCard({
@@ -107,6 +111,7 @@ export function SongCard({
   onNoAudio,
   heardleInputRef,
   guessResult,
+  performanceEntries,
   ...rest
 }: SongCardProps) {
   const { t, i18n } = useTranslation();
@@ -119,6 +124,10 @@ export function SongCard({
   // Determine if we should show Heardle or revealed content
   const showHeardle = heardleMode && !isRevealed && songInventory && onGuess && onPass && onNoAudio;
   const showInfo = !heardleMode || isRevealed;
+  const hasLineupChange = performanceEntries?.some(
+    (entry) =>
+      entry.songId === song.id && getPerformanceDisplayPerformers(song, entry.performers).length > 0
+  );
 
   return (
     <Stack
@@ -188,7 +197,7 @@ export function SongCard({
           flex={1}
           alignItems="center"
           w="full"
-          minH={{ base: 0, sm: '240px' }}
+          minH="240px"
           overflow="hidden"
         >
           <Center position="absolute" flex={1} w="full" h="full" overflow="hidden">
@@ -221,8 +230,12 @@ export function SongCard({
           </Text>
         )}
         <Text fontSize="sm" textAlign="center">
+          {showInfo && hasLineupChange && `${t('performance.original_recording')}: `}
           {showInfo && formatArtistsWithVariants(song.artists, artistsData, lang)}
         </Text>
+        {showInfo && performanceEntries && (
+          <SongPerformanceContext song={song} entries={performanceEntries} />
+        )}
         {heardleMode && isRevealed && !song.wikiAudioUrl && (
           <Text mt={1} color="fg.muted" fontSize="xs">
             {t('heardle.no_audio_badge', { defaultValue: 'No audio available' })}

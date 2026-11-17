@@ -1,5 +1,7 @@
 import type { SortLog } from './global-ranking';
 import type { SortState } from '~/utils/sort';
+import type { PerformanceSortMeta } from './performance-sort';
+import type { SongFilterType } from '~/components/sorter/SongFilters';
 
 export type SorterType = 'characters' | 'songs' | 'hasu-songs';
 
@@ -19,4 +21,6 @@ export interface SavedSortState {
   filterSummary?: string;
   log?: SortLog;
   isSeiyuu?: boolean;
+  performanceMeta?: PerformanceSortMeta;
+  songFilters?: SongFilterType;
 }
