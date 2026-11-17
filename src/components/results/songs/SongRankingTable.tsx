@@ -63,7 +63,7 @@ export function SongRankingTable({
   const lang = i18n.language;
 
   return (
-    <Table.Root size="sm">
+    <Table.Root size="sm" minW={performanceMeta ? '720px' : undefined}>
       <Table.Head>
         <Table.Row>
           <Table.Header textAlign={'center'}>{t('ranking')}</Table.Header>

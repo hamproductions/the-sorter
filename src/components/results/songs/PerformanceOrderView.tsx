@@ -92,7 +92,7 @@ export function PerformanceOrderView({
   }, [performanceMeta.setlistOrder, songs, rankMap]);
 
   return (
-    <Table.Root size="sm">
+    <Table.Root size="sm" minW="760px">
       <Table.Head>
         <Table.Row>
           <Table.Header textAlign="center">#</Table.Header>
