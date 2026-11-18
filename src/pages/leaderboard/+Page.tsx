@@ -117,6 +117,14 @@ function QuickFilterRow({
   );
 }
 
+const isSpecificSongSelection = (
+  kind: RankingKind,
+  filter: SongFilterType | null | undefined,
+  performanceIds: string[]
+) =>
+  kind === 'song' &&
+  (performanceIds.length > 0 || !!filter?.discographies?.length || !!filter?.songs?.length);
+
 export function Page() {
   const { t, i18n } = useTranslation();
   const [kind, setKind] = useState<RankingKind>('character');
@@ -161,6 +169,18 @@ export function Page() {
     setGlobalRanks(false);
   }, [filterCount, hydrated]);
 
+  const isSpecificSelection = isSpecificSongSelection(kind, songFilter, performanceIds);
+  const lastSpecificSelection = useRef(isSpecificSelection);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    const previous = lastSpecificSelection.current;
+    lastSpecificSelection.current = isSpecificSelection;
+    if (previous === isSpecificSelection) return;
+    setExactOnly(isSpecificSelection);
+    setGlobalRanks(false);
+  }, [hydrated, isSpecificSelection]);
+
   const restoring = useRef(true);
 
   useEffect(() => {
@@ -182,8 +202,10 @@ export function Page() {
       setPeriod(params.get('period') ?? 'all');
       setExactOnly(params.get('exact') === '1');
       setGlobalRanks(params.get('global') === '1');
+      let urlFilter: RankingFilter | null = null;
       try {
         const filter = JSON.parse(params.get('filter') ?? 'null') as RankingFilter | null;
+        urlFilter = filter;
         setCharacterFilter({
           ...EMPTY_CHARACTER_FILTER,
           ...(nextKind === 'character' ? filter : null)
@@ -193,7 +215,13 @@ export function Page() {
           ...(nextKind === 'song' ? filter : null)
         } as SongFilterType);
       } catch {}
-      setPerformanceIds(parseList(params.get('perf')));
+      const nextPerformanceIds = parseList(params.get('perf'));
+      setPerformanceIds(nextPerformanceIds);
+      lastSpecificSelection.current = isSpecificSongSelection(
+        nextKind,
+        urlFilter as SongFilterType | null,
+        nextPerformanceIds
+      );
       const sortKey = params.get('sort');
       if (SORT_KEYS.includes(sortKey as SortKey)) {
         setSort({ key: sortKey as SortKey, desc: params.get('dir') === 'desc' });
@@ -597,7 +625,7 @@ export function Page() {
                     label: t(`global_ranking.aggregation_${value}`)
                   }))}
                   onChange={(next) => setAggregation(next as Aggregation)}
-                  width="56"
+                  width="64"
                 />
               )}
               <Button
