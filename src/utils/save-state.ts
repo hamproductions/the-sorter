@@ -16,13 +16,23 @@ export const getSavedPerformanceMeta = (save?: SavedSortState): PerformanceSortM
   return { performanceIds: ids, tourName: save?.name ?? '', setlistOrder: [] };
 };
 
+const stableStringify = (value: unknown): string =>
+  JSON.stringify(value, (_key, v: unknown) =>
+    v && typeof v === 'object' && !Array.isArray(v)
+      ? Object.fromEntries(Object.entries(v).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)))
+      : v
+  );
+
 export const getSortSaveIdentity = (
   save: Pick<SavedSortState, 'state' | 'sorterType' | 'performanceMeta' | 'songFilters'>
 ) =>
-  JSON.stringify({
+  stableStringify({
     sorterType: save.sorterType,
     state: save.state,
-    performanceMeta: save.performanceMeta,
+    performanceMeta:
+      save.performanceMeta?.performanceIds?.length || save.performanceMeta?.performanceId
+        ? (save.performanceMeta.performanceIds ?? [save.performanceMeta.performanceId])
+        : save.performanceMeta,
     songFilters: save.songFilters
   });
 

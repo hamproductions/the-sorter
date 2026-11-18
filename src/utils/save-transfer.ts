@@ -1,11 +1,7 @@
-import {
-  compressToEncodedURIComponent,
-  compressToUint8Array,
-  decompressFromEncodedURIComponent,
-  decompressFromUint8Array
-} from 'lz-string';
+import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
 import { getSortItems, isSortState, type SortState } from './sort';
 import { getAllCommaSeparated, getSongPerformanceParams } from './share';
+import { decodeSavesBinary, encodeSavesBinary } from './save-qr-codec';
 import {
   createSavedSortState,
   getSortSaveIdentity,
@@ -18,8 +14,8 @@ import type { SongFilterType } from '~/components/sorter/SongFilters';
 
 export const SAVE_CODE_PREFIX = 'LLSORT1:';
 export const SAVE_FILE_FORMAT = 'the-sorter-saves';
-const QR_PREFIX = 'LLSQR2';
-export const QR_CHUNK_SIZE = 1000;
+const QR_PREFIX = 'LLSQR3';
+export const QR_CHUNK_SIZE = 1100;
 
 interface SaveTransferPayload {
   format: typeof SAVE_FILE_FORMAT;
@@ -27,13 +23,21 @@ interface SaveTransferPayload {
   saves: SavedSortState[];
 }
 
+const toPortablePerformanceMeta = (meta: PerformanceSortMeta | undefined) => {
+  if (!meta || !(meta.performanceIds?.length || meta.performanceId)) return meta;
+  const { contextVersion: _contextVersion, ...rest } = meta;
+  return { ...rest, setlistOrder: [] };
+};
+
 const toPortableSave = (save: SavedSortState, includeHistory: boolean): SavedSortState => {
   const { ticket: _ticket, ticketRequested: _ticketRequested, ...log } = save.log ?? {};
+  if (includeHistory)
+    return { ...save, log: save.log ? (log as SavedSortState['log']) : undefined };
   return {
     ...save,
-    history: includeHistory ? save.history : [],
-    log:
-      save.log && (includeHistory || !save.isCompleted) ? (log as SavedSortState['log']) : undefined
+    history: [],
+    performanceMeta: toPortablePerformanceMeta(save.performanceMeta),
+    log: save.log && !save.isCompleted ? (log as SavedSortState['log']) : undefined
   };
 };
 
@@ -111,7 +115,7 @@ export const decodeBase45 = (text: string) => {
 };
 
 export const encodeSaveQrChunks = (saves: SavedSortState[], chunkSize = QR_CHUNK_SIZE) => {
-  const data = encodeBase45(compressToUint8Array(JSON.stringify(toPayload(saves, false))));
+  const data = encodeBase45(encodeSavesBinary(toPayload(saves, false).saves));
   const total = Math.max(1, Math.ceil(data.length / chunkSize));
   const id = hashString(data).toUpperCase();
   return Array.from(
@@ -123,8 +127,8 @@ export const encodeSaveQrChunks = (saves: SavedSortState[], chunkSize = QR_CHUNK
 
 const decodeQrData = (data: string) => {
   const bytes = decodeBase45(data);
-  const json = bytes ? decompressFromUint8Array(bytes) : null;
-  return json ? fromPayload(parseJson(json)) : null;
+  const saves = bytes ? decodeSavesBinary(bytes) : null;
+  return saves ? fromPayload({ format: SAVE_FILE_FORMAT, saves }) : null;
 };
 
 export type QrScanProgress =
@@ -140,7 +144,7 @@ export const createQrChunkCollector = () => {
     if (text.trim().startsWith(SAVE_CODE_PREFIX)) {
       return { status: 'done', saves: decodeSaveCode(text) };
     }
-    const match = /^LLSQR2\/([0-9A-Z]+)\/(\d+)\/(\d+)\/(.*)$/s.exec(text.replace(/^\s+/, ''));
+    const match = /^LLSQR3\/([0-9A-Z]+)\/(\d+)\/(\d+)\/(.*)$/s.exec(text.replace(/^\s+/, ''));
     if (!match) return { status: 'invalid' };
     const [, id, indexText, totalText, data] = match;
     const index = Number(indexText);
