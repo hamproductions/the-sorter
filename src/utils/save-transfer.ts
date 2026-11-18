@@ -32,7 +32,8 @@ const toPortableSave = (save: SavedSortState, includeHistory: boolean): SavedSor
   return {
     ...save,
     history: includeHistory ? save.history : [],
-    log: save.log ? (log as SavedSortState['log']) : undefined
+    log:
+      save.log && (includeHistory || !save.isCompleted) ? (log as SavedSortState['log']) : undefined
   };
 };
 

@@ -289,7 +289,7 @@
       "pause": "Pause",
       "scan_hint": "Scan with Import → Scan QR on the other device.",
       "scan_hint_multi": "Scan with Import → Scan QR on the other device and hold the camera on the codes until all {{count}} parts are read.",
-      "history_note": "QR and copied codes leave out undo history. Download the file to keep it.",
+      "history_note": "QR and copied codes leave out undo history, and the global ranking record of finished sorts. Download the file to keep everything.",
       "copy_code": "Copy code",
       "code_copied": "Code copied",
       "download_file": "Download file",
