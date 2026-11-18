@@ -19,7 +19,7 @@ export const getSavedPerformanceMeta = (save?: SavedSortState): PerformanceSortM
 const stableStringify = (value: unknown): string =>
   JSON.stringify(value, (_key, v: unknown) =>
     v && typeof v === 'object' && !Array.isArray(v)
-      ? Object.fromEntries(Object.entries(v).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)))
+      ? Object.fromEntries(Object.entries(v).toSorted(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)))
       : v
   );
 

@@ -134,7 +134,7 @@ const chooseIdCodec = (ids: ItemId[]) => {
     const dictionary = [...new Set(ids)];
     return { mode: ID_MODE.strings, dictionary, width: bitsFor(dictionary.length - 1) };
   }
-  const values = [...new Set(ids.map(Number))].sort((a, b) => a - b);
+  const values = [...new Set(ids.map(Number))].toSorted((a, b) => a - b);
   const rawWidth = bitsFor(values.at(-1) ?? 0);
   const dictionaryWidth = bitsFor(values.length - 1);
   const dictionaryCost = values.reduce(
