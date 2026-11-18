@@ -79,9 +79,15 @@ export function SavedStatesListDialog({
                           </Text>
                         </HStack>
                         <Text color="fg.muted" fontSize="xs">
-                          {formatDate(save.date)} ·{' '}
-                          {t('dialog.saved_states.items', { count: save.itemCount })} ·{' '}
-                          {t('dialog.saved_states.comparisons', { count: save.history.length })}
+                          {[
+                            formatDate(save.date),
+                            t('dialog.saved_states.items', { count: save.itemCount }),
+                            save.history.length > 0
+                              ? t('dialog.saved_states.comparisons', { count: save.history.length })
+                              : undefined
+                          ]
+                            .filter(Boolean)
+                            .join(' · ')}
                         </Text>
                         <HStack gap="2" justifyContent="flex-end">
                           {confirmDeleteId === save.id ? (

@@ -24,6 +24,7 @@ import { HasuSongCard } from '~/components/sorter/HasuSongCard';
 import { isValidSongFilter } from '~/utils/hasu-song-filter';
 import type { HasuSongFilterType } from '~/components/sorter/HasuSongFilters';
 import { addHasuSongPresetParams } from '~/utils/share';
+import { ExportCurrentSessionButton } from '~/components/dialog/ExportCurrentSessionButton';
 
 const ConfirmMidSortDialog = lazy(() =>
   import('../../components/dialog/ConfirmDialog').then((m) => ({
@@ -193,6 +194,7 @@ export function Page() {
   const {
     saves,
     saveCurrent,
+    getCurrentSave,
     overwrite,
     loadById,
     remove: removeSave
@@ -254,6 +256,7 @@ export function Page() {
               {t('sort.save')}
             </Button>
           )}
+          {isSorting && <ExportCurrentSessionButton getCurrentSave={getCurrentSave} />}
           {isSorting && (
             <Button variant="subtle" onClick={() => handleClear()}>
               {state?.status !== 'end' ? t('sort.stop') : t('sort.new_settings')}

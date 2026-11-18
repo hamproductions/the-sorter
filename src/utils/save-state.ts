@@ -212,7 +212,7 @@ export const getLocallySortedIds = (storage: Storage, sorterType: SorterType) =>
 const AUTO_SAVED_RESULTS_KEY = 'auto-saved-results';
 const AUTO_SAVED_RESULTS_LIMIT = 200;
 
-const hashString = (value: string) => {
+export const hashString = (value: string) => {
   let hash = 5381;
   for (let i = 0; i < value.length; i++) hash = ((hash << 5) + hash + value.charCodeAt(i)) | 0;
   return (hash >>> 0).toString(36);

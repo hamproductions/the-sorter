@@ -7,6 +7,7 @@ import type { SortLog } from '~/types/global-ranking';
 import type { SavedSortState, SorterType } from '~/types/save-state';
 import {
   autoSaveName,
+  createSavedSortState,
   getSortSaveIdentity,
   markResultAutoSaved,
   wasResultAutoSaved
@@ -145,6 +146,16 @@ export const useSortSaves = <T extends string | number>({
     return true;
   };
 
+  const getCurrentSave = () => {
+    const current = captureCurrent();
+    if (!current) return undefined;
+    return createSavedSortState({
+      ...current,
+      sorterType,
+      name: autoSaveName(t, sorterType, current.itemCount, current.filterSummary)
+    });
+  };
+
   const loadById = (id: string) => {
     const saved = load(id);
     if (!saved) return false;
@@ -152,5 +163,5 @@ export const useSortSaves = <T extends string | number>({
     return true;
   };
 
-  return { saves, saveCurrent, overwrite, loadById, remove };
+  return { saves, saveCurrent, overwrite, loadById, remove, getCurrentSave };
 };

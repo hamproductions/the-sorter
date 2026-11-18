@@ -11,6 +11,7 @@ import {
   createSavedSortState,
   updateSaveState
 } from '~/utils/save-state';
+import { mergeImportedSaves } from '~/utils/save-transfer';
 import type { SortState } from '~/utils/sort';
 import type { SortLog } from '~/types/global-ranking';
 
@@ -78,7 +79,20 @@ export const useSaveStates = (sorterType?: SorterType) => {
     [setAllSaves]
   );
 
+  const importSaves = useCallback(
+    (imported: SavedSortState[]) => {
+      let added: SavedSortState[] = [];
+      setAllSaves((prev) => {
+        const merged = mergeImportedSaves(toSavedSortStates(prev), imported);
+        added = merged.added;
+        return merged.saves;
+      });
+      return added;
+    },
+    [setAllSaves]
+  );
+
   const load = useCallback((id: string) => getSaveStateById(allSaves, id), [allSaves]);
 
-  return { saves, allSaves, save, remove, rename, update, setLog, load };
+  return { saves, allSaves, save, remove, rename, update, setLog, load, importSaves };
 };
