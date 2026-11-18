@@ -16,13 +16,23 @@ export const getSavedPerformanceMeta = (save?: SavedSortState): PerformanceSortM
   return { performanceIds: ids, tourName: save?.name ?? '', setlistOrder: [] };
 };
 
+const stableStringify = (value: unknown): string =>
+  JSON.stringify(value, (_key, v: unknown) =>
+    v && typeof v === 'object' && !Array.isArray(v)
+      ? Object.fromEntries(Object.entries(v).toSorted(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)))
+      : v
+  );
+
 export const getSortSaveIdentity = (
   save: Pick<SavedSortState, 'state' | 'sorterType' | 'performanceMeta' | 'songFilters'>
 ) =>
-  JSON.stringify({
+  stableStringify({
     sorterType: save.sorterType,
     state: save.state,
-    performanceMeta: save.performanceMeta,
+    performanceMeta:
+      save.performanceMeta?.performanceIds?.length || save.performanceMeta?.performanceId
+        ? (save.performanceMeta.performanceIds ?? [save.performanceMeta.performanceId])
+        : save.performanceMeta,
     songFilters: save.songFilters
   });
 
@@ -212,7 +222,7 @@ export const getLocallySortedIds = (storage: Storage, sorterType: SorterType) =>
 const AUTO_SAVED_RESULTS_KEY = 'auto-saved-results';
 const AUTO_SAVED_RESULTS_LIMIT = 200;
 
-const hashString = (value: string) => {
+export const hashString = (value: string) => {
   let hash = 5381;
   for (let i = 0; i < value.length; i++) hash = ((hash << 5) + hash + value.charCodeAt(i)) | 0;
   return (hash >>> 0).toString(36);

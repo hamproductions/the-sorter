@@ -15,7 +15,7 @@ import { useToaster } from '../../context/ToasterContext';
 import { useData } from '../../hooks/useData';
 import { useSortData } from '../../hooks/useSortData';
 import type { Character } from '../../types';
-import { getCurrentItem, getSortItems, resumeSort } from '../../utils/sort';
+import { extendSort, getCurrentItem, getSortItems } from '../../utils/sort';
 import { addPresetParams, serializeData } from '~/utils/share';
 import { getCastName, getCharacterSortList, getFullName } from '~/utils/character';
 import { getNextItems } from '~/utils/preloading';
@@ -30,6 +30,7 @@ import type { RankingFilter } from '~/types/global-ranking';
 import { GlobalRankingSection } from '~/components/results/GlobalRankingSection';
 import { GlobalRankingToggle } from '~/components/results/GlobalRankingToggle';
 import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
+import { ExportCurrentSessionButton } from '~/components/dialog/ExportCurrentSessionButton';
 
 const ResultsView = lazy(() =>
   import('../../components/results/ResultsView').then((m) => ({ default: m.ResultsView }))
@@ -144,6 +145,17 @@ export function Page() {
   const sortItems = state ? getSortItems(state) : undefined;
   const sortCount = sortItems?.length ?? listCount;
   const sortItemIds = new Set(sortItems);
+  const newCharacterIds = isEnded
+    ? listToSort.filter((c) => !sortItemIds.has(c.id)).map((c) => c.id)
+    : [];
+  const addNewCharacters = () => {
+    if (!state || newCharacterIds.length === 0) return;
+    loadState({
+      state: extendSort(state.arr, newCharacterIds),
+      history: [],
+      comparisonsCount: 0
+    });
+  };
   const isFilterSort =
     !sortItems ||
     (sortItems.length === listToSort.length && listToSort.every((c) => sortItemIds.has(c.id)));
@@ -246,7 +258,12 @@ export function Page() {
       )
       .filter((group) => group.length > 0);
     if (validResults.length === 0) return false;
-    loadResumeState(resumeSort(validResults));
+    loadResumeState(
+      extendSort(
+        validResults,
+        listToSort.map((c) => c.id)
+      )
+    );
     setShowContinueDialog(false);
     return true;
   };
@@ -257,6 +274,7 @@ export function Page() {
   const {
     saves,
     saveCurrent,
+    getCurrentSave,
     overwrite,
     loadById,
     remove: removeSave
@@ -346,9 +364,15 @@ export function Page() {
               {t('sort.save')}
             </Button>
           )}
+          {isSorting && <ExportCurrentSessionButton getCurrentSave={getCurrentSave} />}
           {isSorting && (
             <Button variant="subtle" onClick={() => handleClear()}>
               {state?.status !== 'end' ? t('sort.stop') : t('sort.new_settings')}
+            </Button>
+          )}
+          {isEnded && newCharacterIds.length > 0 && (
+            <Button variant="outline" onClick={addNewCharacters}>
+              {t('sort.add_new_characters', { count: newCharacterIds.length })}
             </Button>
           )}
         </Wrap>

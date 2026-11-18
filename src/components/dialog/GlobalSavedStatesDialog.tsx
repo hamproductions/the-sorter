@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { join } from 'path-browserify';
 import { useTranslation } from 'react-i18next';
-import { FaXmark, FaTrash, FaPen, FaLayerGroup } from 'react-icons/fa6';
+import { FaXmark, FaTrash, FaPen, FaLayerGroup, FaQrcode, FaFileImport } from 'react-icons/fa6';
 import { SorterTypeIcon } from '~/components/layout/TabIcon';
-import { Stack, HStack, Box } from 'styled-system/jsx';
+import { Stack, HStack, Box, Wrap } from 'styled-system/jsx';
 import { Button } from '~/components/ui/button';
 import { Dialog } from '~/components/ui/dialog';
 import { IconButton } from '~/components/ui/icon-button';
@@ -13,6 +13,8 @@ import { Badge } from '~/components/ui/badge';
 import { Input } from '~/components/ui/input';
 import { SavePreview } from './SavePreview';
 import { SavedResultsDialog } from './SavedResultsDialog';
+import { SaveExportDialog } from './SaveExportDialog';
+import { SaveImportDialog } from './SaveImportDialog';
 import type { SavedSortState, SorterType } from '~/types/save-state';
 import { SORTER_TYPE_ROUTES } from '~/utils/save-state';
 import { useSaveLoadContext } from '~/context/SaveLoadContext';
@@ -22,6 +24,7 @@ export interface GlobalSavedStatesDialogProps extends Dialog.RootProps {
   currentSorterType?: SorterType;
   onDelete: (id: string) => void;
   onRename: (id: string, name: string) => void;
+  onImport: (saves: SavedSortState[]) => SavedSortState[];
 }
 
 const SORTER_TYPE_LABELS: Record<SorterType, string> = {
@@ -37,6 +40,7 @@ export function GlobalSavedStatesDialog({
   currentSorterType,
   onDelete,
   onRename,
+  onImport,
   ...rest
 }: GlobalSavedStatesDialogProps) {
   const { t, i18n } = useTranslation();
@@ -45,6 +49,8 @@ export function GlobalSavedStatesDialog({
   const [viewing, setViewing] = useState<SavedSortState>();
   const [editingId, setEditingId] = useState<string>();
   const [editName, setEditName] = useState('');
+  const [exporting, setExporting] = useState<SavedSortState[]>();
+  const [isImporting, setIsImporting] = useState(false);
 
   const formatDate = (iso: string) => {
     return new Date(iso).toLocaleDateString(i18n.language, {
@@ -131,8 +137,15 @@ export function GlobalSavedStatesDialog({
           </HStack>
         </HStack>
         <Text color="fg.muted" fontSize="xs">
-          {formatDate(save.date)} · {t('dialog.saved_states.items', { count: save.itemCount })} ·{' '}
-          {t('dialog.saved_states.comparisons', { count: save.history.length })}
+          {[
+            formatDate(save.date),
+            t('dialog.saved_states.items', { count: save.itemCount }),
+            save.history.length > 0
+              ? t('dialog.saved_states.comparisons', { count: save.history.length })
+              : undefined
+          ]
+            .filter(Boolean)
+            .join(' · ')}
         </Text>
         {save.filterSummary && (
           <Text color="fg.muted" fontSize="xs" truncate>
@@ -167,6 +180,14 @@ export function GlobalSavedStatesDialog({
                 onClick={() => setConfirmDeleteId(save.id)}
               >
                 <FaTrash />
+              </IconButton>
+              <IconButton
+                aria-label={t('dialog.save_transfer.export')}
+                variant="ghost"
+                size="sm"
+                onClick={() => setExporting([save])}
+              >
+                <FaQrcode />
               </IconButton>
               {save.isCompleted && (
                 <Button size="sm" variant="outline" onClick={() => setViewing(save)}>
@@ -212,6 +233,19 @@ export function GlobalSavedStatesDialog({
                 <Dialog.Title>{t('dialog.saved_states.title')}</Dialog.Title>
                 <Dialog.Description>{t('dialog.saved_states.description')}</Dialog.Description>
               </Stack>
+              <Wrap gap="2">
+                <Button size="sm" variant="outline" onClick={() => setIsImporting(true)}>
+                  <FaFileImport /> {t('dialog.save_transfer.import')}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={saves.length === 0}
+                  onClick={() => setExporting(saves)}
+                >
+                  <FaQrcode /> {t('dialog.save_transfer.export_all')}
+                </Button>
+              </Wrap>
               <Tabs.Root defaultValue="all" size="sm">
                 <Tabs.List>
                   {TAB_VALUES.map((tab) => (
@@ -259,6 +293,24 @@ export function GlobalSavedStatesDialog({
         save={viewing}
         onOpenChange={({ open }) => {
           if (!open) setViewing(undefined);
+        }}
+      />
+      <SaveExportDialog
+        open={!!exporting}
+        lazyMount
+        unmountOnExit
+        saves={exporting}
+        onOpenChange={({ open }) => {
+          if (!open) setExporting(undefined);
+        }}
+      />
+      <SaveImportDialog
+        open={isImporting}
+        lazyMount
+        unmountOnExit
+        onImport={onImport}
+        onOpenChange={({ open }) => {
+          if (!open) setIsImporting(false);
         }}
       />
     </>

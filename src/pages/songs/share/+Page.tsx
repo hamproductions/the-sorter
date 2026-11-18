@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { decompressFromEncodedURIComponent } from 'lz-string';
 import { Link } from '~/components/ui/link';
 import { Text } from '~/components/ui/text';
-import { Container, Stack } from 'styled-system/jsx';
+import { Container, Stack, Wrap } from 'styled-system/jsx';
 import { SongResultsView } from '~/components/results/songs/SongResultsView';
 import { Button } from '~/components/ui/button';
 import { Metadata } from '~/components/layout/Metadata';
@@ -17,6 +17,7 @@ import {
 import type { GuessResult } from '~/hooks/useHeardleState';
 import type { PerformanceSortMeta } from '~/types/performance-sort';
 import { usePerformanceSortMeta } from '~/hooks/usePerformanceSortMeta';
+import { useContinueFromResult } from '~/hooks/useContinueFromResult';
 
 const MAX_ATTEMPTS = 5;
 
@@ -57,6 +58,7 @@ export function Page() {
     [search]
   );
   const displayPerformanceMeta = usePerformanceSortMeta(performanceMeta ?? legacyMeta);
+  const continueFromResult = useContinueFromResult('songs');
 
   const failedSongs = useMemo(() => {
     if (!guessResults) return undefined;
@@ -103,9 +105,25 @@ export function Page() {
                 w="full"
                 order={results}
               />
-              <Link href={getSortUrl()}>
-                <Button>{t('share.create_your_own')}</Button>
-              </Link>
+              <Wrap justifyContent="center">
+                {results?.length > 0 && !guessResults && (
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      continueFromResult({
+                        results,
+                        songFilters: filters,
+                        performanceMeta: performanceMeta ?? legacyMeta
+                      })
+                    }
+                  >
+                    {t('share.continue_from_result')}
+                  </Button>
+                )}
+                <Link href={getSortUrl()}>
+                  <Button>{t('share.create_your_own')}</Button>
+                </Link>
+              </Wrap>
             </>
           )}
         </Stack>

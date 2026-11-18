@@ -8,7 +8,7 @@ import type { Character } from '../../types';
 import school from '../../../data/school.json';
 import series from '../../../data/series.json';
 import units from '../../../data/units.json';
-import { Container, Stack } from 'styled-system/jsx';
+import { Container, Stack, Wrap } from 'styled-system/jsx';
 import { ResultsView } from '~/components/results/ResultsView';
 import { getFilterTitle } from '~/utils/filter';
 import { addPresetParams } from '~/utils/share';
@@ -17,6 +17,7 @@ import { Button } from '~/components/ui/button';
 import { Metadata } from '~/components/layout/Metadata';
 import type { TierListSettings } from '~/components/results/TierList';
 import { useDialogData } from '~/hooks/useDialogData';
+import { useContinueFromResult } from '~/hooks/useContinueFromResult';
 
 const CharacterInfoDialog = lazy(() =>
   import('../../components/dialog/CharacterInfoDialog').then((m) => ({
@@ -54,6 +55,7 @@ export function Page() {
   } = JSON.parse(urlData !== null ? decompressFromEncodedURIComponent(urlData) : '{}') ?? {};
 
   const seiyuu = urlSeiyuu === 'true';
+  const continueFromResult = useContinueFromResult('characters');
 
   const filters = {
     series: urlSeries.filter((s) => Object.keys(series).includes(s)),
@@ -96,9 +98,17 @@ export function Page() {
                 w="full"
                 order={results}
               />
-              <Link href={getShareUrl()}>
-                <Button>{t('share.create_your_own')}</Button>
-              </Link>
+              <Wrap justifyContent="center">
+                <Button
+                  variant="outline"
+                  onClick={() => continueFromResult({ results, isSeiyuu: seiyuu })}
+                >
+                  {t('share.continue_from_result')}
+                </Button>
+                <Link href={getShareUrl()}>
+                  <Button>{t('share.create_your_own')}</Button>
+                </Link>
+              </Wrap>
             </>
           )}
         </Stack>

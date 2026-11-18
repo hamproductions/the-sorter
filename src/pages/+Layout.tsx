@@ -44,7 +44,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const [currentPath, setCurrentPath] = useState(import.meta.env.BASE_URL);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [showGlobalSaves, setShowGlobalSaves] = useState(false);
-  const { allSaves, remove, rename } = useSaveStates();
+  const { allSaves, remove, rename, importSaves } = useSaveStates();
 
   useEffect(() => {
     setCurrentPath(window.location.pathname);
@@ -238,6 +238,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             currentSorterType={currentSorterType}
             onDelete={(id) => remove(id)}
             onRename={(id, name) => rename(id, name)}
+            onImport={importSaves}
             onOpenChange={({ open }) => {
               if (!open) setShowGlobalSaves(false);
             }}

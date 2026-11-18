@@ -67,7 +67,7 @@ export function LeaderboardSelect({
       <Select.Label>{label}</Select.Label>
       <Select.Control>
         <Select.Trigger>
-          <Select.ValueText />
+          <Select.ValueText title={options.find((o) => o.value === value)?.label} truncate />
           <FaChevronDown />
         </Select.Trigger>
       </Select.Control>

@@ -104,6 +104,7 @@
     "start": "開始",
     "start_over": "やり直す",
     "add_new_songs": "未ソートの{{count}}曲をこの結果に追加",
+    "add_new_characters": "未ソートの{{count}}人をこの結果に追加",
     "stop": "中止",
     "new_settings": "設定を変更する",
     "tie": "引き分け",
@@ -194,7 +195,8 @@
   },
   "share": {
     "copy_text": "僕のラブライブ！シリーズランキングをみて！",
-    "create_your_own": "自分のを作る"
+    "create_your_own": "自分のを作る",
+    "continue_from_result": "この結果をもとに続ける"
   },
   "dialog": {
     "ended_confirm": {
@@ -289,6 +291,43 @@
       "auto_name_count_songs_one": "{{count}}曲",
       "auto_name_count_songs_other": "{{count}}曲",
       "auto_saved": "結果を保存済みセッションに保存しました"
+    },
+    "save_transfer": {
+      "export": "エクスポート",
+      "export_all": "すべてエクスポート",
+      "import": "インポート",
+      "export_title": "セッションをエクスポート",
+      "session_count_one": "{{count}}件のセッション",
+      "session_count_other": "{{count}}件のセッション",
+      "all_sessions": "saved-sessions",
+      "qr_label": "QRコード {{part}}/{{total}}",
+      "previous_part": "前のコード",
+      "next_part": "次のコード",
+      "play": "再生",
+      "pause": "一時停止",
+      "scan_hint": "別の端末で「インポート」→「QRを読み取る」で読み取ってください。",
+      "scan_hint_multi": "別の端末で「インポート」→「QRを読み取る」を開き、{{count}}個すべて読み取るまでカメラを向けたままにしてください。",
+      "history_note": "QRとコピーしたコードには「やり直し」履歴と、完了したランキングのグローバルランキング記録が含まれません。すべて残すにはファイルをダウンロードしてください。",
+      "copy_code": "コードをコピー",
+      "code_copied": "コードをコピーしました",
+      "download_file": "ファイルをダウンロード",
+      "import_title": "セッションをインポート",
+      "import_description": "QRコードを読み取るか、エクスポートしたファイルを開くか、コードまたは共有リンクを貼り付けてください。",
+      "scan_camera": "QRを読み取る",
+      "stop_camera": "カメラを停止",
+      "camera_preview": "カメラプレビュー",
+      "scan_image": "画像からQR",
+      "open_file": "ファイルを開く",
+      "paste_placeholder": "コードまたは結果の共有リンクを貼り付け",
+      "scanning": "QRコードにカメラを向けてください…",
+      "scan_progress": "{{total}}個中{{received}}個読み取り済み…",
+      "imported_one": "{{count}}件インポートしました。一覧から読み込めます。",
+      "imported_other": "{{count}}件インポートしました。一覧から読み込めます。",
+      "imported_prefix": "インポート",
+      "already_imported": "このセッションはすでに保存されています。",
+      "invalid": "ソーターのコード・エクスポートファイル・共有リンクではありません。",
+      "no_qr_found": "画像からソーターのQRコードが見つかりません。",
+      "camera_error": "カメラを開けません。カメラを許可するか、「画像からQR」を使ってください。"
     }
   },
   "error_page": {
