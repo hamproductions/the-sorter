@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [2.5.0](https://github.com/hamproductions/the-sorter/compare/v2.4.0...v2.5.0) (2026-11-18)
+
+
+### Bug Fixes
+
+* attach PR evidence and resolve picker lint errors ([8acf80c](https://github.com/hamproductions/the-sorter/commit/8acf80cc680668ad0a70286c04160c0bc98d93ce))
+* **characters:** keep pasted order when continuing from previous results ([40d3473](https://github.com/hamproductions/the-sorter/commit/40d34739191983f697d4da9fd305f560b9d58fa9))
+* **ci:** use a deploy key for the internal scripts repo in Update Data ([540d4c8](https://github.com/hamproductions/the-sorter/commit/540d4c8386b8e6226f44ead5dc339fbc5ab97fb8))
+* **leaderboard:** keep the ranking visible and make filters scale ([2a3d32a](https://github.com/hamproductions/the-sorter/commit/2a3d32ac73f019af8829f28550be1f0f8b2c4869))
+* **results:** constrain mobile performance context width ([64ca47b](https://github.com/hamproductions/the-sorter/commit/64ca47b59bb0fcb93de9cb71c3bfc6beff8242e4))
+* **results:** keep performance details readable on narrow screens ([729dbb7](https://github.com/hamproductions/the-sorter/commit/729dbb7eca41dd42018a290be9bafd40f141d1eb))
+* **songs:** compact performance lineups with character icons ([84eb5d3](https://github.com/hamproductions/the-sorter/commit/84eb5d3634b9ced31b25631fc172d78040215100))
+* **songs:** preserve group credits and disclose lineup details ([0562d4f](https://github.com/hamproductions/the-sorter/commit/0562d4f2fb418d893009a0f1fa6182037e916de5))
+* **songs:** retain legacy sessions and copy result images reliably ([4aba674](https://github.com/hamproductions/the-sorter/commit/4aba6744f1228295abd8379c1c40f768143dd397))
+* track initial performance selection in picker effect ([af5f3e7](https://github.com/hamproductions/the-sorter/commit/af5f3e71a64a95d2102fc98dd948d584d8141016))
+
+
+### Features
+
+* **leaderboard:** option to keep global ranks when a filter is active ([e1419b9](https://github.com/hamproductions/the-sorter/commit/e1419b97c6c40d65dc488ebc1e0912634737e703))
+* **leaderboard:** pick performances to filter the song leaderboard ([3376a9c](https://github.com/hamproductions/the-sorter/commit/3376a9c0ab8026aae40c1c2ce59e508777d1ceab))
+* **saves:** transfer sessions with QR codes, files and shared links ([5be7618](https://github.com/hamproductions/the-sorter/commit/5be761860b505998a1becf385d42eb0f7c3a7353))
+* **songs:** extend saved rankings and retain performance context ([6426bdf](https://github.com/hamproductions/the-sorter/commit/6426bdffd3b537f661ef0af9116873f09710a1d3))
+
 # [2.4.0](https://github.com/hamproductions/the-sorter/compare/v2.3.0...v2.4.0) (2026-10-18)
 
 
