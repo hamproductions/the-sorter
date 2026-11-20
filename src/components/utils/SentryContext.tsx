@@ -1,20 +1,11 @@
 import type { ReactNode } from 'react';
 import { createContext, useContext, useEffect, useState } from 'react';
 import type * as Sentry from '@sentry/browser';
-import { recoverAssetError } from '~/utils/asset-recovery';
 
 export const SentryContext = createContext<typeof Sentry | undefined>(undefined);
 
 export function SentryProvider({ children }: { children: ReactNode }) {
   const [sentryInstance, setSentryInstance] = useState<typeof Sentry>();
-
-  useEffect(() => {
-    const onPreloadError = (event: Event) => {
-      void recoverAssetError((event as Event & { payload: unknown }).payload);
-    };
-    window.addEventListener('vite:preloadError', onPreloadError);
-    return () => window.removeEventListener('vite:preloadError', onPreloadError);
-  }, []);
 
   useEffect(() => {
     if (

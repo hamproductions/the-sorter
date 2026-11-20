@@ -115,7 +115,47 @@ describe('session storage', () => {
     expect(localStorage.getItem('songs-sort-state-history')).toBeNull();
     appStorage.removeItem('songs-sort-state-history');
     await flushAppStorage();
-    expect(await read('songs-sort-state-history')).toBeUndefined();
+    expect(await read('songs-sort-state-history')).toBeNull();
+  });
+
+  it('does not resurrect a conflicting legacy copy after an intentional deletion', async () => {
+    const database = await openDatabase();
+    await new Promise<void>((resolve) => {
+      const tx = database.transaction('sessions', 'readwrite');
+      tx.objectStore('sessions').put('"newer"', 'saved-sort-states');
+      tx.oncomplete = () => resolve();
+    });
+    database.close();
+    localStorage.setItem('saved-sort-states', '"legacy"');
+    const storage = await import('../storage');
+    await storage.initializeStorage();
+    storage.appStorage.removeItem('saved-sort-states');
+    await storage.flushAppStorage();
+    vi.resetModules();
+    const reloaded = await import('../storage');
+    await reloaded.initializeStorage();
+    expect(reloaded.appStorage.getItem('saved-sort-states')).toBeNull();
+  });
+
+  it('keeps a deletion authoritative when legacy cleanup cannot remove its backup', async () => {
+    localStorage.setItem('saved-sort-states', '"legacy"');
+    const remove = vi.spyOn(localStorage, 'removeItem').mockImplementation(() => {
+      throw new DOMException('Denied', 'SecurityError');
+    });
+    const storage = await import('../storage');
+    await storage.initializeStorage();
+    storage.appStorage.removeItem('saved-sort-states');
+    await storage.flushAppStorage();
+    expect(localStorage.getItem('saved-sort-states')).toBe('"legacy"');
+    expect(await read('saved-sort-states')).toBeNull();
+    vi.resetModules();
+    const reloaded = await import('../storage');
+    await reloaded.initializeStorage();
+    expect(reloaded.appStorage.getItem('saved-sort-states')).toBeNull();
+    expect(
+      Array.from({ length: reloaded.appStorage.length }, (_, i) => reloaded.appStorage.key(i))
+    ).not.toContain('saved-sort-states');
+    remove.mockRestore();
   });
 
   it('keeps legacy data when migration cannot commit and allows retry', async () => {
@@ -233,7 +273,7 @@ describe('session storage', () => {
     expect(await read('saved-sort-states')).toBe('"database"');
   });
 
-  it('restores previously migrated current sorts to localStorage without replacing current local data', async () => {
+  it('uses localStorage alone for current sorts and never restores stale database copies', async () => {
     const database = await openDatabase();
     await new Promise<void>((resolve) => {
       const tx = database.transaction('sessions', 'readwrite');
@@ -247,12 +287,16 @@ describe('session storage', () => {
     const storage = await import('../storage');
     await storage.initializeStorage();
     expect(storage.appStorage.getItem('sort-state')).toBe('"current local state"');
-    expect(storage.appStorage.getItem('songs-sort-state')).toBe('"restored state"');
-    expect(localStorage.getItem('songs-sort-state')).toBe('"restored state"');
-    expect(localStorage.getItem('songs-comparisons-count')).toBe('12');
-    expect(await read('sort-state')).toBeUndefined();
-    expect(await read('songs-sort-state')).toBeUndefined();
-    expect(await read('songs-comparisons-count')).toBeUndefined();
+    expect(storage.appStorage.getItem('songs-sort-state')).toBeNull();
+    expect(localStorage.getItem('songs-sort-state')).toBeNull();
+    expect(localStorage.getItem('songs-comparisons-count')).toBeNull();
+    storage.appStorage.removeItem('sort-state');
+    await storage.flushAppStorage();
+    vi.resetModules();
+    const reloaded = await import('../storage');
+    await reloaded.initializeStorage();
+    expect(reloaded.appStorage.getItem('sort-state')).toBeNull();
+    expect(await read('sort-state')).toBe('"older database state"');
   });
 
   it('clears the database and legacy preferences together', async () => {
@@ -262,8 +306,36 @@ describe('session storage', () => {
     storage.appStorage.setItem('color-mode', '"dark"');
     await storage.flushAppStorage();
     await storage.clearAppStorage();
-    expect(await read('saved-sort-states')).toBeUndefined();
+    expect(await read('saved-sort-states')).toBeNull();
     expect(storage.appStorage.getItem('saved-sort-states')).toBeNull();
     expect(localStorage.getItem('color-mode')).toBeNull();
+  });
+
+  it('preserves deletion tombstones if clearing localStorage fails', async () => {
+    localStorage.setItem('saved-sort-states', '"legacy"');
+    const remove = vi.spyOn(localStorage, 'removeItem').mockImplementation(() => {
+      throw new DOMException('Denied', 'SecurityError');
+    });
+    const storage = await import('../storage');
+    await storage.initializeStorage();
+    storage.appStorage.removeItem('saved-sort-states');
+    await storage.flushAppStorage();
+    const clear = vi.spyOn(localStorage, 'clear').mockImplementationOnce(() => {
+      throw new DOMException('Denied', 'SecurityError');
+    });
+    await expect(storage.clearAppStorage()).rejects.toThrow('Denied');
+    expect(storage.hasStorageFailure()).toBe(true);
+    vi.resetModules();
+    const reloaded = await import('../storage');
+    await reloaded.initializeStorage();
+    expect(reloaded.appStorage.getItem('saved-sort-states')).toBeNull();
+    expect(await read('saved-sort-states')).toBeNull();
+    remove.mockRestore();
+    clear.mockRestore();
+    vi.resetModules();
+    const recovered = await import('../storage');
+    await recovered.initializeStorage();
+    expect(localStorage.getItem('saved-sort-states')).toBeNull();
+    expect(recovered.appStorage.getItem('saved-sort-states')).toBeNull();
   });
 });

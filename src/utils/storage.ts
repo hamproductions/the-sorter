@@ -1,6 +1,6 @@
 const DATABASE = 'the-sorter';
 const STORE = 'sessions';
-const cache = new Map<string, string>();
+const cache = new Map<string, string | null>();
 const legacyBackups = new Map<string, string>();
 const pending = new Map<string, string | null>();
 const listeners = new Set<() => void>();
@@ -17,9 +17,6 @@ export const isDurableKey = (key: string) =>
   /^(?:(?:songs-|perf-songs-|hasu-songs-)?sort-(?:state-history|log|timing)|saved-sort-states|perf-songs-(?:meta|ids)|results-display-order(?:-read-only)?|heardle-(?:revealed-songs|failed-songs|current-guesses|guess-results)|setlist-(?:predictions|save-slots|prediction-drafts)-v1|performance-cache-v1)$/.test(
     key
   );
-
-const isCurrentSortKey = (key: string) =>
-  /^(?:songs-|perf-songs-|hasu-songs-)?(?:sort-state|comparisons-count)$/.test(key);
 
 export const usesIndexedDB = () => durableReady;
 export const isStoragePersisted = (key: string) =>
@@ -53,8 +50,7 @@ const persist = (key: string, value: string | null) => {
   writes = writes.then(async () => {
     try {
       await transaction((store) => {
-        if (value === null) store.delete(key);
-        else store.put(value, key);
+        store.put(value, key);
       });
       if (revisions.get(key) === revision) {
         pending.delete(key);
@@ -80,11 +76,11 @@ const persist = (key: string, value: string | null) => {
 };
 
 const storageKeys = () => {
-  const keys = new Set(cache.keys());
+  const keys = new Set([...cache].filter(([, value]) => value !== null).map(([key]) => key));
   try {
     for (let index = 0; index < localStorage.length; index++) {
       const key = localStorage.key(index);
-      if (key !== null) keys.add(key);
+      if (key !== null && cache.get(key) !== null) keys.add(key);
     }
   } catch {}
   for (const [key, value] of pending) {
@@ -136,7 +132,7 @@ export const appStorage: Storage = {
       return;
     }
     if (durableReady && isDurableKey(key)) {
-      cache.delete(key);
+      cache.set(key, null);
       persist(key, null);
       return;
     }
@@ -178,14 +174,17 @@ export const initializeStorage = () => {
         };
       });
       opened = db;
-      const values = await new Promise<Map<string, string>>((resolve, reject) => {
-        const entries = new Map<string, string>();
+      const values = await new Promise<Map<string, string | null>>((resolve, reject) => {
+        const entries = new Map<string, string | null>();
         const tx = db.transaction(STORE, 'readonly');
         const request = tx.objectStore(STORE).openCursor();
         request.onsuccess = () => {
           const cursor = request.result;
           if (!cursor) return;
-          if (typeof cursor.key === 'string' && typeof cursor.value === 'string') {
+          if (
+            typeof cursor.key === 'string' &&
+            (typeof cursor.value === 'string' || cursor.value === null)
+          ) {
             entries.set(cursor.key, cursor.value);
           }
           cursor.continue();
@@ -198,20 +197,6 @@ export const initializeStorage = () => {
       durableReady = true;
       for (const [key, value] of values) {
         if (isDurableKey(key)) cache.set(key, value);
-        else if (isCurrentSortKey(key)) {
-          try {
-            if (localStorage.getItem(key) === null) localStorage.setItem(key, value);
-            if (localStorage.getItem(key) !== null) {
-              try {
-                await transaction((store) => store.delete(key));
-              } catch {}
-            }
-          } catch {
-            pending.set(key, value);
-            failed.add(key);
-            notify();
-          }
-        }
       }
       const legacy = new Map<string, string>();
       try {
@@ -221,13 +206,13 @@ export const initializeStorage = () => {
           const value = localStorage.getItem(key);
           if (value !== null) {
             legacy.set(key, value);
-            if (!cache.has(key)) legacyBackups.set(key, value);
+            legacyBackups.set(key, value);
           }
         }
       } catch {}
       if (legacy.size) {
         try {
-          const committed = new Map<string, string>();
+          const committed = new Map<string, string | null>();
           await transaction((store) => {
             for (const [key, value] of legacy) {
               const request = store.get(key);
@@ -235,7 +220,7 @@ export const initializeStorage = () => {
                 if (request.result === undefined) {
                   store.put(value, key);
                   committed.set(key, value);
-                } else if (typeof request.result === 'string') {
+                } else if (typeof request.result === 'string' || request.result === null) {
                   committed.set(key, request.result);
                 }
               };
@@ -244,7 +229,8 @@ export const initializeStorage = () => {
           for (const [key, value] of committed) {
             cache.set(key, value);
             try {
-              if (legacy.get(key) === value && localStorage.getItem(key) === value) {
+              const backup = legacy.get(key);
+              if ((value === null || backup === value) && localStorage.getItem(key) === backup) {
                 localStorage.removeItem(key);
                 legacyBackups.delete(key);
               }
@@ -283,7 +269,7 @@ export const initializeStorage = () => {
               tx.oncomplete = () => {
                 if (pending.has(key)) return;
                 const value = typeof request.result === 'string' ? request.result : null;
-                if (value === null) cache.delete(key);
+                if (request.result === undefined) cache.delete(key);
                 else cache.set(key, value);
                 announce(key, value);
               };
@@ -332,8 +318,27 @@ export const clearAppStorage = async () => {
   await writes;
   if ((durableReady || initializationFailed) && !database)
     throw new Error('Session storage is unavailable. Reload before clearing data.');
-  if (database) await transaction((store) => store.clear());
-  localStorage.clear();
+  if (database) {
+    const keys = storageKeys().filter(isDurableKey);
+    await transaction((store) => {
+      for (const key of keys) store.put(null, key);
+      const request = store.openCursor();
+      request.onsuccess = () => {
+        const cursor = request.result;
+        if (!cursor) return;
+        if (typeof cursor.key === 'string' && isDurableKey(cursor.key)) cursor.update(null);
+        else cursor.delete();
+        cursor.continue();
+      };
+    });
+  }
+  try {
+    localStorage.clear();
+  } catch (error) {
+    failed.add('__clear__');
+    notify();
+    throw error;
+  }
   cache.clear();
   legacyBackups.clear();
   try {
