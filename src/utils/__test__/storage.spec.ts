@@ -1,8 +1,10 @@
 import { IDBFactory } from 'fake-indexeddb';
+import { webcrypto } from 'node:crypto';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 beforeEach(() => {
   vi.resetModules();
+  vi.stubGlobal('crypto', webcrypto);
   vi.stubGlobal('indexedDB', new IDBFactory());
   vi.stubGlobal('BroadcastChannel', undefined);
   localStorage.clear();
@@ -337,5 +339,321 @@ describe('session storage', () => {
     await recovered.initializeStorage();
     expect(localStorage.getItem('saved-sort-states')).toBeNull();
     expect(recovered.appStorage.getItem('saved-sort-states')).toBeNull();
+  });
+  it('recovers saved sessions created while downgraded without replacing current saves', async () => {
+    localStorage.setItem('saved-sort-states', '[{"id":"original","name":"Original"}]');
+    const first = await import('../storage');
+    await first.initializeStorage();
+    localStorage.setItem('saved-sort-states', '[{"id":"rollback","name":"Rollback"}]');
+    vi.resetModules();
+    const next = await import('../storage');
+    await next.initializeStorage();
+    expect(JSON.parse(next.appStorage.getItem('saved-sort-states')!)).toEqual([
+      { id: 'original', name: 'Original' },
+      { id: 'rollback', name: 'Rollback' }
+    ]);
+    expect(localStorage.getItem('saved-sort-states')).toBeNull();
+  });
+
+  it('recovers new legacy saves after deletion without reviving an unchanged backup', async () => {
+    localStorage.setItem('saved-sort-states', '[{"id":"deleted"}]');
+    const first = await import('../storage');
+    await first.initializeStorage();
+    first.appStorage.removeItem('saved-sort-states');
+    await first.flushAppStorage();
+    localStorage.setItem('saved-sort-states', '[{"id":"new-on-old-version"}]');
+    vi.resetModules();
+    const next = await import('../storage');
+    await next.initializeStorage();
+    expect(JSON.parse(next.appStorage.getItem('saved-sort-states')!)).toEqual([
+      { id: 'new-on-old-version' }
+    ]);
+  });
+
+  it('keeps both revisions when older code edits a saved session', async () => {
+    localStorage.setItem('saved-sort-states', '[{"id":"same","name":"Current"}]');
+    const first = await import('../storage');
+    await first.initializeStorage();
+    localStorage.setItem('saved-sort-states', '[{"id":"same","name":"Changed on old version"}]');
+    vi.resetModules();
+    const next = await import('../storage');
+    await next.initializeStorage();
+    const recovered = JSON.parse(next.appStorage.getItem('saved-sort-states')!);
+    expect(recovered.map((entry: { name: string }) => entry.name)).toEqual([
+      'Current',
+      'Changed on old version'
+    ]);
+    expect(new Set(recovered.map((entry: { id: string }) => entry.id)).size).toBe(2);
+  });
+
+  it('uses history and log written by a downgraded version with its newer current state', async () => {
+    localStorage.setItem('sort-state-history', '["old-history"]');
+    localStorage.setItem('sort-log', '"old-log"');
+    const first = await import('../storage');
+    await first.initializeStorage();
+    localStorage.setItem('sort-state', '"new-current"');
+    localStorage.setItem('comparisons-count', '5');
+    localStorage.setItem('sort-state-history', '["before-downgrade-step"]');
+    localStorage.setItem('sort-log', '"new-log"');
+    vi.resetModules();
+    const next = await import('../storage');
+    await next.initializeStorage();
+    expect(next.appStorage.getItem('sort-state')).toBe('"new-current"');
+    expect(next.appStorage.getItem('sort-state-history')).toBe('["before-downgrade-step"]');
+    expect(next.appStorage.getItem('sort-log')).toBe('"new-log"');
+  });
+  it('does not revive unchanged deleted saves from an older tab adding a save', async () => {
+    const original = '[{"id":"deleted","name":"Original"}]';
+    localStorage.setItem('saved-sort-states', original);
+    const first = await import('../storage');
+    await first.initializeStorage();
+    first.appStorage.setItem('saved-sort-states', '[]');
+    await first.flushAppStorage();
+    localStorage.setItem(
+      'saved-sort-states',
+      '[{"id":"new","name":"New"},{"id":"deleted","name":"Original"}]'
+    );
+    vi.resetModules();
+    const next = await import('../storage');
+    await next.initializeStorage();
+    expect(JSON.parse(next.appStorage.getItem('saved-sort-states')!)).toEqual([
+      { id: 'new', name: 'New' }
+    ]);
+  });
+
+  it('clears a stale log when older code advanced without a log', async () => {
+    localStorage.setItem('sort-state-history', '["old"]');
+    localStorage.setItem('sort-log', '"old-log"');
+    const first = await import('../storage');
+    await first.initializeStorage();
+    localStorage.setItem('sort-state-history', '["downgrade"]');
+    vi.resetModules();
+    const next = await import('../storage');
+    await next.initializeStorage();
+    expect(next.appStorage.getItem('sort-state-history')).toBe('["downgrade"]');
+    expect(next.appStorage.getItem('sort-log')).toBeNull();
+  });
+
+  it('keeps reconciled saves recoverable if migration aborts after reading conflicts', async () => {
+    localStorage.setItem('saved-sort-states', '[{"id":"first"}]');
+    localStorage.setItem('sort-state-history', '["old-history"]');
+    localStorage.setItem('sort-log', '"old-log"');
+    const first = await import('../storage');
+    await first.initializeStorage();
+    localStorage.setItem('saved-sort-states', '[{"id":"downgraded"}]');
+    localStorage.setItem('sort-state-history', '["new-history"]');
+    const database = await openDatabase();
+    const prototype = Object.getPrototypeOf(
+      database.transaction('sessions').objectStore('sessions')
+    ) as IDBObjectStore;
+    const original = prototype.get;
+    let aborted = false;
+    const get = vi.spyOn(prototype, 'get').mockImplementation(function (
+      this: IDBObjectStore,
+      key: IDBValidKey | IDBKeyRange
+    ) {
+      const request = original.call(this, key);
+      if (!aborted && key === 'saved-sort-states' && this.transaction.mode === 'readwrite') {
+        aborted = true;
+        request.addEventListener('success', () => queueMicrotask(() => this.transaction.abort()));
+      }
+      return request;
+    });
+    database.close();
+    vi.resetModules();
+    const next = await import('../storage');
+    await next.initializeStorage();
+    get.mockRestore();
+    expect(aborted).toBe(true);
+    expect(next.hasStorageFailure()).toBe(true);
+    expect(next.appStorage.getItem('sort-log')).toBeNull();
+    expect(next.appStorage.getItem('sort-state-history')).toBe('["new-history"]');
+    expect(
+      JSON.parse(next.appStorage.getItem('saved-sort-states')!).map((s: { id: string }) => s.id)
+    ).toEqual(['first', 'downgraded']);
+    expect(localStorage.getItem('saved-sort-states')).toBe('[{"id":"downgraded"}]');
+    expect(await read('saved-sort-states')).toBe('[{"id":"first"}]');
+    await expect(next.flushAppStorage()).rejects.toThrow('not been saved');
+  });
+  it('preserves deleted-save provenance when clearing all data', async () => {
+    localStorage.setItem('saved-sort-states', '[{"id":"deleted"}]');
+    const first = await import('../storage');
+    await first.initializeStorage();
+    await first.clearAppStorage();
+    localStorage.setItem('saved-sort-states', '[{"id":"deleted"},{"id":"new"}]');
+    vi.resetModules();
+    const next = await import('../storage');
+    await next.initializeStorage();
+    expect(JSON.parse(next.appStorage.getItem('saved-sort-states')!)).toEqual([{ id: 'new' }]);
+  });
+
+  it('does not rewind reconciliation provenance from an older current-version tab', async () => {
+    localStorage.setItem('saved-sort-states', '[{"id":"a"}]');
+    const stale = await import('../storage');
+    await stale.initializeStorage();
+    localStorage.setItem('saved-sort-states', '[{"id":"a"},{"id":"b"}]');
+    vi.resetModules();
+    const upgraded = await import('../storage');
+    await upgraded.initializeStorage();
+    stale.appStorage.setItem('saved-sort-states', '[]');
+    await stale.flushAppStorage();
+    localStorage.setItem('saved-sort-states', '[{"id":"a"},{"id":"b"},{"id":"c"}]');
+    vi.resetModules();
+    const next = await import('../storage');
+    await next.initializeStorage();
+    expect(JSON.parse(next.appStorage.getItem('saved-sort-states')!)).toEqual([{ id: 'c' }]);
+  });
+  it('clears erased payloads while retaining compact deletion fingerprints across repeated clears', async () => {
+    localStorage.setItem(
+      'saved-sort-states',
+      '[{"id":"private","name":"PRIVATE-PAYLOAD","log":"PRIVATE-LOG"}]'
+    );
+    const first = await import('../storage');
+    await first.initializeStorage();
+    await first.clearAppStorage();
+    const baseline = await read('__legacy__:saved-sort-states');
+    expect(String(baseline)).not.toContain('PRIVATE');
+    expect(String(baseline)).toContain('fingerprint');
+    await first.clearAppStorage();
+    expect(await read('__legacy__:saved-sort-states')).toBe(baseline);
+    localStorage.setItem(
+      'saved-sort-states',
+      '[{"id":"private","name":"PRIVATE-PAYLOAD","log":"PRIVATE-LOG"},{"id":"new"}]'
+    );
+    vi.resetModules();
+    const next = await import('../storage');
+    await next.initializeStorage();
+    expect(JSON.parse(next.appStorage.getItem('saved-sort-states')!)).toEqual([{ id: 'new' }]);
+  });
+  it('preserves null tombstones if reconciliation aborts after reading an obsolete backup', async () => {
+    localStorage.setItem('saved-sort-states', '[{"id":"deleted"}]');
+    const remove = vi.spyOn(localStorage, 'removeItem').mockImplementation(() => {
+      throw new DOMException('Denied', 'SecurityError');
+    });
+    const first = await import('../storage');
+    await first.initializeStorage();
+    first.appStorage.removeItem('saved-sort-states');
+    await first.flushAppStorage();
+    const database = await openDatabase();
+    const prototype = Object.getPrototypeOf(
+      database.transaction('sessions').objectStore('sessions')
+    ) as IDBObjectStore;
+    const original = prototype.get;
+    let aborted = false;
+    const get = vi.spyOn(prototype, 'get').mockImplementation(function (
+      this: IDBObjectStore,
+      key: IDBValidKey | IDBKeyRange
+    ) {
+      const request = original.call(this, key);
+      if (!aborted && key === 'saved-sort-states' && this.transaction.mode === 'readwrite') {
+        aborted = true;
+        request.addEventListener('success', () => queueMicrotask(() => this.transaction.abort()));
+      }
+      return request;
+    });
+    database.close();
+    vi.resetModules();
+    const next = await import('../storage');
+    await next.initializeStorage();
+    get.mockRestore();
+    remove.mockRestore();
+    expect(next.appStorage.getItem('saved-sort-states')).toBeNull();
+    expect(await read('saved-sort-states')).toBeNull();
+  });
+  it('retains deleted-save provenance across repeated downgrade and reupgrade cycles', async () => {
+    localStorage.setItem('saved-sort-states', '[{"id":"a"}]');
+    const first = await import('../storage');
+    await first.initializeStorage();
+    first.appStorage.setItem('saved-sort-states', '[]');
+    await first.flushAppStorage();
+    localStorage.setItem('saved-sort-states', '[{"id":"b"}]');
+    vi.resetModules();
+    const second = await import('../storage');
+    await second.initializeStorage();
+    localStorage.setItem('saved-sort-states', '[{"id":"a"},{"id":"b"},{"id":"c"}]');
+    vi.resetModules();
+    const third = await import('../storage');
+    await third.initializeStorage();
+    expect(JSON.parse(third.appStorage.getItem('saved-sort-states')!)).toEqual([
+      { id: 'b' },
+      { id: 'c' }
+    ]);
+  });
+  it('reads current provenance after another upgrade finishes while hashing legacy saves', async () => {
+    localStorage.setItem('saved-sort-states', '[{"id":"a"}]');
+    const first = await import('../storage');
+    await first.initializeStorage();
+    localStorage.setItem('saved-sort-states', '[{"id":"b"}]');
+    const original = crypto.subtle.digest.bind(crypto.subtle);
+    let resume!: () => void;
+    let started!: () => void;
+    const entered = new Promise<void>((resolve) => {
+      started = resolve;
+    });
+    const gate = new Promise<void>((resolve) => {
+      resume = resolve;
+    });
+    const digest = vi
+      .spyOn(crypto.subtle, 'digest')
+      .mockImplementationOnce(async (algorithm, data) => {
+        started();
+        await gate;
+        return original(algorithm, data);
+      });
+    vi.resetModules();
+    const slow = await import('../storage');
+    const initialization = slow.initializeStorage();
+    await entered;
+    vi.resetModules();
+    const fast = await import('../storage');
+    await fast.initializeStorage();
+    fast.appStorage.setItem('saved-sort-states', '[]');
+    await fast.flushAppStorage();
+    resume();
+    await initialization;
+    digest.mockRestore();
+    expect(JSON.parse(slow.appStorage.getItem('saved-sort-states')!)).toEqual([]);
+    expect(JSON.parse(String(await read('saved-sort-states')))).toEqual([]);
+  });
+  it('does not reimport history already consumed by a faster upgrade', async () => {
+    localStorage.setItem('saved-sort-states', '[{"id":"a"}]');
+    localStorage.setItem('sort-state-history', '["original"]');
+    const first = await import('../storage');
+    await first.initializeStorage();
+    localStorage.setItem('saved-sort-states', '[{"id":"b"}]');
+    localStorage.setItem('sort-state-history', '["downgrade"]');
+    const original = crypto.subtle.digest.bind(crypto.subtle);
+    let resume!: () => void;
+    let started!: () => void;
+    const entered = new Promise<void>((resolve) => {
+      started = resolve;
+    });
+    const gate = new Promise<void>((resolve) => {
+      resume = resolve;
+    });
+    const digest = vi
+      .spyOn(crypto.subtle, 'digest')
+      .mockImplementationOnce(async (algorithm, data) => {
+        started();
+        await gate;
+        return original(algorithm, data);
+      });
+    vi.resetModules();
+    const slow = await import('../storage');
+    const initialization = slow.initializeStorage();
+    await entered;
+    vi.resetModules();
+    const fast = await import('../storage');
+    await fast.initializeStorage();
+    fast.appStorage.setItem('sort-state-history', '["current-after-new-step"]');
+    fast.appStorage.setItem('sort-log', '"current-log"');
+    await fast.flushAppStorage();
+    resume();
+    await initialization;
+    digest.mockRestore();
+    expect(await read('sort-state-history')).toBe('["current-after-new-step"]');
+    expect(await read('sort-log')).toBe('"current-log"');
+    expect(slow.appStorage.getItem('sort-log')).toBe('"current-log"');
+    expect(slow.appStorage.getItem('sort-state-history')).toBe('["current-after-new-step"]');
   });
 });
