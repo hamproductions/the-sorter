@@ -4,33 +4,44 @@ import {
   useState,
   type Dispatch,
   type SetStateAction,
-  useCallback
+  useCallback,
+  useSyncExternalStore
 } from 'react';
+import {
+  appStorage,
+  hasStorageFailure,
+  isDurableKey,
+  isStoragePersisted,
+  subscribeStorage,
+  usesIndexedDB
+} from '~/utils/storage';
 
 type NullOrUndefinedAble<T> = T | null | undefined;
+export { isStoragePersisted } from '~/utils/storage';
+
+export const useStorageFailure = () =>
+  useSyncExternalStore(subscribeStorage, hasStorageFailure, () => false);
+
 export class LocalStorage<T = unknown> {
   constructor(public key: string) {}
 
   get value(): NullOrUndefinedAble<T> {
     try {
-      const val = localStorage.getItem(this.key);
-      return val !== null ? JSON.parse(val) : null;
+      const val = appStorage.getItem(this.key);
+      return val != null ? JSON.parse(val) : null;
     } catch {
       return null;
     }
   }
 
   set value(value: NullOrUndefinedAble<T>) {
-    if (value != null) {
-      const val: string = JSON.stringify(value);
-      localStorage.setItem(this.key, val);
-    } else {
-      localStorage.removeItem(this.key);
-    }
+    const serialized = value != null ? JSON.stringify(value) : null;
+    if (serialized !== null) appStorage.setItem(this.key, serialized);
+    else appStorage.removeItem(this.key);
   }
 
   clear() {
-    localStorage.removeItem(this.key);
+    this.value = null;
   }
 }
 
@@ -41,9 +52,7 @@ export const useLocalStorage = function <T>(
   initial: NullOrUndefinedAble<T> = undefined
 ): [NullOrUndefinedAble<T>, Dispatch<SetStateAction<NullOrUndefinedAble<T>>>] {
   const storage = useRef(new LocalStorage<T>(key));
-  const [data, setData] = useState<NullOrUndefinedAble<T>>(
-    () => (typeof window !== 'undefined' ? storage.current.value : initial) ?? initial
-  );
+  const [data, setData] = useState<NullOrUndefinedAble<T>>(initial);
 
   const dataRef = useRef(data);
   const receive = useRef((value: unknown) => {
@@ -70,7 +79,6 @@ export const useLocalStorage = function <T>(
   useEffect(() => {
     const value = storage.current.value ?? initial;
     dataRef.current = value;
-    storage.current.value = value;
     setData(value);
     // oxlint-disable-next-line exhaustive-deps
   }, []);
@@ -93,17 +101,29 @@ export const useLocalStorage = function <T>(
     }
     listeners.add(listener);
     const handleStorage = (storageEvent: StorageEvent) => {
-      if (storageEvent.key !== key) return;
+      if (storageEvent.key !== key || !isStoragePersisted(key)) return;
+      if (usesIndexedDB() && isDurableKey(key)) return;
       let newData: NullOrUndefinedAble<T> = null;
       try {
         newData = storageEvent.newValue ? JSON.parse(storageEvent.newValue) : null;
       } catch {}
       listener(newData);
     };
+    const handleDurableStorage = (event: Event) => {
+      const { key: updatedKey, value } = (
+        event as CustomEvent<{ key: string; value: string | null }>
+      ).detail;
+      if (updatedKey !== key) return;
+      try {
+        listener(value === null ? null : JSON.parse(value));
+      } catch {}
+    };
     window.addEventListener('storage', handleStorage);
+    window.addEventListener('sorter-storage', handleDurableStorage);
     return () => {
       listeners.delete(listener);
       window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('sorter-storage', handleDurableStorage);
     };
   }, [key]);
 

@@ -153,7 +153,7 @@ const protectedAliases = [
   ...characterInfo.map((character) => character.fullName),
   ...castCharacterIds.keys(),
   ...groupAliases.keys()
-].toSorted((a, b) => b.length - a.length);
+].sort((a, b) => b.length - a.length);
 
 function getSetlistPerformers(remarks?: string): PerformancePerformer[] | undefined {
   if (!remarks) return undefined;
@@ -225,7 +225,7 @@ export function getPerformerSignature(performers?: PerformancePerformer[]): stri
     .map((performer) =>
       performer.kind === 'group' ? `G:${performer.id}` : `M:${performer.characterId}`
     )
-    .toSorted()
+    .sort()
     .join(',');
 }
 
@@ -244,7 +244,7 @@ export function getPerformanceDisplayPerformers(
 
   const memberIds = performers
     .flatMap((performer) => (performer.kind === 'member' ? [performer.characterId] : []))
-    .toSorted();
+    .sort();
   const originalMembers = song.artists.flatMap((songArtist) => {
     const artist = artistsInfo.find((item) => item.id === songArtist.id);
     if (songArtist.variant)
@@ -259,7 +259,7 @@ export function getPerformanceDisplayPerformers(
   });
   if (
     originalMembers.length &&
-    [...new Set(originalMembers)].toSorted().join(',') === memberIds.join(',')
+    [...new Set(originalMembers)].sort().join(',') === memberIds.join(',')
   )
     return [];
 
@@ -275,7 +275,7 @@ export function getPerformanceDisplayPerformers(
       }
     }
     for (const roster of variants.values()) {
-      if (roster.toSorted().join(',') === memberIds.join(',')) return [];
+      if (roster.slice().sort().join(',') === memberIds.join(',')) return [];
     }
   }
   return performers;
@@ -486,7 +486,7 @@ export function buildPerformanceSortSelection(
   const selectedIds = new Set(performanceIds);
   const selectedPerformances = performances
     .filter((performance) => selectedIds.has(performance.id))
-    .toSorted((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   if (selectedPerformances.length === 0) return undefined;
 

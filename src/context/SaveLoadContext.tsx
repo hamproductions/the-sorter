@@ -2,6 +2,7 @@ import { type ReactNode, createContext, useCallback, useContext, useEffect, useS
 import { useTranslation } from 'react-i18next';
 import { describeFilter } from '~/utils/filter-summary';
 import { autoSaveName, migrateCurrentSessions } from '~/utils/save-state';
+import { appStorage } from '~/utils/storage';
 
 const PENDING_LOAD_KEY = 'pending-save-load';
 
@@ -31,7 +32,7 @@ export function SaveLoadProvider({ children }: { children: ReactNode }) {
     if (typeof window === 'undefined') return;
     try {
       migrateCurrentSessions(
-        localStorage,
+        appStorage,
         (sorterType, _isCompleted, { itemCount, filterSummary }) =>
           autoSaveName(t, sorterType, itemCount, filterSummary),
         (sorterType, filter) =>

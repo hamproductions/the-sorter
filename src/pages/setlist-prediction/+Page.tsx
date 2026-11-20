@@ -1,3 +1,4 @@
+import { appStorage } from '~/utils/storage';
 /**
  * Setlist Prediction - Performance List Page
  * Users browse and select performances to create predictions for
@@ -40,7 +41,7 @@ export function Page() {
       import.meta.env.BASE_URL,
       `/setlist-prediction/builder/?${prediction.id}`
     );
-    localStorage.setItem('setlist-builder-last-prediction', prediction.id);
+    appStorage.setItem('setlist-builder-last-prediction', prediction.id);
   }, []);
 
   const handleSelectScorePrediction = useCallback((prediction: SetlistPrediction) => {
@@ -48,7 +49,7 @@ export function Page() {
       import.meta.env.BASE_URL,
       `/setlist-prediction/marking?prediction=${prediction.id}`
     );
-    localStorage.setItem('setlist-builder-last-prediction', prediction.id);
+    appStorage.setItem('setlist-builder-last-prediction', prediction.id);
   }, []);
 
   const handleDeletePrediction = useCallback(
@@ -79,7 +80,7 @@ export function Page() {
 
     switch (sortBy) {
       case 'upcoming-first':
-        return sorted.toSorted((a, b) => {
+        return sorted.sort((a, b) => {
           // Upcoming first, then by date ascending
           const aDate = new Date(a.date);
           const bDate = new Date(b.date);
@@ -95,16 +96,16 @@ export function Page() {
         });
 
       case 'date-asc':
-        return sorted.toSorted((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        return sorted.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
       case 'date-desc':
-        return sorted.toSorted((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        return sorted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
       case 'name-asc':
-        return sorted.toSorted((a, b) => a.tourName.localeCompare(b.tourName));
+        return sorted.sort((a, b) => a.tourName.localeCompare(b.tourName));
 
       case 'name-desc':
-        return sorted.toSorted((a, b) => b.tourName.localeCompare(a.tourName));
+        return sorted.sort((a, b) => b.tourName.localeCompare(a.tourName));
 
       default:
         return sorted;
@@ -125,7 +126,7 @@ export function Page() {
 
     return Object.entries(tourGroups).map(([tourName, performances]) => ({
       tourName,
-      performances: performances.toSorted(
+      performances: performances.sort(
         (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
       )
     }));

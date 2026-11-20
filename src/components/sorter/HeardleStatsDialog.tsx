@@ -66,7 +66,7 @@ export function HeardleStatsDialog({
         return song ? { song, result } : null;
       })
       .filter((e): e is NonNullable<typeof e> => e !== null)
-      .toSorted((a, b) => b.result.attempts - a.result.attempts);
+      .sort((a, b) => b.result.attempts - a.result.attempts);
   }, [guessResults, songs]);
 
   const correctCount = entries.filter((e) => e.result.result === 'correct').length;

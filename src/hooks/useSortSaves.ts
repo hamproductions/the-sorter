@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSaveStates } from './useSaveStates';
+import { flushAppStorage, isStoragePersisted } from '~/utils/storage';
 import { useSaveLoadContext } from '~/context/SaveLoadContext';
 import { useToaster } from '~/context/ToasterContext';
 import type { SortLog } from '~/types/global-ranking';
@@ -102,14 +103,24 @@ export const useSortSaves = <T extends string | number>({
     if (!current || current.state.status !== 'end') return;
     const serialized = getSortSaveIdentity({ ...current, sorterType });
     if (wasResultAutoSaved(serialized)) return;
-    markResultAutoSaved(serialized);
-    if (saves.some((s) => getSortSaveIdentity(s) === serialized)) return;
+    if (saves.some((s) => getSortSaveIdentity(s) === serialized)) {
+      if (isStoragePersisted('saved-sort-states')) markResultAutoSaved(serialized);
+      return;
+    }
     save({
       ...current,
       sorterType,
       name: autoSaveName(t, sorterType, current.itemCount, current.filterSummary)
     });
-    toast?.({ description: t('dialog.saved_states.auto_saved') });
+    void flushAppStorage().then(
+      () => {
+        markResultAutoSaved(serialized);
+        if (isStoragePersisted('saved-sort-states'))
+          toast?.({ description: t('dialog.saved_states.auto_saved') });
+        return undefined;
+      },
+      () => {}
+    );
   };
   const autoSaveRef = useRef(autoSave);
   autoSaveRef.current = autoSave;
@@ -134,7 +145,14 @@ export const useSortSaves = <T extends string | number>({
     const current = captureCurrent();
     if (!current) return false;
     save({ ...current, name, sorterType });
-    toast?.({ description: t('dialog.save_state.saved') });
+    void flushAppStorage().then(
+      () => {
+        if (isStoragePersisted('saved-sort-states'))
+          toast?.({ description: t('dialog.save_state.saved') });
+        return undefined;
+      },
+      () => {}
+    );
     return true;
   };
 
@@ -142,7 +160,14 @@ export const useSortSaves = <T extends string | number>({
     const current = captureCurrent();
     if (!current) return false;
     update(id, current);
-    toast?.({ description: t('dialog.save_state.overwritten') });
+    void flushAppStorage().then(
+      () => {
+        if (isStoragePersisted('saved-sort-states'))
+          toast?.({ description: t('dialog.save_state.overwritten') });
+        return undefined;
+      },
+      () => {}
+    );
     return true;
   };
 

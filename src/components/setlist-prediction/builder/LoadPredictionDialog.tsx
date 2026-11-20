@@ -137,7 +137,7 @@ export function LoadPredictionDialog({
     if (performanceId) {
       filtered = filtered.filter((p) => p.performanceId === performanceId);
     }
-    return filtered.toSorted(
+    return filtered.sort(
       (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
     );
   }, [internalPredictions, performanceId]);

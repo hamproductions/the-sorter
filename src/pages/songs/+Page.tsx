@@ -1,3 +1,4 @@
+import { appStorage } from '~/utils/storage';
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { preload } from 'react-dom';
 import { useTranslation } from 'react-i18next';
@@ -12,7 +13,8 @@ import { Kbd } from '../../components/ui/styled/kbd';
 import { Progress } from '../../components/ui/progress';
 import { Switch } from '../../components/ui/switch';
 import { Text } from '../../components/ui/styled/text';
-import { useToaster } from '../../context/ToasterContext';
+import { useClipboard } from '~/hooks/useClipboard';
+import { useHydrated } from '~/hooks/useHydrated';
 import { getCurrentItem, getSortItems } from '../../utils/sort';
 import { getNextItems } from '~/utils/preloading';
 import { LoadingCharacterFilters } from '~/components/sorter/LoadingCharacterFilters';
@@ -100,9 +102,10 @@ const SavedStatesListDialog = lazy(() =>
 );
 
 export function Page() {
+  const isClient = useHydrated();
   const songs = useSongData();
   const artists = useArtistsData();
-  const { toast } = useToaster();
+  const { copyText } = useClipboard();
   const { t, i18n } = useTranslation();
 
   // Heardle state management
@@ -412,31 +415,22 @@ export function Page() {
     if (heardleMode) params.append('heardle', 'true');
     if (noTieMode) params.append('noTie', 'true');
     const url = `${location.origin}${location.pathname}?${params.toString()}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      toast?.({ description: t('toast.url_copied') });
-    } catch {}
+    await copyText(url, 'toast.url_copied');
   };
 
   const shareResultsUrl = async () => {
     if (!songFilters || !state?.arr) return;
     const params = addSongPresetParams(new URLSearchParams(), songFilters);
     addSongPerformanceParams(params, performanceMeta);
-    params.append(
-      'data',
-      await serializeData({
-        results: state.arr,
-        guessResults: heardleMode ? guessResults : undefined,
-        performanceMeta: isPerformanceMode ? performanceMeta : undefined
-      })
-    );
-    const url = `${location.origin}${
-      import.meta.env.PUBLIC_ENV__BASE_URL ?? ''
-    }/songs/share?${params.toString()}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      toast?.({ description: t('toast.url_copied') });
-    } catch {}
+    const url = serializeData({
+      results: state.arr,
+      guessResults: heardleMode ? guessResults : undefined,
+      performanceMeta: isPerformanceMode ? performanceMeta : undefined
+    }).then((data) => {
+      params.append('data', data);
+      return `${location.origin}${import.meta.env.PUBLIC_ENV__BASE_URL ?? ''}/songs/share?${params.toString()}`;
+    });
+    await copyText(url, 'toast.url_copied');
   };
 
   // Preload Assets
@@ -498,10 +492,9 @@ export function Page() {
     setPerformanceMeta(undefined);
     setPerformanceSongIds(undefined);
     // Clear performance sort state from localStorage
-    for (const key of Object.keys(localStorage)) {
-      if (key.startsWith('perf-songs-')) {
-        localStorage.removeItem(key);
-      }
+    const keys = Array.from({ length: appStorage.length }, (_, index) => appStorage.key(index));
+    for (const key of keys) {
+      if (key?.startsWith('perf-songs-')) appStorage.removeItem(key);
     }
   };
 
@@ -555,7 +548,7 @@ export function Page() {
         {!isSorting && (
           <>
             <Suspense fallback={<LoadingCharacterFilters />}>
-              {import.meta.env.SSR ? (
+              {!isClient ? (
                 <LoadingCharacterFilters />
               ) : (
                 <SongFilters

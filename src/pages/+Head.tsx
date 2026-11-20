@@ -2,6 +2,8 @@ import { Partytown } from '@builder.io/partytown/react';
 import { Metadata } from '~/components/layout/Metadata';
 
 export function Head() {
+  if (!import.meta.env.PROD) return <Metadata />;
+
   return (
     <>
       <Metadata />

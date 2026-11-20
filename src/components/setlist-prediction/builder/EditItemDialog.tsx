@@ -60,7 +60,7 @@ export function EditItemDialog({ open, onOpenChange, item, onSave }: EditItemDia
     const songs = Array.isArray(songData) ? songData : [];
     return songs
       .filter((song) => fuzzySearch(song, searchQuery))
-      .toSorted((a, b) => getSearchScore(b, searchQuery) - getSearchScore(a, searchQuery))
+      .sort((a, b) => getSearchScore(b, searchQuery) - getSearchScore(a, searchQuery))
       .slice(0, 20)
       .map((song) => {
         const artistRef = song.artists?.[0];

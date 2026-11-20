@@ -17,7 +17,7 @@ const isVisible = () => typeof document === 'undefined' || document.visibilitySt
  * holds folded active time, and `runningSinceRef` marks the start of the current
  * running segment (null while the tab is hidden). When the tab is hidden the
  * running segment is folded into the accumulator and the clock pauses; when it
- * becomes visible again the clock resumes. Persisted to localStorage (keyed by
+ * becomes visible again the clock resumes. Persisted to IndexedDB (keyed by
  * `storagePrefix`) so timing survives reloads mid-session.
  */
 export const useSongSortTimer = (storagePrefix = 'songs') => {
@@ -96,11 +96,11 @@ export const useSongSortTimer = (storagePrefix = 'songs') => {
   // with the page closed is never counted.
   useEffect(() => {
     const base = timingRef.current;
-    if (base && !base.endedAt) {
+    if (base && !base.endedAt && runningSinceRef.current == null) {
       runningSinceRef.current = isVisible() ? Date.now() : null;
     }
     // oxlint-disable-next-line exhaustive-deps
-  }, []);
+  }, [timing?.startedAt]);
 
   // Pause on hidden (fold running segment), resume on visible.
   useEffect(() => {

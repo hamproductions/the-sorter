@@ -58,7 +58,7 @@ export function useSongSearch(songs: Song[], query: string, lang: string) {
         if (matches) directSongIds.add(song.id);
         return matches;
       })
-      .toSorted((a, b) => getSearchScore(b, debouncedQuery) - getSearchScore(a, debouncedQuery))
+      .sort((a, b) => getSearchScore(b, debouncedQuery) - getSearchScore(a, debouncedQuery))
       .slice(0, 50)
       .map((song) => {
         const artistRef = song.artists?.[0];

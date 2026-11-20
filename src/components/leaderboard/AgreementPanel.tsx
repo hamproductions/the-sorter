@@ -238,13 +238,19 @@ export function AgreementPanel({
   };
 
   const items = result?.items ?? [];
-  const yourTop = items.toSorted((a, b) => a.yourRank - b.yourRank).slice(0, PREVIEW_COUNT);
-  const globalTop = items.toSorted((a, b) => a.globalRank - b.globalRank).slice(0, PREVIEW_COUNT);
+  const yourTop = items
+    .slice()
+    .sort((a, b) => a.yourRank - b.yourRank)
+    .slice(0, PREVIEW_COUNT);
+  const globalTop = items
+    .slice()
+    .sort((a, b) => a.globalRank - b.globalRank)
+    .slice(0, PREVIEW_COUNT);
   const shared = new Set(
     yourTop.map((i) => i.itemId).filter((id) => globalTop.some((g) => g.itemId === id))
   );
-  const higher = items.filter((i) => i.yourRank < i.globalRank).toSorted(byGap);
-  const lower = items.filter((i) => i.yourRank > i.globalRank).toSorted(byGap);
+  const higher = items.filter((i) => i.yourRank < i.globalRank).sort(byGap);
+  const lower = items.filter((i) => i.yourRank > i.globalRank).sort(byGap);
   const smallSample = (result?.compared ?? 0) < AGREEMENT_MIN_ITEMS;
 
   return (

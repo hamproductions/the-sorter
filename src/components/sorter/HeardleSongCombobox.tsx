@@ -97,11 +97,9 @@ export function HeardleSongCombobox({
       inputBehavior="none"
       onInputValueChange={({ inputValue: v }) => setInputValue(v)}
       onValueChange={({ items: selected }) => {
-        if (selected.length > 0) {
-          onSelect(
-            selected[0].value,
-            getSongName(selected[0].label, selected[0].englishName, lang)
-          );
+        const item = selected[0];
+        if (item) {
+          onSelect(item.value, getSongName(item.label, item.englishName, lang));
           setInputValue('');
         }
       }}

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { flushSync } from 'react-dom';
 import { FaChevronDown, FaCopy, FaDownload, FaPencil, FaShare, FaXTwitter } from 'react-icons/fa6';
 
 import { useTranslation } from 'react-i18next';
@@ -24,6 +25,7 @@ import type { Character } from '~/types';
 import { useLocalStorage } from '~/hooks/useLocalStorage';
 import { useToaster } from '~/context/ToasterContext';
 import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
+import { useClipboard } from '~/hooks/useClipboard';
 import { TabIcon } from '~/components/layout/TabIcon';
 
 export type ShareDisplayData = {
@@ -61,6 +63,7 @@ export function ResultsView({
   onSelectCharacter?: (character: Character) => void;
 }) {
   const { toast } = useToaster();
+  const { copyText: copyToClipboard, copyImage } = useClipboard();
   const [tierListSettings, setTierListSettings] = useLocalStorage<TierListSettingsData>(
     'tier-settings',
     { tiers: DEFAULT_TIERS }
@@ -105,38 +108,27 @@ export function ResultsView({
   }, [displayOrder, charactersData, isSeiyuu]);
 
   const makeScreenshot = async () => {
-    setShowRenderingCanvas(true);
+    flushSync(() => {
+      setTimestamp(new Date());
+      setShowRenderingCanvas(true);
+    });
     toast?.({ description: t('toast.generating_screenshot') });
-    const domToBlob = await import('modern-screenshot').then((module) => module.domToBlob);
-    const resultsBox = document.getElementById('results');
-    setTimestamp(new Date());
-    if (resultsBox) {
-      const shareImage = await domToBlob(resultsBox, {
+    try {
+      const domToBlob = await import('modern-screenshot').then((module) => module.domToBlob);
+      const resultsBox = document.getElementById('results');
+      if (!resultsBox) throw new Error('Result image is unavailable');
+      return await domToBlob(resultsBox, {
         quality: 1,
         scale: 2,
         type: 'image/png',
         features: { removeControlCharacter: false }
       });
+    } finally {
       setShowRenderingCanvas(false);
-      return shareImage;
     }
   };
 
-  const screenshot = async () => {
-    const shareImage = await makeScreenshot();
-    if (!shareImage) return;
-    try {
-      await navigator.share({
-        text: t('share.copy_text'),
-        files: [new File([shareImage], 'll-sorted.png')]
-      });
-    } catch {
-      await navigator.clipboard.write([
-        new ClipboardItem({ 'image/png': shareImage }, { presentationStyle: 'attachment' })
-      ]);
-      toast?.({ description: t('toast.screenshot_copied') });
-    }
-  };
+  const screenshot = () => copyImage(makeScreenshot, true);
 
   const download = async () => {
     try {
@@ -174,8 +166,7 @@ export function ResultsView({
   };
 
   const copyText = async () => {
-    await navigator.clipboard.writeText(getShareText());
-    toast?.({ description: t('toast.text_copied') });
+    await copyToClipboard(getShareText());
   };
 
   const {

@@ -12,7 +12,7 @@ import { useSongData } from '~/hooks/useSongData';
 import { SavedGlobalRanking } from './SavedGlobalRanking';
 import type { FilterType } from '~/components/sorter/CharacterFilters';
 import type { SongFilterType } from '~/components/sorter/SongFilters';
-import { useToaster } from '~/context/ToasterContext';
+import { useClipboard } from '~/hooks/useClipboard';
 import type { SavedSortState } from '~/types/save-state';
 import {
   addPresetParams,
@@ -30,7 +30,7 @@ export interface SavedResultsDialogProps extends Dialog.RootProps {
 
 export function SavedResultsDialog({ save, ...rest }: SavedResultsDialogProps) {
   const { t } = useTranslation();
-  const { toast } = useToaster();
+  const { copyText } = useClipboard();
   const characters = useData();
   const songs = useSongData();
   const hasuSongs = useHasuSongData();
@@ -40,18 +40,18 @@ export function SavedResultsDialog({ save, ...rest }: SavedResultsDialogProps) {
   const isSeiyuu = save?.isSeiyuu ?? save?.log?.context?.mode === 'seiyuu';
   const filter = save?.log?.context?.filter ?? {};
 
-  const copyShareUrl = async (path: string, params: URLSearchParams) => {
-    const url = `${location.origin}${import.meta.env.PUBLIC_ENV__BASE_URL ?? ''}${path}?${params.toString()}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      toast?.({ description: t('toast.url_copied') });
-    } catch {}
-  };
+  const copyShareUrl = (path: string, params: URLSearchParams, data: Promise<string>) =>
+    copyText(
+      data.then((value) => {
+        params.append('data', value);
+        return `${location.origin}${import.meta.env.PUBLIC_ENV__BASE_URL ?? ''}${path}?${params.toString()}`;
+      }),
+      'toast.url_copied'
+    );
 
   const shareCharacters = async (shareData: ShareDisplayData) => {
     const params = addPresetParams(new URLSearchParams(), filter as FilterType, isSeiyuu);
-    params.append('data', await serializeData({ ...shareData, results: order }));
-    await copyShareUrl('/share', params);
+    await copyShareUrl('/share', params, serializeData({ ...shareData, results: order }));
   };
 
   const shareSongs = async () => {
@@ -60,8 +60,7 @@ export function SavedResultsDialog({ save, ...rest }: SavedResultsDialogProps) {
       save?.songFilters ?? (filter as SongFilterType)
     );
     addSongPerformanceParams(params, performanceMeta);
-    params.append('data', await serializeData({ results: order, performanceMeta }));
-    await copyShareUrl('/songs/share', params);
+    await copyShareUrl('/songs/share', params, serializeData({ results: order, performanceMeta }));
   };
 
   return (

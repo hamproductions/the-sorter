@@ -52,7 +52,7 @@ describe('Song Data Integrity', () => {
     const seen = new Map<string, string>();
     const dupes: string[] = [];
     for (const song of songInfo) {
-      const key = `${song.name}|${song.seriesIds.toSorted().join(',')}`;
+      const key = `${song.name}|${song.seriesIds.slice().sort().join(',')}`;
       if (seen.has(key)) {
         dupes.push(`"${song.name}" duplicated: ids ${seen.get(key)} and ${song.id}`);
       }

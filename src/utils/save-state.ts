@@ -1,3 +1,4 @@
+import { appStorage, flushAppStorage } from './storage';
 import {
   calculateMaxComparisons,
   estimateComparisonsMade,
@@ -19,7 +20,7 @@ export const getSavedPerformanceMeta = (save?: SavedSortState): PerformanceSortM
 const stableStringify = (value: unknown): string =>
   JSON.stringify(value, (_key, v: unknown) =>
     v && typeof v === 'object' && !Array.isArray(v)
-      ? Object.fromEntries(Object.entries(v).toSorted(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)))
+      ? Object.fromEntries(Object.entries(v).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)))
       : v
   );
 
@@ -204,7 +205,9 @@ export const migrateCurrentSessions = (
   if (migrated.length > 0) {
     storage.setItem(SAVED_STATES_KEY, JSON.stringify([...migrated, ...saves]));
   }
-  storage.setItem(CURRENT_SESSIONS_MIGRATED_KEY, 'true');
+  const finish = () => storage.setItem(CURRENT_SESSIONS_MIGRATED_KEY, 'true');
+  if (storage === appStorage) void flushAppStorage().then(finish, () => {});
+  else finish();
 };
 
 export const getLocallySortedIds = (storage: Storage, sorterType: SorterType) => {

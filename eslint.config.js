@@ -48,7 +48,18 @@ export default [
   {
     rules: {
       '@pandacss/no-unsafe-token-fn-usage': 'off',
-      '@pandacss/no-hardcoded-color': 'off'
+      '@pandacss/no-hardcoded-color': 'off',
+      'no-restricted-properties': [
+        'error',
+        {
+          property: 'toSorted',
+          message: 'Use a copied array and sort for Chrome 109 compatibility.'
+        },
+        {
+          property: 'toReversed',
+          message: 'Use a copied array and reverse for Chrome 109 compatibility.'
+        }
+      ]
     }
   },
   {

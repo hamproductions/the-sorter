@@ -10,6 +10,7 @@ import type {
   LocalStorageSchema
 } from '~/types/setlist-prediction';
 import { STORAGE_KEYS } from '~/types/setlist-prediction';
+import { appStorage } from '~/utils/storage';
 
 // ==================== Generic Storage Helpers ====================
 
@@ -17,7 +18,7 @@ function getItem<K extends keyof LocalStorageSchema>(key: K): LocalStorageSchema
   if (typeof window === 'undefined') return null;
 
   try {
-    const item = localStorage.getItem(key);
+    const item = appStorage.getItem(key);
     return item ? JSON.parse(item) : null;
   } catch (error) {
     console.error(`Error reading from localStorage (${key}):`, error);
@@ -29,7 +30,7 @@ function setItem<K extends keyof LocalStorageSchema>(key: K, value: LocalStorage
   if (typeof window === 'undefined') return;
 
   try {
-    localStorage.setItem(key, JSON.stringify(value));
+    appStorage.setItem(key, JSON.stringify(value));
   } catch (error) {
     console.error(`Error writing to localStorage (${key}):`, error);
     // Handle quota exceeded error
@@ -41,7 +42,7 @@ function setItem<K extends keyof LocalStorageSchema>(key: K, value: LocalStorage
 
 function removeItem(key: string): void {
   if (typeof window === 'undefined') return;
-  localStorage.removeItem(key);
+  appStorage.removeItem(key);
 }
 
 // ==================== Prediction Storage ====================

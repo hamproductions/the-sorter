@@ -21,6 +21,7 @@ import { LoadPredictionDialog } from '~/components/setlist-prediction/builder/Lo
 import { NewPredictionDialog } from '~/components/setlist-prediction/builder/NewPredictionDialog';
 import { PerformancePickerDialog } from '~/components/setlist-prediction/builder/PerformancePickerDialog';
 import type { SetlistPrediction, CustomPerformance } from '~/types/setlist-prediction';
+import { appStorage } from '~/utils/storage';
 
 export function Page() {
   const { t } = useTranslation();
@@ -75,7 +76,7 @@ export function Page() {
 
     if (performanceIdParam) {
       try {
-        const stored = localStorage.getItem('setlist-predictions-v1');
+        const stored = appStorage.getItem('setlist-predictions-v1');
         if (stored) {
           const allPredictions = JSON.parse(stored) as Record<string, SetlistPrediction>;
           const forPerformance = Object.values(allPredictions).filter(
@@ -83,7 +84,7 @@ export function Page() {
           );
 
           if (forPerformance.length > 0) {
-            const mostRecent = forPerformance.toSorted(
+            const mostRecent = forPerformance.sort(
               (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
             )[0];
             setCurrentPrediction(mostRecent);
@@ -99,7 +100,7 @@ export function Page() {
 
     // Try to restore last used prediction from localStorage
     try {
-      const lastPredictionId = localStorage.getItem('setlist-builder-last-prediction');
+      const lastPredictionId = appStorage.getItem('setlist-builder-last-prediction');
       if (lastPredictionId) {
         const prediction = getPrediction(lastPredictionId);
         if (prediction) {
@@ -121,7 +122,7 @@ export function Page() {
     setCurrentPrediction(prediction);
     setCurrentPerformanceId(prediction.performanceId);
     setCustomPerformance(prediction.customPerformance);
-    localStorage.setItem('setlist-builder-last-prediction', prediction.id);
+    appStorage.setItem('setlist-builder-last-prediction', prediction.id);
   }, []);
 
   const handleCreateNew = useCallback(
@@ -129,7 +130,7 @@ export function Page() {
       setCurrentPrediction(undefined);
       setCurrentPerformanceId(options.performanceId);
       setCustomPerformance(options.customPerformance);
-      localStorage.removeItem('setlist-builder-last-prediction');
+      appStorage.removeItem('setlist-builder-last-prediction');
     },
     []
   );
@@ -351,7 +352,7 @@ export function Page() {
               performance={performance || undefined}
               onSave={(prediction) => {
                 savePrediction(prediction);
-                localStorage.setItem('setlist-builder-last-prediction', prediction.id);
+                appStorage.setItem('setlist-builder-last-prediction', prediction.id);
               }}
             />
           )}

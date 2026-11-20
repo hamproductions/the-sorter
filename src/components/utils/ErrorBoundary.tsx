@@ -9,6 +9,8 @@ import { Link } from '../ui/link';
 import { Text } from '../ui/text';
 import { SentryContext } from './SentryContext';
 import { Center, Stack, Wrap } from 'styled-system/jsx';
+import { recoverAssetError } from '~/utils/asset-recovery';
+import { clearAppStorage } from '~/utils/storage';
 class ErrorBoundaryInner extends React.Component<
   WithTranslation & { children: React.ReactNode },
   { error?: Error; info?: ErrorInfo }
@@ -29,12 +31,8 @@ class ErrorBoundaryInner extends React.Component<
 
   componentDidCatch(error: Error, info: ErrorInfo) {
     this.setState({ error, info });
+    void recoverAssetError(error);
 
-    const errorBoundaryError = new Error(error.message);
-    errorBoundaryError.name = `React ErrorBoundary ${error.name}`;
-    errorBoundaryError.stack = info.componentStack ?? undefined;
-
-    console.log('CAUGHT!!!', error, this.context);
     this.context?.captureException(error, {
       captureContext: {
         contexts: { react: { componentStack: info.componentStack } }
@@ -45,7 +43,7 @@ class ErrorBoundaryInner extends React.Component<
   copyMessage() {
     const msg = this.state.error?.stack;
     if (msg) {
-      void navigator.clipboard.writeText(msg);
+      void navigator.clipboard?.writeText(msg).catch(() => {});
     }
   }
 
@@ -79,9 +77,11 @@ class ErrorBoundaryInner extends React.Component<
               </Button>
               <Button
                 variant="subtle"
-                onClick={() => {
-                  localStorage.clear();
-                  window.location.reload();
+                onClick={async () => {
+                  try {
+                    await clearAppStorage();
+                    window.location.reload();
+                  } catch {}
                 }}
               >
                 <FaTrash />

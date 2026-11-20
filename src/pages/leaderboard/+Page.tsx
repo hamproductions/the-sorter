@@ -48,6 +48,7 @@ import {
   isGlobalRankingEnabled
 } from '~/utils/global-ranking';
 import { getLocallySortedIds } from '~/utils/save-state';
+import { appStorage } from '~/utils/storage';
 import { css } from 'styled-system/css';
 import { HStack, Stack, Wrap, styled } from 'styled-system/jsx';
 
@@ -91,7 +92,7 @@ const AGGREGATIONS = ['subset', 'global', 'cohort'] as const;
 type Aggregation = (typeof AGGREGATIONS)[number];
 
 const sameIds = (a: (string | number)[] = [], b: (string | number)[] = []) =>
-  a.length === b.length && a.map(String).toSorted().join() === b.map(String).toSorted().join();
+  a.length === b.length && a.map(String).sort().join() === b.map(String).sort().join();
 
 const sameFilter = (a: RankingFilter, b: RankingFilter) =>
   [...new Set([...Object.keys(a), ...Object.keys(b)])].every((key) => sameIds(a[key], b[key]));
@@ -241,7 +242,7 @@ export function Page() {
 
   useEffect(() => {
     try {
-      setMineIds(getLocallySortedIds(localStorage, kind === 'character' ? 'characters' : 'songs'));
+      setMineIds(getLocallySortedIds(appStorage, kind === 'character' ? 'characters' : 'songs'));
     } catch {
       setMineIds(new Set());
     }
@@ -387,7 +388,7 @@ export function Page() {
     return counts;
   }, [stats, kind, activeMode]);
   const months = useMemo(
-    () => [...monthCounts.keys()].toSorted((a, b) => b.localeCompare(a)),
+    () => [...monthCounts.keys()].sort((a, b) => b.localeCompare(a)),
     [monthCounts]
   );
 
@@ -517,7 +518,7 @@ export function Page() {
           return `${item.name} ${item.subtitle ?? ''}`.toLowerCase().includes(needle);
         })
       : filtered;
-    return matches.toSorted(compareEntries(sort));
+    return matches.slice().sort(compareEntries(sort));
   }, [filtered, search, resolve, sort]);
   const pageCount = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
@@ -817,7 +818,10 @@ export function Page() {
                       alignItems="center"
                     >
                       <LeaderboardPodium
-                        entries={filtered.toSorted((a, b) => a.rank - b.rank).slice(0, 3)}
+                        entries={filtered
+                          .slice()
+                          .sort((a, b) => a.rank - b.rank)
+                          .slice(0, 3)}
                         resolve={resolve}
                       />
                     </Stack>
