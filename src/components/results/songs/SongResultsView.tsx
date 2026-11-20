@@ -154,17 +154,16 @@ export function SongResultsView({
               .join(' · ')
           : undefined,
         ...songs.map((song) => {
-          const original = song.artists
-            .map((art) => artists.find((a) => a.id === art.id)?.name)
-            .filter(Boolean)
-            .join(', ');
+          const original = uniq(
+            song.artists.map((art) => artists.find((a) => a.id === art.id)?.name).filter(Boolean)
+          ).join(', ');
           const context = formatPerformancePerformersText(
             song,
             performanceMeta?.setlistOrder,
             characters,
             _i18n.language
           );
-          return `${song.rank}. ${song.name} - ${original}${context ? `\n${context}` : ''}`;
+          return `${song.rank}. ${song.name} - ${original}${context ? ` (${context})` : ''}`;
         })
       ]
         .filter(Boolean)

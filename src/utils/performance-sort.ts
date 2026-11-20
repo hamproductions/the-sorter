@@ -1,3 +1,4 @@
+import { uniqBy } from 'lodash-es';
 import type { Character } from '~/types';
 import type {
   PerformancePerformer,
@@ -229,6 +230,30 @@ export function getPerformerSignature(performers?: PerformancePerformer[]): stri
     .join(',');
 }
 
+function getSongOriginalMemberIds(song: Song): string[] {
+  return song.artists.flatMap((songArtist) => {
+    const artist = artistsInfo.find((item) => item.id === songArtist.id);
+    if (songArtist.variant)
+      return characterInfo
+        .filter((character) =>
+          character.units.some(
+            (unit) => unit.id === songArtist.id && unit.additionalInfo === songArtist.variant
+          )
+        )
+        .map((character) => character.id);
+    return artist?.characters.filter((id): id is string => Boolean(id)) ?? [];
+  });
+}
+
+function getSongGroupMemberIds(song: Song): Set<string> {
+  const artistIds = new Set(song.artists.map((artist) => artist.id));
+  return new Set(
+    characterInfo
+      .filter((character) => character.units.some((unit) => artistIds.has(unit.id)))
+      .map((character) => character.id)
+  );
+}
+
 export function getPerformanceDisplayPerformers(
   song: Song,
   performers?: PerformancePerformer[]
@@ -245,18 +270,7 @@ export function getPerformanceDisplayPerformers(
   const memberIds = performers
     .flatMap((performer) => (performer.kind === 'member' ? [performer.characterId] : []))
     .sort();
-  const originalMembers = song.artists.flatMap((songArtist) => {
-    const artist = artistsInfo.find((item) => item.id === songArtist.id);
-    if (songArtist.variant)
-      return characterInfo
-        .filter((character) =>
-          character.units.some(
-            (unit) => unit.id === songArtist.id && unit.additionalInfo === songArtist.variant
-          )
-        )
-        .map((character) => character.id);
-    return artist?.characters.filter((id): id is string => Boolean(id)) ?? [];
-  });
+  const originalMembers = getSongOriginalMemberIds(song);
   if (
     originalMembers.length &&
     [...new Set(originalMembers)].sort().join(',') === memberIds.join(',')
@@ -305,6 +319,40 @@ export function getDistinctSongPerformanceEntries(
     .map((entry) => ({ ...entry, dayLabel: entry.performanceName }));
 }
 
+export interface SongPerformanceLineup {
+  key: string;
+  group: SetlistOrderEntry[];
+  labels: string[];
+  note: string;
+  performers: PerformancePerformer[];
+}
+
+export function getSongPerformanceLineups(
+  song: Song,
+  setlistOrder?: SetlistOrderEntry[]
+): SongPerformanceLineup[] {
+  const lineups = new Map<string, SetlistOrderEntry[]>();
+  for (const entry of getDistinctSongPerformanceEntries(song, setlistOrder)) {
+    const key = JSON.stringify([
+      getPerformerSignature(entry.performers),
+      getPerformanceVersionNote(entry),
+      entry.customSongName
+    ]);
+    lineups.set(key, [...(lineups.get(key) ?? []), entry]);
+  }
+  return [...lineups].map(([key, group]) => ({
+    key,
+    group,
+    labels: group.map((item) => {
+      const day = item.performanceName?.match(/Day\.?\s*(\d+)/i)?.[1];
+      const position = item.label.match(/(?:M|EN)\d+$/)?.[0] ?? item.label;
+      return [day ? `Day ${day}` : item.date, position].filter(Boolean).join(' · ');
+    }),
+    note: getPerformanceVersionNote(group[0]),
+    performers: getPerformanceDisplayPerformers(song, group[0].performers)
+  }));
+}
+
 export function formatPerformancePerformersText(
   song: Song | undefined,
   setlistOrder: SetlistOrderEntry[] | undefined,
@@ -312,30 +360,25 @@ export function formatPerformancePerformersText(
   lang: string
 ): string | undefined {
   if (!song || !setlistOrder?.length) return undefined;
-  const entries = getDistinctSongPerformanceEntries(song, setlistOrder);
-  const lines = entries
-    .map((entry) => {
-      const names = entry.performers
-        ?.map((performer) => {
-          if (performer.kind === 'group') return getArtistName(performer.name, lang);
-          const character = characters.find((item) => String(item.id) === performer.characterId);
-          return character ? getFullName(character, lang as Locale) : undefined;
-        })
-        .filter((name): name is string => Boolean(name));
-      return [
-        entry.tourName,
-        entry.label,
-        entry.date,
-        entry.venue,
-        entry.customSongName,
-        names?.join(', '),
-        entry.remarks
-      ]
-        .filter(Boolean)
-        .join(': ');
-    })
-    .filter((line): line is string => Boolean(line));
-  return lines.length ? lines.join(' / ') : undefined;
+  const lines = getSongPerformanceLineups(song, setlistOrder).map(({ group, note, performers }) => {
+    const customName = group[0].customSongName;
+    const groupMembers = performers.length ? getSongGroupMemberIds(song) : new Set<string>();
+    const hasGuests = performers.some(
+      (performer) => performer.kind === 'group' || !groupMembers.has(performer.characterId)
+    );
+    const names = (hasGuests ? performers : [])
+      .map((performer) => {
+        if (performer.kind === 'group') return getArtistName(performer.name, lang);
+        const character = characters.find((item) => String(item.id) === performer.characterId);
+        return character ? getFullName(character, lang as Locale) : undefined;
+      })
+      .filter((name): name is string => Boolean(name));
+    return [customName !== song.name ? customName : undefined, note, names.join(', ')]
+      .filter(Boolean)
+      .join(' · ');
+  });
+  const unique = uniqBy(lines.filter(Boolean), (line) => line.replace(/\s/g, ''));
+  return unique.length ? unique.join('; ') : undefined;
 }
 
 export function computeSetlistLabels(setlist: PerformanceSetlist): SetlistOrderEntry[] {

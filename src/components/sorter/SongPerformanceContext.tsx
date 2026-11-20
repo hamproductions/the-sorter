@@ -5,12 +5,7 @@ import { Text } from '~/components/ui/text';
 import { useData } from '~/hooks/useData';
 import type { SetlistOrderEntry } from '~/types/performance-sort';
 import type { Song } from '~/types/songs';
-import {
-  getDistinctSongPerformanceEntries,
-  getPerformerSignature,
-  getPerformanceDisplayPerformers,
-  getPerformanceVersionNote
-} from '~/utils/performance-sort';
+import { getSongPerformanceLineups } from '~/utils/performance-sort';
 import { getFullName } from '~/utils/character';
 import { getArtistName } from '~/utils/names';
 import { CharacterIcon } from './CharacterIcon';
@@ -24,27 +19,11 @@ export function SongPerformanceContext({
 }) {
   const { t, i18n } = useTranslation();
   const characters = useData();
-  const lineups = new Map<string, SetlistOrderEntry[]>();
-  for (const entry of getDistinctSongPerformanceEntries(song, entries)) {
-    const key = JSON.stringify([
-      getPerformerSignature(entry.performers),
-      getPerformanceVersionNote(entry),
-      entry.customSongName
-    ]);
-    lineups.set(key, [...(lineups.get(key) ?? []), entry]);
-  }
 
   return (
     <Stack gap="2" alignItems="center" w="full" minW="0" maxW={{ base: '300px', md: 'full' }}>
-      {[...lineups].map(([key, group]) => {
+      {getSongPerformanceLineups(song, entries).map(({ key, group, labels, note, performers }) => {
         const entry = group[0];
-        const note = getPerformanceVersionNote(entry);
-        const performers = getPerformanceDisplayPerformers(song, entry.performers);
-        const labels = group.map((item) => {
-          const day = item.performanceName?.match(/Day\.?\s*(\d+)/i)?.[1];
-          const position = item.label.match(/(?:M|EN)\d+$/)?.[0] ?? item.label;
-          return [day ? `Day ${day}` : item.date, position].filter(Boolean).join(' · ');
-        });
         return (
           <Stack key={key} gap="1" alignItems="center" w="full">
             {entry.customSongName && entry.customSongName !== song.name && (

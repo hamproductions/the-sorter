@@ -343,7 +343,7 @@ describe('computeSortableSetlistLabels', () => {
       }))
     );
     expect(formatPerformancePerformersText(songs[1], entries, [], 'ja')).toBe(
-      'Day 1 M01: 2025-01-01: 歌唱メンバー不明 / Day 2 M01: 2025-01-02: 歌唱メンバー不明'
+      '歌唱メンバー不明'
     );
   });
 
