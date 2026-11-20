@@ -1,5 +1,7 @@
 # Browser verification
 
+- Before a GitHub write, verify `gh api user --jq .login` is `hamzaabamboo`; commit identity does not establish the CLI account.
+
 - Write PR titles and descriptions in English. Attach current screenshots for visible changes and inspect the rendered PR before delivery.
 
 - Scope repeated dialog actions such as Confirm to the currently open dialog; closed dialogs retain matching controls in the DOM.
