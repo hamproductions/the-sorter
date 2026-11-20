@@ -29,6 +29,7 @@ import { PerformanceOrderView } from './PerformanceOrderView';
 import { SongSortTimeStats } from './SongSortTimeStats';
 import { getFullPerformanceName } from '~/utils/names';
 import type { SortTimingStats } from '~/utils/sort-timing';
+import { useClipboard } from '~/hooks/useClipboard';
 import { TabIcon } from '~/components/layout/TabIcon';
 import { useData } from '~/hooks/useData';
 import {
@@ -66,6 +67,7 @@ export function SongResultsView({
   const characters = useData();
   const seriesData = useSeriesData();
   const { toast } = useToaster();
+  const { copyText: copyToClipboard, copyImage } = useClipboard();
   const [title, setTitle] = useState<string>('My LoveLive! Song Ranking');
   const [description, setDescription] = useState<string>();
   const [currentTab, setCurrentTab] = useLocalStorage<string>('songs-result-tab-v2', 'table');
@@ -126,33 +128,25 @@ export function SongResultsView({
       setShowRenderingCanvas(true);
     });
     toast?.({ description: t('toast.generating_screenshot') });
-    const domToBlob = await import('modern-screenshot').then((module) => module.domToBlob);
-    const resultsBox = document.getElementById('results');
-    if (resultsBox) {
-      const shareImage = await domToBlob(resultsBox, {
+    try {
+      const domToBlob = await import('modern-screenshot').then((module) => module.domToBlob);
+      const resultsBox = document.getElementById('results');
+      if (!resultsBox) throw new Error('Result image is unavailable');
+      return await domToBlob(resultsBox, {
         quality: 1,
         scale: 2,
         type: 'image/png',
         features: { removeControlCharacter: false }
       });
+    } finally {
       setShowRenderingCanvas(false);
-      return shareImage;
     }
   };
 
-  const screenshot = async () => {
-    const image = makeScreenshot().then((blob) => {
-      if (!blob) throw new Error('Result image is unavailable');
-      return blob;
-    });
-    await navigator.clipboard.write([
-      new ClipboardItem({ 'image/png': image }, { presentationStyle: 'attachment' })
-    ]);
-    toast?.({ description: t('toast.screenshot_copied') });
-  };
+  const screenshot = () => copyImage(makeScreenshot);
 
   const exportText = async () => {
-    await navigator.clipboard.writeText(
+    await copyToClipboard(
       [
         performanceMeta
           ? [effectiveTitlePrefix, performanceMeta.date, performanceMeta.venue]
@@ -176,11 +170,10 @@ export function SongResultsView({
         .filter(Boolean)
         .join('\n')
     );
-    toast?.({ description: t('toast.text_copied') });
   };
 
   const exportJSON = async () => {
-    await navigator.clipboard.writeText(
+    await copyToClipboard(
       JSON.stringify(
         songs.map((s) => {
           const artist = s?.artists.map((art) => artists.find((a) => a.id === art.id));
@@ -200,7 +193,6 @@ export function SongResultsView({
         })
       )
     );
-    toast?.({ description: t('toast.text_copied') });
   };
 
   const download = async () => {

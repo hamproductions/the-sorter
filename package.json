@@ -87,6 +87,7 @@
     "eslint-plugin-prettier": "^5.2.3",
     "eslint-plugin-react-compiler": "^19.0.0-beta-decd7b8-20250118",
     "eslint-plugin-unused-imports": "^4.1.4",
+    "fake-indexeddb": "^6.2.8",
     "file-type": "^20.0.0",
     "i18next-browser-languagedetector": "^8.0.2",
     "jsdom": "^26.0.0",

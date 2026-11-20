@@ -9,7 +9,8 @@ import { Button } from '../../components/ui/styled/button';
 import { Kbd } from '../../components/ui/styled/kbd';
 import { Text } from '../../components/ui/styled/text';
 import { Switch } from '../../components/ui/switch';
-import { useToaster } from '../../context/ToasterContext';
+import { useClipboard } from '~/hooks/useClipboard';
+import { useHydrated } from '~/hooks/useHydrated';
 import { getCurrentItem, getSortItems } from '../../utils/sort';
 import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
 import { Metadata } from '~/components/layout/Metadata';
@@ -63,8 +64,9 @@ const SavedStatesListDialog = lazy(() =>
 );
 
 export function Page() {
+  const isClient = useHydrated();
   const songs = useHasuSongData();
-  const { toast } = useToaster();
+  const { copyText } = useClipboard();
   const { t, i18n: _i18n } = useTranslation();
   const {
     noTieMode,
@@ -129,10 +131,7 @@ export function Page() {
     if (!songFilters || !isValidSongFilter(songFilters)) return;
     const params = addHasuSongPresetParams(new URLSearchParams(), songFilters);
     const url = `${location.origin}${location.pathname}?${params.toString()}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      toast?.({ description: t('toast.url_copied') });
-    } catch {}
+    await copyText(url, 'toast.url_copied');
   };
 
   // Preload Assets
@@ -219,7 +218,7 @@ export function Page() {
         {!isSorting && (
           <>
             <Suspense fallback={<LoadingCharacterFilters />}>
-              {import.meta.env.SSR ? (
+              {!isClient ? (
                 <LoadingCharacterFilters />
               ) : (
                 <HasuSongFilters filters={songFilters} setFilters={setSongFilters} />

@@ -25,6 +25,8 @@
     "import/no-named-as-default": "off",
     "import/no-named-as-default-member": "off",
     "jsx-a11y/media-has-caption": "off",
-    "no-await-in-loop": "off"
+    "no-await-in-loop": "off",
+    "unicorn/no-array-sort": "off",
+    "unicorn/no-array-reverse": "off"
   }
 }

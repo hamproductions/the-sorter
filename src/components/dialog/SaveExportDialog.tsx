@@ -15,7 +15,7 @@ import { Dialog } from '~/components/ui/dialog';
 import { IconButton } from '~/components/ui/icon-button';
 import { QrCode } from '~/components/ui/qr-code';
 import { Text } from '~/components/ui/text';
-import { useToaster } from '~/context/ToasterContext';
+import { useClipboard } from '~/hooks/useClipboard';
 import type { SavedSortState } from '~/types/save-state';
 import { encodeSaveCode, encodeSaveFile, encodeSaveQrChunks } from '~/utils/save-transfer';
 
@@ -27,7 +27,7 @@ export interface SaveExportDialogProps extends Dialog.RootProps {
 
 export function SaveExportDialog({ saves, ...rest }: SaveExportDialogProps) {
   const { t } = useTranslation();
-  const { toast } = useToaster();
+  const { copyText } = useClipboard();
   const code = useMemo(() => (saves?.length ? encodeSaveCode(saves) : ''), [saves]);
   const chunks = useMemo(() => (saves?.length ? encodeSaveQrChunks(saves) : []), [saves]);
   const [index, setIndex] = useState(0);
@@ -51,10 +51,7 @@ export function SaveExportDialog({ saves, ...rest }: SaveExportDialogProps) {
   };
 
   const copyCode = async () => {
-    try {
-      await navigator.clipboard.writeText(code);
-      toast?.({ description: t('dialog.save_transfer.code_copied') });
-    } catch {}
+    await copyText(code, 'dialog.save_transfer.code_copied');
   };
 
   const downloadFile = async () => {

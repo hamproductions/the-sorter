@@ -17,6 +17,9 @@
     "original_recording": "Original recording"
   },
   "song-name": "Title",
+  "storage": {
+    "unavailable": "Browser storage is full or unavailable. Saved sessions may not have loaded, and some recent changes are kept only in this tab. Export your sessions before reloading or closing it."
+  },
   "navigation": {
     "characters": "Characters",
     "hasu-music": "Hasunosora",

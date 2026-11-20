@@ -11,7 +11,8 @@ import { Kbd } from '../../components/ui/kbd';
 import { Progress } from '../../components/ui/progress';
 import { Switch } from '../../components/ui/switch';
 import { Text } from '../../components/ui/text';
-import { useToaster } from '../../context/ToasterContext';
+import { useClipboard } from '~/hooks/useClipboard';
+import { useHydrated } from '~/hooks/useHydrated';
 import { useData } from '../../hooks/useData';
 import { useSortData } from '../../hooks/useSortData';
 import type { Character } from '../../types';
@@ -91,8 +92,9 @@ const SavedStatesListDialog = lazy(() =>
 );
 
 export function Page() {
+  const isClient = useHydrated();
   const data = useData();
-  const { toast } = useToaster();
+  const { copyText } = useClipboard();
   const { t, i18n } = useTranslation();
   const {
     seiyuu,
@@ -170,23 +172,17 @@ export function Page() {
     if (!isValidFilter(filters)) return;
     const params = addPresetParams(new URLSearchParams(), filters, seiyuu);
     const url = `${location.origin}${location.pathname}?${params.toString()}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      toast?.({ description: t('toast.url_copied') });
-    } catch {}
+    await copyText(url, 'toast.url_copied');
   };
 
   const shareResultsUrl = async (shareData: ShareDisplayData) => {
     if (!isValidFilter(filters)) return;
     const params = addPresetParams(new URLSearchParams(), filters, seiyuu);
-    params.append('data', await serializeData({ ...shareData, results: state?.arr ?? undefined }));
-    const url = `${location.origin}${
-      import.meta.env.PUBLIC_ENV__BASE_URL ?? ''
-    }/share?${params.toString()}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      toast?.({ description: t('toast.url_copied') });
-    } catch {}
+    const url = serializeData({ ...shareData, results: state?.arr ?? undefined }).then((data) => {
+      params.append('data', data);
+      return `${location.origin}${import.meta.env.PUBLIC_ENV__BASE_URL ?? ''}/share?${params.toString()}`;
+    });
+    await copyText(url, 'toast.url_copied');
   };
 
   useEffect(() => {
@@ -307,7 +303,7 @@ export function Page() {
         {!isSorting && (
           <>
             <Suspense fallback={<LoadingCharacterFilters />}>
-              {import.meta.env.SSR ? (
+              {!isClient ? (
                 <LoadingCharacterFilters />
               ) : (
                 <CharacterFilters filters={filters} setFilters={setFilters} />

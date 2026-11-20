@@ -116,7 +116,7 @@ export function DualListSelector({
 
     // Sort by search score if applicable
     if (searchQuery && getSearchScore) {
-      return filtered.toSorted(
+      return filtered.sort(
         (a, b) => getSearchScore(b, searchQuery) - getSearchScore(a, searchQuery)
       );
     }

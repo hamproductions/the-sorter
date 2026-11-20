@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { createContext, useContext, useEffect } from 'react';
-import { useLocalStorage } from '~/hooks/useLocalStorage';
+import { LocalStorage, useLocalStorage } from '~/hooks/useLocalStorage';
 
 type ColorModes = 'dark' | 'light';
 const ColorModeContext = createContext<{
@@ -12,18 +12,23 @@ export function ColorModeProvider({ children }: { children: ReactNode }) {
   const [colorMode, setColorMode] = useLocalStorage<ColorModes>('color-mode', undefined);
 
   useEffect(() => {
+    if (colorMode == null) {
+      const saved = new LocalStorage<ColorModes>('color-mode').value;
+      setColorMode(
+        saved === 'dark' || saved === 'light'
+          ? saved
+          : window.matchMedia?.('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : 'light'
+      );
+      return;
+    }
     if (colorMode === 'dark') {
       document.documentElement.classList.add('dark');
       document.documentElement.classList.remove('light');
     } else {
       document.documentElement.classList.add('light');
       document.documentElement.classList.remove('dark');
-    }
-    if (colorMode !== undefined) return;
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setColorMode('dark');
-    } else {
-      setColorMode('light');
     }
   }, [colorMode, setColorMode]);
 
@@ -33,13 +38,13 @@ export function ColorModeProvider({ children }: { children: ReactNode }) {
         lang="js"
         dangerouslySetInnerHTML={{
           __html: `
-            const savedSettings = localStorage.getItem('color-mode')
-            if (savedSettings !== null) {
-              document.documentElement.classList.add(savedSettings === '"dark"' ? 'dark': 'light');
-            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-              document.documentElement.classList.add('dark');
-              localStorage.setItem("color-mode", '"dark"')
-            } 
+            (() => {
+              let savedSettings;
+              try { savedSettings = localStorage.getItem('color-mode'); } catch {}
+              const dark = savedSettings === '"dark"' ||
+                (savedSettings == null && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+              document.documentElement.classList.add(dark ? 'dark' : 'light');
+            })();
           `
         }}
       />

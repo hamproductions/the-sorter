@@ -8,17 +8,27 @@ export function SentryProvider({ children }: { children: ReactNode }) {
   const [sentryInstance, setSentryInstance] = useState<typeof Sentry>();
 
   useEffect(() => {
+    if (
+      !import.meta.env.PROD ||
+      ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname) ||
+      window.location.pathname.includes('/pr/')
+    ) {
+      return;
+    }
+
     const initSentry = async () => {
       const sentry = await import('@sentry/browser');
 
       sentry.init({
-        dsn: 'https://231e0da90e9d4405b611d2998839b752@error-tracking.ham-san.net/1'
+        dsn: 'https://231e0da90e9d4405b611d2998839b752@error-tracking.ham-san.net/1',
+        environment: 'production',
+        release: `the-sorter@${import.meta.env.PUBLIC_ENV__APP_VERSION}+${import.meta.env.PUBLIC_ENV__BUILD_TIMESTAMP}`
       });
 
       setSentryInstance(sentry);
     };
 
-    void initSentry();
+    void initSentry().catch(() => {});
   }, []);
   return <SentryContext.Provider value={sentryInstance}>{children}</SentryContext.Provider>;
 }

@@ -14,6 +14,7 @@ import { Button } from '~/components/ui/styled/button';
 import { IconButton } from '~/components/ui/styled/icon-button';
 import { getAssetUrl } from '~/utils/assets';
 import { useSaveStates } from '~/hooks/useSaveStates';
+import { useStorageFailure } from '~/hooks/useLocalStorage';
 import { isGlobalRankingEnabled } from '~/utils/global-ranking';
 import { SORTER_TYPE_ROUTES } from '~/utils/save-state';
 import {
@@ -41,6 +42,7 @@ function getCurrentSorterType(path: string): SorterType | undefined {
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation();
+  const storageFailed = useStorageFailure();
   const [currentPath, setCurrentPath] = useState(import.meta.env.BASE_URL);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [showGlobalSaves, setShowGlobalSaves] = useState(false);
@@ -172,6 +174,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <ColorModeToggle />
             </HStack>
           </HStack>
+          {storageFailed && (
+            <Box role="alert" borderColor="border.default" borderWidth="1px" p="4">
+              {t('storage.unavailable')}
+            </Box>
+          )}
           {children}
         </Stack>
       </Container>
@@ -228,7 +235,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </Drawer.Positioner>
       </Drawer.Root>
 
-      {!import.meta.env.SSR && (
+      {showGlobalSaves && (
         <Suspense>
           <GlobalSavedStatesDialog
             open={showGlobalSaves}

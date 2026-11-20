@@ -113,7 +113,7 @@ export function PerformancePickerForSortDialog({
     const selectedIds = new Set(selectedPerformanceIds);
     return performances
       .filter((performance) => selectedIds.has(performance.id))
-      .toSorted((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }, [performances, selectedPerformanceIds]);
 
   const performanceSelection = useMemo(

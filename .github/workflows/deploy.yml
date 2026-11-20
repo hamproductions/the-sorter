@@ -43,6 +43,9 @@ jobs:
         with:
           path: dist/client
           key: site-${{ github.sha }}
+          restore-keys: site-
+      - name: Snapshot previous compiled assets
+        run: bun scripts/retain-assets.ts snapshot dist/client "$RUNNER_TEMP/previous-assets"
       - name: Build
         if: steps.prod.outputs.cache-hit != 'true'
         run: PUBLIC_ENV__BASE_URL=/the-sorter bun run ci:build
@@ -59,6 +62,8 @@ jobs:
           base-path: /the-sorter/
           lock-file: bun.lockb
           exclude: assets/songs
+      - name: Retain previous compiled assets
+        run: bun scripts/retain-assets.ts retain dist/client "$RUNNER_TEMP/previous-assets"
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

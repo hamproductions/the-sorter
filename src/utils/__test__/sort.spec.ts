@@ -48,7 +48,7 @@ describe('Sorting', () => {
       });
 
       it('Reversed array', () => {
-        let state = initSort(createNumberArray().toReversed());
+        let state = initSort(createNumberArray().reverse());
         while (state.status !== 'end') {
           state = step('right', state);
         }

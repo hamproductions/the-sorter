@@ -51,7 +51,7 @@ export const computeTimingStats = (durations: number[]): SortTimingStats | undef
 
   const totalMs = durations.reduce((sum, d) => sum + d, 0);
   const comparisons = durations.length;
-  const sorted = durations.toSorted((a, b) => a - b);
+  const sorted = durations.slice().sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);
   const medianMs = sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
 
