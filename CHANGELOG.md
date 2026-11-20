@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [2.7.0](https://github.com/hamproductions/the-sorter/compare/v2.5.0...v2.7.0) (2026-11-20)
+
+
+### Bug Fixes
+
+* **leaderboard:** count only matching sorts when CDs, songs or performances are picked ([831acc2](https://github.com/hamproductions/the-sorter/commit/831acc2acb973b085659627c1c5f8a5c01d4ff53))
+* move bulky saves to IndexedDB and recover browser failures ([877741f](https://github.com/hamproductions/the-sorter/commit/877741f50d2b68c03b2a57c266f672867edcb1aa))
+* preserve stale bundles and harden update recovery ([ce5cb8c](https://github.com/hamproductions/the-sorter/commit/ce5cb8c02a90397dae41e1751b00ab41e5b0e3b1))
+* reconcile browser data across version roundtrips ([77d9314](https://github.com/hamproductions/the-sorter/commit/77d9314b4081dbd08e20133aa65aed91cf82a956))
+* **songs:** compact performance context in text export ([3e0dae3](https://github.com/hamproductions/the-sorter/commit/3e0dae3ade960ded27915d850a7697578ba9ca48))
+
+
+### Features
+
+* **saves:** leave the ranking record of finished sorts out of QR codes ([a4ecc32](https://github.com/hamproductions/the-sorter/commit/a4ecc32a8608da5d0a13997b732c55ab653020db))
+* **saves:** pack QR exports as compact binary ([de71577](https://github.com/hamproductions/the-sorter/commit/de71577e39f8705dd951b44115ae7a011c69333f))
+
 # [2.5.0](https://github.com/hamproductions/the-sorter/compare/v2.4.0...v2.5.0) (2026-11-18)
 
 
