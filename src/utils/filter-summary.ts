@@ -60,13 +60,14 @@ export const describeFilter = (
   filter: RankingFilter | null | undefined,
   lang: Locale | undefined,
   t: TFunction,
-  lookup: FilterNameLookup = {}
+  lookup: FilterNameLookup = {},
+  shownNames = SHOWN_NAMES
 ) => {
   const total = countFilter(filter);
   if (!filter || total === 0) return undefined;
   const names = nameList(kind, filter, lang, t, lookup);
   if (names.length === 0) return t('global_ranking.filter_count', { count: total });
-  const hidden = total - Math.min(names.length, SHOWN_NAMES);
-  const shown = names.slice(0, SHOWN_NAMES).join('・');
+  const hidden = total - Math.min(names.length, shownNames);
+  const shown = names.slice(0, shownNames).join('・');
   return hidden > 0 ? `${shown} +${hidden}` : shown;
 };

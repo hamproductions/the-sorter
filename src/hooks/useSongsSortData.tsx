@@ -58,8 +58,29 @@ export const useSongsSortData = (
     setLog
   } = useSorter(
     listToSort.map((l) => l.id),
-    options?.storagePrefix ?? 'songs'
+    options?.storagePrefix ?? 'songs',
+    {
+      kind: 'song',
+      mode: heardleMode
+        ? 'heardle'
+        : options?.performanceSongIds?.length
+          ? 'performance'
+          : 'normal',
+      filter: songFilters ?? null,
+      performanceIds: options?.performanceIds
+    }
   );
+
+  const resultContext = state?.context ?? log?.context;
+  const updateList = useMemo(
+    () =>
+      resultContext?.kind === 'song' && resultContext.mode === 'normal'
+        ? getSongSortList(songs, resultContext.filter as SongFilterType | null)
+        : [],
+    [songs, resultContext]
+  );
+  const rankedIds = new Set(state?.arr?.flat());
+  const newSongCount = isEnded ? updateList.filter((song) => !rankedIds.has(song.id)).length : 0;
 
   const isPerformanceMode = !!options?.performanceSongIds?.length;
   const globalRanking = useGlobalRankingSubmission({
@@ -97,14 +118,14 @@ export const useSongsSortData = (
   }, [clearTimer, clear]);
 
   const addNewSongs = useCallback(() => {
-    if (state?.status !== 'end') return;
+    if (state?.status !== 'end' || newSongCount === 0) return;
     const updated = extendSort(
       state.arr,
-      listToSort.map((song) => song.id)
+      updateList.map((song) => song.id)
     );
     startTimer();
-    loadState({ state: updated, history: [], comparisonsCount: 0 });
-  }, [state, listToSort, startTimer, loadState]);
+    loadState({ state: { ...updated, context: resultContext }, history: [], comparisonsCount: 0 });
+  }, [state, newSongCount, updateList, resultContext, startTimer, loadState]);
 
   const timedLeft = useCallback(() => {
     recordTick();
@@ -223,6 +244,7 @@ export const useSongsSortData = (
     getSnapshot,
     loadState: timedLoadState,
     globalRanking,
-    addNewSongs
+    addNewSongs,
+    newSongCount
   };
 };

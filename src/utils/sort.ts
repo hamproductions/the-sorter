@@ -1,3 +1,5 @@
+import type { SortSessionContext } from '~/types/global-ranking';
+
 export interface SortState<I> {
   arr: I[][];
   currentSize: number;
@@ -6,6 +8,7 @@ export interface SortState<I> {
   mergeState?: MergeState<I>;
   ties?: I[][];
   preservedOrder?: I[][];
+  context?: SortSessionContext;
 }
 interface MergeState<I> {
   start: number;

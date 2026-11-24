@@ -1,5 +1,9 @@
-import { renderHook } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { act, renderHook } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { SortState } from '~/utils/sort';
+
+let mockState: SortState<string> | null = null;
+const loadState = vi.fn();
 
 const mockSongs = [
   {
@@ -51,13 +55,14 @@ vi.mock('../useSorter', () => ({
     right: vi.fn(),
     tie: vi.fn(),
     undo: vi.fn(),
-    state: null,
+    state: mockState,
+    loadState,
     comparisonsCount: 0,
     isEstimatedCount: false,
     maxComparisons: 0,
     progress: 0,
     clear: vi.fn(),
-    isEnded: false
+    isEnded: mockState?.status === 'end'
   }))
 }));
 
@@ -67,12 +72,14 @@ vi.mock('~/context/ToasterContext', () => ({
 
 let mockHasFilter = false;
 vi.mock('~/utils/filter', () => ({
-  hasFilter: () => mockHasFilter
+  hasFilter: (filter: Record<string, unknown[]>) =>
+    mockHasFilter || Object.values(filter).some((values) => values?.length > 0)
 }));
 
 let mockMatchResult = true;
 vi.mock('~/utils/song-filter', () => ({
-  matchSongFilter: (_song: { seriesIds: string[] }) => {
+  matchSongFilter: (song: { seriesIds: string[] }, filter: { series?: string[] }) => {
+    if (filter.series?.length) return song.seriesIds.some((id) => filter.series?.includes(id));
     if (typeof mockMatchResult === 'boolean') return mockMatchResult;
     return true;
   }
@@ -90,6 +97,38 @@ import { useSongsSortData } from '../useSongsSortData';
 import { useSorter } from '../useSorter';
 
 describe('useSongsSortData performance mode', () => {
+  beforeEach(() => {
+    mockState = null;
+    mockHasFilter = false;
+    loadState.mockClear();
+  });
+
+  it('updates only missing songs matching the completed ranking scope', () => {
+    const context = { kind: 'song', mode: 'normal', filter: { series: ['1'] } } as const;
+    mockState = {
+      arr: [['s1']],
+      currentSize: 1,
+      leftStart: 0,
+      status: 'end',
+      context: { ...context, filter: { series: ['1'] } }
+    };
+    const { result } = renderHook(() => useSongsSortData());
+    expect(result.current.listToSort).toHaveLength(4);
+    expect(result.current.newSongCount).toBe(1);
+    act(() => result.current.addNewSongs());
+    const updated = loadState.mock.calls[0][0].state;
+    expect(updated.arr.flat().sort()).toEqual(['s1', 's2']);
+    expect(updated.context).toEqual(context);
+  });
+
+  it('does not offer catalogue additions when the original scope is unknown', () => {
+    mockState = { arr: [['s1']], currentSize: 1, leftStart: 0, status: 'end' };
+    const { result } = renderHook(() => useSongsSortData());
+    expect(result.current.newSongCount).toBe(0);
+    act(() => result.current.addNewSongs());
+    expect(loadState).not.toHaveBeenCalled();
+  });
+
   it('returns all songs when no performance IDs and no filters', () => {
     mockHasFilter = false;
     const { result } = renderHook(() => useSongsSortData());
@@ -118,13 +157,21 @@ describe('useSongsSortData performance mode', () => {
       })
     );
 
-    expect(useSorter).toHaveBeenCalledWith(expect.any(Array), 'perf-songs');
+    expect(useSorter).toHaveBeenCalledWith(
+      expect.any(Array),
+      'perf-songs',
+      expect.objectContaining({ kind: 'song', mode: 'performance' })
+    );
   });
 
   it('uses default storagePrefix "songs" when not specified', () => {
     renderHook(() => useSongsSortData());
 
-    expect(useSorter).toHaveBeenCalledWith(expect.any(Array), 'songs');
+    expect(useSorter).toHaveBeenCalledWith(
+      expect.any(Array),
+      'songs',
+      expect.objectContaining({ kind: 'song', mode: 'normal' })
+    );
   });
 
   it('excludes failed song IDs from performance songs', () => {

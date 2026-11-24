@@ -106,8 +106,8 @@
   "sort": {
     "start": "開始",
     "start_over": "やり直す",
-    "add_new_songs": "未ソートの{{count}}曲をこの結果に追加",
-    "add_new_characters": "未ソートの{{count}}人をこの結果に追加",
+    "add_new_songs": "同じ条件の新しい{{count}}曲で更新",
+    "add_new_characters": "同じ条件の新しい{{count}}人で更新",
     "stop": "中止",
     "new_settings": "設定を変更する",
     "tie": "引き分け",
