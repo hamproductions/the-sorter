@@ -1,5 +1,8 @@
 # Browser verification
 
+- Popular ranking filters must identify the selected filters and performances by name, including date and venue for performances. Keep full labels readable and label submission counts explicitly; counts alone do not identify a selection.
+- Updating a completed ranking means adding missing items matching that ranking's original saved filter and mode. Never use the current picker or the whole catalogue as a fallback when the original scope is unavailable.
+
 - Before a GitHub write, verify `gh api user --jq .login` is `hamzaabamboo`; commit identity does not establish the CLI account.
 
 - Write PR titles and descriptions in English. Attach current screenshots for visible changes and inspect the rendered PR before delivery.

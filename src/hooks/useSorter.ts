@@ -11,14 +11,18 @@ import {
 } from '../utils/sort';
 import { isSortLog } from '../utils/save-state';
 import { useLocalStorage } from './useLocalStorage';
-import type { SortChoice, SortLog } from '~/types/global-ranking';
+import type { SortChoice, SortLog, SortSessionContext } from '~/types/global-ranking';
 
 const CHOICES: Record<'left' | 'right' | 'tie', SortChoice> = { left: 'L', right: 'R', tie: 'T' };
 
 const createSessionId = () =>
   `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 
-export const useSorter = <T extends string | number>(items: T[], statePrefix?: string) => {
+export const useSorter = <T extends string | number>(
+  items: T[],
+  statePrefix?: string,
+  context?: SortSessionContext
+) => {
   const [storedState, setState] = useLocalStorage<SortState<T>>(
     `${statePrefix ? statePrefix + '-' : ''}sort-state`
   );
@@ -55,7 +59,7 @@ export const useSorter = <T extends string | number>(items: T[], statePrefix?: s
       log?: SortLog;
     }) => {
       const { state, history, comparisonsCount: count, log: savedLog } = stateData;
-      setState(state);
+      setState({ ...state, context: state.context ?? savedLog?.context });
       setHistory(history);
       if (count !== undefined) {
         setComparisonsCount(count);
@@ -105,7 +109,7 @@ export const useSorter = <T extends string | number>(items: T[], statePrefix?: s
         const currentCount = comparisonsCountRef.current ?? estimateComparisonsMade(currentState);
         setComparisonsCount(currentCount + 1);
         const nextStep = step(value, currentState);
-        setState(nextStep);
+        setState({ ...nextStep, context: currentState.context ?? logRef.current?.context });
         if (currentState.mergeState) {
           setLog((l) => (l ? { ...l, choices: l.choices + CHOICES[value] } : l));
         }
@@ -116,12 +120,12 @@ export const useSorter = <T extends string | number>(items: T[], statePrefix?: s
 
   const reset = useCallback(() => {
     const initialOrder = shuffle(items);
-    setState(initSort(initialOrder));
+    setState({ ...initSort(initialOrder), context });
     setHistory([]);
     setComparisonsCount(1);
     setLog({ sessionId: createSessionId(), initialOrder, choices: '' });
     setDisplayOrder(null);
-  }, [items, setState, setHistory, setComparisonsCount, setLog, setDisplayOrder]);
+  }, [items, context, setState, setHistory, setComparisonsCount, setLog, setDisplayOrder]);
 
   const handleUndo = useCallback(() => {
     const currentHistory = historyRef.current;

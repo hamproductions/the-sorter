@@ -45,7 +45,28 @@ export const useSortData = () => {
     loadState,
     log,
     setLog
-  } = useSorter(listToSort.map((l) => l.id));
+  } = useSorter(
+    listToSort.map((l) => l.id),
+    undefined,
+    {
+      kind: 'character',
+      mode: seiyuu ? 'seiyuu' : 'chara',
+      filter: isValidFilter(filters) ? { ...filters } : null
+    }
+  );
+
+  const resultContext = state?.context ?? log?.context;
+  const updateList = useMemo(
+    () =>
+      resultContext?.kind === 'character'
+        ? getCharacterSortList(
+            characters,
+            resultContext.mode === 'seiyuu',
+            resultContext.filter as FilterType | null
+          )
+        : [],
+    [characters, resultContext]
+  );
 
   const globalRanking = useGlobalRankingSubmission({
     log,
@@ -132,6 +153,8 @@ export const useSortData = () => {
     filters: isValidFilter(filters) ? filters : null,
     setFilters,
     listToSort,
+    updateList,
+    resultContext,
     listCount: listToSort.length,
     clear,
     loadResumeState,

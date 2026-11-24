@@ -39,7 +39,9 @@ import {
   type StatsResponse
 } from '~/types/global-ranking';
 import { useFilterNameLookup } from '~/hooks/useFilterNameLookup';
+import { usePerformanceData } from '~/hooks/setlist-prediction/usePerformanceData';
 import { countFilter, describeFilter } from '~/utils/filter-summary';
+import { getFullPerformanceName } from '~/utils/names';
 import {
   type LeaderboardQuery,
   fetchCohorts,
@@ -249,6 +251,7 @@ export function Page() {
   }, [kind]);
   const resolve = useRankingItems(kind, activeMode);
   const filterNames = useFilterNameLookup();
+  const { performances } = usePerformanceData();
 
   const query = useMemo<LeaderboardQuery>(
     () => ({
@@ -475,19 +478,30 @@ export function Page() {
     }
   };
 
+  const describeSelection = (selectionKind: RankingKind, filter: RankingFilter, ids: string[]) =>
+    [
+      describeFilter(selectionKind, filter, i18n.language, t, filterNames, Infinity),
+      ...ids.map((id) => {
+        const performance = performances.find((entry) => entry.id === id);
+        return performance
+          ? [getFullPerformanceName(performance), performance.date, performance.venue]
+              .filter(Boolean)
+              .join(' · ')
+          : `${t('global_ranking.mode_performance')}: ${id}`;
+      })
+    ]
+      .filter(Boolean)
+      .join(' / ');
+
   const describeCohort = (cohort: CohortSummary) =>
-    describeFilter(cohort.kind, cohort.filter, i18n.language, t, filterNames) ??
-    t('global_ranking.filter_count', { count: cohort.performanceIds.length });
+    describeSelection(cohort.kind, cohort.filter, cohort.performanceIds);
 
   const popularCohorts = cohorts
     .filter((cohort) => countFilter(cohort.filter) + cohort.performanceIds.length > 0)
     .slice(0, 10);
 
   const filterSummary =
-    describeFilter(kind, { ...activeFilter }, i18n.language, t, filterNames) ??
-    (performanceIds.length > 0
-      ? t('global_ranking.filter_count', { count: performanceIds.length })
-      : t('global_ranking.filter_none'));
+    describeSelection(kind, { ...activeFilter }, performanceIds) || t('global_ranking.filter_none');
 
   const aggregation: Aggregation = globalRanks ? 'global' : exactOnly ? 'cohort' : 'subset';
   const setAggregation = (next: Aggregation) => {
@@ -690,13 +704,21 @@ export function Page() {
                                 aria-pressed={active}
                                 title={label}
                                 onClick={() => applyCohort(cohort)}
-                                flexShrink={0}
+                                flexDirection="column"
+                                alignItems="flex-start"
+                                w="full"
+                                h="auto"
+                                minH="11"
+                                py="2"
+                                textAlign="left"
+                                whiteSpace="normal"
                               >
-                                <styled.span display="block" maxW="60" truncate>
+                                <styled.span display="block" overflowWrap="anywhere">
                                   {label}
                                 </styled.span>
                                 <styled.span fontVariantNumeric="tabular-nums" opacity="0.75">
-                                  {cohort.submissions}
+                                  {t(`global_ranking.mode_${cohort.mode}`)} ·{' '}
+                                  {t('global_ranking.submissions', { count: cohort.submissions })}
                                 </styled.span>
                               </Button>
                             );

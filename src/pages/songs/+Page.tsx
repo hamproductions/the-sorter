@@ -167,7 +167,8 @@ export function Page() {
     timing,
     timingStats,
     getElapsedMs,
-    addNewSongs
+    addNewSongs,
+    newSongCount
   } = useSongsSortData(failedSongIds.size > 0 ? failedSongIds : undefined, {
     disableShortcutsRef,
     performanceSongIds: isPerformanceMode ? performanceSongIds : undefined,
@@ -181,10 +182,6 @@ export function Page() {
     loadState(pendingSave);
     setPendingSave(undefined);
   }, [pendingSave, loadState, isPerformanceMode]);
-  const rankedSongIds = new Set(state?.arr.flat());
-  const newSongCount = isEnded
-    ? listToSort.filter((song) => !rankedSongIds.has(song.id)).length
-    : 0;
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [showLoadDialog, setShowLoadDialog] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState<{
@@ -524,6 +521,7 @@ export function Page() {
       songFilters: songFilters ?? undefined
     },
     onApply: (saved) => {
+      const context = saved.state.context ?? saved.log?.context;
       const meta = getSavedPerformanceMeta(saved);
       const ids = new Set(
         meta?.setlistOrder.map((entry) => (typeof entry === 'string' ? entry : entry.songId))
@@ -532,8 +530,8 @@ export function Page() {
       setPerformanceSongIds(
         meta ? (ids.size ? [...ids] : getSortItems(saved.state).map(String)) : undefined
       );
-      setSongFilters(saved.songFilters ?? (saved.log?.context?.filter as SongFilterType));
-      setHeardleMode(saved.log?.context?.mode === 'heardle');
+      setSongFilters(context ? (context.filter as SongFilterType | null) : saved.songFilters);
+      setHeardleMode(context?.mode === 'heardle');
     }
   });
 

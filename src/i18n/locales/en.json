@@ -106,8 +106,8 @@
   "sort": {
     "start": "Start",
     "start_over": "Start Over",
-    "add_new_songs": "Add {{count}} new songs to this ranking",
-    "add_new_characters": "Add {{count}} new characters to this ranking",
+    "add_new_songs": "Update with {{count}} new matching songs",
+    "add_new_characters": "Update with {{count}} new matching characters",
     "stop": "Stop",
     "new_settings": "Choose new settings",
     "tie": "Tie",

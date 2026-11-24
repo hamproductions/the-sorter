@@ -115,6 +115,8 @@ export function Page() {
     filters,
     setFilters,
     listToSort,
+    updateList,
+    resultContext,
     listCount,
     clear,
     loadResumeState,
@@ -148,12 +150,12 @@ export function Page() {
   const sortCount = sortItems?.length ?? listCount;
   const sortItemIds = new Set(sortItems);
   const newCharacterIds = isEnded
-    ? listToSort.filter((c) => !sortItemIds.has(c.id)).map((c) => c.id)
+    ? updateList.filter((c) => !sortItemIds.has(c.id)).map((c) => c.id)
     : [];
   const addNewCharacters = () => {
     if (!state || newCharacterIds.length === 0) return;
     loadState({
-      state: extendSort(state.arr, newCharacterIds),
+      state: { ...extendSort(state.arr, newCharacterIds), context: resultContext },
       history: [],
       comparisonsCount: 0
     });
@@ -284,9 +286,10 @@ export function Page() {
     filterSummary: getFilterSummary(),
     isSeiyuu: seiyuu,
     onApply: (saved) => {
-      const savedSeiyuu =
-        saved.isSeiyuu ?? (saved.log?.context ? saved.log.context.mode === 'seiyuu' : undefined);
+      const context = saved.state.context ?? saved.log?.context;
+      const savedSeiyuu = context ? context.mode === 'seiyuu' : saved.isSeiyuu;
       if (savedSeiyuu !== undefined) setSeiyuu(savedSeiyuu);
+      if (context) setFilters(context.filter as typeof filters);
     }
   });
 

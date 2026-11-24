@@ -342,9 +342,7 @@ describe('computeSortableSetlistLabels', () => {
         dayLabel: entry.performanceName
       }))
     );
-    expect(formatPerformancePerformersText(songs[1], entries, [], 'ja')).toBe(
-      '歌唱メンバー不明'
-    );
+    expect(formatPerformancePerformersText(songs[1], entries, [], 'ja')).toBe('歌唱メンバー不明');
   });
 
   it('creates order-independent performer signatures', () => {
