@@ -160,11 +160,11 @@ export function HasuSongResultsView({
       JSON.stringify(
         order?.flatMap((item, idx) =>
           item.map((i) => {
-            const s = findSong(i, useShortNames);
+            const s = songsData.find((s) => s.id === i);
             return {
               rank: idx + 1,
               title: s?.title,
-              unit: s?.unitLabel ?? s?.unit
+              unit: s?.unit
             };
           })
         )

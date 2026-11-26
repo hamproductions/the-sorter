@@ -40,7 +40,7 @@
     "deselect_all": "Deselect All",
     "no_tie_mode": "No DD Allowed Mode (Hard)",
     "heardle_mode": "Heardle Mode",
-    "use_abbreviations": "Abbreviate images & JSON",
+    "use_abbreviations": "Abbreviate images",
     "generation": {
       "103": "103th",
       "104": "104th",

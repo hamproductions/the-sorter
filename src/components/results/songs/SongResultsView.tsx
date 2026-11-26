@@ -24,7 +24,7 @@ import { useArtistsData } from '~/hooks/useArtistsData';
 import { useSeriesData } from '~/hooks/useSeriesData';
 import { HeardleStatsDialog } from '~/components/sorter/HeardleStatsDialog';
 import type { GuessResult } from '~/hooks/useHeardleState';
-import type { PerformanceSortMeta, SetlistOrderEntry } from '~/types/performance-sort';
+import type { PerformanceSortMeta } from '~/types/performance-sort';
 import { PerformanceOrderView } from './PerformanceOrderView';
 import { SongSortTimeStats } from './SongSortTimeStats';
 import { getArtistName, getFullPerformanceName } from '~/utils/names';
@@ -195,22 +195,6 @@ export function SongResultsView({
   };
 
   const exportJSON = async () => {
-    const exportName = (name?: string) =>
-      (useShortNames && name ? short.name(name) : undefined) ?? name;
-    const exportEntry = (song: Song, entry: SetlistOrderEntry): SetlistOrderEntry =>
-      useShortNames
-        ? {
-            ...entry,
-            customSongName:
-              entry.customSongName === song.name ? short.song(song) : entry.customSongName,
-            tourName: entry.tourName && short.event(entry.tourName, entry.tourName),
-            performers: entry.performers?.map((performer) =>
-              performer.kind === 'group'
-                ? { ...performer, name: exportName(performer.name) ?? performer.name }
-                : performer
-            )
-          }
-        : entry;
     await copyToClipboard(
       JSON.stringify(
         songs.map((s) => {
@@ -218,16 +202,13 @@ export function SongResultsView({
           const series = uniq(s?.seriesIds).map((id) => seriesData.find((a) => a.id === `${id}`));
           return {
             rank: s.rank,
-            title: useShortNames ? short.song(s) : s?.name,
-            series: series.map((a) => exportName(a?.name))?.join(', '),
-            unit: artist?.map((a) => exportName(a?.name))?.join(', '),
+            title: s?.name,
+            series: series.map((a) => a?.name)?.join(', '),
+            unit: artist?.map((a) => a?.name)?.join(', '),
             ...(performanceMeta
               ? {
-                  performance: exportTitlePrefix,
-                  performances: getDistinctSongPerformanceEntries(
-                    s,
-                    performanceMeta.setlistOrder
-                  ).map((entry) => exportEntry(s, entry))
+                  performance: effectiveTitlePrefix,
+                  performances: getDistinctSongPerformanceEntries(s, performanceMeta.setlistOrder)
                 }
               : {})
           };
