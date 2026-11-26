@@ -24,10 +24,12 @@ import { useArtistsData } from '~/hooks/useArtistsData';
 import { useSeriesData } from '~/hooks/useSeriesData';
 import { HeardleStatsDialog } from '~/components/sorter/HeardleStatsDialog';
 import type { GuessResult } from '~/hooks/useHeardleState';
-import type { PerformanceSortMeta } from '~/types/performance-sort';
+import type { PerformanceSortMeta, SetlistOrderEntry } from '~/types/performance-sort';
 import { PerformanceOrderView } from './PerformanceOrderView';
 import { SongSortTimeStats } from './SongSortTimeStats';
-import { getFullPerformanceName } from '~/utils/names';
+import { getArtistName, getFullPerformanceName } from '~/utils/names';
+import { ExportActions } from '~/components/results/ExportActions';
+import { useAbbreviations } from '~/hooks/useAbbreviations';
 import type { SortTimingStats } from '~/utils/sort-timing';
 import { useClipboard } from '~/hooks/useClipboard';
 import { TabIcon } from '~/components/layout/TabIcon';
@@ -78,6 +80,13 @@ export function SongResultsView({
   const effectiveTitlePrefix = performanceMeta
     ? getFullPerformanceName(performanceMeta)
     : titlePrefix;
+  const { enabled: useShortNames, short } = useAbbreviations();
+  const shortTitlePrefix =
+    effectiveTitlePrefix &&
+    (performanceMeta
+      ? short.event(effectiveTitlePrefix, performanceMeta.tourName)
+      : short.name(effectiveTitlePrefix));
+  const exportTitlePrefix = (useShortNames && shortTitlePrefix) || effectiveTitlePrefix;
 
   const tabs = useMemo(() => {
     const result = [{ id: 'table', label: t('results.table') }];
@@ -145,25 +154,39 @@ export function SongResultsView({
 
   const screenshot = () => copyImage(makeScreenshot);
 
-  const exportText = async () => {
+  const exportText = async (abbreviate: boolean) => {
+    const shortName = abbreviate ? short.name : undefined;
     await copyToClipboard(
       [
         performanceMeta
-          ? [effectiveTitlePrefix, performanceMeta.date, performanceMeta.venue]
+          ? [
+              abbreviate && effectiveTitlePrefix
+                ? short.event(effectiveTitlePrefix, performanceMeta.tourName)
+                : effectiveTitlePrefix,
+              performanceMeta.date,
+              performanceMeta.venue
+            ]
               .filter(Boolean)
               .join(' · ')
           : undefined,
         ...songs.map((song) => {
           const original = uniq(
-            song.artists.map((art) => artists.find((a) => a.id === art.id)?.name).filter(Boolean)
+            song.artists
+              .map((art) => artists.find((a) => a.id === art.id)?.name)
+              .filter((name): name is string => Boolean(name))
+              .map((name) =>
+                abbreviate ? (short.name(name) ?? getArtistName(name, _i18n.language)) : name
+              )
           ).join(', ');
           const context = formatPerformancePerformersText(
             song,
             performanceMeta?.setlistOrder,
             characters,
-            _i18n.language
+            _i18n.language,
+            shortName
           );
-          return `${song.rank}. ${song.name} - ${original}${context ? ` (${context})` : ''}`;
+          const name = abbreviate ? short.song(song) : song.name;
+          return `${song.rank}. ${name} - ${original}${context ? ` (${context})` : ''}`;
         })
       ]
         .filter(Boolean)
@@ -172,6 +195,22 @@ export function SongResultsView({
   };
 
   const exportJSON = async () => {
+    const exportName = (name?: string) =>
+      (useShortNames && name ? short.name(name) : undefined) ?? name;
+    const exportEntry = (song: Song, entry: SetlistOrderEntry): SetlistOrderEntry =>
+      useShortNames
+        ? {
+            ...entry,
+            customSongName:
+              entry.customSongName === song.name ? short.song(song) : entry.customSongName,
+            tourName: entry.tourName && short.event(entry.tourName, entry.tourName),
+            performers: entry.performers?.map((performer) =>
+              performer.kind === 'group'
+                ? { ...performer, name: exportName(performer.name) ?? performer.name }
+                : performer
+            )
+          }
+        : entry;
     await copyToClipboard(
       JSON.stringify(
         songs.map((s) => {
@@ -179,13 +218,16 @@ export function SongResultsView({
           const series = uniq(s?.seriesIds).map((id) => seriesData.find((a) => a.id === `${id}`));
           return {
             rank: s.rank,
-            title: s?.name,
-            series: series.map((a) => a?.name)?.join(', '),
-            unit: artist?.map((a) => a?.name)?.join(', '),
+            title: useShortNames ? short.song(s) : s?.name,
+            series: series.map((a) => exportName(a?.name))?.join(', '),
+            unit: artist?.map((a) => exportName(a?.name))?.join(', '),
             ...(performanceMeta
               ? {
-                  performance: effectiveTitlePrefix,
-                  performances: getDistinctSongPerformanceEntries(s, performanceMeta.setlistOrder)
+                  performance: exportTitlePrefix,
+                  performances: getDistinctSongPerformanceEntries(
+                    s,
+                    performanceMeta.setlistOrder
+                  ).map((entry) => exportEntry(s, entry))
                 }
               : {})
           };
@@ -199,25 +241,26 @@ export function SongResultsView({
       const blob = await makeScreenshot();
       if (!blob) return;
       const saveAs = (await import('file-saver')).saveAs;
-      saveAs(new File([blob], `${effectiveTitlePrefix ?? 'll'}-sorted-${timestamp.valueOf()}.png`));
+      saveAs(new File([blob], `${exportTitlePrefix ?? 'll'}-sorted-${timestamp.valueOf()}.png`));
     } catch (error) {
       console.error(error);
     }
   };
 
-  useEffect(() => {
+  const makeTitle = (prefix?: string) => {
     const sortType = t('songs');
     const type = t('results.ranking');
-    setTitle(
-      effectiveTitlePrefix
-        ? t('results.results_title', { titlePrefix: effectiveTitlePrefix, sortType, type })
-        : t('results.default_results_title', {
-            titlePrefix: effectiveTitlePrefix,
-            sortType,
-            type
-          })
-    );
-  }, [effectiveTitlePrefix, currentTab, t]);
+    return prefix
+      ? t('results.results_title', { titlePrefix: prefix, sortType, type })
+      : t('results.default_results_title', { titlePrefix: prefix, sortType, type });
+  };
+  const defaultTitle = makeTitle(effectiveTitlePrefix);
+  const exportTitle = title === defaultTitle ? makeTitle(exportTitlePrefix) : title;
+
+  useEffect(() => {
+    setTitle(defaultTitle);
+  }, [defaultTitle, currentTab]);
+
   return (
     <>
       <Stack alignItems="center" w="full" textAlign="center">
@@ -260,27 +303,28 @@ export function SongResultsView({
             </Accordion.Item>
           </Accordion.Root>
           {(!readOnly || allowExport) && (
-            <HStack justifyContent="space-between" w="full">
-              <Wrap justifyContent="flex-end" w="full">
-                {onShareResults && (
-                  <Button variant="subtle" onClick={onShareResults}>
-                    <FaShare /> {t('results.share')}
-                  </Button>
-                )}
-                <Button variant="subtle" onClick={() => void exportJSON()}>
-                  <FaCopy /> {t('results.export_json')}
+            <ExportActions>
+              {onShareResults && (
+                <Button variant="subtle" onClick={onShareResults}>
+                  <FaShare /> {t('results.share')}
                 </Button>
-                <Button variant="subtle" onClick={() => void exportText()}>
-                  <FaCopy /> {t('results.copy_text')}
-                </Button>
-                <Button variant="subtle" onClick={() => void screenshot()}>
-                  <FaCopy /> {t('results.copy')}
-                </Button>
-                <Button onClick={() => void download()}>
-                  <FaDownload /> {t('results.download')}
-                </Button>
-              </Wrap>
-            </HStack>
+              )}
+              <Button variant="subtle" onClick={() => void exportJSON()}>
+                <FaCopy /> {t('results.export_json')}
+              </Button>
+              <Button variant="subtle" onClick={() => void exportText(false)}>
+                <FaCopy /> {t('results.copy_text')}
+              </Button>
+              <Button variant="subtle" onClick={() => void exportText(true)}>
+                <FaCopy /> {t('results.copy_text_short')}
+              </Button>
+              <Button variant="subtle" onClick={() => void screenshot()}>
+                <FaCopy /> {t('results.copy')}
+              </Button>
+              <Button onClick={() => void download()}>
+                <FaDownload /> {t('results.download')}
+              </Button>
+            </ExportActions>
           )}
         </Stack>
 
@@ -364,19 +408,33 @@ export function SongResultsView({
       {showRenderingCanvas && (
         <Box position="absolute" w="0" h="0" overflow="hidden">
           <Stack id="results" width="1280px" p="4" bgColor="bg.canvas">
-            {title && (
+            {exportTitle && (
               <Heading fontSize="2xl" fontWeight="bold">
-                {title}
+                {exportTitle}
               </Heading>
             )}
             {description && <Text>{description}</Text>}
-            {currentTab === 'table' ? (
-              <SongRankingTable songs={songs} performanceMeta={performanceMeta} />
-            ) : performanceMeta && order ? (
-              <PerformanceOrderView performanceMeta={performanceMeta} order={order} />
-            ) : (
-              <SongRankingTable songs={songs} performanceMeta={performanceMeta} />
-            )}
+            <Box w="full" textAlign="center">
+              {currentTab === 'table' ? (
+                <SongRankingTable
+                  songs={songs}
+                  performanceMeta={performanceMeta}
+                  abbreviate={useShortNames}
+                />
+              ) : performanceMeta && order ? (
+                <PerformanceOrderView
+                  performanceMeta={performanceMeta}
+                  abbreviate={useShortNames}
+                  order={order}
+                />
+              ) : (
+                <SongRankingTable
+                  songs={songs}
+                  performanceMeta={performanceMeta}
+                  abbreviate={useShortNames}
+                />
+              )}
+            </Box>
             <Text textAlign="end">
               {t('results.generated_at')}: {timestamp.toLocaleString()}
             </Text>

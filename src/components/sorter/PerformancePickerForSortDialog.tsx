@@ -12,6 +12,7 @@ import {
 } from '~/hooks/setlist-prediction/usePerformanceData';
 import { useSongData } from '~/hooks/useSongData';
 import { getFullPerformanceName, getSongName } from '~/utils/names';
+import { matchesEventAlias } from '~/utils/abbreviations';
 import { buildPerformanceSortSelection, getPerformanceLegName } from '~/utils/performance-sort';
 import {
   Root as DialogRoot,
@@ -69,7 +70,8 @@ export function PerformancePickerForSortDialog({
         (p) =>
           p.tourName.toLowerCase().includes(searchLower) ||
           p.performanceName?.toLowerCase().includes(searchLower) ||
-          p.venue?.toLowerCase().includes(searchLower)
+          p.venue?.toLowerCase().includes(searchLower) ||
+          matchesEventAlias(p.eventId, search)
       );
     }
 

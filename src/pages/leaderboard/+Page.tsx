@@ -1,5 +1,6 @@
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { getAliasScore, getSongAliases } from '~/utils/abbreviations';
 import { FaFilter, FaXmark } from 'react-icons/fa6';
 import { CharactersIcon, SongsIcon } from '~/components/layout/section-icons';
 import { Metadata } from '~/components/layout/Metadata';
@@ -529,11 +530,15 @@ export function Page() {
     const matches = needle
       ? filtered.filter((entry) => {
           const item = resolve(entry.itemId);
-          return `${item.name} ${item.subtitle ?? ''}`.toLowerCase().includes(needle);
+          const aliases = kind === 'song' ? getSongAliases(entry.itemId) : [];
+          return (
+            `${item.name} ${item.subtitle ?? ''}`.toLowerCase().includes(needle) ||
+            getAliasScore(aliases, needle) > 0
+          );
         })
       : filtered;
     return matches.slice().sort(compareEntries(sort));
-  }, [filtered, search, resolve, sort]);
+  }, [filtered, search, resolve, sort, kind]);
   const pageCount = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
   const pageEntries = visible.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);

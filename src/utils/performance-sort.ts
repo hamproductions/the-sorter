@@ -357,7 +357,8 @@ export function formatPerformancePerformersText(
   song: Song | undefined,
   setlistOrder: SetlistOrderEntry[] | undefined,
   characters: Character[],
-  lang: string
+  lang: string,
+  shortName?: (name: string) => string | undefined
 ): string | undefined {
   if (!song || !setlistOrder?.length) return undefined;
   const lines = getSongPerformanceLineups(song, setlistOrder).map(({ group, note, performers }) => {
@@ -368,9 +369,12 @@ export function formatPerformancePerformersText(
     );
     const names = (hasGuests ? performers : [])
       .map((performer) => {
-        if (performer.kind === 'group') return getArtistName(performer.name, lang);
+        if (performer.kind === 'group') {
+          return shortName?.(performer.name) ?? getArtistName(performer.name, lang);
+        }
         const character = characters.find((item) => String(item.id) === performer.characterId);
-        return character ? getFullName(character, lang as Locale) : undefined;
+        if (!character) return undefined;
+        return shortName?.(character.fullName) ?? getFullName(character, lang as Locale);
       })
       .filter((name): name is string => Boolean(name));
     return [customName !== song.name ? customName : undefined, note, names.join(', ')]

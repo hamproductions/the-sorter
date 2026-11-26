@@ -9,16 +9,22 @@ import { getSongPerformanceLineups } from '~/utils/performance-sort';
 import { getFullName } from '~/utils/character';
 import { getArtistName } from '~/utils/names';
 import { CharacterIcon } from './CharacterIcon';
+import { useAbbreviations } from '~/hooks/useAbbreviations';
 
 export function SongPerformanceContext({
   song,
-  entries
+  entries,
+  abbreviate
 }: {
   song: Song;
   entries: SetlistOrderEntry[];
+  abbreviate?: boolean;
 }) {
   const { t, i18n } = useTranslation();
   const characters = useData();
+  const { short } = useAbbreviations();
+  const groupName = (name: string) =>
+    (abbreviate && short.name(name)) || getArtistName(name, i18n.language);
 
   return (
     <Stack gap="2" alignItems="center" w="full" minW="0" maxW={{ base: '300px', md: 'full' }}>
@@ -84,7 +90,7 @@ export function SongPerformanceContext({
                       if (performer.kind === 'group')
                         return (
                           <Text as="span" key={`group-${performer.id}`} fontSize="xs">
-                            {getArtistName(performer.name, i18n.language)}
+                            {groupName(performer.name)}
                           </Text>
                         );
                       const character = characters.find(
@@ -124,14 +130,16 @@ export function SongPerformanceContext({
                           py="1"
                           px="2"
                         >
-                          <Text fontSize="xs">{getArtistName(performer.name, i18n.language)}</Text>
+                          <Text fontSize="xs">{groupName(performer.name)}</Text>
                         </Box>
                       );
                     const character = characters.find(
                       (item) => String(item.id) === performer.characterId
                     );
                     if (!character) return null;
-                    const name = getFullName(character, i18n.language);
+                    const name =
+                      (abbreviate && short.name(character.fullName)) ||
+                      getFullName(character, i18n.language);
                     return (
                       <HStack
                         key={character.id}

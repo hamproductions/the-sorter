@@ -18,6 +18,7 @@ import { HStack, Stack, Wrap, Box } from 'styled-system/jsx';
 import { isValidSongFilter } from '~/utils/song-filter';
 import { getFullPerformanceName, getSeriesName, getSongName } from '~/utils/names';
 import { fuzzySearch, getSearchScore } from '~/utils/search';
+import { getSongAliases } from '~/utils/abbreviations';
 import { getAllCommaSeparated } from '~/utils/share';
 import type { PerformanceSortMeta } from '~/types/performance-sort';
 
@@ -271,7 +272,8 @@ export function SongFilters({
           category: s.seriesIds.map((sid) => seriesMap[String(sid)]).join(', '),
           color: seriesColorMap[String(s.seriesIds[0])],
           phoneticName: s.phoneticName,
-          englishName: s.englishName
+          englishName: s.englishName,
+          aliases: getSongAliases(s.id)
         }))
         .sort((a, b) => a.name.localeCompare(b.name, _i18n.language)),
     [filteredSongs, seriesMap, seriesColorMap, _i18n.language]

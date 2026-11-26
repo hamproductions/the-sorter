@@ -40,6 +40,7 @@
     "deselect_all": "Deselect All",
     "no_tie_mode": "No DD Allowed Mode (Hard)",
     "heardle_mode": "Heardle Mode",
+    "use_abbreviations": "Abbreviate images & JSON",
     "generation": {
       "103": "103th",
       "104": "104th",
@@ -172,6 +173,7 @@
     },
     "share_x": "Post on X",
     "copy_results": "Copy Results",
+    "copy_results_short": "Copy abbreviated results",
     "settings": {
       "tier": {
         "settings": "Tier Settings",
@@ -186,6 +188,7 @@
       }
     },
     "copy_text": "Copy results as Text",
+    "copy_text_short": "Copy abbreviated Text",
     "export_json": "Export JSON"
   },
   "toast": {
@@ -428,6 +431,8 @@
     "comingSoon": "Coming Soon!",
     "imageExportHint": "Image export will be available soon",
     "copyText": "Copy as Text",
+    "copyTextShort": "Copy as Text (abbreviated)",
+    "abbreviateImage": "Abbreviate image",
     "exportCsv": "Export CSV",
     "urlTooLong": "Prediction too large to share via URL",
     "urlTooLongHint": "URL size: {{size}} chars. Try removing some items or use JSON export instead.",

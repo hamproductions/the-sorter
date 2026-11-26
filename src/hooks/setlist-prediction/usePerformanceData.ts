@@ -4,6 +4,7 @@ import type {
   PerformanceFilters,
   PerformanceSetlist
 } from '~/types/setlist-prediction';
+import { matchesEventAlias } from '~/utils/abbreviations';
 
 // Global caches to prevent re-fetching/re-importing
 let cachedMetadata: Performance[] | null = null;
@@ -210,7 +211,12 @@ export function useFilteredPerformances(filters: PerformanceFilters) {
         const matchesPerformanceName = perf.performanceName?.toLowerCase().includes(searchLower);
         const matchesVenue = perf.venue?.toLowerCase().includes(searchLower);
 
-        if (!matchesName && !matchesPerformanceName && !matchesVenue) {
+        if (
+          !matchesName &&
+          !matchesPerformanceName &&
+          !matchesVenue &&
+          !matchesEventAlias(perf.eventId, filters.search)
+        ) {
           return false;
         }
       }
@@ -262,7 +268,12 @@ export function usePerformanceSearch(query: string) {
       const matchesPerformanceName = perf.performanceName?.toLowerCase().includes(searchLower);
       const matchesVenue = perf.venue?.toLowerCase().includes(searchLower);
 
-      return matchesName || matchesPerformanceName || matchesVenue;
+      return (
+        matchesName ||
+        matchesPerformanceName ||
+        matchesVenue ||
+        matchesEventAlias(perf.eventId, debouncedQuery)
+      );
     });
   }, [performances, debouncedQuery]);
 

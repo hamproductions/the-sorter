@@ -11,7 +11,8 @@ import { Button } from '~/components/ui/styled/button';
 import { Input } from '~/components/ui/styled/input';
 import { Text } from '~/components/ui/styled/text';
 import type { SetlistPrediction, Performance } from '~/types/setlist-prediction';
-import { getFullPerformanceName } from '~/utils/names';
+import { getFullPerformanceName, getSongName } from '~/utils/names';
+import { useSongData } from '~/hooks/useSongData';
 import {
   generateShareUrl,
   canShareUrl,
@@ -20,6 +21,8 @@ import {
 import { downloadJSON, downloadCSV, copyTextToClipboard } from '~/utils/setlist-prediction/export';
 import { useToaster } from '~/context/ToasterContext';
 import { SetlistView } from '~/components/setlist-prediction/SetlistView';
+import { Switch } from '~/components/ui/switch';
+import { useAbbreviations } from '~/hooks/useAbbreviations';
 
 export interface ExportShareToolsProps {
   prediction: SetlistPrediction;
@@ -27,12 +30,14 @@ export interface ExportShareToolsProps {
 }
 
 export function ExportShareTools({ prediction, performance }: ExportShareToolsProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const songs = useSongData();
   const { toast } = useToaster();
   const [isSharing, setIsSharing] = useState(false);
   const [isExportingImage, setIsExportingImage] = useState(false);
   const [authorName, setAuthorName] = useState('');
   const setlistExportRef = useRef<HTMLDivElement>(null);
+  const { enabled: useShortNames, setEnabled: setUseShortNames, short } = useAbbreviations();
 
   const handleShareUrl = async () => {
     setIsSharing(true);
@@ -77,9 +82,28 @@ export function ExportShareTools({ prediction, performance }: ExportShareToolsPr
     }
   };
 
-  const handleCopyText = async () => {
+  const handleCopyText = async (abbreviate: boolean) => {
     try {
-      await copyTextToClipboard(prediction, performance, authorName);
+      await copyTextToClipboard(
+        prediction,
+        abbreviate && performance
+          ? {
+              ...performance,
+              tourName: short.event(performance.tourName, performance.tourName),
+              performanceName:
+                performance.performanceName &&
+                short.event(performance.performanceName, performance.tourName)
+            }
+          : performance,
+        authorName,
+        (songId) => {
+          const song = songs.find((item) => String(item.id) === String(songId));
+          if (!song) return undefined;
+          return abbreviate
+            ? short.song(song)
+            : getSongName(song.name, song.englishName, i18n.language);
+        }
+      );
 
       toast({
         title: t('toast.text_copied', { defaultValue: 'Text copied to clipboard' }),
@@ -217,8 +241,11 @@ export function ExportShareTools({ prediction, performance }: ExportShareToolsPr
       </Button>
 
       {/* Copy Text */}
-      <Button size="sm" variant="outline" onClick={() => void handleCopyText()}>
+      <Button size="sm" variant="outline" onClick={() => void handleCopyText(false)}>
         {t('setlistPrediction.copyText', { defaultValue: 'Copy as Text' })}
+      </Button>
+      <Button size="sm" variant="outline" onClick={() => void handleCopyText(true)}>
+        {t('setlistPrediction.copyTextShort', { defaultValue: 'Copy as Text (abbreviated)' })}
       </Button>
 
       {/* Export JSON */}
@@ -232,6 +259,9 @@ export function ExportShareTools({ prediction, performance }: ExportShareToolsPr
       </Button>
 
       {/* Export Image */}
+      <Switch checked={useShortNames} onCheckedChange={(e) => setUseShortNames(e.checked)}>
+        {t('setlistPrediction.abbreviateImage', { defaultValue: 'Abbreviate image' })}
+      </Switch>
       <Button
         size="sm"
         variant="outline"
@@ -252,6 +282,7 @@ export function ExportShareTools({ prediction, performance }: ExportShareToolsPr
             authorName={authorName}
             showHeader={true}
             compact={false}
+            abbreviate={useShortNames}
           />
         </Box>
       </Box>

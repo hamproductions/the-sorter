@@ -11,7 +11,7 @@ import { HasuSongGridView } from './HasuSongGridView';
 import { HasuSongTierList } from './HasuSongTierList';
 import { Tabs } from '~/components/ui/tabs';
 import { Accordion } from '~/components/ui/accordion';
-import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
+import { Box, Stack, Wrap } from 'styled-system/jsx';
 import { FormLabel } from '~/components/ui/form-label';
 import { Heading } from '~/components/ui/heading';
 import { Input } from '~/components/ui/input';
@@ -25,6 +25,10 @@ import { Button } from '~/components/ui/button';
 import type { RootProps } from '~/components/ui/styled/tabs';
 import { useClipboard } from '~/hooks/useClipboard';
 import { TabIcon } from '~/components/layout/TabIcon';
+import { ExportActions } from '~/components/results/ExportActions';
+import { useAbbreviations } from '~/hooks/useAbbreviations';
+import { useSongData } from '~/hooks/useSongData';
+import { nameKey } from '~/utils/abbreviations';
 
 export function HasuSongResultsView({
   titlePrefix,
@@ -51,6 +55,10 @@ export function HasuSongResultsView({
   const [timestamp, setTimestamp] = useState(new Date());
   const [showRenderingCanvas, setShowRenderingCanvas] = useState(false);
   const { t, i18n: _i18n } = useTranslation();
+  const catalog = useSongData();
+  const { enabled: useShortNames, short } = useAbbreviations();
+  const exportTitlePrefix =
+    (useShortNames && titlePrefix && short.name(titlePrefix)) || titlePrefix;
 
   const tabs = useMemo(
     () => [
@@ -113,13 +121,34 @@ export function HasuSongResultsView({
 
   const screenshot = () => copyImage(makeScreenshot, true);
 
-  const exportText = async () => {
+  const shortTitle = (title: string) => {
+    const find = (text: string) => catalog.find((song) => nameKey(song.name) === nameKey(text));
+    const exact = find(title);
+    if (exact) return short.song(exact);
+    const [, base, version] = /^(.*?)(（[^（）]*）)$/u.exec(title) ?? [];
+    const song = base ? find(base) : undefined;
+    return song ? `${short.song(song)}${version}` : title;
+  };
+  const shortUnit = (unit: string) =>
+    unit
+      .split(', ')
+      .map((name) => short.name(name) ?? name)
+      .join(', ');
+  const exportSong = <T extends HasuSong>(song: T, abbreviate: boolean): T =>
+    abbreviate ? { ...song, title: shortTitle(song.title), unitLabel: shortUnit(song.unit) } : song;
+  const findSong = (id: number, abbreviate: boolean) => {
+    const song = songsData.find((item) => item.id === id);
+    return song && exportSong(song, abbreviate);
+  };
+  const exportSongs = songs.map((song) => exportSong(song, useShortNames));
+
+  const exportText = async (abbreviate: boolean) => {
     await copyToClipboard(
       order
         ?.flatMap((item, idx) =>
           item.map((i) => {
-            const s = songsData.find((s) => s.id === i);
-            return `${idx + 1}. ${s?.title} - ${s?.unit}`;
+            const s = findSong(i, abbreviate);
+            return `${idx + 1}. ${s?.title} - ${s?.unitLabel ?? s?.unit}`;
           })
         )
         .join('\n') ?? ''
@@ -131,11 +160,11 @@ export function HasuSongResultsView({
       JSON.stringify(
         order?.flatMap((item, idx) =>
           item.map((i) => {
-            const s = songsData.find((s) => s.id === i);
+            const s = findSong(i, useShortNames);
             return {
               rank: idx + 1,
               title: s?.title,
-              unit: s?.unit
+              unit: s?.unitLabel ?? s?.unit
             };
           })
         )
@@ -143,11 +172,11 @@ export function HasuSongResultsView({
     );
   };
 
-  const getShareText = () => {
+  const getShareText = (abbreviate: boolean) => {
     const seiyuuList = order
       ?.flatMap((ids, idx) =>
         ids.map((id) => {
-          const song = songsData.find((s) => s.id === id);
+          const song = findSong(id, abbreviate);
           if (!song) return;
           return `${idx + 1}. ${song.title}`;
         })
@@ -160,12 +189,12 @@ export function HasuSongResultsView({
   };
 
   const shareToX = () => {
-    const shareURL = `https://twitter.com/intent/tweet?text=${encodeURIComponent(getShareText())}`;
+    const shareURL = `https://twitter.com/intent/tweet?text=${encodeURIComponent(getShareText(useShortNames))}`;
     window.open(shareURL, '_blank');
   };
 
-  const copyText = async () => {
-    await copyToClipboard(getShareText());
+  const copyText = async (abbreviate: boolean) => {
+    await copyToClipboard(getShareText(abbreviate));
   };
 
   const download = async () => {
@@ -173,39 +202,43 @@ export function HasuSongResultsView({
       const blob = await makeScreenshot();
       if (!blob) return;
       const saveAs = (await import('file-saver')).saveAs;
-      saveAs(new File([blob], `${titlePrefix ?? 'll'}-sorted-${timestamp.valueOf()}.png`));
+      saveAs(new File([blob], `${exportTitlePrefix ?? 'll'}-sorted-${timestamp.valueOf()}.png`));
     } catch (error) {
       console.error(error);
     }
   };
 
-  useEffect(() => {
+  const makeTitle = (prefix?: string) => {
     const sortType = t('hasu-songs');
     const type = currentTab === 'tier' ? t('results.tierlist') : t('results.ranking');
-    setTitle(
-      titlePrefix
-        ? t('results.results_title', { titlePrefix, sortType, type })
-        : t('results.default_results_title', {
-            titlePrefix,
-            sortType,
-            type
-          })
-    );
-  }, [titlePrefix, currentTab, t]);
+    return prefix
+      ? t('results.results_title', { titlePrefix: prefix, sortType, type })
+      : t('results.default_results_title', { titlePrefix: prefix, sortType, type });
+  };
+  const defaultTitle = makeTitle(titlePrefix);
+  const exportTitle = title === defaultTitle ? makeTitle(exportTitlePrefix) : title;
+
+  useEffect(() => {
+    setTitle(defaultTitle);
+  }, [defaultTitle, currentTab]);
+
   return (
     <>
       <Stack alignItems="center" w="full" textAlign="center">
         <Heading fontSize="2xl" fontWeight="bold">
           {t('results.sort_results')}
         </Heading>
-        <HStack justifyContent="center">
-          <Button variant="subtle" onClick={() => void copyText()}>
+        <Wrap justifyContent="center">
+          <Button variant="subtle" onClick={() => void copyText(false)}>
             {t('results.copy_results')}
+          </Button>
+          <Button variant="subtle" onClick={() => void copyText(true)}>
+            {t('results.copy_results_short')}
           </Button>
           <Button onClick={() => void shareToX()}>
             <FaXTwitter /> {t('results.share_x')}
           </Button>
-        </HStack>
+        </Wrap>
         <Stack w="full">
           <Accordion.Root size="md" collapsible>
             <Accordion.Item value="default" width="100%">
@@ -244,22 +277,23 @@ export function HasuSongResultsView({
               </Accordion.ItemContent>
             </Accordion.Item>
           </Accordion.Root>
-          <HStack justifyContent="space-between" w="full">
-            <Wrap justifyContent="flex-end" w="full">
-              <Button variant="subtle" onClick={() => void exportJSON()}>
-                <FaCopy /> {t('results.export_json')}
-              </Button>
-              <Button variant="subtle" onClick={() => void exportText()}>
-                <FaCopy /> {t('results.copy_text')}
-              </Button>
-              <Button variant="subtle" onClick={() => void screenshot()}>
-                <FaCopy /> {t('results.copy')}
-              </Button>
-              <Button onClick={() => void download()}>
-                <FaDownload /> {t('results.download')}
-              </Button>
-            </Wrap>
-          </HStack>
+          <ExportActions>
+            <Button variant="subtle" onClick={() => void exportJSON()}>
+              <FaCopy /> {t('results.export_json')}
+            </Button>
+            <Button variant="subtle" onClick={() => void exportText(false)}>
+              <FaCopy /> {t('results.copy_text')}
+            </Button>
+            <Button variant="subtle" onClick={() => void exportText(true)}>
+              <FaCopy /> {t('results.copy_text_short')}
+            </Button>
+            <Button variant="subtle" onClick={() => void screenshot()}>
+              <FaCopy /> {t('results.copy')}
+            </Button>
+            <Button onClick={() => void download()}>
+              <FaDownload /> {t('results.download')}
+            </Button>
+          </ExportActions>
         </Stack>
 
         <Tabs.Root
@@ -291,17 +325,19 @@ export function HasuSongResultsView({
       {showRenderingCanvas && (
         <Box position="absolute" w="0" h="0" overflow="hidden">
           <Stack id="results" width="1280px" p="4" bgColor="bg.canvas">
-            {title && (
+            {exportTitle && (
               <Heading fontSize="2xl" fontWeight="bold">
-                {title}
+                {exportTitle}
               </Heading>
             )}
             {description && <Text>{description}</Text>}
-            {currentTab === 'grid' ? (
-              <HasuSongGridView songs={songs} />
-            ) : (
-              <HasuSongTierList songs={songs} settings={tierListSettings} />
-            )}
+            <Box w="full" textAlign="center">
+              {currentTab === 'grid' ? (
+                <HasuSongGridView songs={exportSongs} />
+              ) : (
+                <HasuSongTierList songs={exportSongs} settings={tierListSettings} />
+              )}
+            </Box>
             <Text textAlign="end">
               {t('results.generated_at')}: {timestamp.toLocaleString()}
             </Text>

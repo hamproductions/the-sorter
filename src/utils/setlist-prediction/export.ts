@@ -30,7 +30,8 @@ export function downloadJSON(prediction: SetlistPrediction, filename?: string): 
 export function exportAsText(
   prediction: SetlistPrediction,
   performance?: Performance,
-  authorName?: string
+  authorName?: string,
+  songName?: (songId: string) => string | undefined
 ): string {
   const lines: string[] = [];
 
@@ -81,7 +82,7 @@ export function exportAsText(
     let itemText = '';
 
     if (isSongItem(item)) {
-      itemText = `♪ ${item.songId}`;
+      itemText = `♪ ${songName?.(item.songId) ?? item.songId}`;
       if (item.isCustomSong && item.customSongName) {
         itemText = `♪ ${item.customSongName}`;
       }
@@ -113,9 +114,10 @@ export function exportAsText(
 export function copyTextToClipboard(
   prediction: SetlistPrediction,
   performance?: Performance,
-  authorName?: string
+  authorName?: string,
+  songName?: (songId: string) => string | undefined
 ): Promise<void> {
-  const text = exportAsText(prediction, performance, authorName);
+  const text = exportAsText(prediction, performance, authorName, songName);
 
   if (navigator.clipboard && navigator.clipboard.writeText) {
     return navigator.clipboard.writeText(text);

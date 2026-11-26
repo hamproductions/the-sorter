@@ -28,6 +28,7 @@ import {
 } from '~/hooks/setlist-prediction/usePerformanceData';
 import { SetlistView } from '~/components/setlist-prediction/SetlistView';
 import { getFullPerformanceName } from '~/utils/names';
+import { matchesEventAlias } from '~/utils/abbreviations';
 import {
   Root as DialogRoot,
   Backdrop as DialogBackdrop,
@@ -80,7 +81,8 @@ export function ImportDialog({ open, onOpenChange, onImport, performanceId }: Im
         (p) =>
           p.tourName.toLowerCase().includes(searchLower) ||
           p.venue?.toLowerCase().includes(searchLower) ||
-          p.description?.toLowerCase().includes(searchLower)
+          p.description?.toLowerCase().includes(searchLower) ||
+          matchesEventAlias(p.eventId, performanceSearch)
       );
     }
 

@@ -24,7 +24,9 @@ import { getCastName, getCharacterFromId, getFullName, parseSortResult } from '~
 import type { Character } from '~/types';
 import { useLocalStorage } from '~/hooks/useLocalStorage';
 import { useToaster } from '~/context/ToasterContext';
-import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
+import { Box, Stack, Wrap } from 'styled-system/jsx';
+import { ExportActions } from '~/components/results/ExportActions';
+import { useAbbreviations } from '~/hooks/useAbbreviations';
 import { useClipboard } from '~/hooks/useClipboard';
 import { TabIcon } from '~/components/layout/TabIcon';
 
@@ -63,6 +65,9 @@ export function ResultsView({
   onSelectCharacter?: (character: Character) => void;
 }) {
   const { toast } = useToaster();
+  const { enabled: useShortNames, short } = useAbbreviations();
+  const exportTitlePrefix =
+    (useShortNames && titlePrefix && short.name(titlePrefix)) || titlePrefix;
   const { copyText: copyToClipboard, copyImage } = useClipboard();
   const [tierListSettings, setTierListSettings] = useLocalStorage<TierListSettingsData>(
     'tier-settings',
@@ -135,23 +140,23 @@ export function ResultsView({
       const blob = await makeScreenshot();
       if (!blob) return;
       const saveAs = (await import('file-saver')).saveAs;
-      saveAs(new File([blob], `${titlePrefix ?? 'll'}-sorted-${timestamp.valueOf()}.png`));
+      saveAs(new File([blob], `${exportTitlePrefix ?? 'll'}-sorted-${timestamp.valueOf()}.png`));
     } catch (error) {
       console.error(error);
     }
   };
 
-  const getShareText = () => {
+  const getShareText = (abbreviate: boolean) => {
     const seiyuuList = order
       ?.flatMap((ids, idx) =>
         ids.map((id) => {
           const character = getCharacterFromId(charactersData, id, isSeiyuu);
           if (!character) return;
-          return `${idx + 1}. ${
-            isSeiyuu
-              ? getCastName(character?.casts[0], i18n.language)
-              : getFullName(character, i18n.language)
-          }`;
+          const name = isSeiyuu
+            ? getCastName(character?.casts[0], i18n.language)
+            : ((abbreviate ? short.name(character.fullName) : undefined) ??
+              getFullName(character, i18n.language));
+          return `${idx + 1}. ${name}`;
         })
       )
       .slice(0, 5)
@@ -161,13 +166,22 @@ export function ResultsView({
     )}\nhttps://hamproductions.github.io/the-sorter/`;
   };
   const shareToX = () => {
-    const shareURL = `https://twitter.com/intent/tweet?text=${encodeURIComponent(getShareText())}`;
+    const shareURL = `https://twitter.com/intent/tweet?text=${encodeURIComponent(getShareText(useShortNames))}`;
     window.open(shareURL, '_blank');
   };
 
-  const copyText = async () => {
-    await copyToClipboard(getShareText());
+  const copyText = async (abbreviate: boolean) => {
+    await copyToClipboard(getShareText(abbreviate));
   };
+
+  const exportCharacters = useShortNames
+    ? characters.map((character) => {
+        const name = short.name(character.fullName);
+        return name
+          ? { ...character, originalName: character.fullName, fullName: name, englishName: name }
+          : character;
+      })
+    : characters;
 
   const {
     title: displayTitle,
@@ -178,19 +192,20 @@ export function ResultsView({
 
   const displayTab = currentTab || displayCurrentTab;
 
-  useEffect(() => {
+  const makeTitle = (prefix?: string) => {
     const sortType = isSeiyuu ? t('seiyuu') : t('character');
     const type = currentTab === 'tier' ? t('results.tierlist') : t('results.ranking');
-    setTitle(
-      titlePrefix
-        ? t('results.results_title', { titlePrefix, sortType, type })
-        : t('results.default_results_title', {
-            titlePrefix,
-            sortType,
-            type
-          })
-    );
-  }, [titlePrefix, isSeiyuu, currentTab, t]);
+    return prefix
+      ? t('results.results_title', { titlePrefix: prefix, sortType, type })
+      : t('results.default_results_title', { titlePrefix: prefix, sortType, type });
+  };
+  const defaultTitle = makeTitle(titlePrefix);
+  const exportTitle = title === defaultTitle ? makeTitle(exportTitlePrefix) : title;
+
+  useEffect(() => {
+    setTitle(defaultTitle);
+  }, [defaultTitle, currentTab]);
+
   return (
     <>
       <Stack alignItems="center" w="full" textAlign="center">
@@ -200,14 +215,17 @@ export function ResultsView({
         {displayDescription && <Text>{displayDescription}</Text>}
         {(!readOnly || allowExport) && (
           <Stack w="full">
-            <HStack justifyContent="center">
-              <Button variant="subtle" onClick={() => void copyText()}>
+            <Wrap justifyContent="center">
+              <Button variant="subtle" onClick={() => void copyText(false)}>
                 {t('results.copy_results')}
+              </Button>
+              <Button variant="subtle" onClick={() => void copyText(true)}>
+                {t('results.copy_results_short')}
               </Button>
               <Button onClick={() => void shareToX()}>
                 <FaXTwitter /> {t('results.share_x')}
               </Button>
-            </HStack>
+            </Wrap>
             <Accordion.Root size="md" collapsible>
               <Accordion.Item value="default" width="100%">
                 <Accordion.ItemTrigger>
@@ -249,37 +267,39 @@ export function ResultsView({
                 </Accordion.ItemContent>
               </Accordion.Item>
             </Accordion.Root>
-            <Wrap justifyContent="space-between" w="full">
+            <ExportActions>
               {!readOnly && (
-                <Button variant="subtle" onClick={() => setShowEditResults(true)}>
+                <Button
+                  variant="subtle"
+                  onClick={() => setShowEditResults(true)}
+                  mr={{ md: 'auto' }}
+                >
                   <FaPencil /> {t('results.edit')}
                 </Button>
               )}
-              <Wrap justifyContent="flex-end" ml="auto">
-                {onShareResults && (
-                  <Button
-                    variant="subtle"
-                    data-testid="share-results-button"
-                    onClick={() =>
-                      onShareResults({
-                        title,
-                        description,
-                        tierListSettings: tierListSettings ?? undefined,
-                        tab: displayTab ?? undefined
-                      })
-                    }
-                  >
-                    <FaShare /> {t('results.share')}
-                  </Button>
-                )}
-                <Button variant="subtle" onClick={() => void screenshot()}>
-                  <FaCopy /> {t('results.copy')}
+              {onShareResults && (
+                <Button
+                  variant="subtle"
+                  data-testid="share-results-button"
+                  onClick={() =>
+                    onShareResults({
+                      title,
+                      description,
+                      tierListSettings: tierListSettings ?? undefined,
+                      tab: displayTab ?? undefined
+                    })
+                  }
+                >
+                  <FaShare /> {t('results.share')}
                 </Button>
-                <Button onClick={() => void download()}>
-                  <FaDownload /> {t('results.download')}
-                </Button>
-              </Wrap>
-            </Wrap>
+              )}
+              <Button variant="subtle" onClick={() => void screenshot()}>
+                <FaCopy /> {t('results.copy')}
+              </Button>
+              <Button onClick={() => void download()}>
+                <FaDownload /> {t('results.download')}
+              </Button>
+            </ExportActions>
           </Stack>
         )}
         <Tabs.Root
@@ -337,25 +357,35 @@ export function ResultsView({
       {(!readOnly || allowExport) && showRenderingCanvas && (
         <Box position="absolute" w="0" h="0" overflow="hidden">
           <Stack id="results" width="1280px" p="4" bgColor="bg.canvas">
-            {title && (
+            {exportTitle && (
               <Heading fontSize="2xl" fontWeight="bold">
-                {title}
+                {exportTitle}
               </Heading>
             )}
             {description && <Text>{description}</Text>}
-            {currentTab === 'table' ? (
-              <RankingTable characters={characters} isSeiyuu={isSeiyuu} />
-            ) : currentTab === 'grid' ? (
-              <GridView characters={characters} isSeiyuu={isSeiyuu} />
-            ) : currentTab === 'tier' ? (
-              <TierList
-                characters={characters}
-                isSeiyuu={isSeiyuu}
-                settings={displayTierListSettings || tierListSettings}
-              />
-            ) : (
-              <RankingView characters={characters} isSeiyuu={isSeiyuu} />
-            )}
+            <Box w="full" textAlign="center">
+              {currentTab === 'table' ? (
+                <RankingTable
+                  characters={exportCharacters}
+                  isSeiyuu={isSeiyuu}
+                  abbreviate={useShortNames}
+                />
+              ) : currentTab === 'grid' ? (
+                <GridView characters={exportCharacters} isSeiyuu={isSeiyuu} />
+              ) : currentTab === 'tier' ? (
+                <TierList
+                  characters={exportCharacters}
+                  isSeiyuu={isSeiyuu}
+                  settings={displayTierListSettings || tierListSettings}
+                />
+              ) : (
+                <RankingView
+                  characters={exportCharacters}
+                  isSeiyuu={isSeiyuu}
+                  abbreviate={useShortNames}
+                />
+              )}
+            </Box>
             <Text textAlign="end">
               {t('results.generated_at')}: {timestamp.toLocaleString()}
             </Text>

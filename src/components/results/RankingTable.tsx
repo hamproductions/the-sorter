@@ -9,41 +9,45 @@ import type { Character, WithRank } from '~/types';
 import { Stack, Wrap, styled } from 'styled-system/jsx';
 import { getCastName, getFullName } from '~/utils/character';
 import { getSchoolName, getUnitName } from '~/utils/names';
+import { useAbbreviations } from '~/hooks/useAbbreviations';
 
 export function RankingTable({
   characters,
   isSeiyuu,
   responsive,
-  onSelectCharacter
+  onSelectCharacter,
+  abbreviate
 }: {
-  characters: WithRank<Character>[];
+  characters: WithRank<Character & { originalName?: string }>[];
   isSeiyuu: boolean;
   responsive?: boolean;
   onSelectCharacter?: (character: WithRank<Character>) => void;
+  abbreviate?: boolean;
 }) {
   const { t, i18n } = useTranslation();
 
   const lang = i18n.language;
+  const { short } = useAbbreviations();
   return (
     <Table.Root size="sm">
       <Table.Head>
         <Table.Row>
-          <Table.Header>{t('ranking')}</Table.Header>
+          <Table.Header textAlign="center">{t('ranking')}</Table.Header>
           {isSeiyuu ? (
             <>
-              <Table.Header>{t('seiyuu')}</Table.Header>
-              <Table.Header>{t('character')}</Table.Header>
+              <Table.Header textAlign="center">{t('seiyuu')}</Table.Header>
+              <Table.Header textAlign="center">{t('character')}</Table.Header>
             </>
           ) : (
             <>
-              <Table.Header>{t('character')}</Table.Header>
-              <Table.Header>{t('seiyuu')}</Table.Header>
+              <Table.Header textAlign="center">{t('character')}</Table.Header>
+              <Table.Header textAlign="center">{t('seiyuu')}</Table.Header>
             </>
           )}
-          <Table.Header hideBelow={responsive ? 'md' : undefined}>
+          <Table.Header hideBelow={responsive ? 'md' : undefined} textAlign="center">
             {t('settings.series')}・{t('settings.school')}
           </Table.Header>
-          <Table.Header hideBelow={responsive ? 'md' : undefined}>
+          <Table.Header hideBelow={responsive ? 'md' : undefined} textAlign="center">
             {t('settings.units')}
           </Table.Header>
         </Table.Row>
@@ -54,7 +58,7 @@ export function RankingTable({
           const imageSize = idx === 0 ? '150px' : idx <= 3 ? '100px' : '80px';
 
           const fullName = getFullName(c, lang);
-          const school = getSchoolName(c.school, lang);
+          const school = (abbreviate && short.name(c.school)) || getSchoolName(c.school, lang);
           return (
             <Table.Row
               key={idx}
@@ -76,7 +80,12 @@ export function RankingTable({
                       width="auto"
                     />
                   )}
-                  <Wrap gap="1" justifyContent="center" alignItems="center">
+                  <Wrap
+                    style={responsive ? undefined : { flexWrap: 'nowrap' }}
+                    gap="1"
+                    justifyContent="center"
+                    alignItems="center"
+                  >
                     <CharacterIcon locale={lang} character={c} w="auto" h="8" />
                     <Stack gap="1" alignItems="center">
                       <Text
@@ -118,7 +127,7 @@ export function RankingTable({
               </Table.Cell>
               <Table.Cell hideBelow={responsive ? 'md' : undefined}>
                 <Stack gap="1" alignItems="center" w="full" py="2">
-                  <SchoolBadge locale={lang} character={c} />
+                  <SchoolBadge abbreviate={abbreviate} locale={lang} character={c} />
                   <Text textAlign="center">{school}</Text>
                 </Stack>
               </Table.Cell>
@@ -126,14 +135,14 @@ export function RankingTable({
                 <Stack gap="1" py="2">
                   {Object.values(
                     groupBy(
-                      units.filter((u) => !u.name.includes(c.fullName)),
+                      units.filter((u) => !u.name.includes(c.originalName ?? c.fullName)),
                       (u) => u.name
                     )
                   ).map((us) => {
                     const u = us[0];
                     return (
                       <Text key={u.id}>
-                        {getUnitName(u.name, lang)}{' '}
+                        {(abbreviate && short.name(u.name)) || getUnitName(u.name, lang)}{' '}
                         {u.additionalInfo && (
                           <Text as="span" hideBelow={responsive ? 'lg' : undefined}>
                             ({us.map((i) => i.additionalInfo).join(',')})

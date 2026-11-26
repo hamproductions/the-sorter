@@ -1,10 +1,12 @@
 import { toHiragana, toRomaji } from 'wanakana';
+import { getAliasScore } from './abbreviations';
 
 export interface SearchableItem {
   id: string | number;
   name: string;
   englishName?: string;
   phoneticName?: string;
+  aliases?: string[];
   [key: string]: any;
 }
 
@@ -78,6 +80,7 @@ function maxDistanceForLength(len: number): number {
  */
 export function fuzzySearch(item: SearchableItem, query: string): boolean {
   if (!query.trim()) return true;
+  if (getAliasScore(item.aliases ?? [], query)) return true;
 
   const q = query.toLowerCase();
   const queryHiragana = toHiragana(q, { passRomaji: false });
@@ -170,7 +173,10 @@ export const searchMatch = fuzzySearch;
  */
 export function getSearchScore(item: SearchableItem, query: string): number {
   if (!query.trim()) return 0;
+  return Math.max(getAliasScore(item.aliases ?? [], query), getNameScore(item, query));
+}
 
+function getNameScore(item: SearchableItem, query: string): number {
   const q = query.toLowerCase();
   const queryHiragana = toHiragana(q, { passRomaji: false });
   const queryRomaji = toRomaji(queryHiragana);

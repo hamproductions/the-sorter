@@ -7,6 +7,7 @@ import { Text } from '~/components/ui/styled/text';
 import { Input } from '~/components/ui/styled/input';
 import { usePerformanceData } from '~/hooks/setlist-prediction/usePerformanceData';
 import { getFullPerformanceName } from '~/utils/names';
+import { matchesEventAlias } from '~/utils/abbreviations';
 import {
   Root as DialogRoot,
   Backdrop as DialogBackdrop,
@@ -46,7 +47,8 @@ export function NewPredictionDialog({ open, onOpenChange, onCreateNew }: NewPred
         (p) =>
           p.tourName.toLowerCase().includes(searchLower) ||
           p.performanceName?.toLowerCase().includes(searchLower) ||
-          p.venue?.toLowerCase().includes(searchLower)
+          p.venue?.toLowerCase().includes(searchLower) ||
+          matchesEventAlias(p.eventId, search)
       );
     }
 

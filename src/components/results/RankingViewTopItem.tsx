@@ -11,11 +11,13 @@ import { getCastName, getFullName } from '~/utils/character';
 export function RankingViewTopItem({
   character,
   isSeiyuu,
-  locale
+  locale,
+  abbreviate
 }: {
   character: WithRank<Character>;
   isSeiyuu: boolean;
   locale: Locale;
+  abbreviate?: boolean;
 }) {
   const { id, rank, colorCode, casts, seriesColor } = character;
   const imageSize = rank === 0 ? '125px' : '80px';
@@ -71,7 +73,7 @@ export function RankingViewTopItem({
             bgColor="bg.canvas"
           />
         </Center>
-        <SchoolBadge locale={locale} character={character} hideBelow="sm" />
+        <SchoolBadge abbreviate={abbreviate} locale={locale} character={character} hideBelow="sm" />
         <Wrap gap="0.5" justifyContent="center" alignItems="center" w="full">
           <Stack gap="1">
             <Stack gap="1" alignItems="center">

@@ -40,6 +40,7 @@
     "deselect_all": "クリアする",
     "no_tie_mode": "DD禁止モード",
     "heardle_mode": "イントロドンモード",
+    "use_abbreviations": "画像・JSONも略称にする",
     "artists": "アーティスト",
     "generation": {
       "103": "103期",
@@ -172,6 +173,7 @@
     },
     "share_x": "Xにポストする",
     "copy_results": "結果をコピーする",
+    "copy_results_short": "略称で結果をコピーする",
     "settings": {
       "tier": {
         "settings": "Tier設定",
@@ -187,6 +189,7 @@
       }
     },
     "copy_text": "テキストをコピーする",
+    "copy_text_short": "略称テキストをコピーする",
     "export_json": "JSONデータをコピーする"
   },
   "toast": {
@@ -416,6 +419,8 @@
     "comingSoon": "近日公開！",
     "imageExportHint": "画像エクスポートは近日公開予定です",
     "copyText": "テキストとしてコピー",
+    "copyTextShort": "略称テキストとしてコピー",
+    "abbreviateImage": "画像を略称にする",
     "exportCsv": "CSVをエクスポート",
     "urlTooLong": "予想が大きすぎてURLで共有できません",
     "urlTooLongHint": "URLサイズ: {{size}}文字。項目を削除するか、JSONエクスポートを使用してください。",

@@ -74,7 +74,7 @@ export function HasuSongGridViewItem({
               </Text>
             </Stack>
             <Text fontSize="xs" textAlign="center">
-              {unit}
+              {song.unitLabel ?? unit}
             </Text>
           </Stack>
         </Wrap>

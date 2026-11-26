@@ -9,6 +9,7 @@ import { useArtistsData } from '~/hooks/useArtistsData';
 import { useSongData } from '~/hooks/useSongData';
 import { SchoolBadge } from '~/components/sorter/SchoolBadge';
 import { getArtistName, getSongName } from '~/utils/names';
+import { useAbbreviations } from '~/hooks/useAbbreviations';
 import type { PerformanceSortMeta } from '~/types/performance-sort';
 import { SongPerformanceContext } from '~/components/sorter/SongPerformanceContext';
 import { getPerformanceDisplayPerformers } from '~/utils/performance-sort';
@@ -22,7 +23,8 @@ function getRankColor(rank: number, total: number): string {
 function formatArtistsWithVariants(
   songArtists: Song['artists'],
   artistsData: { id: string; name: string; englishName?: string }[],
-  lang: string
+  lang: string,
+  shortName?: (name: string) => string | undefined
 ): string {
   const grouped = new Map<string, { name: string; variants: (string | null)[] }>();
 
@@ -34,7 +36,8 @@ function formatArtistsWithVariants(
     if (existing) {
       existing.variants.push(sa.variant);
     } else {
-      grouped.set(sa.id, { name: getArtistName(artist.name, lang), variants: [sa.variant] });
+      const name = shortName?.(artist.name) ?? getArtistName(artist.name, lang);
+      grouped.set(sa.id, { name, variants: [sa.variant] });
     }
   }
 
@@ -51,15 +54,18 @@ function formatArtistsWithVariants(
 
 export function PerformanceOrderView({
   performanceMeta,
-  order
+  order,
+  abbreviate
 }: {
   performanceMeta: PerformanceSortMeta;
   order: string[][];
+  abbreviate?: boolean;
 }) {
   const songs = useSongData();
   const artists = useArtistsData();
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
+  const { short } = useAbbreviations();
 
   const rankMap = useMemo(() => {
     const map: Record<string, number> = {};
@@ -121,23 +127,29 @@ export function PerformanceOrderView({
             >
               <Table.Cell textAlign="center">
                 <Text fontFamily="mono" fontSize="xs" fontWeight="bold">
-                  {label}
+                  {abbreviate ? short.event(label, entry.tourName) : label}
                 </Text>
               </Table.Cell>
               <Table.Cell>
                 <Text layerStyle="textStroke" color="var(--color)" fontSize="md" fontWeight="bold">
-                  {getSongName(song.name, song.englishName, lang)}
+                  {(abbreviate && short.song(song)) ||
+                    getSongName(song.name, song.englishName, lang)}
                 </Text>
               </Table.Cell>
               <Table.Cell>
                 <Stack gap="1" alignItems="center" w="full" py="2">
-                  <SchoolBadge locale={lang} song={song} />
+                  <SchoolBadge abbreviate={abbreviate} locale={lang} song={song} />
                   <Text>
                     {getPerformanceDisplayPerformers(song, entry.performers).length > 0 &&
                       `${t('performance.original_recording')}: `}
-                    {formatArtistsWithVariants(song.artists, artists, lang)}
+                    {formatArtistsWithVariants(
+                      song.artists,
+                      artists,
+                      lang,
+                      abbreviate ? short.name : undefined
+                    )}
                   </Text>
-                  <SongPerformanceContext song={song} entries={[entry]} />
+                  <SongPerformanceContext abbreviate={abbreviate} song={song} entries={[entry]} />
                 </Stack>
               </Table.Cell>
               <Table.Cell textAlign="center">
