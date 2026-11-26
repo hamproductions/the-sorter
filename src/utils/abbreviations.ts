@@ -32,13 +32,17 @@ export const getSongAliases = (id: string | number, englishName?: string) => {
     : [...aliases, english];
 };
 
+const japanese = /[\p{sc=Hiragana}\p{sc=Katakana}\p{sc=Han}]/u;
+
 export const getSongAbbreviation = (
   id: string | number,
   name: string,
   locale: string | undefined
 ) => {
   const alias = locale === 'en' ? englishSongs[id] : songs[id]?.[0];
-  return alias && alias.length < name.length ? alias : undefined;
+  if (!alias || alias === name) return undefined;
+  const isRomanization = locale === 'en' && japanese.test(name) && !japanese.test(alias);
+  return isRomanization || alias.length < name.length ? alias : undefined;
 };
 
 export const getEventAbbreviation = (tourName: string, locale: string | undefined) => {
