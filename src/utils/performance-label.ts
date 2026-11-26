@@ -27,7 +27,7 @@ const words = {
     night: (value: string) => `${value}夜`
   },
   en: {
-    昼: 'Day',
+    昼: 'Matinee',
     夜: 'Night',
     part: (value: string) => `Part ${value}`,
     night: (value: string) => `Night ${value}`
