@@ -46,7 +46,7 @@ export function SongPerformanceContext({
               color="fg.muted"
               fontSize="xs"
             >
-              {labels.join(' / ')}
+              {(abbreviate ? labels.map(short.performance) : labels).join(' / ')}
               {note && entry.performers?.length ? ` · ${note}` : ''}
             </Text>
             {performers.length > 0 && (

@@ -6,6 +6,7 @@ import nameData from '../../data/name-abbreviations.json';
 import schools from '../../data/school.json';
 import series from '../../data/series.json';
 import units from '../../data/units.json';
+import { shortPerformanceLabel } from './performance-label';
 
 export interface EventAbbreviation {
   name: string;
@@ -82,6 +83,23 @@ export const getNameAbbreviation = (
   return members
     .map((member, index) => shortMembers[index] ?? member)
     .join(locale === 'en' ? ', ' : '、');
+};
+
+export const getPerformanceAbbreviation = (label: string, locale: string | undefined) =>
+  shortPerformanceLabel(label, locale === 'en' ? 'en' : 'ja', (name) =>
+    getNameAbbreviation(name, locale)
+  );
+
+export const abbreviatePerformanceTitle = (
+  label: string,
+  tourName: string,
+  locale: string | undefined
+) => {
+  const eventName = getEventAbbreviation(tourName, locale) ?? tourName;
+  const prefix = `${tourName} - `;
+  if (!label.startsWith(prefix)) return label.replace(tourName, eventName);
+  const [, leg, count = ''] = label.slice(prefix.length).match(/^(.*?)( \(\d+ performances\))?$/)!;
+  return `${eventName} ${getPerformanceAbbreviation(leg, locale)}${count}`;
 };
 
 export const getAliasScore = (aliases: string[], query: string) => {

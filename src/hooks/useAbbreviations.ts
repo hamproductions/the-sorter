@@ -2,8 +2,9 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocalStorage } from './useLocalStorage';
 import {
-  getEventAbbreviation,
+  abbreviatePerformanceTitle,
   getNameAbbreviation,
+  getPerformanceAbbreviation,
   getSongAbbreviation
 } from '~/utils/abbreviations';
 import { getSongName } from '~/utils/names';
@@ -21,10 +22,8 @@ export function useAbbreviations() {
         return getSongAbbreviation(song.id, fullName, lang) ?? fullName;
       },
       name: (name: string) => getNameAbbreviation(name, lang),
-      event: (label: string, tourName = '') => {
-        const eventName = getEventAbbreviation(tourName, lang);
-        return eventName ? label.replace(tourName, eventName) : label;
-      }
+      performance: (label: string) => getPerformanceAbbreviation(label, lang),
+      event: (label: string, tourName = '') => abbreviatePerformanceTitle(label, tourName, lang)
     }),
     [lang]
   );

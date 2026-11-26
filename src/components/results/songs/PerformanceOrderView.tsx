@@ -10,7 +10,7 @@ import { useSongData } from '~/hooks/useSongData';
 import { SchoolBadge } from '~/components/sorter/SchoolBadge';
 import { getArtistName, getSongName } from '~/utils/names';
 import { useAbbreviations } from '~/hooks/useAbbreviations';
-import type { PerformanceSortMeta } from '~/types/performance-sort';
+import type { PerformanceSortMeta, SetlistOrderEntry } from '~/types/performance-sort';
 import { SongPerformanceContext } from '~/components/sorter/SongPerformanceContext';
 import { getPerformanceDisplayPerformers } from '~/utils/performance-sort';
 
@@ -66,6 +66,14 @@ export function PerformanceOrderView({
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const { short } = useAbbreviations();
+
+  const shortLabel = (label: string, { tourName, performanceName }: SetlistOrderEntry) =>
+    short.event(
+      performanceName && performanceName !== tourName
+        ? label.replace(performanceName, short.performance(performanceName))
+        : label,
+      tourName
+    );
 
   const rankMap = useMemo(() => {
     const map: Record<string, number> = {};
@@ -127,7 +135,7 @@ export function PerformanceOrderView({
             >
               <Table.Cell textAlign="center">
                 <Text fontFamily="mono" fontSize="xs" fontWeight="bold">
-                  {abbreviate ? short.event(label, entry.tourName) : label}
+                  {abbreviate ? shortLabel(label, entry) : label}
                 </Text>
               </Table.Cell>
               <Table.Cell>

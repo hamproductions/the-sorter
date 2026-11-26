@@ -89,10 +89,8 @@ export function ExportShareTools({ prediction, performance }: ExportShareToolsPr
         abbreviate && performance
           ? {
               ...performance,
-              tourName: short.event(performance.tourName, performance.tourName),
-              performanceName:
-                performance.performanceName &&
-                short.event(performance.performanceName, performance.tourName)
+              tourName: short.event(getFullPerformanceName(performance), performance.tourName),
+              performanceName: undefined
             }
           : performance,
         authorName,
