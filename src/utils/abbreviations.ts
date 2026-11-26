@@ -1,5 +1,6 @@
 import { toHiragana } from 'wanakana';
 import songData from '../../data/song-abbreviations.json';
+import englishSongData from '../../data/song-abbreviations-en.json';
 import eventData from '../../data/event-abbreviations.json';
 import nameData from '../../data/name-abbreviations.json';
 import schools from '../../data/school.json';
@@ -14,24 +15,29 @@ export interface EventAbbreviation {
 }
 
 const songs = songData as Record<string, string[]>;
+const englishSongs = englishSongData as Record<string, string>;
 const events = eventData as Record<string, EventAbbreviation>;
 const names = nameData as Record<string, { ja: string; en?: string }>;
-const latin = /^[\p{Script=Latin}\p{N}\p{P}\p{S}\s]+$/u;
 
 const eventsByName = new Map<string, EventAbbreviation | null>();
 for (const event of Object.values(events)) {
   eventsByName.set(event.name, eventsByName.has(event.name) ? null : event);
 }
 
-export const getSongAliases = (id: string | number) => songs[id] ?? [];
+export const getSongAliases = (id: string | number, englishName?: string) => {
+  const aliases = songs[id] ?? [];
+  const english = englishSongs[id];
+  return !english || english === englishName || aliases.includes(english)
+    ? aliases
+    : [...aliases, english];
+};
 
 export const getSongAbbreviation = (
   id: string | number,
   name: string,
   locale: string | undefined
 ) => {
-  const aliases = getSongAliases(id);
-  const alias = locale === 'en' ? aliases.find((item) => latin.test(item)) : aliases[0];
+  const alias = locale === 'en' ? englishSongs[id] : songs[id]?.[0];
   return alias && alias.length < name.length ? alias : undefined;
 };
 

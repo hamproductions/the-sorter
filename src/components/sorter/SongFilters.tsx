@@ -273,7 +273,7 @@ export function SongFilters({
           color: seriesColorMap[String(s.seriesIds[0])],
           phoneticName: s.phoneticName,
           englishName: s.englishName,
-          aliases: getSongAliases(s.id)
+          aliases: getSongAliases(s.id, s.englishName)
         }))
         .sort((a, b) => a.name.localeCompare(b.name, _i18n.language)),
     [filteredSongs, seriesMap, seriesColorMap, _i18n.language]
