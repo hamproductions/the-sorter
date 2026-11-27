@@ -58,6 +58,7 @@ export function ExportShareTools({ prediction, performance }: ExportShareToolsPr
             defaultValue: 'Prediction too large to share via URL'
           }),
           description: t('setlistPrediction.urlTooLongHint', {
+            size: compressed,
             defaultValue: `URL size: ${compressed} chars. Try removing some items or use JSON export instead.`
           }),
           type: 'error'
