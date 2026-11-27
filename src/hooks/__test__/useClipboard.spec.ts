@@ -21,7 +21,7 @@ describe('useClipboard', () => {
       clipboard: { writeText: vi.fn().mockRejectedValue(new DOMException('', 'NotAllowedError')) }
     });
     const { result } = renderHook(() => useClipboard());
-    await expect(result.current.copyText('ranking')).resolves.toBeUndefined();
+    await expect(result.current.copyText('ranking')).resolves.toBe(false);
     expect(toast).toHaveBeenCalledExactlyOnceWith({
       type: 'error',
       description: 'setlistPrediction.failedToCopy'

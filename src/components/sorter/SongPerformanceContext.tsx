@@ -14,11 +14,13 @@ import { useAbbreviations } from '~/hooks/useAbbreviations';
 export function SongPerformanceContext({
   song,
   entries,
-  abbreviate
+  abbreviate,
+  alignStart
 }: {
   song: Song;
   entries: SetlistOrderEntry[];
   abbreviate?: boolean;
+  alignStart?: boolean;
 }) {
   const { t, i18n } = useTranslation();
   const characters = useData();
@@ -27,11 +29,17 @@ export function SongPerformanceContext({
     (abbreviate && short.name(name)) || getArtistName(name, i18n.language);
 
   return (
-    <Stack gap="2" alignItems="center" w="full" minW="0" maxW={{ base: '300px', md: 'full' }}>
+    <Stack
+      gap="2"
+      alignItems={alignStart ? 'flex-start' : 'center'}
+      w="full"
+      minW="0"
+      maxW={{ base: '300px', md: 'full' }}
+    >
       {getSongPerformanceLineups(song, entries).map(({ key, group, labels, note, performers }) => {
         const entry = group[0];
         return (
-          <Stack key={key} gap="1" alignItems="center" w="full">
+          <Stack key={key} gap="1" alignItems={alignStart ? 'flex-start' : 'center'} w="full">
             {entry.customSongName && entry.customSongName !== song.name && (
               <Text fontSize="xs">{entry.customSongName}</Text>
             )}
@@ -61,7 +69,7 @@ export function SongPerformanceContext({
                   cursor="pointer"
                   display="flex"
                   gap="1"
-                  justifyContent="center"
+                  justifyContent={alignStart ? 'flex-start' : 'center'}
                   alignItems="center"
                   rounded="sm"
                   minH={{ base: '11', md: '8' }}

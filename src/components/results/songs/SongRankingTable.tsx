@@ -9,13 +9,12 @@ import { useArtistsData } from '~/hooks/useArtistsData';
 import { SchoolBadge } from '~/components/sorter/SchoolBadge';
 import { MiniDots } from '~/components/sorter/MiniDots';
 import { getArtistName, getSongName } from '~/utils/names';
-import { useAbbreviations } from '~/hooks/useAbbreviations';
 import type { GuessResult } from '~/hooks/useHeardleState';
 import type { PerformanceSortMeta } from '~/types/performance-sort';
 import { SongPerformanceContext } from '~/components/sorter/SongPerformanceContext';
 import { getPerformanceDisplayPerformers } from '~/utils/performance-sort';
 
-function formatArtistsWithVariants(
+export function formatArtistsWithVariants(
   songArtists: Song['artists'],
   artistsData: Artist[],
   lang: string,
@@ -47,26 +46,29 @@ function formatArtistsWithVariants(
     .join(', ');
 }
 
+export const isOriginalRecording = (song: Song, performanceMeta?: PerformanceSortMeta) =>
+  !!performanceMeta?.setlistOrder.some(
+    (entry) =>
+      entry.songId === song.id && getPerformanceDisplayPerformers(song, entry.performers).length > 0
+  );
+
 export function SongRankingTable({
   songs,
   onSelectSong,
   guessResults,
   maxAttempts,
-  performanceMeta,
-  abbreviate
+  performanceMeta
 }: {
   songs: WithRank<Song>[];
   onSelectSong?: (character: WithRank<Song>) => void;
   guessResults?: Record<string, GuessResult>;
   maxAttempts?: number;
   performanceMeta?: PerformanceSortMeta;
-  abbreviate?: boolean;
 }) {
   const artists = useArtistsData();
   const { t, i18n } = useTranslation();
 
   const lang = i18n.language;
-  const { short } = useAbbreviations();
 
   return (
     <Table.Root size="sm" minW={performanceMeta ? '720px' : undefined}>
@@ -98,31 +100,19 @@ export function SongRankingTable({
               <Table.Cell>{rank}</Table.Cell>
               <Table.Cell>
                 <Text layerStyle="textStroke" color="var(--color)" fontSize="md" fontWeight="bold">
-                  {(abbreviate && short.song(c)) || getSongName(name, englishName, lang)}
+                  {getSongName(name, englishName, lang)}
                 </Text>
               </Table.Cell>
               <Table.Cell>
                 <Stack gap="1" alignItems="center" w="full" py="2">
-                  <SchoolBadge abbreviate={abbreviate} locale={lang} song={c} />
+                  <SchoolBadge locale={lang} song={c} />
                   <Text>
-                    {performanceMeta?.setlistOrder.some(
-                      (entry) =>
-                        entry.songId === c.id &&
-                        getPerformanceDisplayPerformers(c, entry.performers).length > 0
-                    ) && `${t('performance.original_recording')}: `}
-                    {formatArtistsWithVariants(
-                      songArtists,
-                      artists,
-                      lang,
-                      abbreviate ? short.name : undefined
-                    )}
+                    {isOriginalRecording(c, performanceMeta) &&
+                      `${t('performance.original_recording')}: `}
+                    {formatArtistsWithVariants(songArtists, artists, lang)}
                   </Text>
                   {performanceMeta && (
-                    <SongPerformanceContext
-                      abbreviate={abbreviate}
-                      song={c}
-                      entries={performanceMeta.setlistOrder}
-                    />
+                    <SongPerformanceContext song={c} entries={performanceMeta.setlistOrder} />
                   )}
                 </Stack>
               </Table.Cell>

@@ -4,3 +4,8 @@ html {
   scroll-snap-type: y proximity;
 }
 
+@media (max-width: 639.98px) {
+  body:has([data-export-menu]) [data-scope='toast'][data-part='group'] {
+    z-index: 0 !important;
+  }
+}

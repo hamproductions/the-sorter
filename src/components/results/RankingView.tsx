@@ -7,13 +7,11 @@ import type { Character, WithRank } from '~/types';
 export function RankingView({
   characters,
   isSeiyuu,
-  onSelectCharacter,
-  abbreviate
+  onSelectCharacter
 }: {
   characters: WithRank<Character>[];
   isSeiyuu: boolean;
   onSelectCharacter?: (character: WithRank<Character>) => void;
-  abbreviate?: boolean;
 }) {
   const { i18n } = useTranslation();
   const locale = i18n.language;
@@ -29,12 +27,7 @@ export function RankingView({
               data-testid={`character-item-${id}`}
               cursor="pointer"
             >
-              <RankingViewTopItem
-                abbreviate={abbreviate}
-                locale={locale}
-                character={c}
-                isSeiyuu={isSeiyuu}
-              />
+              <RankingViewTopItem locale={locale} character={c} isSeiyuu={isSeiyuu} />
             </GridItem>
           );
         })}

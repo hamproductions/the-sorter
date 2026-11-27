@@ -190,7 +190,15 @@
     },
     "copy_text": "テキストをコピーする",
     "copy_text_short": "略称テキストをコピーする",
-    "export_json": "JSONデータをコピーする"
+    "export_json": "JSONデータをコピーする",
+    "copied": "コピーしました",
+    "copy_choices": "テキストのコピー方法",
+    "image": "画像",
+    "image_abbreviated": "画像: 略称",
+    "more": "その他",
+    "top5_post": "上位5件の投稿",
+    "all_results": "全順位",
+    "also_applies_x": "Xへの投稿にも適用"
   },
   "toast": {
     "url_copied": "URLをコピーしました",
@@ -425,6 +433,11 @@
     "urlTooLong": "予想が大きすぎてURLで共有できません",
     "urlTooLongHint": "URLサイズ: {{size}}文字。項目を削除するか、JSONエクスポートを使用してください。",
     "failedToDownload": "ダウンロードに失敗しました",
+    "authorName": "名前（任意）",
+    "authorNamePlaceholder": "名前を入力",
+    "exportingImage": "エクスポート中...",
+    "imageDownloaded": "画像をダウンロードしました",
+    "failedToExportImage": "画像のエクスポートに失敗しました",
     "markingMode": "採点モード",
     "predictionNotFound": "予想が見つかりません",
     "importActualSetlist": "実際のセットリストをインポート",

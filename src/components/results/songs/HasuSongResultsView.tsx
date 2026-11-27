@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { flushSync } from 'react-dom';
-import { FaChevronDown, FaCopy, FaDownload, FaXTwitter } from 'react-icons/fa6';
+import { FaCode, FaCopy, FaDownload, FaXTwitter } from 'react-icons/fa6';
 
 import { useTranslation } from 'react-i18next';
 
@@ -10,22 +10,19 @@ import { TierListSettings } from '../TierListSettings';
 import { HasuSongGridView } from './HasuSongGridView';
 import { HasuSongTierList } from './HasuSongTierList';
 import { Tabs } from '~/components/ui/tabs';
-import { Accordion } from '~/components/ui/accordion';
-import { Box, Stack, Wrap } from 'styled-system/jsx';
-import { FormLabel } from '~/components/ui/form-label';
+import { Box, Stack } from 'styled-system/jsx';
 import { Heading } from '~/components/ui/heading';
-import { Input } from '~/components/ui/input';
-import { Textarea } from '~/components/ui/textarea';
 import { useToaster } from '~/context/ToasterContext';
 import { useLocalStorage } from '~/hooks/useLocalStorage';
 import type { WithRank } from '~/types';
-import { Text } from '~/components/ui/text';
 import type { HasuSong } from '~/types/songs';
-import { Button } from '~/components/ui/button';
 import type { RootProps } from '~/components/ui/styled/tabs';
 import { useClipboard } from '~/hooks/useClipboard';
 import { TabIcon } from '~/components/layout/TabIcon';
 import { ExportActions } from '~/components/results/ExportActions';
+import { getCopyOptions } from '~/components/results/export/copy-options';
+import { ExportCanvas } from '~/components/results/export/ExportCanvas';
+import { ExportSettingsFields } from '~/components/results/export/ExportSettings';
 import { useAbbreviations } from '~/hooks/useAbbreviations';
 import { useSongData } from '~/hooks/useSongData';
 import { nameKey } from '~/utils/abbreviations';
@@ -142,18 +139,15 @@ export function HasuSongResultsView({
   };
   const exportSongs = songs.map((song) => exportSong(song, useShortNames));
 
-  const exportText = async (abbreviate: boolean) => {
-    await copyToClipboard(
-      order
-        ?.flatMap((item, idx) =>
-          item.map((i) => {
-            const s = findSong(i, abbreviate);
-            return `${idx + 1}. ${s?.title} - ${s?.unitLabel ?? s?.unit}`;
-          })
-        )
-        .join('\n') ?? ''
-    );
-  };
+  const getText = (abbreviate: boolean) =>
+    order
+      ?.flatMap((item, idx) =>
+        item.map((i) => {
+          const s = findSong(i, abbreviate);
+          return `${idx + 1}. ${s?.title} - ${s?.unitLabel ?? s?.unit}`;
+        })
+      )
+      .join('\n') ?? '';
 
   const exportJSON = async () => {
     await copyToClipboard(
@@ -193,10 +187,6 @@ export function HasuSongResultsView({
     window.open(shareURL, '_blank');
   };
 
-  const copyText = async (abbreviate: boolean) => {
-    await copyToClipboard(getShareText(abbreviate));
-  };
-
   const download = async () => {
     try {
       const blob = await makeScreenshot();
@@ -228,73 +218,80 @@ export function HasuSongResultsView({
         <Heading fontSize="2xl" fontWeight="bold">
           {t('results.sort_results')}
         </Heading>
-        <Wrap justifyContent="center">
-          <Button variant="subtle" onClick={() => void copyText(false)}>
-            {t('results.copy_results')}
-          </Button>
-          <Button variant="subtle" onClick={() => void copyText(true)}>
-            {t('results.copy_results_short')}
-          </Button>
-          <Button onClick={() => void shareToX()}>
-            <FaXTwitter /> {t('results.share_x')}
-          </Button>
-        </Wrap>
-        <Stack w="full">
-          <Accordion.Root size="md" collapsible>
-            <Accordion.Item value="default" width="100%">
-              <Accordion.ItemTrigger>
-                <Text fontSize="lg" fontWeight="bold">
-                  {t('results.export_settings')}
-                </Text>
-                <Accordion.ItemIndicator>
-                  <FaChevronDown />
-                </Accordion.ItemIndicator>
-              </Accordion.ItemTrigger>
-              <Accordion.ItemContent>
-                <Stack>
-                  <Stack w="full" textAlign="start">
-                    <Wrap>
-                      <FormLabel htmlFor="title">{t('results.title')}</FormLabel>
-                      <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} />
-                    </Wrap>
-                    <Wrap>
-                      <FormLabel htmlFor="description">{t('results.description')}</FormLabel>
-                      <Textarea
-                        id="description"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                      />
-                    </Wrap>
-                    {currentTab === 'tier' && tierListSettings && (
-                      <TierListSettings
-                        settings={tierListSettings}
-                        setSettings={setTierListSettings}
-                        count={songs.length}
-                      />
-                    )}
-                  </Stack>
-                </Stack>
-              </Accordion.ItemContent>
-            </Accordion.Item>
-          </Accordion.Root>
-          <ExportActions>
-            <Button variant="subtle" onClick={() => void exportJSON()}>
-              <FaCopy /> {t('results.export_json')}
-            </Button>
-            <Button variant="subtle" onClick={() => void exportText(false)}>
-              <FaCopy /> {t('results.copy_text')}
-            </Button>
-            <Button variant="subtle" onClick={() => void exportText(true)}>
-              <FaCopy /> {t('results.copy_text_short')}
-            </Button>
-            <Button variant="subtle" onClick={() => void screenshot()}>
-              <FaCopy /> {t('results.copy')}
-            </Button>
-            <Button onClick={() => void download()}>
-              <FaDownload /> {t('results.download')}
-            </Button>
-          </ExportActions>
-        </Stack>
+        <ExportActions
+          copy={[
+            {
+              id: 'text',
+              label: t('results.all_results'),
+              options: getCopyOptions(
+                'text',
+                [t('results.copy_text'), t('results.copy_text_short')],
+                getText,
+                (abbreviate) => copyToClipboard(getText(abbreviate))
+              )
+            },
+            {
+              id: 'top5',
+              label: t('results.top5_post'),
+              options: getCopyOptions(
+                'top5',
+                [t('results.copy_results'), t('results.copy_results_short')],
+                getShareText,
+                (abbreviate) => copyToClipboard(getShareText(abbreviate))
+              )
+            }
+          ]}
+          image={{
+            busy: showRenderingCanvas,
+            actions: [
+              {
+                id: 'copy-image',
+                label: t('results.copy'),
+                icon: <FaCopy />,
+                onSelect: () => void screenshot()
+              },
+              {
+                id: 'download',
+                label: t('results.download'),
+                icon: <FaDownload />,
+                onSelect: () => void download()
+              }
+            ],
+            nicknameLabel: t('settings.use_abbreviations'),
+            nicknameHint: t('results.also_applies_x'),
+            settings: (
+              <>
+                <ExportSettingsFields
+                  title={title}
+                  onTitleChange={setTitle}
+                  description={description}
+                  onDescriptionChange={setDescription}
+                />
+                {currentTab === 'tier' && tierListSettings && (
+                  <TierListSettings
+                    settings={tierListSettings}
+                    setSettings={setTierListSettings}
+                    count={songs.length}
+                  />
+                )}
+              </>
+            )
+          }}
+          more={[
+            {
+              id: 'share-x',
+              label: t('results.share_x'),
+              icon: <FaXTwitter />,
+              onSelect: shareToX
+            },
+            {
+              id: 'json',
+              label: t('results.export_json'),
+              icon: <FaCode />,
+              onSelect: () => void exportJSON()
+            }
+          ]}
+        />
 
         <Tabs.Root
           lazyMount
@@ -323,26 +320,13 @@ export function HasuSongResultsView({
         </Tabs.Root>
       </Stack>
       {showRenderingCanvas && (
-        <Box position="absolute" w="0" h="0" overflow="hidden">
-          <Stack id="results" width="1280px" p="4" bgColor="bg.canvas">
-            {exportTitle && (
-              <Heading fontSize="2xl" fontWeight="bold">
-                {exportTitle}
-              </Heading>
-            )}
-            {description && <Text>{description}</Text>}
-            <Box w="full" textAlign="center">
-              {currentTab === 'grid' ? (
-                <HasuSongGridView songs={exportSongs} />
-              ) : (
-                <HasuSongTierList songs={exportSongs} settings={tierListSettings} />
-              )}
-            </Box>
-            <Text textAlign="end">
-              {t('results.generated_at')}: {timestamp.toLocaleString()}
-            </Text>
-          </Stack>
-        </Box>
+        <ExportCanvas title={exportTitle} description={description} timestamp={timestamp}>
+          {currentTab === 'grid' ? (
+            <HasuSongGridView songs={exportSongs} />
+          ) : (
+            <HasuSongTierList songs={exportSongs} settings={tierListSettings} />
+          )}
+        </ExportCanvas>
       )}
     </>
   );

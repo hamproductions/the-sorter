@@ -189,7 +189,15 @@
     },
     "copy_text": "Copy results as Text",
     "copy_text_short": "Copy abbreviated Text",
-    "export_json": "Export JSON"
+    "export_json": "Export JSON",
+    "copied": "Copied",
+    "copy_choices": "More text copy choices",
+    "image": "Image",
+    "image_abbreviated": "Image: abbreviated",
+    "more": "More",
+    "top5_post": "Top 5 post",
+    "all_results": "All results",
+    "also_applies_x": "Also applies to Post on X"
   },
   "toast": {
     "url_copied": "URL Copied to Clipboard",

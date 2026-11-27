@@ -9,25 +9,40 @@ import type { Character, WithRank } from '~/types';
 import { Stack, Wrap, styled } from 'styled-system/jsx';
 import { getCastName, getFullName } from '~/utils/character';
 import { getSchoolName, getUnitName } from '~/utils/names';
-import { useAbbreviations } from '~/hooks/useAbbreviations';
+
+const groupUnits = ({ units, fullName, originalName }: Character & { originalName?: string }) =>
+  Object.values(
+    groupBy(
+      units.filter((u) => !u.name.includes(originalName ?? fullName)),
+      (u) => u.name
+    )
+  );
+
+export const getUnitLabels = (
+  character: Character & { originalName?: string },
+  lang: string,
+  shortName?: (name: string) => string | undefined
+) =>
+  groupUnits(character).map((units) => {
+    const name = shortName?.(units[0].name) ?? getUnitName(units[0].name, lang);
+    const info = units.map((unit) => unit.additionalInfo).filter(Boolean);
+    return info.length > 0 ? `${name} (${info.join(',')})` : name;
+  });
 
 export function RankingTable({
   characters,
   isSeiyuu,
   responsive,
-  onSelectCharacter,
-  abbreviate
+  onSelectCharacter
 }: {
   characters: WithRank<Character & { originalName?: string }>[];
   isSeiyuu: boolean;
   responsive?: boolean;
   onSelectCharacter?: (character: WithRank<Character>) => void;
-  abbreviate?: boolean;
 }) {
   const { t, i18n } = useTranslation();
 
   const lang = i18n.language;
-  const { short } = useAbbreviations();
   return (
     <Table.Root size="sm">
       <Table.Head>
@@ -54,11 +69,11 @@ export function RankingTable({
       </Table.Head>
       <Table.Body>
         {characters.map((c, idx) => {
-          const { rank, id, casts, colorCode, seriesColor, units } = c;
+          const { rank, id, casts, colorCode, seriesColor } = c;
           const imageSize = idx === 0 ? '150px' : idx <= 3 ? '100px' : '80px';
 
           const fullName = getFullName(c, lang);
-          const school = (abbreviate && short.name(c.school)) || getSchoolName(c.school, lang);
+          const school = getSchoolName(c.school, lang);
           return (
             <Table.Row
               key={idx}
@@ -127,22 +142,17 @@ export function RankingTable({
               </Table.Cell>
               <Table.Cell hideBelow={responsive ? 'md' : undefined}>
                 <Stack gap="1" alignItems="center" w="full" py="2">
-                  <SchoolBadge abbreviate={abbreviate} locale={lang} character={c} />
+                  <SchoolBadge locale={lang} character={c} />
                   <Text textAlign="center">{school}</Text>
                 </Stack>
               </Table.Cell>
               <Table.Cell hideBelow={responsive ? 'md' : undefined}>
                 <Stack gap="1" py="2">
-                  {Object.values(
-                    groupBy(
-                      units.filter((u) => !u.name.includes(c.originalName ?? c.fullName)),
-                      (u) => u.name
-                    )
-                  ).map((us) => {
+                  {groupUnits(c).map((us) => {
                     const u = us[0];
                     return (
                       <Text key={u.id}>
-                        {(abbreviate && short.name(u.name)) || getUnitName(u.name, lang)}{' '}
+                        {getUnitName(u.name, lang)}{' '}
                         {u.additionalInfo && (
                           <Text as="span" hideBelow={responsive ? 'lg' : undefined}>
                             ({us.map((i) => i.additionalInfo).join(',')})

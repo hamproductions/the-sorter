@@ -11,8 +11,10 @@ export function useClipboard() {
     try {
       await write();
       toast({ description: t(message) });
+      return true;
     } catch {
       toast({ type: 'error', description: t('setlistPrediction.failedToCopy') });
+      return false;
     }
   };
 
