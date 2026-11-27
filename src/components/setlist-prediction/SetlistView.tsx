@@ -15,6 +15,7 @@ import type { SetlistItem, Performance, SetlistPrediction } from '~/types/setlis
 import { useSongData } from '~/hooks/useSongData';
 import { getSongColor } from '~/utils/song';
 import { getSongName, getFullPerformanceName } from '~/utils/names';
+import { useAbbreviations } from '~/hooks/useAbbreviations';
 
 export interface SetlistViewProps {
   prediction: SetlistPrediction;
@@ -24,6 +25,7 @@ export interface SetlistViewProps {
   compact?: boolean;
   /** Match results for color-coding songs in comparison mode (green=exact, yellow=close/present) */
   matchResults?: Map<string, 'exact' | 'close' | 'present' | 'section'>;
+  abbreviate?: boolean;
 }
 
 // Convert number to circled number (①②③...)
@@ -43,13 +45,16 @@ export function SetlistView({
   authorName,
   showHeader = true,
   compact = false,
-  matchResults
+  matchResults,
+  abbreviate
 }: SetlistViewProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const songData = useSongData();
   const setlist = prediction.setlist;
   const items = setlist.items;
+  const { short } = useAbbreviations();
+  const performanceName = performance && getFullPerformanceName(performance);
 
   // Find encore divider index
   const encoreDividerIndex = useMemo(() => {
@@ -77,7 +82,9 @@ export function SetlistView({
             fontSize="xl"
             fontWeight="bold"
           >
-            {(performance && getFullPerformanceName(performance)) ||
+            {(abbreviate && performanceName
+              ? short.event(performanceName, performance.tourName)
+              : performanceName) ||
               prediction.customPerformance?.name ||
               prediction.name ||
               'Setlist Prediction'}
@@ -152,14 +159,15 @@ export function SetlistView({
               const songs = Array.isArray(songData) ? songData : [];
               const songDetails = songs.find((song) => String(song.id) === String(item.songId));
               songName = songDetails
-                ? getSongName(songDetails.name, songDetails.englishName, lang)
+                ? (abbreviate && short.song(songDetails)) ||
+                  getSongName(songDetails.name, songDetails.englishName, lang)
                 : `Song ${item.songId}`;
               songColor = songDetails ? getSongColor(songDetails) : undefined;
 
               // Get artist name
               if (songDetails?.artists && songDetails.artists[0]) {
                 const artist = artistsData.find((a) => a.id === songDetails.artists[0].id);
-                artistName = artist?.name;
+                artistName = (abbreviate && artist && short.name(artist.name)) || artist?.name;
               }
             }
           }

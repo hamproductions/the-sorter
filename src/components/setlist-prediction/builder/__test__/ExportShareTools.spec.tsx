@@ -17,17 +17,13 @@ vi.mock('~/utils/setlist-prediction/compression', () => ({
 vi.mock('~/utils/setlist-prediction/export', () => ({
   downloadJSON: vi.fn(),
   downloadCSV: vi.fn(),
-  copyTextToClipboard: vi.fn().mockResolvedValue(undefined)
+  copyTextToClipboard: vi.fn().mockResolvedValue(undefined),
+  exportAsText: vi.fn().mockReturnValue('')
 }));
 
 vi.mock('~/components/setlist-prediction/SetlistView', () => ({
   SetlistView: () => <div data-testid="setlist-view">Setlist View</div>
 }));
-
-// Mock window.getComputedStyle
-Object.defineProperty(window, 'getComputedStyle', {
-  value: vi.fn().mockReturnValue({ backgroundColor: 'white' })
-});
 
 describe('ExportShareTools', () => {
   const mockPrediction: SetlistPrediction = {
@@ -90,8 +86,8 @@ describe('ExportShareTools', () => {
 
     await render(<ExportShareTools {...defaultProps} />);
 
-    const jsonButton = screen.getByText('Export JSON');
-    fireEvent.click(jsonButton);
+    fireEvent.click(screen.getByRole('button', { name: 'More' }));
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'Export JSON' }));
 
     expect(downloadJSON).toHaveBeenCalledWith(mockPrediction);
   });
@@ -101,8 +97,8 @@ describe('ExportShareTools', () => {
 
     await render(<ExportShareTools {...defaultProps} />);
 
-    const csvButton = screen.getByText('Export CSV');
-    fireEvent.click(csvButton);
+    fireEvent.click(screen.getByRole('button', { name: 'More' }));
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'Export CSV' }));
 
     expect(downloadCSV).toHaveBeenCalledWith(mockPrediction);
   });
@@ -112,8 +108,8 @@ describe('ExportShareTools', () => {
 
     await render(<ExportShareTools {...defaultProps} />);
 
-    const imageButton = screen.getByText('Export Image');
-    fireEvent.click(imageButton);
+    fireEvent.click(screen.getByRole('button', { name: 'Image' }));
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'Export Image' }));
 
     await new Promise((resolve) => setTimeout(resolve, 0));
 

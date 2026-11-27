@@ -13,3 +13,4 @@
 - After closing the task browser for device safety, continue with file-based checks. A new browser session requires explicit user authorization.
 
 - Performance lineup presentation keeps complete groups as the existing artist credit. Use compact icons for partial or changed lineups, with names available by keyboard or touch; retain complete raw context in saved and exported data.
+- Result exports live in `ResultsView`, `SongResultsView`, `HasuSongResultsView` and setlist `ExportShareTools`. An export change covers all four; before reporting it, press every copy button and open every downloaded image for each view tab.

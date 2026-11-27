@@ -1,24 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
 import { flushSync } from 'react-dom';
-import { FaChevronDown, FaCopy, FaDownload, FaShare } from 'react-icons/fa6';
+import { FaCode, FaCopy, FaDownload } from 'react-icons/fa6';
 
 import { useTranslation } from 'react-i18next';
 
 import { uniq } from 'lodash-es';
 import { SongRankingTable } from './SongRankingTable';
 import { Tabs } from '~/components/ui/tabs';
-import { Accordion } from '~/components/ui/accordion';
-import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
-import { FormLabel } from '~/components/ui/form-label';
+import { Box, HStack, Stack } from 'styled-system/jsx';
 import { Heading } from '~/components/ui/heading';
-import { Input } from '~/components/ui/input';
-import { Textarea } from '~/components/ui/textarea';
 import { useToaster } from '~/context/ToasterContext';
 import { useLocalStorage } from '~/hooks/useLocalStorage';
 import type { WithRank } from '~/types';
 import { Text } from '~/components/ui/text';
 import type { Song } from '~/types/songs';
-import { Button } from '~/components/ui/button';
 import type { RootProps } from '~/components/ui/styled/tabs';
 import { useArtistsData } from '~/hooks/useArtistsData';
 import { useSeriesData } from '~/hooks/useSeriesData';
@@ -27,7 +22,13 @@ import type { GuessResult } from '~/hooks/useHeardleState';
 import type { PerformanceSortMeta } from '~/types/performance-sort';
 import { PerformanceOrderView } from './PerformanceOrderView';
 import { SongSortTimeStats } from './SongSortTimeStats';
-import { getFullPerformanceName } from '~/utils/names';
+import { getArtistName, getFullPerformanceName } from '~/utils/names';
+import { ExportActions } from '~/components/results/ExportActions';
+import { getCopyOptions } from '~/components/results/export/copy-options';
+import { ExportCanvas } from '~/components/results/export/ExportCanvas';
+import { ExportSettingsFields } from '~/components/results/export/ExportSettings';
+import { SongRankingPoster } from '~/components/results/poster/SongRankingPoster';
+import { useAbbreviations } from '~/hooks/useAbbreviations';
 import type { SortTimingStats } from '~/utils/sort-timing';
 import { useClipboard } from '~/hooks/useClipboard';
 import { TabIcon } from '~/components/layout/TabIcon';
@@ -78,6 +79,13 @@ export function SongResultsView({
   const effectiveTitlePrefix = performanceMeta
     ? getFullPerformanceName(performanceMeta)
     : titlePrefix;
+  const { enabled: useShortNames, short } = useAbbreviations();
+  const shortTitlePrefix =
+    effectiveTitlePrefix &&
+    (performanceMeta
+      ? short.event(effectiveTitlePrefix, performanceMeta.tourName)
+      : short.name(effectiveTitlePrefix));
+  const exportTitlePrefix = (useShortNames && shortTitlePrefix) || effectiveTitlePrefix;
 
   const tabs = useMemo(() => {
     const result = [{ id: 'table', label: t('results.table') }];
@@ -145,30 +153,42 @@ export function SongResultsView({
 
   const screenshot = () => copyImage(makeScreenshot);
 
-  const exportText = async () => {
-    await copyToClipboard(
-      [
-        performanceMeta
-          ? [effectiveTitlePrefix, performanceMeta.date, performanceMeta.venue]
-              .filter(Boolean)
-              .join(' · ')
-          : undefined,
-        ...songs.map((song) => {
-          const original = uniq(
-            song.artists.map((art) => artists.find((a) => a.id === art.id)?.name).filter(Boolean)
-          ).join(', ');
-          const context = formatPerformancePerformersText(
-            song,
-            performanceMeta?.setlistOrder,
-            characters,
-            _i18n.language
-          );
-          return `${song.rank}. ${song.name} - ${original}${context ? ` (${context})` : ''}`;
-        })
-      ]
-        .filter(Boolean)
-        .join('\n')
-    );
+  const getText = (abbreviate: boolean) => {
+    const shortName = abbreviate ? short.name : undefined;
+    return [
+      performanceMeta
+        ? [
+            abbreviate && effectiveTitlePrefix
+              ? short.event(effectiveTitlePrefix, performanceMeta.tourName)
+              : effectiveTitlePrefix,
+            performanceMeta.date,
+            performanceMeta.venue
+          ]
+            .filter(Boolean)
+            .join(' · ')
+        : undefined,
+      ...songs.map((song) => {
+        const original = uniq(
+          song.artists
+            .map((art) => artists.find((a) => a.id === art.id)?.name)
+            .filter((name): name is string => Boolean(name))
+            .map((name) =>
+              abbreviate ? (short.name(name) ?? getArtistName(name, _i18n.language)) : name
+            )
+        ).join(', ');
+        const context = formatPerformancePerformersText(
+          song,
+          performanceMeta?.setlistOrder,
+          characters,
+          _i18n.language,
+          shortName
+        );
+        const name = abbreviate ? short.song(song) : song.name;
+        return `${song.rank}. ${name} - ${original}${context ? ` (${context})` : ''}`;
+      })
+    ]
+      .filter(Boolean)
+      .join('\n');
   };
 
   const exportJSON = async () => {
@@ -199,25 +219,26 @@ export function SongResultsView({
       const blob = await makeScreenshot();
       if (!blob) return;
       const saveAs = (await import('file-saver')).saveAs;
-      saveAs(new File([blob], `${effectiveTitlePrefix ?? 'll'}-sorted-${timestamp.valueOf()}.png`));
+      saveAs(new File([blob], `${exportTitlePrefix ?? 'll'}-sorted-${timestamp.valueOf()}.png`));
     } catch (error) {
       console.error(error);
     }
   };
 
-  useEffect(() => {
+  const makeTitle = (prefix?: string) => {
     const sortType = t('songs');
     const type = t('results.ranking');
-    setTitle(
-      effectiveTitlePrefix
-        ? t('results.results_title', { titlePrefix: effectiveTitlePrefix, sortType, type })
-        : t('results.default_results_title', {
-            titlePrefix: effectiveTitlePrefix,
-            sortType,
-            type
-          })
-    );
-  }, [effectiveTitlePrefix, currentTab, t]);
+    return prefix
+      ? t('results.results_title', { titlePrefix: prefix, sortType, type })
+      : t('results.default_results_title', { titlePrefix: prefix, sortType, type });
+  };
+  const defaultTitle = makeTitle(effectiveTitlePrefix);
+  const exportTitle = title === defaultTitle ? makeTitle(exportTitlePrefix) : title;
+
+  useEffect(() => {
+    setTitle(defaultTitle);
+  }, [defaultTitle, currentTab]);
+
   return (
     <>
       <Stack alignItems="center" w="full" textAlign="center">
@@ -228,61 +249,56 @@ export function SongResultsView({
 
         {timingStats && <SongSortTimeStats stats={timingStats} />}
 
-        <Stack w="full">
-          <Accordion.Root size="md" collapsible>
-            <Accordion.Item value="default" width="100%">
-              <Accordion.ItemTrigger>
-                <Text fontSize="lg" fontWeight="bold">
-                  {t('results.export_settings')}
-                </Text>
-                <Accordion.ItemIndicator>
-                  <FaChevronDown />
-                </Accordion.ItemIndicator>
-              </Accordion.ItemTrigger>
-              <Accordion.ItemContent>
-                <Stack>
-                  <Stack w="full" textAlign="start">
-                    <Wrap>
-                      <FormLabel htmlFor="title">{t('results.title')}</FormLabel>
-                      <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} />
-                    </Wrap>
-                    <Wrap>
-                      <FormLabel htmlFor="description">{t('results.description')}</FormLabel>
-                      <Textarea
-                        id="description"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                      />
-                    </Wrap>
-                  </Stack>
-                </Stack>
-              </Accordion.ItemContent>
-            </Accordion.Item>
-          </Accordion.Root>
-          {(!readOnly || allowExport) && (
-            <HStack justifyContent="space-between" w="full">
-              <Wrap justifyContent="flex-end" w="full">
-                {onShareResults && (
-                  <Button variant="subtle" onClick={onShareResults}>
-                    <FaShare /> {t('results.share')}
-                  </Button>
-                )}
-                <Button variant="subtle" onClick={() => void exportJSON()}>
-                  <FaCopy /> {t('results.export_json')}
-                </Button>
-                <Button variant="subtle" onClick={() => void exportText()}>
-                  <FaCopy /> {t('results.copy_text')}
-                </Button>
-                <Button variant="subtle" onClick={() => void screenshot()}>
-                  <FaCopy /> {t('results.copy')}
-                </Button>
-                <Button onClick={() => void download()}>
-                  <FaDownload /> {t('results.download')}
-                </Button>
-              </Wrap>
-            </HStack>
-          )}
-        </Stack>
+        {(!readOnly || allowExport) && (
+          <ExportActions
+            copy={[
+              {
+                id: 'text',
+                options: getCopyOptions(
+                  'text',
+                  [t('results.copy_text'), t('results.copy_text_short')],
+                  getText,
+                  (abbreviate) => copyToClipboard(getText(abbreviate))
+                )
+              }
+            ]}
+            image={{
+              busy: showRenderingCanvas,
+              actions: [
+                {
+                  id: 'copy-image',
+                  label: t('results.copy'),
+                  icon: <FaCopy />,
+                  onSelect: () => void screenshot()
+                },
+                {
+                  id: 'download',
+                  label: t('results.download'),
+                  icon: <FaDownload />,
+                  onSelect: () => void download()
+                }
+              ],
+              nicknameLabel: t('settings.use_abbreviations'),
+              settings: (
+                <ExportSettingsFields
+                  title={title}
+                  onTitleChange={setTitle}
+                  description={description}
+                  onDescriptionChange={setDescription}
+                />
+              )
+            }}
+            share={onShareResults && { label: t('results.share'), onClick: onShareResults }}
+            more={[
+              {
+                id: 'json',
+                label: t('results.export_json'),
+                icon: <FaCode />,
+                onSelect: () => void exportJSON()
+              }
+            ]}
+          />
+        )}
 
         <Tabs.Root
           lazyMount
@@ -362,26 +378,26 @@ export function SongResultsView({
         )}
       </Stack>
       {showRenderingCanvas && (
-        <Box position="absolute" w="0" h="0" overflow="hidden">
-          <Stack id="results" width="1280px" p="4" bgColor="bg.canvas">
-            {title && (
-              <Heading fontSize="2xl" fontWeight="bold">
-                {title}
-              </Heading>
-            )}
-            {description && <Text>{description}</Text>}
-            {currentTab === 'table' ? (
-              <SongRankingTable songs={songs} performanceMeta={performanceMeta} />
-            ) : performanceMeta && order ? (
-              <PerformanceOrderView performanceMeta={performanceMeta} order={order} />
-            ) : (
-              <SongRankingTable songs={songs} performanceMeta={performanceMeta} />
-            )}
-            <Text textAlign="end">
-              {t('results.generated_at')}: {timestamp.toLocaleString()}
-            </Text>
-          </Stack>
-        </Box>
+        <ExportCanvas
+          title={exportTitle}
+          description={description}
+          timestamp={timestamp}
+          compact={!(currentTab !== 'table' && performanceMeta && order)}
+        >
+          {currentTab !== 'table' && performanceMeta && order ? (
+            <PerformanceOrderView
+              performanceMeta={performanceMeta}
+              abbreviate={useShortNames}
+              order={order}
+            />
+          ) : (
+            <SongRankingPoster
+              songs={songs}
+              performanceMeta={performanceMeta}
+              abbreviate={useShortNames}
+            />
+          )}
+        </ExportCanvas>
       )}
     </>
   );

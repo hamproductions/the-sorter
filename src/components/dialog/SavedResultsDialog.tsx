@@ -67,7 +67,7 @@ export function SavedResultsDialog({ save, ...rest }: SavedResultsDialogProps) {
     <Dialog.Root {...rest}>
       <Dialog.Backdrop />
       <Dialog.Positioner>
-        <Dialog.Content w="full" maxW="5xl" maxH="90vh" overflow="auto">
+        <Dialog.Content w="full" minW="0" maxW="5xl" maxH="90vh" overflow="auto">
           <Stack data-testid="saved-results-dialog" gap="4" p="6">
             <Stack gap="1">
               <Dialog.Title>{save?.name}</Dialog.Title>

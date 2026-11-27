@@ -9,23 +9,37 @@ import { getSongPerformanceLineups } from '~/utils/performance-sort';
 import { getFullName } from '~/utils/character';
 import { getArtistName } from '~/utils/names';
 import { CharacterIcon } from './CharacterIcon';
+import { useAbbreviations } from '~/hooks/useAbbreviations';
 
 export function SongPerformanceContext({
   song,
-  entries
+  entries,
+  abbreviate,
+  alignStart
 }: {
   song: Song;
   entries: SetlistOrderEntry[];
+  abbreviate?: boolean;
+  alignStart?: boolean;
 }) {
   const { t, i18n } = useTranslation();
   const characters = useData();
+  const { short } = useAbbreviations();
+  const groupName = (name: string) =>
+    (abbreviate && short.name(name)) || getArtistName(name, i18n.language);
 
   return (
-    <Stack gap="2" alignItems="center" w="full" minW="0" maxW={{ base: '300px', md: 'full' }}>
+    <Stack
+      gap="2"
+      alignItems={alignStart ? 'flex-start' : 'center'}
+      w="full"
+      minW="0"
+      maxW={{ base: '300px', md: 'full' }}
+    >
       {getSongPerformanceLineups(song, entries).map(({ key, group, labels, note, performers }) => {
         const entry = group[0];
         return (
-          <Stack key={key} gap="1" alignItems="center" w="full">
+          <Stack key={key} gap="1" alignItems={alignStart ? 'flex-start' : 'center'} w="full">
             {entry.customSongName && entry.customSongName !== song.name && (
               <Text fontSize="xs">{entry.customSongName}</Text>
             )}
@@ -40,7 +54,7 @@ export function SongPerformanceContext({
               color="fg.muted"
               fontSize="xs"
             >
-              {labels.join(' / ')}
+              {(abbreviate ? labels.map(short.performance) : labels).join(' / ')}
               {note && entry.performers?.length ? ` · ${note}` : ''}
             </Text>
             {performers.length > 0 && (
@@ -55,7 +69,7 @@ export function SongPerformanceContext({
                   cursor="pointer"
                   display="flex"
                   gap="1"
-                  justifyContent="center"
+                  justifyContent={alignStart ? 'flex-start' : 'center'}
                   alignItems="center"
                   rounded="sm"
                   minH={{ base: '11', md: '8' }}
@@ -84,7 +98,7 @@ export function SongPerformanceContext({
                       if (performer.kind === 'group')
                         return (
                           <Text as="span" key={`group-${performer.id}`} fontSize="xs">
-                            {getArtistName(performer.name, i18n.language)}
+                            {groupName(performer.name)}
                           </Text>
                         );
                       const character = characters.find(
@@ -124,14 +138,16 @@ export function SongPerformanceContext({
                           py="1"
                           px="2"
                         >
-                          <Text fontSize="xs">{getArtistName(performer.name, i18n.language)}</Text>
+                          <Text fontSize="xs">{groupName(performer.name)}</Text>
                         </Box>
                       );
                     const character = characters.find(
                       (item) => String(item.id) === performer.characterId
                     );
                     if (!character) return null;
-                    const name = getFullName(character, i18n.language);
+                    const name =
+                      (abbreviate && short.name(character.fullName)) ||
+                      getFullName(character, i18n.language);
                     return (
                       <HStack
                         key={character.id}

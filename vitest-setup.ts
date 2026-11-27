@@ -13,6 +13,11 @@ beforeAll(() => {
 beforeEach(async () => {
   //@ts-expect-error will do later zzz
   window.PointerEvent = MouseEvent;
+  window.ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
   //@ts-expect-error will do later zzz
   delete window.location;
   //@ts-expect-error will do later zzz

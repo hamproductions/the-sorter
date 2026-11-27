@@ -7,6 +7,7 @@ import { Dialog } from '~/components/ui/dialog';
 import { IconButton } from '~/components/ui/icon-button';
 import { Input } from '~/components/ui/input';
 import { Text } from '~/components/ui/text';
+import { getAliasScore } from '~/utils/abbreviations';
 
 export function SortingPreviewDialog<T extends { id: string | number }>(
   props: Dialog.RootProps & {
@@ -45,7 +46,10 @@ export function SortingPreviewDialog<T extends { id: string | number }>(
     const query = search.toLowerCase();
     return items
       .map((item, idx) => ({ item, originalIndex: idx }))
-      .filter(({ item }) => getName(item).toLowerCase().includes(query));
+      .filter(({ item }) => {
+        const { aliases = [] } = item as { aliases?: string[] };
+        return getName(item).toLowerCase().includes(query) || getAliasScore(aliases, query) > 0;
+      });
   }, [getName, items, search]);
 
   const virtualizer = useVirtualizer({

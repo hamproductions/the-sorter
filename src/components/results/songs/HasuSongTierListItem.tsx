@@ -88,7 +88,7 @@ function _TierListItem({
               </Stack>
               {showInfo && (
                 <Text fontSize="xs" textAlign="center">
-                  {unit}
+                  {song.unitLabel ?? unit}
                 </Text>
               )}
             </Stack>

@@ -6,18 +6,23 @@ import type { Character } from '~/types';
 import type { Song } from '~/types/songs';
 import { getSeriesName } from '~/utils/names';
 import { getSongColor } from '~/utils/song';
+import { useAbbreviations } from '~/hooks/useAbbreviations';
 
 export function SchoolBadge({
   character,
   song,
   locale,
+  abbreviate,
   ...rest
 }: (
   | { song?: undefined; character: Character; locale: Locale }
   | { character?: undefined; song: Song; locale: Locale }
 ) &
-  BadgeProps) {
+  BadgeProps & { abbreviate?: boolean }) {
   const seriesData = useSeriesData();
+  const { short } = useAbbreviations();
+  const seriesName = (name: string) =>
+    (abbreviate && short.name(name)) || getSeriesName(name, locale);
   if (character) {
     const { series, seriesColor } = character;
 
@@ -32,7 +37,7 @@ export function SchoolBadge({
         textAlign="center"
         {...rest}
       >
-        {getSeriesName(series, locale)}
+        {seriesName(series)}
       </Badge>
     );
   }
@@ -51,7 +56,7 @@ export function SchoolBadge({
       {...rest}
     >
       {song.seriesIds
-        .map((s) => getSeriesName(seriesData.find((d) => `${s}` === d.id)?.name ?? '', locale))
+        .map((s) => seriesName(seriesData.find((d) => `${s}` === d.id)?.name ?? ''))
         .join(', ')}
     </Badge>
   );

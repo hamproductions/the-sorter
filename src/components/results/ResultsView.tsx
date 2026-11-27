@@ -1,17 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { flushSync } from 'react-dom';
-import { FaChevronDown, FaCopy, FaDownload, FaPencil, FaShare, FaXTwitter } from 'react-icons/fa6';
+import { FaCopy, FaDownload, FaPencil, FaXTwitter } from 'react-icons/fa6';
 
 import { useTranslation } from 'react-i18next';
-import { Accordion } from '../ui/accordion';
-import { Button } from '../ui/button';
-import { FormLabel } from '../ui/form-label';
 import { Heading } from '../ui/heading';
-import { Input } from '../ui/input';
 
 import { Tabs } from '../ui/tabs';
 import { Text } from '../ui/text';
-import { Textarea } from '../ui/textarea';
 import type { RootProps } from '../ui/styled/tabs';
 import { GridView } from './GridView';
 import { RankingTable } from './RankingTable';
@@ -24,7 +19,13 @@ import { getCastName, getCharacterFromId, getFullName, parseSortResult } from '~
 import type { Character } from '~/types';
 import { useLocalStorage } from '~/hooks/useLocalStorage';
 import { useToaster } from '~/context/ToasterContext';
-import { Box, HStack, Stack, Wrap } from 'styled-system/jsx';
+import { Box, Stack } from 'styled-system/jsx';
+import { ExportActions } from '~/components/results/ExportActions';
+import { getCopyOptions } from '~/components/results/export/copy-options';
+import { ExportCanvas } from '~/components/results/export/ExportCanvas';
+import { ExportSettingsFields } from '~/components/results/export/ExportSettings';
+import { CharacterRankingPoster } from '~/components/results/poster/CharacterRankingPoster';
+import { useAbbreviations } from '~/hooks/useAbbreviations';
 import { useClipboard } from '~/hooks/useClipboard';
 import { TabIcon } from '~/components/layout/TabIcon';
 
@@ -63,6 +64,9 @@ export function ResultsView({
   onSelectCharacter?: (character: Character) => void;
 }) {
   const { toast } = useToaster();
+  const { enabled: useShortNames, short } = useAbbreviations();
+  const exportTitlePrefix =
+    (useShortNames && titlePrefix && short.name(titlePrefix)) || titlePrefix;
   const { copyText: copyToClipboard, copyImage } = useClipboard();
   const [tierListSettings, setTierListSettings] = useLocalStorage<TierListSettingsData>(
     'tier-settings',
@@ -135,23 +139,23 @@ export function ResultsView({
       const blob = await makeScreenshot();
       if (!blob) return;
       const saveAs = (await import('file-saver')).saveAs;
-      saveAs(new File([blob], `${titlePrefix ?? 'll'}-sorted-${timestamp.valueOf()}.png`));
+      saveAs(new File([blob], `${exportTitlePrefix ?? 'll'}-sorted-${timestamp.valueOf()}.png`));
     } catch (error) {
       console.error(error);
     }
   };
 
-  const getShareText = () => {
+  const getShareText = (abbreviate: boolean) => {
     const seiyuuList = order
       ?.flatMap((ids, idx) =>
         ids.map((id) => {
           const character = getCharacterFromId(charactersData, id, isSeiyuu);
           if (!character) return;
-          return `${idx + 1}. ${
-            isSeiyuu
-              ? getCastName(character?.casts[0], i18n.language)
-              : getFullName(character, i18n.language)
-          }`;
+          const name = isSeiyuu
+            ? getCastName(character?.casts[0], i18n.language)
+            : ((abbreviate ? short.name(character.fullName) : undefined) ??
+              getFullName(character, i18n.language));
+          return `${idx + 1}. ${name}`;
         })
       )
       .slice(0, 5)
@@ -161,13 +165,20 @@ export function ResultsView({
     )}\nhttps://hamproductions.github.io/the-sorter/`;
   };
   const shareToX = () => {
-    const shareURL = `https://twitter.com/intent/tweet?text=${encodeURIComponent(getShareText())}`;
+    const shareURL = `https://twitter.com/intent/tweet?text=${encodeURIComponent(getShareText(useShortNames))}`;
     window.open(shareURL, '_blank');
   };
 
-  const copyText = async () => {
-    await copyToClipboard(getShareText());
-  };
+  const copyText = (abbreviate: boolean) => copyToClipboard(getShareText(abbreviate));
+
+  const exportCharacters = useShortNames
+    ? characters.map((character) => {
+        const name = short.name(character.fullName);
+        return name
+          ? { ...character, originalName: character.fullName, fullName: name, englishName: name }
+          : character;
+      })
+    : characters;
 
   const {
     title: displayTitle,
@@ -178,19 +189,20 @@ export function ResultsView({
 
   const displayTab = currentTab || displayCurrentTab;
 
-  useEffect(() => {
+  const makeTitle = (prefix?: string) => {
     const sortType = isSeiyuu ? t('seiyuu') : t('character');
     const type = currentTab === 'tier' ? t('results.tierlist') : t('results.ranking');
-    setTitle(
-      titlePrefix
-        ? t('results.results_title', { titlePrefix, sortType, type })
-        : t('results.default_results_title', {
-            titlePrefix,
-            sortType,
-            type
-          })
-    );
-  }, [titlePrefix, isSeiyuu, currentTab, t]);
+    return prefix
+      ? t('results.results_title', { titlePrefix: prefix, sortType, type })
+      : t('results.default_results_title', { titlePrefix: prefix, sortType, type });
+  };
+  const defaultTitle = makeTitle(titlePrefix);
+  const exportTitle = title === defaultTitle ? makeTitle(exportTitlePrefix) : title;
+
+  useEffect(() => {
+    setTitle(defaultTitle);
+  }, [defaultTitle, currentTab]);
+
   return (
     <>
       <Stack alignItems="center" w="full" textAlign="center">
@@ -199,88 +211,87 @@ export function ResultsView({
         </Heading>
         {displayDescription && <Text>{displayDescription}</Text>}
         {(!readOnly || allowExport) && (
-          <Stack w="full">
-            <HStack justifyContent="center">
-              <Button variant="subtle" onClick={() => void copyText()}>
-                {t('results.copy_results')}
-              </Button>
-              <Button onClick={() => void shareToX()}>
-                <FaXTwitter /> {t('results.share_x')}
-              </Button>
-            </HStack>
-            <Accordion.Root size="md" collapsible>
-              <Accordion.Item value="default" width="100%">
-                <Accordion.ItemTrigger>
-                  <Text fontSize="lg" fontWeight="bold">
-                    {t('results.export_settings')}
-                  </Text>
-                  <Accordion.ItemIndicator>
-                    <FaChevronDown />
-                  </Accordion.ItemIndicator>
-                </Accordion.ItemTrigger>
-                <Accordion.ItemContent>
-                  <Stack>
-                    <Stack w="full" textAlign="start">
-                      <Wrap>
-                        <FormLabel htmlFor="title">{t('results.title')}</FormLabel>
-                        <Input
-                          id="title"
-                          value={title}
-                          onChange={(e) => setTitle(e.target.value)}
-                        />
-                      </Wrap>
-                      <Wrap>
-                        <FormLabel htmlFor="description">{t('results.description')}</FormLabel>
-                        <Textarea
-                          id="description"
-                          value={description}
-                          onChange={(e) => setDescription(e.target.value)}
-                        />
-                      </Wrap>
-                      {currentTab === 'tier' && tierListSettings && (
-                        <TierListSettings
-                          settings={tierListSettings}
-                          setSettings={setTierListSettings}
-                          count={characters.length}
-                        />
-                      )}
-                    </Stack>
-                  </Stack>
-                </Accordion.ItemContent>
-              </Accordion.Item>
-            </Accordion.Root>
-            <Wrap justifyContent="space-between" w="full">
-              {!readOnly && (
-                <Button variant="subtle" onClick={() => setShowEditResults(true)}>
-                  <FaPencil /> {t('results.edit')}
-                </Button>
-              )}
-              <Wrap justifyContent="flex-end" ml="auto">
-                {onShareResults && (
-                  <Button
-                    variant="subtle"
-                    data-testid="share-results-button"
-                    onClick={() =>
-                      onShareResults({
-                        title,
-                        description,
-                        tierListSettings: tierListSettings ?? undefined,
-                        tab: displayTab ?? undefined
-                      })
+          <ExportActions
+            copy={[
+              {
+                id: 'top5',
+                label: t('results.top5_post'),
+                options: getCopyOptions(
+                  'top5',
+                  [t('results.copy_results'), t('results.copy_results_short')],
+                  getShareText,
+                  copyText
+                )
+              }
+            ]}
+            image={{
+              busy: showRenderingCanvas,
+              actions: [
+                {
+                  id: 'copy-image',
+                  label: t('results.copy'),
+                  icon: <FaCopy />,
+                  onSelect: () => void screenshot()
+                },
+                {
+                  id: 'download',
+                  label: t('results.download'),
+                  icon: <FaDownload />,
+                  onSelect: () => void download()
+                }
+              ],
+              nicknameLabel: t('settings.use_abbreviations'),
+              nicknameHint: t('results.also_applies_x'),
+              settings: (
+                <>
+                  <ExportSettingsFields
+                    title={title}
+                    onTitleChange={setTitle}
+                    description={description}
+                    onDescriptionChange={setDescription}
+                  />
+                  {currentTab === 'tier' && tierListSettings && (
+                    <TierListSettings
+                      settings={tierListSettings}
+                      setSettings={setTierListSettings}
+                      count={characters.length}
+                    />
+                  )}
+                </>
+              )
+            }}
+            share={
+              onShareResults && {
+                label: t('results.share'),
+                testId: 'share-results-button',
+                onClick: () =>
+                  onShareResults({
+                    title,
+                    description,
+                    tierListSettings: tierListSettings ?? undefined,
+                    tab: displayTab ?? undefined
+                  })
+              }
+            }
+            more={[
+              {
+                id: 'share-x',
+                label: t('results.share_x'),
+                icon: <FaXTwitter />,
+                onSelect: shareToX
+              },
+              ...(readOnly
+                ? []
+                : [
+                    {
+                      id: 'edit',
+                      label: t('results.edit'),
+                      icon: <FaPencil />,
+                      onSelect: () => setShowEditResults(true)
                     }
-                  >
-                    <FaShare /> {t('results.share')}
-                  </Button>
-                )}
-                <Button variant="subtle" onClick={() => void screenshot()}>
-                  <FaCopy /> {t('results.copy')}
-                </Button>
-                <Button onClick={() => void download()}>
-                  <FaDownload /> {t('results.download')}
-                </Button>
-              </Wrap>
-            </Wrap>
-          </Stack>
+                  ])
+            ]}
+          />
         )}
         <Tabs.Root
           lazyMount
@@ -335,32 +346,29 @@ export function ResultsView({
         </Tabs.Root>
       </Stack>
       {(!readOnly || allowExport) && showRenderingCanvas && (
-        <Box position="absolute" w="0" h="0" overflow="hidden">
-          <Stack id="results" width="1280px" p="4" bgColor="bg.canvas">
-            {title && (
-              <Heading fontSize="2xl" fontWeight="bold">
-                {title}
-              </Heading>
-            )}
-            {description && <Text>{description}</Text>}
-            {currentTab === 'table' ? (
-              <RankingTable characters={characters} isSeiyuu={isSeiyuu} />
-            ) : currentTab === 'grid' ? (
-              <GridView characters={characters} isSeiyuu={isSeiyuu} />
-            ) : currentTab === 'tier' ? (
-              <TierList
-                characters={characters}
-                isSeiyuu={isSeiyuu}
-                settings={displayTierListSettings || tierListSettings}
-              />
-            ) : (
-              <RankingView characters={characters} isSeiyuu={isSeiyuu} />
-            )}
-            <Text textAlign="end">
-              {t('results.generated_at')}: {timestamp.toLocaleString()}
-            </Text>
-          </Stack>
-        </Box>
+        <ExportCanvas
+          title={exportTitle}
+          description={description}
+          timestamp={timestamp}
+          compact={currentTab !== 'grid' && currentTab !== 'tier'}
+        >
+          {currentTab === 'grid' ? (
+            <GridView characters={exportCharacters} isSeiyuu={isSeiyuu} />
+          ) : currentTab === 'tier' ? (
+            <TierList
+              characters={exportCharacters}
+              isSeiyuu={isSeiyuu}
+              settings={displayTierListSettings || tierListSettings}
+            />
+          ) : (
+            <CharacterRankingPoster
+              characters={exportCharacters}
+              isSeiyuu={isSeiyuu}
+              detailed={currentTab === 'table'}
+              abbreviate={useShortNames}
+            />
+          )}
+        </ExportCanvas>
       )}
       <EditResultsModal
         setOrder={setSavedDisplayOrder}

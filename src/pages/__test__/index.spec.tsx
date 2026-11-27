@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom/vitest';
 
-import { waitFor as rtlWaitFor, within } from '@testing-library/react';
+import { fireEvent, waitFor as rtlWaitFor, within } from '@testing-library/react';
 import type { UserEvent } from '@testing-library/user-event';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import type { RenderResult } from '../../__test__/utils';
@@ -276,7 +276,8 @@ describe('Home Page', () => {
         expect(before[2].textContent).toMatch(/Hina Sakurai/i);
         expect(before[3].textContent).toMatch(/Juria Hoshimiya/i);
 
-        await user.click(await findByText('Edit Results (Experimental)'));
+        fireEvent.click(await findByRole('button', { name: 'More' }));
+        fireEvent.click(await findByText('Edit Results (Experimental)'));
 
         // Focus on the first item to enable keyboard sorting
         // The first 3 items are likely from the main view, we need the ones in the modal.

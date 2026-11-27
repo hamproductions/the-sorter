@@ -10,13 +10,32 @@ import { Stack, Wrap, styled } from 'styled-system/jsx';
 import { getCastName, getFullName } from '~/utils/character';
 import { getSchoolName, getUnitName } from '~/utils/names';
 
+const groupUnits = ({ units, fullName, originalName }: Character & { originalName?: string }) =>
+  Object.values(
+    groupBy(
+      units.filter((u) => !u.name.includes(originalName ?? fullName)),
+      (u) => u.name
+    )
+  );
+
+export const getUnitLabels = (
+  character: Character & { originalName?: string },
+  lang: string,
+  shortName?: (name: string) => string | undefined
+) =>
+  groupUnits(character).map((units) => {
+    const name = shortName?.(units[0].name) ?? getUnitName(units[0].name, lang);
+    const info = units.map((unit) => unit.additionalInfo).filter(Boolean);
+    return info.length > 0 ? `${name} (${info.join(',')})` : name;
+  });
+
 export function RankingTable({
   characters,
   isSeiyuu,
   responsive,
   onSelectCharacter
 }: {
-  characters: WithRank<Character>[];
+  characters: WithRank<Character & { originalName?: string }>[];
   isSeiyuu: boolean;
   responsive?: boolean;
   onSelectCharacter?: (character: WithRank<Character>) => void;
@@ -28,29 +47,29 @@ export function RankingTable({
     <Table.Root size="sm">
       <Table.Head>
         <Table.Row>
-          <Table.Header>{t('ranking')}</Table.Header>
+          <Table.Header textAlign="center">{t('ranking')}</Table.Header>
           {isSeiyuu ? (
             <>
-              <Table.Header>{t('seiyuu')}</Table.Header>
-              <Table.Header>{t('character')}</Table.Header>
+              <Table.Header textAlign="center">{t('seiyuu')}</Table.Header>
+              <Table.Header textAlign="center">{t('character')}</Table.Header>
             </>
           ) : (
             <>
-              <Table.Header>{t('character')}</Table.Header>
-              <Table.Header>{t('seiyuu')}</Table.Header>
+              <Table.Header textAlign="center">{t('character')}</Table.Header>
+              <Table.Header textAlign="center">{t('seiyuu')}</Table.Header>
             </>
           )}
-          <Table.Header hideBelow={responsive ? 'md' : undefined}>
+          <Table.Header hideBelow={responsive ? 'md' : undefined} textAlign="center">
             {t('settings.series')}・{t('settings.school')}
           </Table.Header>
-          <Table.Header hideBelow={responsive ? 'md' : undefined}>
+          <Table.Header hideBelow={responsive ? 'md' : undefined} textAlign="center">
             {t('settings.units')}
           </Table.Header>
         </Table.Row>
       </Table.Head>
       <Table.Body>
         {characters.map((c, idx) => {
-          const { rank, id, casts, colorCode, seriesColor, units } = c;
+          const { rank, id, casts, colorCode, seriesColor } = c;
           const imageSize = idx === 0 ? '150px' : idx <= 3 ? '100px' : '80px';
 
           const fullName = getFullName(c, lang);
@@ -76,7 +95,12 @@ export function RankingTable({
                       width="auto"
                     />
                   )}
-                  <Wrap gap="1" justifyContent="center" alignItems="center">
+                  <Wrap
+                    style={responsive ? undefined : { flexWrap: 'nowrap' }}
+                    gap="1"
+                    justifyContent="center"
+                    alignItems="center"
+                  >
                     <CharacterIcon locale={lang} character={c} w="auto" h="8" />
                     <Stack gap="1" alignItems="center">
                       <Text
@@ -124,12 +148,7 @@ export function RankingTable({
               </Table.Cell>
               <Table.Cell hideBelow={responsive ? 'md' : undefined}>
                 <Stack gap="1" py="2">
-                  {Object.values(
-                    groupBy(
-                      units.filter((u) => !u.name.includes(c.fullName)),
-                      (u) => u.name
-                    )
-                  ).map((us) => {
+                  {groupUnits(c).map((us) => {
                     const u = us[0];
                     return (
                       <Text key={u.id}>

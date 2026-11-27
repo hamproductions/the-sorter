@@ -3,23 +3,33 @@
  * Provides buttons for exporting and sharing predictions
  */
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { domToPng } from 'modern-screenshot';
+import { FaDownload, FaFileCsv, FaCode } from 'react-icons/fa6';
 import { Box, Stack } from 'styled-system/jsx';
-import { Button } from '~/components/ui/styled/button';
+import { ExportActions } from '~/components/results/ExportActions';
+import { getCopyOptions } from '~/components/results/export/copy-options';
+import { FormLabel } from '~/components/ui/form-label';
 import { Input } from '~/components/ui/styled/input';
 import { Text } from '~/components/ui/styled/text';
 import type { SetlistPrediction, Performance } from '~/types/setlist-prediction';
-import { getFullPerformanceName } from '~/utils/names';
+import { getFullPerformanceName, getSongName } from '~/utils/names';
+import { useSongData } from '~/hooks/useSongData';
 import {
   generateShareUrl,
   canShareUrl,
   estimateShareUrlSize
 } from '~/utils/setlist-prediction/compression';
-import { downloadJSON, downloadCSV, copyTextToClipboard } from '~/utils/setlist-prediction/export';
+import {
+  downloadJSON,
+  downloadCSV,
+  copyTextToClipboard,
+  exportAsText
+} from '~/utils/setlist-prediction/export';
 import { useToaster } from '~/context/ToasterContext';
 import { SetlistView } from '~/components/setlist-prediction/SetlistView';
+import { useAbbreviations } from '~/hooks/useAbbreviations';
 
 export interface ExportShareToolsProps {
   prediction: SetlistPrediction;
@@ -27,12 +37,15 @@ export interface ExportShareToolsProps {
 }
 
 export function ExportShareTools({ prediction, performance }: ExportShareToolsProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const songs = useSongData();
   const { toast } = useToaster();
   const [isSharing, setIsSharing] = useState(false);
   const [isExportingImage, setIsExportingImage] = useState(false);
   const [authorName, setAuthorName] = useState('');
   const setlistExportRef = useRef<HTMLDivElement>(null);
+  const { enabled: useShortNames, short } = useAbbreviations();
+  const authorId = useId();
 
   const handleShareUrl = async () => {
     setIsSharing(true);
@@ -45,6 +58,7 @@ export function ExportShareTools({ prediction, performance }: ExportShareToolsPr
             defaultValue: 'Prediction too large to share via URL'
           }),
           description: t('setlistPrediction.urlTooLongHint', {
+            size: compressed,
             defaultValue: `URL size: ${compressed} chars. Try removing some items or use JSON export instead.`
           }),
           type: 'error'
@@ -77,14 +91,41 @@ export function ExportShareTools({ prediction, performance }: ExportShareToolsPr
     }
   };
 
-  const handleCopyText = async () => {
+  const getTextArgs = (abbreviate: boolean) =>
+    [
+      prediction,
+      abbreviate && performance
+        ? {
+            ...performance,
+            tourName: short.event(getFullPerformanceName(performance), performance.tourName),
+            performanceName: undefined
+          }
+        : performance,
+      authorName,
+      (songId: string) => {
+        const song = songs.find((item) => String(item.id) === String(songId));
+        if (!song) return undefined;
+        return abbreviate
+          ? short.song(song)
+          : getSongName(song.name, song.englishName, i18n.language);
+      }
+    ] as const;
+
+  const getTextPreview = (abbreviate: boolean) =>
+    exportAsText(...getTextArgs(abbreviate))
+      .split('\n')
+      .filter((line) => /^\d+\./.test(line))
+      .join('\n');
+
+  const handleCopyText = async (abbreviate: boolean) => {
     try {
-      await copyTextToClipboard(prediction, performance, authorName);
+      await copyTextToClipboard(...getTextArgs(abbreviate));
 
       toast({
         title: t('toast.text_copied', { defaultValue: 'Text copied to clipboard' }),
         type: 'success'
       });
+      return true;
     } catch {
       toast({
         title: t('common.error', { defaultValue: 'Error' }),
@@ -93,6 +134,7 @@ export function ExportShareTools({ prediction, performance }: ExportShareToolsPr
         }),
         type: 'error'
       });
+      return false;
     }
   };
 
@@ -197,11 +239,12 @@ export function ExportShareTools({ prediction, performance }: ExportShareToolsPr
       </Text>
 
       {/* Author Name Input */}
-      <Box borderRadius="md" borderWidth="1px" p={3}>
-        <Text mb={2} fontSize="xs" fontWeight="medium">
+      <Stack gap="1">
+        <FormLabel htmlFor={authorId} fontSize="xs">
           {t('setlistPrediction.authorName', { defaultValue: 'Your Name (Optional)' })}
-        </Text>
+        </FormLabel>
         <Input
+          id={authorId}
           value={authorName}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAuthorName(e.target.value)}
           placeholder={t('setlistPrediction.authorNamePlaceholder', {
@@ -209,39 +252,61 @@ export function ExportShareTools({ prediction, performance }: ExportShareToolsPr
           })}
           size="sm"
         />
-      </Box>
+      </Stack>
 
-      {/* Share URL */}
-      <Button size="sm" onClick={() => void handleShareUrl()} disabled={isSharing}>
-        {t('setlistPrediction.shareUrl', { defaultValue: 'Share URL' })}
-      </Button>
-
-      {/* Copy Text */}
-      <Button size="sm" variant="outline" onClick={() => void handleCopyText()}>
-        {t('setlistPrediction.copyText', { defaultValue: 'Copy as Text' })}
-      </Button>
-
-      {/* Export JSON */}
-      <Button size="sm" variant="outline" onClick={handleDownloadJSON}>
-        {t('results.export_json', { defaultValue: 'Export JSON' })}
-      </Button>
-
-      {/* Export CSV */}
-      <Button size="sm" variant="outline" onClick={handleDownloadCSV}>
-        {t('setlistPrediction.exportCsv', { defaultValue: 'Export CSV' })}
-      </Button>
-
-      {/* Export Image */}
-      <Button
-        size="sm"
-        variant="outline"
-        onClick={() => void handleExportImage()}
-        disabled={isExportingImage}
-      >
-        {isExportingImage
-          ? t('setlistPrediction.exportingImage', { defaultValue: 'Exporting...' })
-          : t('setlistPrediction.exportImage', { defaultValue: 'Export Image' })}
-      </Button>
+      <ExportActions
+        stacked
+        copy={[
+          {
+            id: 'text',
+            options: getCopyOptions(
+              'text',
+              [
+                t('setlistPrediction.copyText', { defaultValue: 'Copy as Text' }),
+                t('setlistPrediction.copyTextShort', {
+                  defaultValue: 'Copy as Text (abbreviated)'
+                })
+              ],
+              getTextPreview,
+              handleCopyText
+            )
+          }
+        ]}
+        image={{
+          busy: isExportingImage,
+          busyLabel: t('setlistPrediction.exportingImage', { defaultValue: 'Exporting...' }),
+          actions: [
+            {
+              id: 'export-image',
+              label: t('setlistPrediction.exportImage', { defaultValue: 'Export Image' }),
+              icon: <FaDownload />,
+              onSelect: () => void handleExportImage()
+            }
+          ],
+          nicknameLabel: t('setlistPrediction.abbreviateImage', {
+            defaultValue: 'Abbreviate image'
+          })
+        }}
+        share={{
+          label: t('setlistPrediction.shareUrl', { defaultValue: 'Share URL' }),
+          onClick: () => void handleShareUrl(),
+          disabled: isSharing
+        }}
+        more={[
+          {
+            id: 'json',
+            label: t('results.export_json', { defaultValue: 'Export JSON' }),
+            icon: <FaCode />,
+            onSelect: handleDownloadJSON
+          },
+          {
+            id: 'csv',
+            label: t('setlistPrediction.exportCsv', { defaultValue: 'Export CSV' }),
+            icon: <FaFileCsv />,
+            onSelect: handleDownloadCSV
+          }
+        ]}
+      />
 
       {/* Hidden setlist view for image export */}
       <Box position="absolute" top="-9999px" left="-9999px">
@@ -252,6 +317,7 @@ export function ExportShareTools({ prediction, performance }: ExportShareToolsPr
             authorName={authorName}
             showHeader={true}
             compact={false}
+            abbreviate={useShortNames}
           />
         </Box>
       </Box>

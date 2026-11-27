@@ -14,10 +14,11 @@ import type { PerformanceSortMeta } from '~/types/performance-sort';
 import { SongPerformanceContext } from '~/components/sorter/SongPerformanceContext';
 import { getPerformanceDisplayPerformers } from '~/utils/performance-sort';
 
-function formatArtistsWithVariants(
+export function formatArtistsWithVariants(
   songArtists: Song['artists'],
   artistsData: Artist[],
-  lang: string
+  lang: string,
+  shortName?: (name: string) => string | undefined
 ): string {
   const grouped = new Map<string, { artist: Artist; variants: (string | null)[] }>();
 
@@ -35,7 +36,7 @@ function formatArtistsWithVariants(
 
   return Array.from(grouped.values())
     .map(({ artist, variants }) => {
-      const name = getArtistName(artist.name, lang);
+      const name = shortName?.(artist.name) ?? getArtistName(artist.name, lang);
       const nonNullVariants = variants.filter((v): v is string => v !== null);
       if (nonNullVariants.length > 0) {
         return `${name} (${nonNullVariants.join('/')})`;
@@ -44,6 +45,12 @@ function formatArtistsWithVariants(
     })
     .join(', ');
 }
+
+export const isOriginalRecording = (song: Song, performanceMeta?: PerformanceSortMeta) =>
+  !!performanceMeta?.setlistOrder.some(
+    (entry) =>
+      entry.songId === song.id && getPerformanceDisplayPerformers(song, entry.performers).length > 0
+  );
 
 export function SongRankingTable({
   songs,
@@ -100,11 +107,8 @@ export function SongRankingTable({
                 <Stack gap="1" alignItems="center" w="full" py="2">
                   <SchoolBadge locale={lang} song={c} />
                   <Text>
-                    {performanceMeta?.setlistOrder.some(
-                      (entry) =>
-                        entry.songId === c.id &&
-                        getPerformanceDisplayPerformers(c, entry.performers).length > 0
-                    ) && `${t('performance.original_recording')}: `}
+                    {isOriginalRecording(c, performanceMeta) &&
+                      `${t('performance.original_recording')}: `}
                     {formatArtistsWithVariants(songArtists, artists, lang)}
                   </Text>
                   {performanceMeta && (
