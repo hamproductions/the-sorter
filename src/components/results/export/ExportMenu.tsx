@@ -1,6 +1,7 @@
 import { Portal } from '@ark-ui/react/portal';
 import { useRef, type ComponentProps, type ReactElement, type ReactNode } from 'react';
 import { Box, Stack } from 'styled-system/jsx';
+import { getClosestDialog } from './closest-dialog';
 import { Menu } from '~/components/ui/menu';
 import { Text } from '~/components/ui/text';
 
@@ -27,7 +28,7 @@ export function ExportMenu({
     <Menu.Root lazyMount unmountOnExit positioning={{ strategy: 'fixed', placement }} {...props}>
       <Menu.Trigger
         ref={(node) => {
-          containerRef.current = node?.closest<HTMLElement>('[role="dialog"]') ?? null;
+          containerRef.current = getClosestDialog(node);
         }}
         asChild
       >
@@ -58,6 +59,9 @@ export function ExportMenu({
             bg="bg.muted"
             overflowY="auto"
             css={{
+              '& [data-part=separator]': {
+                borderColor: 'fg.subtle'
+              },
               '&:focus-visible [data-highlighted]': {
                 outline: '2px solid',
                 outlineColor: 'accent.text',

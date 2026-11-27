@@ -1,5 +1,5 @@
 import { Portal } from '@ark-ui/react/portal';
-import { useId, type ReactNode } from 'react';
+import { useId, type ReactNode, type RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaXmark } from 'react-icons/fa6';
 import { Stack } from 'styled-system/jsx';
@@ -13,11 +13,13 @@ export function ExportSettingsDialog({
   open,
   onOpenChange,
   finalFocusEl,
+  container,
   children
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   finalFocusEl: () => HTMLElement | null;
+  container: RefObject<HTMLElement | null>;
   children: ReactNode;
 }) {
   const { t } = useTranslation();
@@ -28,7 +30,7 @@ export function ExportSettingsDialog({
       onOpenChange={(details) => onOpenChange(details.open)}
       finalFocusEl={finalFocusEl}
     >
-      <Portal>
+      <Portal container={container}>
         <Dialog.Backdrop />
         <Dialog.Positioner>
           <Dialog.Content w="calc(100% - 2rem)" minW="0" maxW="lg" maxH="90dvh" overflow="auto">

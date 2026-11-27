@@ -29,12 +29,12 @@ export function ExportActions({
     </Box>
   );
   const imageControl = (
-    <Box key="image" flex={stacked ? '1 1 100%' : { base: '1 1 40%', sm: 'none' }}>
+    <Box key="image" flex={stacked ? '1 1 100%' : { base: '1 1 0', sm: 'none' }}>
       <ImageMenu {...image} />
     </Box>
   );
   const shareControl = share && (
-    <Box key="share" flex={stacked ? '1' : { base: '1 1 40%', sm: 'none' }}>
+    <Box key="share" flex={stacked ? '1' : { base: '1 1 0', sm: 'none' }}>
       <Button
         variant="subtle"
         data-testid={share.testId}
