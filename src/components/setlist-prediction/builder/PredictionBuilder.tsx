@@ -22,7 +22,7 @@ import {
   type DropAnimation
 } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
-import { BiPlus, BiSave, BiDotsVerticalRounded } from 'react-icons/bi';
+import { BiPlus, BiSave, BiDotsVerticalRounded, BiX } from 'react-icons/bi';
 import { MdDragIndicator } from 'react-icons/md';
 import artistsData from '../../../../data/artists-info.json';
 import { AddItemDrawer } from './AddItemDrawer';
@@ -583,6 +583,9 @@ export function PredictionBuilder({
               <Button variant="subtle" onClick={clearItems}>
                 {t('common.clear', { defaultValue: 'Clear' })}
               </Button>
+              <Button variant="outline" onClick={() => setRightSidebarOpen(true)} hideFrom="lg">
+                {t('setlistPrediction.exportShare', { defaultValue: 'Export & Share' })}
+              </Button>
             </HStack>
           </HStack>
 
@@ -622,6 +625,9 @@ export function PredictionBuilder({
               </Menu.Trigger>
               <Menu.Positioner>
                 <Menu.Content>
+                  <Menu.Item value="export" onClick={() => setRightSidebarOpen(true)}>
+                    {t('setlistPrediction.exportShare', { defaultValue: 'Export & Share' })}
+                  </Menu.Item>
                   <Menu.Item value="import" onClick={() => setImportDialogOpen(true)}>
                     {t('common.import', { defaultValue: 'Import' })}
                   </Menu.Item>
@@ -819,7 +825,11 @@ export function PredictionBuilder({
                   <Drawer.Title>
                     {t('setlistPrediction.actions', { defaultValue: 'Actions' })}
                   </Drawer.Title>
-                  <Drawer.CloseTrigger />
+                  <Drawer.CloseTrigger asChild position="absolute" top="3" right="3">
+                    <IconButton variant="ghost" aria-label={t('dialog.close')}>
+                      <BiX size={24} />
+                    </IconButton>
+                  </Drawer.CloseTrigger>
                 </Drawer.Header>
                 <Drawer.Body>
                   <Stack gap={4}>
