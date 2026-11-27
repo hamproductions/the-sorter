@@ -1,6 +1,6 @@
 import { createToaster } from '@ark-ui/react/toast';
 import type { ReactNode } from 'react';
-import { Suspense, createContext, useContext } from 'react';
+import { Suspense, createContext, isValidElement, useContext } from 'react';
 import { FaXmark } from 'react-icons/fa6';
 import { IconButton } from '~/components/ui/icon-button';
 import { Toast } from '~/components/ui/toast';
@@ -21,6 +21,8 @@ interface ToastOptions {
 
 const isRenderFn = (value: unknown): value is RenderFn => typeof value === 'function';
 
+const deferElement = (content: ToastContent) => (isValidElement(content) ? () => content : content);
+
 const ToasterContext = createContext<{ toast: (options: ToastOptions) => void }>({
   toast: () => {}
 });
@@ -39,6 +41,8 @@ export function ToasterProvider({ children }: { children: ReactNode }) {
           toaster.create({
             type: 'info',
             ...options,
+            title: deferElement(options.title),
+            description: deferElement(options.description),
             placement: options.placement ?? 'bottom-end'
           } as Parameters<typeof toaster.create>[0]);
         }
